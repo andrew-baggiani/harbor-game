@@ -1,922 +1,478 @@
-[
-  {
-    "id": "kcx-door-1",
-    "skill": "physical-social-engineering",
-    "prompt": "Someone in a delivery uniform is carrying two boxes and asks you to hold the badge door. You should",
-    "choices": [
-      {
-        "id": "a",
-        "label": "Hold it, since their hands are full",
-        "correct": false
-      },
-      {
-        "id": "b",
-        "label": "Let the door close and point them to reception or the buzzer",
-        "correct": true
-      },
-      {
-        "id": "c",
-        "label": "Lend them your badge for one swipe",
-        "correct": false
-      },
-      {
-        "id": "d",
-        "label": "Hold it if the uniform looks real",
-        "correct": false
-      }
-    ],
-    "why": "A uniform and full hands are the classic tailgating setup. Reception can sign them in. The door is not yours to open for someone else.",
-    "beat": "MON-01-tailgate",
-    "controls": [
-      "CIS-14.2",
-      "AT-2(3)",
-      "3.2.1"
-    ]
-  },
-  {
-    "id": "kcx-door-2",
-    "skill": "physical-social-engineering",
-    "prompt": "A friendly person says they work on the fifth floor and forgot their badge. The right move is",
-    "choices": [
-      {
-        "id": "a",
-        "label": "Ask them a couple of questions about their team, then decide",
-        "correct": false
-      },
-      {
-        "id": "b",
-        "label": "Send them to reception for a temporary badge",
-        "correct": true
-      },
-      {
-        "id": "c",
-        "label": "Walk them up yourself",
-        "correct": false
-      },
-      {
-        "id": "d",
-        "label": "Let them in, since they knew the floor number",
-        "correct": false
-      }
-    ],
-    "why": "Knowing a floor number proves nothing. Reception can check who they are and issue a temporary badge that is logged.",
-    "beat": "MON-01-tailgate",
-    "controls": [
-      "CIS-14.2",
-      "AT-2(3)"
-    ]
-  },
-  {
-    "id": "kcx-door-3",
-    "skill": "physical-social-engineering",
-    "prompt": "You notice the stairwell door propped open with a wedge after hours. You should",
-    "choices": [
-      {
-        "id": "a",
-        "label": "Leave it, but mention it next week",
-        "correct": false
-      },
-      {
-        "id": "b",
-        "label": "Prop it wider so it is noticed",
-        "correct": false
-      },
-      {
-        "id": "c",
-        "label": "Remove the wedge, let it close, and tell security",
-        "correct": true
-      },
-      {
-        "id": "d",
-        "label": "Ignore it, since someone probably needs it",
-        "correct": false
-      }
-    ],
-    "why": "A propped door is an open entrance for anyone. Close it and report it, because someone may be relying on it to get back in.",
-    "beat": "MON-01-tailgate",
-    "controls": [
-      "CIS-14.2",
-      "CIS-14.6"
-    ]
-  },
-  {
-    "id": "kcx-door-4",
-    "skill": "physical-social-engineering",
-    "prompt": "Why does a badge reader matter if the person behind you clearly works here?",
-    "choices": [
-      {
-        "id": "a",
-        "label": "Each badge swipe is the record of who was inside, and access can be revoked",
-        "correct": true
-      },
-      {
-        "id": "b",
-        "label": "It does not; it only matters for strangers",
-        "correct": false
-      },
-      {
-        "id": "c",
-        "label": "Only managers need to badge",
-        "correct": false
-      },
-      {
-        "id": "d",
-        "label": "It keeps the door from wearing out",
-        "correct": false
-      }
-    ],
-    "why": "Badges log who entered and when. Someone who quit last week may still look like a coworker.",
-    "beat": "MON-01-tailgate",
-    "controls": [
-      "CIS-14.2",
-      "AT-2(3)"
-    ]
-  },
-  {
-    "id": "kcx-door-5",
-    "skill": "physical-social-engineering",
-    "prompt": "A visitor is walking the floor alone with no escort and no visitor badge. You should",
-    "choices": [
-      {
-        "id": "a",
-        "label": "Confront them loudly",
-        "correct": false
-      },
-      {
-        "id": "b",
-        "label": "Take their photo and post it in chat",
-        "correct": false
-      },
-      {
-        "id": "c",
-        "label": "Assume someone invited them",
-        "correct": false
-      },
-      {
-        "id": "d",
-        "label": "Politely ask who they are meeting and walk them to reception",
-        "correct": true
-      }
-    ],
-    "why": "A polite check and a walk to reception handles it without drama. If they refuse, tell security.",
-    "beat": "MON-01-tailgate",
-    "controls": [
-      "CIS-14.2",
-      "AT-2(3)"
-    ]
-  },
-  {
-    "id": "kcx-door-6",
-    "skill": "physical-social-engineering",
-    "prompt": "The courier pulls out a card and the reader stays red. What does that tell you?",
-    "choices": [
-      {
-        "id": "a",
-        "label": "The reader is broken",
-        "correct": false
-      },
-      {
-        "id": "b",
-        "label": "You should badge him in",
-        "correct": false
-      },
-      {
-        "id": "c",
-        "label": "The card is not authorized for this door",
-        "correct": true
-      },
-      {
-        "id": "d",
-        "label": "He needs to try twice",
-        "correct": false
-      }
-    ],
-    "why": "Red means not authorized. That is the system working, not a problem for you to solve.",
-    "beat": "MON-01-tailgate",
-    "controls": [
-      "CIS-14.2"
-    ]
-  },
-  {
-    "id": "kcx-mail-1",
-    "skill": "phishing",
-    "prompt": "An email signed by a senior leader asks for gift cards and says keep it quiet. The strongest warning sign is",
-    "choices": [
-      {
-        "id": "a",
-        "label": "It was sent at night",
-        "correct": false
-      },
-      {
-        "id": "b",
-        "label": "It is polite",
-        "correct": false
-      },
-      {
-        "id": "c",
-        "label": "It asks for something payable and untraceable, urgently and secretly",
-        "correct": true
-      },
-      {
-        "id": "d",
-        "label": "It has a signature",
-        "correct": false
-      }
-    ],
-    "why": "Gift cards, urgency and secrecy together are the pattern. Real leaders do not run purchases through codes in email.",
-    "beat": "MON-02-phishing",
-    "controls": [
-      "CIS-14.2",
-      "AT-2(3)",
-      "AT-2(4)"
-    ]
-  },
-  {
-    "id": "kcx-mail-2",
-    "skill": "phishing",
-    "prompt": "The display name says Elena Voss. What should you check before anything else?",
-    "choices": [
-      {
-        "id": "a",
-        "label": "The font",
-        "correct": false
-      },
-      {
-        "id": "b",
-        "label": "Whether the email has a subject",
-        "correct": false
-      },
-      {
-        "id": "c",
-        "label": "Her profile photo",
-        "correct": false
-      },
-      {
-        "id": "d",
-        "label": "The actual sender address and domain",
-        "correct": true
-      }
-    ],
-    "why": "Display names can be set to anything. The address after the @ shows who really sent it.",
-    "beat": "MON-02-phishing",
-    "controls": [
-      "CIS-14.2",
-      "AT-2(4)"
-    ]
-  },
-  {
-    "id": "kcx-mail-3",
-    "skill": "phishing",
-    "prompt": "Which action helps security the most with a suspicious email?",
-    "choices": [
-      {
-        "id": "a",
-        "label": "Forwarding it to your team as a warning",
-        "correct": false
-      },
-      {
-        "id": "b",
-        "label": "Deleting it",
-        "correct": false
-      },
-      {
-        "id": "c",
-        "label": "Replying to ask if it is real",
-        "correct": false
-      },
-      {
-        "id": "d",
-        "label": "Using the Report button so it is sent with its headers",
-        "correct": true
-      }
-    ],
-    "why": "Reporting gives security the original with headers, so they can block it for everyone. Replying confirms your address is live.",
-    "beat": "MON-02-phishing",
-    "controls": [
-      "CIS-14.6",
-      "AT-2(4)"
-    ]
-  },
-  {
-    "id": "kcx-mail-4",
-    "skill": "phishing",
-    "prompt": "You want to check whether the request is real. The safe way is to",
-    "choices": [
-      {
-        "id": "a",
-        "label": "Contact the person through a channel you already know, like the directory",
-        "correct": true
-      },
-      {
-        "id": "b",
-        "label": "Call the number in the email signature",
-        "correct": false
-      },
-      {
-        "id": "c",
-        "label": "Reply to the email and ask",
-        "correct": false
-      },
-      {
-        "id": "d",
-        "label": "Wait to see if they email again",
-        "correct": false
-      }
-    ],
-    "why": "Anything in the message may be controlled by the attacker. Use contact details you found yourself.",
-    "beat": "MON-02-phishing",
-    "controls": [
-      "CIS-14.2",
-      "AT-2(3)"
-    ]
-  },
-  {
-    "id": "kcx-mail-5",
-    "skill": "phishing",
-    "prompt": "You already bought one gift card before realizing it was a scam. Now",
-    "choices": [
-      {
-        "id": "a",
-        "label": "Buy the rest so the story makes sense",
-        "correct": false
-      },
-      {
-        "id": "b",
-        "label": "Report it immediately, including the card details you sent",
-        "correct": true
-      },
-      {
-        "id": "c",
-        "label": "Keep quiet and absorb the cost",
-        "correct": false
-      },
-      {
-        "id": "d",
-        "label": "Email the sender to cancel",
-        "correct": false
-      }
-    ],
-    "why": "Fast reporting can sometimes stop the card being cashed and warns others. Hiding it helps only the attacker.",
-    "beat": "MON-02-phishing",
-    "controls": [
-      "CIS-14.6"
-    ]
-  },
-  {
-    "id": "kcx-mail-6",
-    "skill": "phishing",
-    "prompt": "The email says I am in a meeting, do not call. Why do attackers write that?",
-    "choices": [
-      {
-        "id": "a",
-        "label": "Because executives are busy",
-        "correct": false
-      },
-      {
-        "id": "b",
-        "label": "To stop you from verifying on another channel",
-        "correct": true
-      },
-      {
-        "id": "c",
-        "label": "To be polite",
-        "correct": false
-      },
-      {
-        "id": "d",
-        "label": "To save you time",
-        "correct": false
-      }
-    ],
-    "why": "Blocking verification is the point. A request that forbids a callback is the one that needs it most.",
-    "beat": "MON-02-phishing",
-    "controls": [
-      "CIS-14.2",
-      "AT-2(3)"
-    ]
-  },
-  {
-    "id": "kcx-phone-1",
-    "skill": "authentication",
-    "prompt": "A caller from IT asks you to read back the six-digit code your phone just received. You should",
-    "choices": [
-      {
-        "id": "a",
-        "label": "Read it, since IT asked",
-        "correct": false
-      },
-      {
-        "id": "b",
-        "label": "Text it instead",
-        "correct": false
-      },
-      {
-        "id": "c",
-        "label": "Read only the first three digits",
-        "correct": false
-      },
-      {
-        "id": "d",
-        "label": "Hang up and call IT on the number on your badge",
-        "correct": true
-      }
-    ],
-    "why": "That code is the second half of your login. Real IT never needs it. Call back on a number you already trust.",
-    "beat": "MON-03-vishing",
-    "controls": [
-      "CIS-14.3",
-      "164.308(a)(5)(ii)(D)",
-      "AT-2(3)"
-    ]
-  },
-  {
-    "id": "kcx-phone-2",
-    "skill": "authentication",
-    "prompt": "You get MFA approval prompts on your phone that you did not trigger. The right response is",
-    "choices": [
-      {
-        "id": "a",
-        "label": "Approve one so they stop",
-        "correct": false
-      },
-      {
-        "id": "b",
-        "label": "Deny them and report to security, because someone may have your password",
-        "correct": true
-      },
-      {
-        "id": "c",
-        "label": "Ignore them",
-        "correct": false
-      },
-      {
-        "id": "d",
-        "label": "Turn off your phone",
-        "correct": false
-      }
-    ],
-    "why": "Unexpected prompts mean someone is trying to log in as you. Deny, report, and change your password if asked.",
-    "beat": "MON-03-vishing",
-    "controls": [
-      "CIS-14.3",
-      "164.308(a)(5)(ii)(C)"
-    ]
-  },
-  {
-    "id": "kcx-phone-3",
-    "skill": "authentication",
-    "prompt": "The caller knows your name, your manager and your desk number. Does that prove they are IT?",
-    "choices": [
-      {
-        "id": "a",
-        "label": "No, that information is easy to gather from social media and directories",
-        "correct": true
-      },
-      {
-        "id": "b",
-        "label": "Yes, only insiders know that",
-        "correct": false
-      },
-      {
-        "id": "c",
-        "label": "Yes, if they sound confident",
-        "correct": false
-      },
-      {
-        "id": "d",
-        "label": "Only if they also know your password",
-        "correct": false
-      }
-    ],
-    "why": "Personal details are research, not proof. Attackers build credibility before they ask.",
-    "beat": "MON-03-vishing",
-    "controls": [
-      "CIS-14.2",
-      "AT-2(3)"
-    ]
-  },
-  {
-    "id": "kcx-phone-4",
-    "skill": "authentication",
-    "prompt": "Which is the strongest password practice for your work account?",
-    "choices": [
-      {
-        "id": "a",
-        "label": "A short password you change monthly",
-        "correct": false
-      },
-      {
-        "id": "b",
-        "label": "Writing it on a sticky note under the keyboard",
-        "correct": false
-      },
-      {
-        "id": "c",
-        "label": "A long unique passphrase stored in the company password manager, plus MFA",
-        "correct": true
-      },
-      {
-        "id": "d",
-        "label": "The same strong password everywhere",
-        "correct": false
-      }
-    ],
-    "why": "Length, uniqueness and a second factor matter most. Reuse means one breach opens every account.",
-    "beat": "MON-03-vishing",
-    "controls": [
-      "CIS-14.3",
-      "164.308(a)(5)(ii)(D)"
-    ]
-  },
-  {
-    "id": "kcx-phone-5",
-    "skill": "authentication",
-    "prompt": "The caller says your account will be locked in five minutes unless you act now. This pressure is meant to",
-    "choices": [
-      {
-        "id": "a",
-        "label": "Rush you past the pause where you would verify",
-        "correct": true
-      },
-      {
-        "id": "b",
-        "label": "Follow company policy",
-        "correct": false
-      },
-      {
-        "id": "c",
-        "label": "Test the phone line",
-        "correct": false
-      },
-      {
-        "id": "d",
-        "label": "Help you",
-        "correct": false
-      }
-    ],
-    "why": "Artificial deadlines are a lever. A real lockout can wait the two minutes it takes to call IT back.",
-    "beat": "MON-03-vishing",
-    "controls": [
-      "CIS-14.2",
-      "AT-2(3)"
-    ]
-  },
-  {
-    "id": "kcx-phone-6",
-    "skill": "authentication",
-    "prompt": "You hung up on the fake IT call. What else should you do?",
-    "choices": [
-      {
-        "id": "a",
-        "label": "Call the number back to scold them",
-        "correct": false
-      },
-      {
-        "id": "b",
-        "label": "Nothing, it is over",
-        "correct": false
-      },
-      {
-        "id": "c",
-        "label": "Post about it on social media",
-        "correct": false
-      },
-      {
-        "id": "d",
-        "label": "Report the call to security so they can warn others",
-        "correct": true
-      }
-    ],
-    "why": "The same caller is probably working through the whole floor. One report can protect everyone else.",
-    "beat": "MON-03-vishing",
-    "controls": [
-      "CIS-14.6"
-    ]
-  },
-  {
-    "id": "kcx-usb-1",
-    "skill": "removable-media",
-    "prompt": "You find a USB stick labeled Salary review in the break room. You should",
-    "choices": [
-      {
-        "id": "a",
-        "label": "Plug it into a personal laptop instead",
-        "correct": false
-      },
-      {
-        "id": "b",
-        "label": "Throw it in the trash",
-        "correct": false
-      },
-      {
-        "id": "c",
-        "label": "Hand it to IT or security without plugging it in",
-        "correct": true
-      },
-      {
-        "id": "d",
-        "label": "Plug it in to find the owner",
-        "correct": false
-      }
-    ],
-    "why": "A tempting label is bait. Plugging in an unknown device can run malicious code instantly. IT can handle it safely.",
-    "beat": "MON-04-usb",
-    "controls": [
-      "CIS-14.2",
-      "164.308(a)(5)(ii)(B)"
-    ]
-  },
-  {
-    "id": "kcx-usb-2",
-    "skill": "removable-media",
-    "prompt": "Why can just plugging in a USB stick be dangerous, even without opening a file?",
-    "choices": [
-      {
-        "id": "a",
-        "label": "It cannot be",
-        "correct": false
-      },
-      {
-        "id": "b",
-        "label": "It drains the battery",
-        "correct": false
-      },
-      {
-        "id": "c",
-        "label": "It voids the warranty",
-        "correct": false
-      },
-      {
-        "id": "d",
-        "label": "Some devices pretend to be a keyboard and type commands automatically",
-        "correct": true
-      }
-    ],
-    "why": "Malicious devices can act as keyboards or network adapters the moment they connect.",
-    "beat": "MON-04-usb",
-    "controls": [
-      "164.308(a)(5)(ii)(B)"
-    ]
-  },
-  {
-    "id": "kcx-usb-3",
-    "skill": "removable-media",
-    "prompt": "Why would an attacker label a drive Salary review?",
-    "choices": [
-      {
-        "id": "a",
-        "label": "To be organized",
-        "correct": false
-      },
-      {
-        "id": "b",
-        "label": "Labels are random",
-        "correct": false
-      },
-      {
-        "id": "c",
-        "label": "It is a real HR file",
-        "correct": false
-      },
-      {
-        "id": "d",
-        "label": "Curiosity about pay makes people more likely to open it",
-        "correct": true
-      }
-    ],
-    "why": "Baiting uses curiosity and emotion. The label is the lure.",
-    "beat": "MON-04-usb",
-    "controls": [
-      "CIS-14.2",
-      "AT-2(3)"
-    ]
-  },
-  {
-    "id": "kcx-usb-4",
-    "skill": "removable-media",
-    "prompt": "A coworker already plugged in the found USB. Now",
-    "choices": [
-      {
-        "id": "a",
-        "label": "Restart the computer",
-        "correct": false
-      },
-      {
-        "id": "b",
-        "label": "Disconnect the computer from the network if told to, and report it to IT right away",
-        "correct": true
-      },
-      {
-        "id": "c",
-        "label": "Unplug it and say nothing",
-        "correct": false
-      },
-      {
-        "id": "d",
-        "label": "Run a scan yourself and move on",
-        "correct": false
-      }
-    ],
-    "why": "Early reporting gives IT the best chance to contain it. A personal scan is not a substitute for the call.",
-    "beat": "MON-04-usb",
-    "controls": [
-      "CIS-14.6",
-      "164.308(a)(5)(ii)(B)"
-    ]
-  },
-  {
-    "id": "kcx-usb-5",
-    "skill": "removable-media",
-    "prompt": "You need to move a work file to a colleague. The safest option is",
-    "choices": [
-      {
-        "id": "a",
-        "label": "A free file-sharing site",
-        "correct": false
-      },
-      {
-        "id": "b",
-        "label": "Your personal email",
-        "correct": false
-      },
-      {
-        "id": "c",
-        "label": "The company-approved file share",
-        "correct": true
-      },
-      {
-        "id": "d",
-        "label": "A random USB stick from the drawer",
-        "correct": false
-      }
-    ],
-    "why": "Approved channels are monitored and protected. Unknown media and personal accounts are where data leaks.",
-    "beat": "MON-04-usb",
-    "controls": [
-      "CIS-14.4"
-    ]
-  },
-  {
-    "id": "kcx-wire-1",
-    "skill": "payment-fraud",
-    "prompt": "Maya says Elena approved an urgent wire and the form is down. Before anything moves you should",
-    "choices": [
-      {
-        "id": "a",
-        "label": "Send half now and half later",
-        "correct": false
-      },
-      {
-        "id": "b",
-        "label": "Confirm with Elena on the number finance already has on file",
-        "correct": true
-      },
-      {
-        "id": "c",
-        "label": "Email Elena at the address in Maya's forwarded message",
-        "correct": false
-      },
-      {
-        "id": "d",
-        "label": "Send it, since Maya is in finance",
-        "correct": false
-      }
-    ],
-    "why": "Verify payment instructions on a channel you already trust. Anything in the request itself may be compromised.",
-    "beat": "MON-05-wire",
-    "controls": [
-      "CIS-14.2",
-      "AT-2(3)"
-    ]
-  },
-  {
-    "id": "kcx-wire-2",
-    "skill": "payment-fraud",
-    "prompt": "Which detail makes a payment request most suspicious?",
-    "choices": [
-      {
-        "id": "a",
-        "label": "New bank details, urgency, and a reason the normal process can't be used",
-        "correct": true
-      },
-      {
-        "id": "b",
-        "label": "It is for a known vendor",
-        "correct": false
-      },
-      {
-        "id": "c",
-        "label": "It arrives during business hours",
-        "correct": false
-      },
-      {
-        "id": "d",
-        "label": "It has an invoice number",
-        "correct": false
-      }
-    ],
-    "why": "Changed bank details plus a bypass of normal approvals is the signature of business email compromise.",
-    "beat": "MON-05-wire",
-    "controls": [
-      "CIS-14.2",
-      "AT-2(3)"
-    ]
-  },
-  {
-    "id": "kcx-wire-3",
-    "skill": "payment-fraud",
-    "prompt": "Maya is not trying to scam you. Why is refusing or verifying still right?",
-    "choices": [
-      {
-        "id": "a",
-        "label": "Insiders are often pressured or fooled by an attacker posing as their boss",
-        "correct": true
-      },
-      {
-        "id": "b",
-        "label": "To get Maya in trouble",
-        "correct": false
-      },
-      {
-        "id": "c",
-        "label": "It is not; trust coworkers",
-        "correct": false
-      },
-      {
-        "id": "d",
-        "label": "Finance always lies",
-        "correct": false
-      }
-    ],
-    "why": "The attacker is usually behind the coworker. Verifying protects Maya too.",
-    "beat": "MON-05-wire",
-    "controls": [
-      "CIS-14.2"
-    ]
-  },
-  {
-    "id": "kcx-wire-4",
-    "skill": "payment-fraud",
-    "prompt": "A wire was sent and now looks fraudulent. The most important next step is",
-    "choices": [
-      {
-        "id": "a",
-        "label": "Report immediately so the bank can attempt a recall",
-        "correct": true
-      },
-      {
-        "id": "b",
-        "label": "Delete the emails",
-        "correct": false
-      },
-      {
-        "id": "c",
-        "label": "Wait until Monday to report",
-        "correct": false
-      },
-      {
-        "id": "d",
-        "label": "Send another wire to cancel it",
-        "correct": false
-      }
-    ],
-    "why": "Recalls only work in the first hours. Speed matters more than anything else.",
-    "beat": "MON-05-wire",
-    "controls": [
-      "CIS-14.6"
-    ]
-  },
-  {
-    "id": "kcx-wire-5",
-    "skill": "payment-fraud",
-    "prompt": "Who is allowed to bypass the payment approval process in an emergency?",
-    "choices": [
-      {
-        "id": "a",
-        "label": "Anyone who says it is urgent",
-        "correct": false
-      },
-      {
-        "id": "b",
-        "label": "Any manager",
-        "correct": false
-      },
-      {
-        "id": "c",
-        "label": "No one; the process is the control, especially when someone says it is urgent",
-        "correct": true
-      },
-      {
-        "id": "d",
-        "label": "Whoever has the bank login",
-        "correct": false
-      }
-    ],
-    "why": "Attackers manufacture emergencies. The approval process exists exactly for those moments.",
-    "beat": "MON-05-wire",
-    "controls": [
-      "CIS-14.2",
-      "AT-2(3)"
-    ]
-  }
-]
+{
+  "pool": "kc-monday-extra",
+  "note": "28 additional end-of-shift knowledge-check questions for Monday, to grow the pool past 40 when combined with kc-monday.json. Shape matches the Question type in src/content/types.ts (id, prompt, choices[4], answer index 0-3, why), plus beat and control ids for the coverage report. Report paths match the game: Report button, security@harborandco.com, extension 4400, callback on the number on your badge or already on file.",
+  "questions": [
+    {
+      "id": "kcx-door-1",
+      "beat": "MON-01-tailgate",
+      "controls": [
+        "CIS-14.2",
+        "AT-2(3)",
+        "3.2.1"
+      ],
+      "prompt": "Someone in a delivery uniform is carrying two boxes and asks you to hold the badge door. You should",
+      "choices": [
+        "Hold it, since their hands are full",
+        "Let the door close and point them to reception or the buzzer",
+        "Lend them your badge for one swipe",
+        "Hold it if the uniform looks real"
+      ],
+      "answer": 1,
+      "why": "A uniform and full hands are the classic tailgating setup. Reception can sign them in. The door is not yours to open for someone else."
+    },
+    {
+      "id": "kcx-door-2",
+      "beat": "MON-01-tailgate",
+      "controls": [
+        "CIS-14.2",
+        "AT-2(3)"
+      ],
+      "prompt": "A friendly person says they work on the fifth floor and forgot their badge. The right move is",
+      "choices": [
+        "Ask them a couple of questions about their team, then decide",
+        "Send them to reception for a temporary badge",
+        "Walk them up yourself",
+        "Let them in, since they knew the floor number"
+      ],
+      "answer": 1,
+      "why": "Knowing a floor number proves nothing. Reception can check who they are and issue a temporary badge that is logged."
+    },
+    {
+      "id": "kcx-door-3",
+      "beat": "MON-01-tailgate",
+      "controls": [
+        "CIS-14.2",
+        "CIS-14.6"
+      ],
+      "prompt": "You notice the stairwell door propped open with a wedge after hours. You should",
+      "choices": [
+        "Leave it, but mention it next week",
+        "Prop it wider so it is noticed",
+        "Remove the wedge, let it close, and tell security",
+        "Ignore it, since someone probably needs it"
+      ],
+      "answer": 2,
+      "why": "A propped door is an open entrance for anyone. Close it and report it, because someone may be relying on it to get back in."
+    },
+    {
+      "id": "kcx-door-4",
+      "beat": "MON-01-tailgate",
+      "controls": [
+        "CIS-14.2",
+        "AT-2(3)"
+      ],
+      "prompt": "Why does a badge reader matter if the person behind you clearly works here?",
+      "choices": [
+        "Each badge swipe is the record of who was inside, and access can be revoked",
+        "It does not; it only matters for strangers",
+        "Only managers need to badge",
+        "It keeps the door from wearing out"
+      ],
+      "answer": 0,
+      "why": "Badges log who entered and when. Someone who quit last week may still look like a coworker."
+    },
+    {
+      "id": "kcx-door-5",
+      "beat": "MON-01-tailgate",
+      "controls": [
+        "CIS-14.2",
+        "AT-2(3)"
+      ],
+      "prompt": "A visitor is walking the floor alone with no escort and no visitor badge. You should",
+      "choices": [
+        "Confront them loudly",
+        "Take their photo and post it in chat",
+        "Assume someone invited them",
+        "Politely ask who they are meeting and walk them to reception"
+      ],
+      "answer": 3,
+      "why": "A polite check and a walk to reception handles it without drama. If they refuse, tell security."
+    },
+    {
+      "id": "kcx-door-6",
+      "beat": "MON-01-tailgate",
+      "controls": [
+        "CIS-14.2"
+      ],
+      "prompt": "The courier pulls out a card and the reader stays red. What does that tell you?",
+      "choices": [
+        "The reader is broken",
+        "You should badge him in",
+        "The card is not authorized for this door",
+        "He needs to try twice"
+      ],
+      "answer": 2,
+      "why": "Red means not authorized. That is the system working, not a problem for you to solve."
+    },
+    {
+      "id": "kcx-mail-1",
+      "beat": "MON-02-phishing",
+      "controls": [
+        "CIS-14.2",
+        "AT-2(3)",
+        "AT-2(4)"
+      ],
+      "prompt": "An email signed by a senior leader asks for gift cards and says keep it quiet. The strongest warning sign is",
+      "choices": [
+        "It was sent at night",
+        "It is polite",
+        "It asks for something payable and untraceable, urgently and secretly",
+        "It has a signature"
+      ],
+      "answer": 2,
+      "why": "Gift cards, urgency and secrecy together are the pattern. Real leaders do not run purchases through codes in email."
+    },
+    {
+      "id": "kcx-mail-2",
+      "beat": "MON-02-phishing",
+      "controls": [
+        "CIS-14.2",
+        "AT-2(4)"
+      ],
+      "prompt": "The display name says Elena Voss. What should you check before anything else?",
+      "choices": [
+        "The font",
+        "Whether the email has a subject",
+        "Her profile photo",
+        "The actual sender address and domain"
+      ],
+      "answer": 3,
+      "why": "Display names can be set to anything. The address after the @ shows who really sent it."
+    },
+    {
+      "id": "kcx-mail-3",
+      "beat": "MON-02-phishing",
+      "controls": [
+        "CIS-14.6",
+        "AT-2(4)"
+      ],
+      "prompt": "Which action helps security the most with a suspicious email?",
+      "choices": [
+        "Forwarding it to your team as a warning",
+        "Deleting it",
+        "Replying to ask if it is real",
+        "Using the Report button so it is sent with its headers"
+      ],
+      "answer": 3,
+      "why": "Reporting gives security the original with headers, so they can block it for everyone. Replying confirms your address is live."
+    },
+    {
+      "id": "kcx-mail-4",
+      "beat": "MON-02-phishing",
+      "controls": [
+        "CIS-14.2",
+        "AT-2(3)"
+      ],
+      "prompt": "You want to check whether the request is real. The safe way is to",
+      "choices": [
+        "Contact the person through a channel you already know, like the directory",
+        "Call the number in the email signature",
+        "Reply to the email and ask",
+        "Wait to see if they email again"
+      ],
+      "answer": 0,
+      "why": "Anything in the message may be controlled by the attacker. Use contact details you found yourself."
+    },
+    {
+      "id": "kcx-mail-5",
+      "beat": "MON-02-phishing",
+      "controls": [
+        "CIS-14.6"
+      ],
+      "prompt": "You already bought one gift card before realizing it was a scam. Now",
+      "choices": [
+        "Buy the rest so the story makes sense",
+        "Report it immediately, including the card details you sent",
+        "Keep quiet and absorb the cost",
+        "Email the sender to cancel"
+      ],
+      "answer": 1,
+      "why": "Fast reporting can sometimes stop the card being cashed and warns others. Hiding it helps only the attacker."
+    },
+    {
+      "id": "kcx-mail-6",
+      "beat": "MON-02-phishing",
+      "controls": [
+        "CIS-14.2",
+        "AT-2(3)"
+      ],
+      "prompt": "The email says I am in a meeting, do not call. Why do attackers write that?",
+      "choices": [
+        "Because executives are busy",
+        "To stop you from verifying on another channel",
+        "To be polite",
+        "To save you time"
+      ],
+      "answer": 1,
+      "why": "Blocking verification is the point. A request that forbids a callback is the one that needs it most."
+    },
+    {
+      "id": "kcx-phone-1",
+      "beat": "MON-03-vishing",
+      "controls": [
+        "CIS-14.3",
+        "164.308(a)(5)(ii)(D)",
+        "AT-2(3)"
+      ],
+      "prompt": "A caller from IT asks you to read back the six-digit code your phone just received. You should",
+      "choices": [
+        "Read it, since IT asked",
+        "Text it instead",
+        "Read only the first three digits",
+        "Hang up and call IT on the number on your badge"
+      ],
+      "answer": 3,
+      "why": "That code is the second half of your login. Real IT never needs it. Call back on a number you already trust."
+    },
+    {
+      "id": "kcx-phone-2",
+      "beat": "MON-03-vishing",
+      "controls": [
+        "CIS-14.3",
+        "164.308(a)(5)(ii)(C)"
+      ],
+      "prompt": "You get MFA approval prompts on your phone that you did not trigger. The right response is",
+      "choices": [
+        "Approve one so they stop",
+        "Deny them and report to security, because someone may have your password",
+        "Ignore them",
+        "Turn off your phone"
+      ],
+      "answer": 1,
+      "why": "Unexpected prompts mean someone is trying to log in as you. Deny, report, and change your password if asked."
+    },
+    {
+      "id": "kcx-phone-3",
+      "beat": "MON-03-vishing",
+      "controls": [
+        "CIS-14.2",
+        "AT-2(3)"
+      ],
+      "prompt": "The caller knows your name, your manager and your desk number. Does that prove they are IT?",
+      "choices": [
+        "No, that information is easy to gather from social media and directories",
+        "Yes, only insiders know that",
+        "Yes, if they sound confident",
+        "Only if they also know your password"
+      ],
+      "answer": 0,
+      "why": "Personal details are research, not proof. Attackers build credibility before they ask."
+    },
+    {
+      "id": "kcx-phone-4",
+      "beat": "MON-03-vishing",
+      "controls": [
+        "CIS-14.3",
+        "164.308(a)(5)(ii)(D)"
+      ],
+      "prompt": "Which is the strongest password practice for your work account?",
+      "choices": [
+        "A short password you change monthly",
+        "Writing it on a sticky note under the keyboard",
+        "A long unique passphrase stored in the company password manager, plus MFA",
+        "The same strong password everywhere"
+      ],
+      "answer": 2,
+      "why": "Length, uniqueness and a second factor matter most. Reuse means one breach opens every account."
+    },
+    {
+      "id": "kcx-phone-5",
+      "beat": "MON-03-vishing",
+      "controls": [
+        "CIS-14.2",
+        "AT-2(3)"
+      ],
+      "prompt": "The caller says your account will be locked in five minutes unless you act now. This pressure is meant to",
+      "choices": [
+        "Rush you past the pause where you would verify",
+        "Follow company policy",
+        "Test the phone line",
+        "Help you"
+      ],
+      "answer": 0,
+      "why": "Artificial deadlines are a lever. A real lockout can wait the two minutes it takes to call IT back."
+    },
+    {
+      "id": "kcx-phone-6",
+      "beat": "MON-03-vishing",
+      "controls": [
+        "CIS-14.6"
+      ],
+      "prompt": "You hung up on the fake IT call. What else should you do?",
+      "choices": [
+        "Call the number back to scold them",
+        "Nothing, it is over",
+        "Post about it on social media",
+        "Report the call to security so they can warn others"
+      ],
+      "answer": 3,
+      "why": "The same caller is probably working through the whole floor. One report can protect everyone else."
+    },
+    {
+      "id": "kcx-usb-1",
+      "beat": "MON-04-usb",
+      "controls": [
+        "CIS-14.2",
+        "164.308(a)(5)(ii)(B)"
+      ],
+      "prompt": "You find a USB stick labeled Salary review in the break room. You should",
+      "choices": [
+        "Plug it into a personal laptop instead",
+        "Throw it in the trash",
+        "Hand it to IT or security without plugging it in",
+        "Plug it in to find the owner"
+      ],
+      "answer": 2,
+      "why": "A tempting label is bait. Plugging in an unknown device can run malicious code instantly. IT can handle it safely."
+    },
+    {
+      "id": "kcx-usb-2",
+      "beat": "MON-04-usb",
+      "controls": [
+        "164.308(a)(5)(ii)(B)"
+      ],
+      "prompt": "Why can just plugging in a USB stick be dangerous, even without opening a file?",
+      "choices": [
+        "It cannot be",
+        "It drains the battery",
+        "It voids the warranty",
+        "Some devices pretend to be a keyboard and type commands automatically"
+      ],
+      "answer": 3,
+      "why": "Malicious devices can act as keyboards or network adapters the moment they connect."
+    },
+    {
+      "id": "kcx-usb-3",
+      "beat": "MON-04-usb",
+      "controls": [
+        "CIS-14.2",
+        "AT-2(3)"
+      ],
+      "prompt": "Why would an attacker label a drive Salary review?",
+      "choices": [
+        "To be organized",
+        "Labels are random",
+        "It is a real HR file",
+        "Curiosity about pay makes people more likely to open it"
+      ],
+      "answer": 3,
+      "why": "Baiting uses curiosity and emotion. The label is the lure."
+    },
+    {
+      "id": "kcx-usb-4",
+      "beat": "MON-04-usb",
+      "controls": [
+        "CIS-14.6",
+        "164.308(a)(5)(ii)(B)"
+      ],
+      "prompt": "A coworker already plugged in the found USB. Now",
+      "choices": [
+        "Restart the computer",
+        "Disconnect the computer from the network if told to, and report it to IT right away",
+        "Unplug it and say nothing",
+        "Run a scan yourself and move on"
+      ],
+      "answer": 1,
+      "why": "Early reporting gives IT the best chance to contain it. A personal scan is not a substitute for the call."
+    },
+    {
+      "id": "kcx-usb-5",
+      "beat": "MON-04-usb",
+      "controls": [
+        "CIS-14.4"
+      ],
+      "prompt": "You need to move a work file to a colleague. The safest option is",
+      "choices": [
+        "A free file-sharing site",
+        "Your personal email",
+        "The company-approved file share",
+        "A random USB stick from the drawer"
+      ],
+      "answer": 2,
+      "why": "Approved channels are monitored and protected. Unknown media and personal accounts are where data leaks."
+    },
+    {
+      "id": "kcx-wire-1",
+      "beat": "MON-05-wire",
+      "controls": [
+        "CIS-14.2",
+        "AT-2(3)"
+      ],
+      "prompt": "Maya says Elena approved an urgent wire and the form is down. Before anything moves you should",
+      "choices": [
+        "Send half now and half later",
+        "Confirm with Elena on the number finance already has on file",
+        "Email Elena at the address in Maya's forwarded message",
+        "Send it, since Maya is in finance"
+      ],
+      "answer": 1,
+      "why": "Verify payment instructions on a channel you already trust. Anything in the request itself may be compromised."
+    },
+    {
+      "id": "kcx-wire-2",
+      "beat": "MON-05-wire",
+      "controls": [
+        "CIS-14.2",
+        "AT-2(3)"
+      ],
+      "prompt": "Which detail makes a payment request most suspicious?",
+      "choices": [
+        "New bank details, urgency, and a reason the normal process can't be used",
+        "It is for a known vendor",
+        "It arrives during business hours",
+        "It has an invoice number"
+      ],
+      "answer": 0,
+      "why": "Changed bank details plus a bypass of normal approvals is the signature of business email compromise."
+    },
+    {
+      "id": "kcx-wire-3",
+      "beat": "MON-05-wire",
+      "controls": [
+        "CIS-14.2"
+      ],
+      "prompt": "Maya is not trying to scam you. Why is refusing or verifying still right?",
+      "choices": [
+        "Insiders are often pressured or fooled by an attacker posing as their boss",
+        "To get Maya in trouble",
+        "It is not; trust coworkers",
+        "Finance always lies"
+      ],
+      "answer": 0,
+      "why": "The attacker is usually behind the coworker. Verifying protects Maya too."
+    },
+    {
+      "id": "kcx-wire-4",
+      "beat": "MON-05-wire",
+      "controls": [
+        "CIS-14.6"
+      ],
+      "prompt": "A wire was sent and now looks fraudulent. The most important next step is",
+      "choices": [
+        "Report immediately so the bank can attempt a recall",
+        "Delete the emails",
+        "Wait until Monday to report",
+        "Send another wire to cancel it"
+      ],
+      "answer": 0,
+      "why": "Recalls only work in the first hours. Speed matters more than anything else."
+    },
+    {
+      "id": "kcx-wire-5",
+      "beat": "MON-05-wire",
+      "controls": [
+        "CIS-14.2",
+        "AT-2(3)"
+      ],
+      "prompt": "Who is allowed to bypass the payment approval process in an emergency?",
+      "choices": [
+        "Anyone who says it is urgent",
+        "Any manager",
+        "No one; the process is the control, especially when someone says it is urgent",
+        "Whoever has the bank login"
+      ],
+      "answer": 2,
+      "why": "Attackers manufacture emergencies. The approval process exists exactly for those moments."
+    }
+  ]
+}

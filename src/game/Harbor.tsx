@@ -248,11 +248,11 @@ function KnowledgeGate({ onPassed }: { onPassed: () => void }) {
   return (
     <div className="absolute inset-0 z-30 flex items-end justify-start bg-[#07090e]/70 p-4 md:items-center md:p-10">
       <div className="w-full max-w-lg select-none border border-white/10 bg-[#0c0d0f]/95 p-6 md:p-8">
-        <p className="text-[10px] tracking-[0.24em] text-[#c4a574]">KNOWLEDGE CHECK · 80% TO PASS</p>
+        <p className="text-[10px] tracking-[0.24em] text-[#c4a574]">KNOWLEDGE CHECK · 7 OF 8 TO PASS</p>
         {missed ? (
           <>
             <h2 className="mt-2 font-display text-5xl text-[#f4f0e6]">{missed.correct}/{missed.asked}</h2>
-            <p className="mt-3 text-sm text-[#a8a59c]">That is under 80%. The questions change. Try again.</p>
+            <p className="mt-3 text-sm text-[#a8a59c]">That is under 7 of 8. The questions change. Try again.</p>
             <button type="button" className="mt-6 min-h-11 border border-[#c4a574] px-4 text-sm" onClick={retry}>
               Try again
             </button>

@@ -4,6 +4,7 @@ import vishing from "@/content/scenarios/mon-03-vishing.json";
 import usb from "@/content/scenarios/mon-04-usb.json";
 import wire from "@/content/scenarios/mon-05-wire.json";
 import pool from "@/content/scenarios/kc-monday.json";
+import extra from "@/content/scenarios/kc-monday-extra.json";
 import type { Beat, Flags, ReportLine, Talk } from "@/game/story";
 
 export type ScenarioChoice = {
@@ -46,7 +47,37 @@ export type CheckItem = {
 };
 
 export const mondayScenarios = [tailgate, phishing, vishing, usb, wire] as Scenario[];
-export const knowledgePool = pool as CheckItem[];
+
+const SKILL_FOR_BEAT: Record<string, string> = {
+  "MON-01-tailgate": "physical-social-engineering",
+  "MON-02-phishing": "phishing",
+  "MON-03-vishing": "authentication",
+  "MON-04-usb": "removable-media",
+  "MON-05-wire": "payment-fraud",
+};
+
+type ExtraQuestion = {
+  id: string;
+  beat: string;
+  prompt: string;
+  choices: string[];
+  answer: number;
+};
+
+function fromExtra(item: ExtraQuestion): CheckItem {
+  return {
+    id: item.id,
+    skill: SKILL_FOR_BEAT[item.beat] ?? item.beat,
+    prompt: item.prompt,
+    choices: item.choices.map((label, index) => ({
+      id: String.fromCharCode(97 + index),
+      label,
+      correct: index === item.answer,
+    })),
+  };
+}
+
+export const knowledgePool: CheckItem[] = [...(pool as CheckItem[]), ...extra.questions.map(fromExtra)];
 
 const byChoice = new Map<string, { scenario: Scenario; choice: ScenarioChoice }>();
 for (const scenario of mondayScenarios) {
