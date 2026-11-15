@@ -157,6 +157,12 @@ function queueNext(gen: number, delayMs: number) {
   }, delayMs);
 }
 
+let playing = false;
+
+export function voiceBusy() {
+  return playing || queueTimer != null;
+}
+
 export function say(id: string, thenId?: string) {
   if (typeof window === "undefined") return;
   const line = voiceFor(id);
@@ -200,9 +206,14 @@ async function playLine(audio: AudioContext, id: string, line: { text: string; k
     source.connect(gain);
     gain.connect(audio.destination);
     source.start();
+    playing = true;
     voice = source;
     source.onended = () => {
-      if (voice === source) queueNext(gen, 400);
+      if (voice === source) {
+        playing = false;
+        voice = null;
+        queueNext(gen, 400);
+      }
     };
   } catch {
     speak(line, gen);
@@ -228,7 +239,11 @@ function speak(line: { text: string; kind: VoiceKind }, gen: number) {
       );
     const picked = match(line.kind) ?? voices[0];
     if (picked) uttered.voice = picked;
-    uttered.onend = () => queueNext(gen, 400);
+    uttered.onend = () => {
+      playing = false;
+      queueNext(gen, 400);
+    };
+    playing = true;
     synth.speak(uttered);
   };
   if (synth.getVoices().length === 0) {
@@ -249,6 +264,10 @@ const speaker: Record<string, string> = {
   phone: "Caller · says he's Dan, Harbor IT",
   usb: "Narrator · break counter",
   maya: "Maya Ruiz · Finance",
+  updates: "Narrator",
+  signin: "Narrator",
+  misdirect: "Maya Ruiz · chat",
+  cleandesk: "Narrator",
   "door-hold": "Narrator",
   "door-shut": "Narrator",
   "mail-codes": "Narrator",

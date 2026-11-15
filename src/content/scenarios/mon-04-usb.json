@@ -4,17 +4,37 @@
   "day": "monday",
   "location": "Break_Counter",
   "trigger": "USB_SalaryReview",
-  "roles": ["all"],
+  "roles": [
+    "all"
+  ],
   "skill": "removable-media",
   "controls": {
-    "CIS_v8.1": ["14.2"],
-    "NIST_800-53r5": ["AT-2(3)"],
-    "NIST_800-171r2": ["3.2.1"],
-    "CMMC_L2": ["AT.L2-3.2.1"],
-    "HIPAA": ["164.308(a)(5)(ii)(B)"],
-    "CSF_2.0": ["PR.AT-01"]
+    "CIS_v8.1": [
+      "14.2"
+    ],
+    "NIST_800-53r5": [
+      "AT-2(3)"
+    ],
+    "NIST_800-171r2": [
+      "3.2.1"
+    ],
+    "CMMC_L2": [
+      "AT.L2-3.2.1"
+    ],
+    "HIPAA": [
+      "164.308(a)(5)(ii)(B)"
+    ],
+    "CSF_2.0": [
+      "PR.AT-01"
+    ]
   },
-  "variants": [{ "caller": "Unattended", "pressure": "open_laptop", "tell": "found_media" }],
+  "variants": [
+    {
+      "caller": "Unattended",
+      "pressure": "open_laptop",
+      "tell": "found_media"
+    }
+  ],
   "prompt": {
     "who": "USB stick",
     "role": "Labeled Salary review",
@@ -59,8 +79,12 @@
     }
   ],
   "beat": "usb",
-  "next": "maya",
+  "next": "updates",
   "flagKey": "usb",
-  "tenant_tokens": ["{{COMPANY}}", "{{HELPDESK_PHONE}}", "{{REPORT_CHANNEL}}"],
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{REPORT_CHANNEL}}"
+  ],
   "knowledge_check_pool": "kc/malware"
 }

@@ -3,8 +3,13 @@ import phishing from "@/content/scenarios/mon-02-phishing.json";
 import vishing from "@/content/scenarios/mon-03-vishing.json";
 import usb from "@/content/scenarios/mon-04-usb.json";
 import wire from "@/content/scenarios/mon-05-wire.json";
+import updates from "@/content/scenarios/mon-06-updates.json";
+import signin from "@/content/scenarios/mon-07-signin.json";
+import misdirect from "@/content/scenarios/mon-08-misdirect.json";
+import cleandesk from "@/content/scenarios/mon-09-cleandesk.json";
 import pool from "@/content/scenarios/kc-monday.json";
 import extra from "@/content/scenarios/kc-monday-extra.json";
+import beats from "@/content/scenarios/kc-monday-beats.json";
 import type { Beat, Flags, ReportLine, Talk } from "@/game/story";
 
 export type ScenarioChoice = {
@@ -18,6 +23,28 @@ export type ScenarioChoice = {
   debrief: string;
   bark: string;
   report: string;
+  stage?: number;
+  then?: string[];
+  voice?: string;
+  debrief_voice?: string;
+  show_after?: string[];
+  hide_after?: string[];
+};
+
+export type ScenarioVariant = {
+  caller: string;
+  pressure: string;
+  tell: string;
+  days?: number;
+  city?: string;
+  wrong_recipient?: string;
+  screen_node?: string;
+  compose_node?: string;
+  sent_node?: string;
+  printout_node?: string;
+  printout?: string;
+  sticky_node?: string;
+  lock_node?: string;
 };
 
 export type Scenario = {
@@ -29,8 +56,9 @@ export type Scenario = {
   roles: string[];
   skill: string;
   controls: Record<string, string[]>;
-  variants: { caller: string; pressure: string; tell: string }[];
+  variants: ScenarioVariant[];
   prompt: { who: string; role: string; text: string };
+  prompt_after_send?: { who: string; role: string; text: string };
   choices: ScenarioChoice[];
   beat: string;
   next: Beat;
@@ -46,7 +74,7 @@ export type CheckItem = {
   choices: { id: string; label: string; correct: boolean }[];
 };
 
-export const mondayScenarios = [tailgate, phishing, vishing, usb, wire] as Scenario[];
+export const mondayScenarios = [tailgate, phishing, vishing, usb, wire, updates, signin, misdirect, cleandesk] as Scenario[];
 
 const SKILL_FOR_BEAT: Record<string, string> = {
   "MON-01-tailgate": "physical-social-engineering",
@@ -77,7 +105,11 @@ function fromExtra(item: ExtraQuestion): CheckItem {
   };
 }
 
-export const knowledgePool: CheckItem[] = [...(pool as CheckItem[]), ...extra.questions.map(fromExtra)];
+export const knowledgePool: CheckItem[] = [
+  ...(pool as CheckItem[]),
+  ...extra.questions.map(fromExtra),
+  ...(beats as CheckItem[]),
+];
 
 const byChoice = new Map<string, { scenario: Scenario; choice: ScenarioChoice }>();
 for (const scenario of mondayScenarios) {
@@ -106,14 +138,73 @@ export function moduleVersion() {
   return mondayScenarios.map((scenario) => scenario.version).sort().at(-1) ?? "1.0.0";
 }
 
-export function talkFromScenario(beat: string): Talk | null {
+const picks: Record<string, number> = {};
+
+const TENANT: Record<string, string> = {
+  COMPANY: "Harbor",
+  HELPDESK_PHONE: "ext 4100",
+  SECURITY_PHONE: "ext 4400",
+  REPORT_CHANNEL: "security@harborandco.com",
+};
+
+export function pickVariants() {
+  for (const scenario of mondayScenarios) {
+    picks[scenario.id] = Math.floor(Math.random() * Math.max(1, scenario.variants.length));
+  }
+  return { ...picks };
+}
+
+pickVariants();
+
+export function currentVariants() {
+  return { ...picks };
+}
+
+export function variantOf(id: string): ScenarioVariant | null {
+  const scenario = mondayScenarios.find((item) => item.id === id);
+  if (!scenario) return null;
+  return scenario.variants[picks[id] ?? 0] ?? null;
+}
+
+function tokenMap(scenario: Scenario) {
+  const variant = (scenario.variants[picks[scenario.id] ?? 0] ?? {}) as Record<string, unknown>;
+  const map: Record<string, string> = { ...TENANT };
+  const fields: Record<string, string> = {
+    DAYS: "days",
+    CITY: "city",
+    WRONG_RECIPIENT: "wrong_recipient",
+    PRINTOUT: "printout",
+    SCREEN_NODE: "screen_node",
+    COMPOSE_NODE: "compose_node",
+    SENT_NODE: "sent_node",
+    PRINTOUT_NODE: "printout_node",
+    STICKY_NODE: "sticky_node",
+    LOCK_NODE: "lock_node",
+  };
+  for (const [token, key] of Object.entries(fields)) {
+    if (variant[key] != null) map[token] = String(variant[key]);
+  }
+  for (const key of Object.keys(map)) {
+    map[key] = map[key].replace(/\{\{([A-Z0-9_]+)\}\}/g, (_, token: string) => map[token] ?? "");
+  }
+  return map;
+}
+
+export function fillText(text: string, scenario: Scenario) {
+  const map = tokenMap(scenario);
+  return text.replace(/\{\{([A-Z0-9_]+)\}\}/g, (_, token: string) => map[token] ?? "");
+}
+
+export function talkFromScenario(beat: string, stage = 1): Talk | null {
   const scenario = scenarioForBeat(beat);
   if (!scenario) return null;
+  const prompt = stage === 2 && scenario.prompt_after_send ? scenario.prompt_after_send : scenario.prompt;
+  const choices = scenario.choices.filter((choice) => choice.stage == null || choice.stage === stage);
   return {
-    who: scenario.prompt.who,
-    role: scenario.prompt.role,
-    text: scenario.prompt.text,
-    choices: scenario.choices.map((choice) => ({ id: choice.id, label: choice.label })),
+    who: fillText(prompt.who, scenario),
+    role: fillText(prompt.role, scenario),
+    text: fillText(prompt.text, scenario),
+    choices: choices.map((choice) => ({ id: choice.id, label: fillText(choice.label, scenario) })),
   };
 }
 
@@ -144,6 +235,6 @@ export function reportFromScenarios(flags: Flags): ReportLine[] {
   return mondayScenarios.map((scenario) => {
     const flag = flags[scenario.flagKey];
     const choice = scenario.choices.find((item) => item.flag === flag) ?? scenario.choices.find((item) => item.score === 0);
-    return { ok: choice?.ok ?? false, text: choice?.report ?? "" };
+    return { ok: choice?.ok ?? false, text: choice ? fillText(choice.report, scenario) : "" };
   });
 }

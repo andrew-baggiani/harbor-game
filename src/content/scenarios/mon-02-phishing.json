@@ -4,17 +4,39 @@
   "day": "monday",
   "location": "Desk_Player",
   "trigger": "Envelope_Mail",
-  "roles": ["all"],
+  "roles": [
+    "all"
+  ],
   "skill": "phishing",
   "controls": {
-    "CIS_v8.1": ["14.2", "14.6"],
-    "NIST_800-53r5": ["AT-2(3)", "AT-2(4)"],
-    "NIST_800-171r2": ["3.2.1"],
-    "CMMC_L2": ["AT.L2-3.2.1"],
-    "HIPAA": ["164.308(a)(5)(ii)(A)"],
-    "CSF_2.0": ["PR.AT-01"]
+    "CIS_v8.1": [
+      "14.2",
+      "14.6"
+    ],
+    "NIST_800-53r5": [
+      "AT-2(3)",
+      "AT-2(4)"
+    ],
+    "NIST_800-171r2": [
+      "3.2.1"
+    ],
+    "CMMC_L2": [
+      "AT.L2-3.2.1"
+    ],
+    "HIPAA": [
+      "164.308(a)(5)(ii)(A)"
+    ],
+    "CSF_2.0": [
+      "PR.AT-01"
+    ]
   },
-  "variants": [{ "caller": "Elena Voss", "pressure": "boarding_now", "tell": "lookalike_domain" }],
+  "variants": [
+    {
+      "caller": "Elena Voss",
+      "pressure": "boarding_now",
+      "tell": "lookalike_domain"
+    }
+  ],
   "prompt": {
     "who": "Elena Voss",
     "role": "elena.voss@harborandco-exec.com",
@@ -59,8 +81,12 @@
     }
   ],
   "beat": "mail",
-  "next": "phone",
+  "next": "misdirect",
   "flagKey": "mail",
-  "tenant_tokens": ["{{COMPANY}}", "{{HELPDESK_PHONE}}", "{{REPORT_CHANNEL}}"],
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{REPORT_CHANNEL}}"
+  ],
   "knowledge_check_pool": "kc/phishing"
 }

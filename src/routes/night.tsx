@@ -13,6 +13,10 @@ export const Route = createFileRoute("/night")({
     p: pick(search.p, ["code", "hangup"] as const),
     u: pick(search.u, ["plug", "it", "leave"] as const),
     w: pick(search.w, ["send", "call", "refuse"] as const),
+    md: pick(search.md, ["send", "check", "hide", "report"] as const),
+    s: pick(search.s, ["yes", "ignore", "report"] as const),
+    up: pick(search.up, ["ignore", "restart", "report"] as const),
+    c: pick(search.c, ["leave", "home", "lock", "shred"] as const),
   }),
   head: () => ({ meta: [{ title: "Monday · Harbor" }] }),
   component: NightPage,
@@ -20,8 +24,18 @@ export const Route = createFileRoute("/night")({
 
 function NightPage() {
   const search = Route.useSearch();
-  const flags: Flags = { door: search.d, mail: search.m, phone: search.p, usb: search.u, wire: search.w };
-  const ready = flags.door && flags.mail && flags.phone && flags.usb && flags.wire;
+  const flags: Flags = {
+    door: search.d,
+    mail: search.m,
+    phone: search.p,
+    usb: search.u,
+    wire: search.w,
+    misdirect: search.md,
+    signin: search.s,
+    updates: search.up,
+    cleandesk: search.c,
+  };
+  const ready = flags.door && flags.mail && flags.phone && flags.usb && flags.wire && flags.misdirect && flags.signin && flags.updates && flags.cleandesk;
   const scored = scoreOf(flags);
   const lines = reportLines(flags);
 

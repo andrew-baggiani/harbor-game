@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import { CAR_SPAWN, SPAWN } from "@/game/layout";
 import { applyFlag, barkFor, emptyFlags, nextBeat, objectiveFor, panelFor, scoreOf, talkFor, type Beat, type Flags, type Talk } from "@/game/story";
-import { recordDecision, resetRecord, sealShift } from "@/game/records";
+import { recordDecision, resetRecord, sealShift, noteVariants } from "@/game/records";
+import { choiceOf, currentVariants, pickVariants, variantOf } from "@/game/scenarios";
 import { say } from "@/game/audio";
 
 export type Bark = { who: string; text: string };
@@ -84,6 +85,16 @@ export const world = {
   laneT: [0, 0, 0, 0] as number[],
   laneHold: [0, 0, 0, 0] as number[],
   gatePoints: [] as { lane: number; x: number; z: number }[],
+  pending: "" as "" | "misdirect" | "signin" | "cleandesk",
+  quiet: 0,
+  buzz: 0,
+  updatesScreen: "normal" as "normal" | "warn" | "ticket",
+  signinScreen: "dark" as "dark" | "alert" | "secured",
+  misdirectScreen: "off" as "off" | "compose" | "sent",
+  printouts: false,
+  playerSticky: variantOf("MON-09-cleandesk")?.sticky_node === "Beat_CleanDesk_Sticky_Player",
+  desk07Note: true,
+  lockScreen: false,
   greeted: false,
   ending: false,
   endT: 0,
@@ -174,13 +185,47 @@ export const useHarbor = create<HarborStore>((set, get) => ({
       });
       return;
     }
+    const found = choiceOf(id);
     const flags = applyFlag(get().flags, id);
     recordDecision(id);
-    const beat = nextBeat(id);
     const bark = barkFor(id);
+    if (found?.choice.then?.length) {
+      world.misdirectScreen = "sent";
+      world.barkT = 4.5;
+      world.minutes += 6;
+      say(found.choice.voice ?? id);
+      set({
+        flags,
+        talk: panelFor("misdirect", 2),
+        bark,
+        minute: Math.floor(world.minutes),
+      });
+      return;
+    }
+    const beat = nextBeat(id);
     world.barkT = 5.5;
     world.minutes += 11;
-    say(id, `debrief-${id}`);
+    if (found?.choice.debrief_voice) say(found.choice.voice ?? id, found.choice.debrief_voice);
+    else say(id, `debrief-${id}`);
+    if (beat === "misdirect") world.pending = "misdirect";
+    if (beat === "signin") world.pending = "signin";
+    if (beat === "cleandesk") world.pending = "cleandesk";
+    if (beat === "updates") world.updatesScreen = "warn";
+    if (id === "updates-report") world.updatesScreen = "ticket";
+    if (id === "signin-yes" || id === "signin-ignore") world.signinScreen = "dark";
+    if (id === "signin-report") world.signinScreen = "secured";
+    if (id === "misdirect-check" || id === "misdirect-hide" || id === "misdirect-report") {
+      world.misdirectScreen = "off";
+      world.printouts = true;
+    }
+    if (id === "cleandesk-home") world.printouts = false;
+    if (id === "cleandesk-lock") world.lockScreen = true;
+    if (id === "cleandesk-shred") {
+      world.printouts = false;
+      world.playerSticky = false;
+      world.desk07Note = false;
+      world.lockScreen = true;
+    }
     set({
       flags,
       beat,
@@ -276,6 +321,17 @@ export const useHarbor = create<HarborStore>((set, get) => ({
     world.laneT = [0, 0, 0, 0];
     world.laneHold = [0, 0, 0, 0];
     world.gatePoints = [];
+    world.pending = "";
+    world.quiet = 0;
+    world.buzz = 0;
+    world.updatesScreen = "normal";
+    world.signinScreen = "dark";
+    world.misdirectScreen = "off";
+    world.printouts = false;
+    noteVariants(pickVariants());
+    world.playerSticky = variantOf("MON-09-cleandesk")?.sticky_node === "Beat_CleanDesk_Sticky_Player";
+    world.desk07Note = true;
+    world.lockScreen = false;
     world.greeted = false;
     world.ending = false;
     world.endT = 0;
@@ -296,3 +352,5 @@ export const useHarbor = create<HarborStore>((set, get) => ({
 export function resultOf() {
   return scoreOf(useHarbor.getState().flags);
 }
+
+noteVariants(currentVariants());

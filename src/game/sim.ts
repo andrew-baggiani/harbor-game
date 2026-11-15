@@ -1,5 +1,5 @@
 import { DESK, DOOR, ELEVATOR, ELEVATOR_F14, MAYA, OFFICE_Y, USB, slide } from "@/game/layout";
-import { blip, caption, say, setEngine, setRing, setWalking, tickAudio } from "@/game/audio";
+import { blip, caption, say, setEngine, setRing, setWalking, tickAudio, voiceBusy } from "@/game/audio";
 import { objectiveFor } from "@/game/story";
 import { keys, useHarbor, world, fleet } from "@/game/state";
 
@@ -208,6 +208,33 @@ export function step(dt: number) {
 
   if (store.beat === "leave" && world.py < 5 && world.pz > 0.55 && Math.abs(world.px) < 8) {
     store.finish();
+  }
+
+  if (world.buzz > 0) world.buzz = Math.max(0, world.buzz - dt);
+  if (world.pending && !store.talk && !store.paused && !store.boot) {
+    if (voiceBusy()) world.quiet = 0;
+    else world.quiet += dt;
+    const wait = world.pending === "signin" ? 3 : 0.45;
+    if (world.quiet >= wait) {
+      const which = world.pending;
+      world.pending = "";
+      world.quiet = 0;
+      if (which === "misdirect") {
+        world.misdirectScreen = "compose";
+        say("misdirect");
+        store.openPanel("misdirect");
+      } else if (which === "signin") {
+        world.signinScreen = "alert";
+        world.buzz = 1.2;
+        blip(740);
+        say("signin");
+        store.openPanel("signin");
+      } else {
+        world.printouts = true;
+        say("cleandesk");
+        blip(480);
+      }
+    }
   }
 
   const want = world.wantInteract;
@@ -477,6 +504,17 @@ function tryInteract() {
     blip(240);
     return;
   }
+  if (action === "updates") {
+    store.openPanel("updates");
+    say("updates");
+    blip(420);
+    return;
+  }
+  if (action === "cleandesk") {
+    store.openPanel("cleandesk");
+    blip(420);
+    return;
+  }
   if (action === "mail") {
     store.openPanel("mail");
     say("mail");
@@ -514,6 +552,9 @@ function tryInteract() {
     blip(300);
   }
 }
+
+const LAPTOP = { x: 4.7, z: -8.8 };
+const PRINTER = { x: 8.13, z: -15.8 };
 
 function computePrompt(): string | null {
   const store = useHarbor.getState();
@@ -572,9 +613,17 @@ function computePrompt(): string | null {
     world.use = "usb";
     return "E  ·  USB on the counter";
   }
+  if (store.beat === "updates" && !store.flags.updates && world.py > 10 && dist(x, z, LAPTOP) < 1.4) {
+    world.use = "updates";
+    return "E  ·  Loaner laptop";
+  }
   if (store.beat === "maya" && world.py > 10 && dist(x, z, MAYA) < 2.8) {
     world.use = "maya";
     return "E  ·  Maya Ruiz, finance";
+  }
+  if (store.beat === "cleandesk" && !store.flags.cleandesk && world.py > 10 && dist(x, z, PRINTER) < 1.6) {
+    world.use = "cleandesk";
+    return "E  ·  Printouts on the printer";
   }
   if (store.beat === "leave" && world.py < 2) return "Walk out the front door";
   if (world.py < 2 && insideTower(x, z)) {
@@ -596,7 +645,7 @@ export function markerNow(): { x: number; y: number; z: number } | null {
     if (outside) return { x: DOOR.x, y: 0, z: 0.2 };
     return { x: ELEVATOR.x, y: 0, z: ELEVATOR.z };
   }
-  if (beat === "desk" || beat === "phone") {
+  if (beat === "desk" || beat === "phone" || beat === "misdirect" || beat === "signin") {
     if (inOffice) return { x: DESK.x, y: OFFICE_Y, z: DESK.z };
     if (inLobby) return { x: ELEVATOR.x, y: 0, z: ELEVATOR.z };
     return { x: DOOR.x, y: 0, z: 0.2 };
@@ -606,8 +655,18 @@ export function markerNow(): { x: number; y: number; z: number } | null {
     if (inLobby) return { x: ELEVATOR.x, y: 0, z: ELEVATOR.z };
     return { x: DOOR.x, y: 0, z: 0.2 };
   }
+  if (beat === "updates") {
+    if (inOffice) return { x: LAPTOP.x, y: OFFICE_Y, z: LAPTOP.z };
+    if (inLobby) return { x: ELEVATOR.x, y: 0, z: ELEVATOR.z };
+    return { x: DOOR.x, y: 0, z: 0.2 };
+  }
   if (beat === "maya" || beat === "down") {
     if (inOffice) return { x: beat === "maya" ? MAYA.x : ELEVATOR.x, y: OFFICE_Y, z: beat === "maya" ? MAYA.z : ELEVATOR.z };
+    if (inLobby) return { x: ELEVATOR.x, y: 0, z: ELEVATOR.z };
+    return { x: DOOR.x, y: 0, z: 0.2 };
+  }
+  if (beat === "cleandesk") {
+    if (inOffice) return { x: PRINTER.x, y: OFFICE_Y, z: PRINTER.z };
     if (inLobby) return { x: ELEVATOR.x, y: 0, z: ELEVATOR.z };
     return { x: DOOR.x, y: 0, z: 0.2 };
   }

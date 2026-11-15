@@ -4,18 +4,37 @@
   "day": "monday",
   "location": "Desk_Player",
   "trigger": "DeskPhone_RingLight",
-  "roles": ["all"],
+  "roles": [
+    "all"
+  ],
   "skill": "authentication",
   "controls": {
-    "CIS_v8.1": ["14.3"],
-    "NIST_800-53r5": ["AT-2(3)"],
-    "NIST_800-171r2": ["3.2.1"],
-    "CMMC_L2": ["AT.L2-3.2.1"],
-    "HIPAA": ["164.308(a)(5)(ii)(C)", "164.308(a)(5)(ii)(D)"],
-    "CSF_2.0": ["PR.AT-01"]
+    "CIS_v8.1": [
+      "14.3"
+    ],
+    "NIST_800-53r5": [
+      "AT-2(3)"
+    ],
+    "NIST_800-171r2": [
+      "3.2.1"
+    ],
+    "CMMC_L2": [
+      "AT.L2-3.2.1"
+    ],
+    "HIPAA": [
+      "164.308(a)(5)(ii)(C)",
+      "164.308(a)(5)(ii)(D)"
+    ],
+    "CSF_2.0": [
+      "PR.AT-01"
+    ]
   },
   "variants": [
-    { "caller": "Harbor IT", "pressure": "urgent_lockout", "tell": "asks_for_code" }
+    {
+      "caller": "Harbor IT",
+      "pressure": "urgent_lockout",
+      "tell": "asks_for_code"
+    }
   ],
   "prompt": {
     "who": "Caller",
@@ -49,8 +68,12 @@
     }
   ],
   "beat": "phone",
-  "next": "usb",
+  "next": "signin",
   "flagKey": "phone",
-  "tenant_tokens": ["{{COMPANY}}", "{{HELPDESK_PHONE}}", "{{REPORT_CHANNEL}}"],
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{REPORT_CHANNEL}}"
+  ],
   "knowledge_check_pool": "kc/authentication"
 }

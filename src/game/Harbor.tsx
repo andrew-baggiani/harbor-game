@@ -209,7 +209,7 @@ function press(code: string, down: boolean) {
     }
     if (!live.boot) live.setPaused(!live.paused);
   }
-  if (storeTalk() && (code === "Digit1" || code === "Digit2" || code === "Digit3" || code === "Numpad1" || code === "Numpad2" || code === "Numpad3")) {
+  if (storeTalk() && (code === "Digit1" || code === "Digit2" || code === "Digit3" || code === "Digit4" || code === "Numpad1" || code === "Numpad2" || code === "Numpad3" || code === "Numpad4")) {
     const index = Number(code.slice(-1)) - 1;
     const talk = useHarbor.getState().talk;
     const choice = talk?.choices[index];
@@ -278,10 +278,12 @@ function KnowledgeGate({ onPassed }: { onPassed: () => void }) {
 function pinName(beat: string) {
   if (beat === "tower" || beat === "door") return "Harbor Tower";
   if (beat === "lobby" || beat === "down") return "Elevator";
-  if (beat === "desk") return "Your desk";
-  if (beat === "phone") return "Phone";
+  if (beat === "desk" || beat === "misdirect") return "Your desk";
+  if (beat === "phone" || beat === "signin") return "Phone";
   if (beat === "usb") return "USB stick";
+  if (beat === "updates") return "Loaner laptop";
   if (beat === "maya") return "Maya";
+  if (beat === "cleandesk") return "Printer";
   if (beat === "leave") return "Front door";
   return "Next";
 }
@@ -473,9 +475,13 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
   const steps = [
     ["Door", flags.door],
     ["Mail", flags.mail],
+    ["Send", flags.misdirect],
     ["Phone", flags.phone],
+    ["Sign-in", flags.signin],
     ["USB", flags.usb],
+    ["Updates", flags.updates],
     ["Wire", flags.wire],
+    ["Desk", flags.cleandesk],
   ] as const;
 
   if (boot) return <Briefing />;

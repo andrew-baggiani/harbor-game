@@ -3,6 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import { MeshBVH } from "three-mesh-bvh";
 import * as THREE from "three";
+import { variantOf } from "@/game/scenarios";
 import { setWorldHit, setWorldLive } from "@/game/layout";
 import { useHarbor, world } from "@/game/state";
 
@@ -21,6 +22,7 @@ const FILES = [
   "harbor_elevator_cab.glb",
   "harbor_shaft_cut.glb",
   "harbor_security_props.glb",
+  "harbor_monday_beats.glb",
 ] as const;
 
 for (const file of FILES) useGLTF.preload(`${MODEL_BASE}${file}`);
@@ -231,6 +233,45 @@ function showLanding(block: THREE.Object3D, office: THREE.Object3D, floor: THREE
   if (floor14) floor14.visible = true;
 }
 
+function showNamed(root: THREE.Object3D, name: string, visible: boolean) {
+  if (!name) return;
+  const node = root.getObjectByName(name);
+  if (node) node.visible = visible;
+}
+
+function showMondayBeats(root: THREE.Object3D, floor: THREE.Object3D) {
+  const updates = variantOf("MON-06-updates");
+  const signin = variantOf("MON-07-signin");
+  const mail = variantOf("MON-08-misdirect");
+  const desk = variantOf("MON-09-cleandesk");
+  showNamed(root, "Beat_Updates_Screen_Normal", world.updatesScreen === "normal");
+  showNamed(root, updates?.screen_node ?? "", world.updatesScreen === "warn");
+  showNamed(root, updates?.screen_node === "Beat_Updates_Screen_Warn_A" ? "Beat_Updates_Screen_Warn_B" : "Beat_Updates_Screen_Warn_A", false);
+  showNamed(root, "Beat_Updates_Screen_Ticket", world.updatesScreen === "ticket");
+  showNamed(root, "Beat_Signin_Phone_Screen_Dark", world.signinScreen === "dark");
+  showNamed(root, signin?.screen_node ?? "", world.signinScreen === "alert");
+  showNamed(root, signin?.screen_node === "Beat_Signin_Phone_Screen_Alert_A" ? "Beat_Signin_Phone_Screen_Alert_B" : "Beat_Signin_Phone_Screen_Alert_A", false);
+  showNamed(root, "Beat_Signin_Phone_Screen_Secured", world.signinScreen === "secured");
+  for (const name of ["Beat_Misdirect_Screen_Compose_A", "Beat_Misdirect_Screen_Compose_B", "Beat_Misdirect_Screen_Sent_A", "Beat_Misdirect_Screen_Sent_B"]) {
+    showNamed(root, name, false);
+  }
+  if (world.misdirectScreen === "compose") showNamed(root, mail?.compose_node ?? "", true);
+  if (world.misdirectScreen === "sent") showNamed(root, mail?.sent_node ?? "", true);
+  showNamed(root, "Beat_CleanDesk_Printouts_A", world.printouts && desk?.printout_node === "Beat_CleanDesk_Printouts_A");
+  showNamed(root, "Beat_CleanDesk_Printouts_B", world.printouts && desk?.printout_node === "Beat_CleanDesk_Printouts_B");
+  showNamed(root, "Beat_CleanDesk_Sticky_Player", world.playerSticky);
+  showNamed(root, "Beat_CleanDesk_PlayerScreen_Locked", world.lockScreen && desk?.lock_node === "Beat_CleanDesk_PlayerScreen_Locked");
+  showNamed(root, "Beat_CleanDesk_Desk07Screen_Locked", world.lockScreen && desk?.lock_node === "Beat_CleanDesk_Desk07Screen_Locked");
+  const note = floor.getObjectByName("Sticky_Password_Desk07");
+  if (note) note.visible = world.desk07Note && desk?.sticky_node === "Sticky_Password_Desk07";
+  const phone = root.getObjectByName("Beat_Signin_Phone");
+  if (phone) {
+    if (phone.userData.baseY == null) phone.userData.baseY = phone.position.y;
+    const base = Number(phone.userData.baseY);
+    phone.position.y = world.buzz > 0 ? base + Math.sin(world.buzz * 46) * 0.012 : base;
+  }
+}
+
 function blinkRacks(root: THREE.Object3D, dt: number) {
   blinkT += dt;
   const a = root.getObjectByName("ServerRack_LEDs_A");
@@ -258,6 +299,7 @@ export function HarborWorld() {
   const cab = useGLTF(`${MODEL_BASE}harbor_elevator_cab.glb`);
   const shaft = useGLTF(`${MODEL_BASE}harbor_shaft_cut.glb`);
   const security = useGLTF(`${MODEL_BASE}harbor_security_props.glb`);
+  const beats = useGLTF(`${MODEL_BASE}harbor_monday_beats.glb`);
   const beat = useHarbor((s) => s.beat);
   const doors = useRef<{ left: THREE.Object3D | null; right: THREE.Object3D | null; openL: number; openR: number }>({
     left: null,
@@ -273,9 +315,19 @@ export function HarborWorld() {
   const cabRoot = useRef<THREE.Object3D | null>(null);
 
   const scenes = useMemo(() => {
-    const loaded = [block, office, props, car, lobbyDetail, floorDetail, cab, shaft, security];
+    const loaded = [block, office, props, car, lobbyDetail, floorDetail, cab, shaft, security, beats];
     for (const gltf of loaded) prepare(gltf.scene);
-    for (const gltf of [lobbyDetail, floorDetail, cab, shaft, security]) applyDefaultVisible(gltf.scene);
+    for (const gltf of [lobbyDetail, floorDetail, cab, shaft, security, beats]) applyDefaultVisible(gltf.scene);
+    beats.scene.traverse((obj) => {
+      const mesh = obj as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      for (const material of materials) {
+        material.polygonOffset = true;
+        material.polygonOffsetFactor = -1;
+        material.polygonOffsetUnits = -1;
+      }
+    });
     const parked = block.scene.getObjectByName("Company_Sedan_Navy");
     if (parked) parked.visible = false;
     hideNamed(block.scene, "Harbor_Tower");
@@ -298,8 +350,9 @@ export function HarborWorld() {
       cab: cab.scene,
       shaft: shaft.scene,
       security: security.scene,
+      beats: beats.scene,
     };
-  }, [block, office, props, car, lobbyDetail, floorDetail, cab, shaft, security]);
+  }, [block, office, props, car, lobbyDetail, floorDetail, cab, shaft, security, beats]);
 
   useLayoutEffect(() => {
     colliders.length = 0;
@@ -311,6 +364,7 @@ export function HarborWorld() {
     collect(cab.scene);
     cab.scene.visible = false;
     collect(shaft.scene);
+    collect(beats.scene);
     ready = true;
     setWorldLive(true);
     const left = block.scene.getObjectByName("Lobby_Door_L");
@@ -358,7 +412,7 @@ export function HarborWorld() {
       setWorldLive(false);
       colliders.length = 0;
     };
-  }, [block.scene, office.scene, car.scene, lobbyDetail.scene, floorDetail.scene, cab.scene, shaft.scene]);
+  }, [block.scene, office.scene, car.scene, lobbyDetail.scene, floorDetail.scene, cab.scene, shaft.scene, beats.scene]);
 
   useFrame((_, raw) => {
     const dt = Math.min(raw, 0.05);
@@ -414,6 +468,7 @@ export function HarborWorld() {
     showCabReadout(cab.scene);
     showLanding(block.scene, office.scene, floorDetail.scene, lobbyDetail.scene);
     blinkRacks(floorDetail.scene, raw);
+    showMondayBeats(beats.scene, floorDetail.scene);
 
     const envelope = office.scene.getObjectByName("Envelope_Mail");
     const ring = office.scene.getObjectByName("DeskPhone_RingLight");
@@ -465,6 +520,7 @@ export function HarborWorld() {
       <primitive object={scenes.shaft} />
       <primitive object={scenes.cab} />
       <primitive object={scenes.security} />
+      <primitive object={scenes.beats} />
       <pointLight position={[0, 6.5, 26]} color="#9eb6cc" intensity={18} distance={42} decay={2} />
       <Ring />
     </group>

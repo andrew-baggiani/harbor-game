@@ -4,17 +4,35 @@
   "day": "monday",
   "location": "Elevator_F14",
   "trigger": "maya",
-  "roles": ["all"],
+  "roles": [
+    "all"
+  ],
   "skill": "payment-fraud",
   "controls": {
-    "CIS_v8.1": ["14.2"],
-    "NIST_800-53r5": ["AT-2(3)"],
-    "NIST_800-171r2": ["3.2.1"],
-    "CMMC_L2": ["AT.L2-3.2.1"],
+    "CIS_v8.1": [
+      "14.2"
+    ],
+    "NIST_800-53r5": [
+      "AT-2(3)"
+    ],
+    "NIST_800-171r2": [
+      "3.2.1"
+    ],
+    "CMMC_L2": [
+      "AT.L2-3.2.1"
+    ],
     "HIPAA": [],
-    "CSF_2.0": ["PR.AT-01"]
+    "CSF_2.0": [
+      "PR.AT-01"
+    ]
   },
-  "variants": [{ "caller": "Maya Ruiz", "pressure": "elena_said_so", "tell": "form_down" }],
+  "variants": [
+    {
+      "caller": "Maya Ruiz",
+      "pressure": "elena_said_so",
+      "tell": "form_down"
+    }
+  ],
   "prompt": {
     "who": "Maya Ruiz",
     "role": "Finance",
@@ -59,8 +77,12 @@
     }
   ],
   "beat": "maya",
-  "next": "down",
+  "next": "cleandesk",
   "flagKey": "wire",
-  "tenant_tokens": ["{{COMPANY}}", "{{HELPDESK_PHONE}}", "{{REPORT_CHANNEL}}"],
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{REPORT_CHANNEL}}"
+  ],
   "knowledge_check_pool": "kc/payment"
 }

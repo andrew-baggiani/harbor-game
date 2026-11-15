@@ -1,10 +1,14 @@
-import { choiceOf, reportFromScenarios, skillScores, talkFromScenario } from "@/game/scenarios";
+import { choiceOf, fillText, reportFromScenarios, skillScores, talkFromScenario } from "@/game/scenarios";
 
 export type DoorFlag = "held" | "shut";
 export type MailFlag = "codes" | "report" | "ignore";
 export type PhoneFlag = "code" | "hangup";
 export type UsbFlag = "plug" | "it" | "leave";
 export type WireFlag = "send" | "call" | "refuse";
+export type UpdatesFlag = "ignore" | "restart" | "report";
+export type SigninFlag = "yes" | "ignore" | "report";
+export type MisdirectFlag = "send" | "check" | "hide" | "report";
+export type CleandeskFlag = "leave" | "home" | "lock" | "shred";
 
 export type Flags = {
   door: DoorFlag | null;
@@ -12,9 +16,27 @@ export type Flags = {
   phone: PhoneFlag | null;
   usb: UsbFlag | null;
   wire: WireFlag | null;
+  updates: UpdatesFlag | null;
+  signin: SigninFlag | null;
+  misdirect: MisdirectFlag | null;
+  cleandesk: CleandeskFlag | null;
 };
 
-export type Beat = "tower" | "door" | "lobby" | "desk" | "phone" | "usb" | "maya" | "down" | "leave" | "done";
+export type Beat =
+  | "tower"
+  | "door"
+  | "lobby"
+  | "desk"
+  | "misdirect"
+  | "phone"
+  | "signin"
+  | "usb"
+  | "updates"
+  | "maya"
+  | "cleandesk"
+  | "down"
+  | "leave"
+  | "done";
 
 export type Talk = {
   who: string;
@@ -29,6 +51,10 @@ export const emptyFlags = (): Flags => ({
   phone: null,
   usb: null,
   wire: null,
+  updates: null,
+  signin: null,
+  misdirect: null,
+  cleandesk: null,
 });
 
 export function objectiveFor(beat: Beat): string {
@@ -40,12 +66,20 @@ export function objectiveFor(beat: Beat): string {
       return "Inside. Elevator, fourteenth floor.";
     case "desk":
       return "Your desk is by the glass. Read the mail.";
+    case "misdirect":
+      return "Maya needs tonight's manifest sent. Your screen.";
     case "phone":
       return "Your phone is ringing. Answer it.";
+    case "signin":
+      return "Your phone just buzzed.";
     case "usb":
       return "Break counter. A USB stick is sitting there.";
+    case "updates":
+      return "Hot desk 14-08. The loaner laptop is yours tonight.";
     case "maya":
       return "Maya from finance is waiting by the elevator.";
+    case "cleandesk":
+      return "Before you go: your print job is still on the printer.";
     case "down":
       return "Elevator down. Then out.";
     case "leave":
@@ -69,15 +103,15 @@ export function talkFor(beat: Beat): Talk | null {
   return beat === "door" ? talkFromScenario("door") : null;
 }
 
-export function panelFor(id: string): Talk | null {
-  return talkFromScenario(id);
+export function panelFor(id: string, stage = 1): Talk | null {
+  return talkFromScenario(id, stage);
 }
 
 export function barkFor(id: string): { who: string; text: string } {
   const found = choiceOf(id);
   if (!found) return { who: "Harbor", text: "" };
   const who = found.choice.id.startsWith("usb-plug") ? "Laptop" : found.choice.id.startsWith("usb-it") ? "You" : barkWho[found.scenario.beat] ?? "Harbor";
-  return { who, text: found.choice.bark };
+  return { who, text: fillText(found.choice.bark, found.scenario) };
 }
 
 export function nextBeat(id: string): Beat {
@@ -103,13 +137,17 @@ export function scoreOf(flags: Flags): { score: number; clean: boolean; title: s
     flags.mail === "report" &&
     flags.phone === "hangup" &&
     flags.usb === "it" &&
-    (flags.wire === "call" || flags.wire === "refuse");
+    (flags.wire === "call" || flags.wire === "refuse") &&
+    flags.updates === "report" &&
+    flags.signin === "report" &&
+    flags.misdirect === "check" &&
+    flags.cleandesk === "shred";
   const title = clean ? "A quiet Monday" : score >= 70 ? "Mostly quiet" : "Monday cost something";
   return { score, clean, title, skills };
 }
 
 export function nightPath(flags: Flags): string {
-  return `/night?d=${flags.door ?? ""}&m=${flags.mail ?? ""}&p=${flags.phone ?? ""}&u=${flags.usb ?? ""}&w=${flags.wire ?? ""}`;
+  return `/night?d=${flags.door ?? ""}&m=${flags.mail ?? ""}&p=${flags.phone ?? ""}&u=${flags.usb ?? ""}&w=${flags.wire ?? ""}&md=${flags.misdirect ?? ""}&s=${flags.signin ?? ""}&up=${flags.updates ?? ""}&c=${flags.cleandesk ?? ""}`;
 }
 
 export type VoiceKind = "narrator" | "man" | "woman";
@@ -124,6 +162,68 @@ export function voiceFor(id: string): { text: string; kind: VoiceKind } | null {
       return { kind: "woman", text: "Hi, you must be the new hire. You're on my list for fourteen. Elevator's straight back, gold doors. Badge yourself up. Oh, and if anybody asks you to hold a door? They've got a badge. They can use it." };
     case "reception-ok":
       return { kind: "woman", text: "Straight back, gold doors. Badge in, floor fourteen. Have a good first night." };
+    case "updates":
+      return { kind: "narrator", text: "IT left a loaner laptop at hot desk fourteen-oh-eight for the dock log. It's yours tonight. There's a warning in the corner of the screen." };
+    case "updates-ignore":
+      return { kind: "narrator", text: "You closed the warning. The laptop is still weeks behind, and nobody knows." };
+    case "debrief-updates-ignore":
+      return { kind: "narrator", text: "Weeks of failed updates, and the security agent switched off. That's an open window. You don't have to fix it. Just tell IT, on the help desk number on your badge." };
+    case "updates-restart":
+      return { kind: "narrator", text: "It restarted. Same warning. The agent is still off." };
+    case "debrief-updates-restart":
+      return { kind: "narrator", text: "A restart is a fair first try. When it comes back the same, it's IT's job. Call the help desk on your badge, and leave the security tools alone." };
+    case "updates-report":
+      return { kind: "narrator", text: "You called the help desk. They're pushing the updates and swapping the laptop." };
+    case "debrief-updates-report":
+      return { kind: "narrator", text: "That's the move. Failed updates and a security agent that's off both get reported. Don't switch tools off or on yourself. Tell IT, and let them fix it." };
+    case "signin":
+      return { kind: "narrator", text: "Your phone buzzes on the desk. A sign-in alert for your Harbor account." };
+    case "signin-yes":
+      return { kind: "narrator", text: "You tapped yes. Whoever that was is now signed in as you." };
+    case "debrief-signin-yes":
+      return { kind: "narrator", text: "You were right here, on fourteen. That sign-in came from somewhere else. Never approve one you didn't start. Tap no, then call security at extension 4400." };
+    case "signin-ignore":
+      return { kind: "narrator", text: "You swiped it away. The session stays open, and nobody is watching it." };
+    case "debrief-signin-ignore":
+      return { kind: "narrator", text: "Not approving it helps. But a sign-in you didn't make means someone may have your password. Tap no, and report it, so security can shut it down." };
+    case "signin-report":
+      return { kind: "narrator", text: "You tapped no and called it in. Security ended the session and reset your password." };
+    case "debrief-signin-report":
+      return { kind: "narrator", text: "Exactly. A sign-in you didn't make is an incident, even at midnight. Tap no, then call security at extension 4400, or email security@harborandco.com." };
+    case "misdirect":
+      return { kind: "woman", text: "Hey, it's Maya. Can you send tonight's manifest to Mark Delgado on the dock team? He needs it before the Meridian loads. It's the full one, with the customer details." };
+    case "misdirect-send":
+      return { kind: "narrator", text: "Sent. Then you read the To line. That's not the Mark on the dock team." };
+    case "misdirect-check":
+      return { kind: "narrator", text: "You caught it. Autocomplete picked the wrong Mark. You fixed the To line and sent it to the right one." };
+    case "debrief-misdirect-check":
+      return { kind: "narrator", text: "Good catch. Autocomplete guesses, and sometimes it guesses wrong. Read the To line before anything with customer data goes out." };
+    case "misdirect-hide":
+      return { kind: "narrator", text: "You deleted it from Sent. Their copy is still sitting in their inbox." };
+    case "debrief-misdirect-hide":
+      return { kind: "narrator", text: "Deleting your copy doesn't unsend it. Customer data just left Harbor. Report it right away, so security can try to recall it and contain it." };
+    case "misdirect-report":
+      return { kind: "narrator", text: "You called security straight away. They recalled the message and reached the person who got it." };
+    case "debrief-misdirect-report":
+      return { kind: "narrator", text: "Right call. Mistakes happen. Reporting in minutes, not days, is what keeps one small. Next time, check the To line before you hit send." };
+    case "cleandesk":
+      return { kind: "narrator", text: "That's the shift. Before you head for the elevator, take one last look around. Your print job never got picked up." };
+    case "cleandesk-leave":
+      return { kind: "narrator", text: "You left it all out. The night crew walks right past the printer, and the screen is still open." };
+    case "debrief-cleandesk-leave":
+      return { kind: "narrator", text: "Customer data on the printer, an open screen, a password on a sticky note. Anyone walking the floor gets all three. Shred the paper, lock the screen, lose the note." };
+    case "cleandesk-home":
+      return { kind: "narrator", text: "The printouts went home in your bag. Customer data, off the premises." };
+    case "debrief-cleandesk-home":
+      return { kind: "narrator", text: "Paper with customer data stays in the building. A bag left on a train is a breach. When you're done with it, it goes in the locked shred bin." };
+    case "cleandesk-lock":
+      return { kind: "narrator", text: "Screen locked. The printouts and the sticky note are still out." };
+    case "debrief-cleandesk-lock":
+      return { kind: "narrator", text: "Locking the screen is half the job. The paper goes in the shred bin. The password comes off the monitor and into the password manager." };
+    case "cleandesk-shred":
+      return { kind: "narrator", text: "Printouts shredded. Screen locked. The note is gone." };
+    case "debrief-cleandesk-shred":
+      return { kind: "narrator", text: "Clean desk. Confidential paper goes in the locked shred bin, never the recycling. Lock your screen every time you stand up. Passwords live in the password manager, not on a sticky note." };
     case "mail":
       return { kind: "narrator", text: "New mail. The name says Elena Voss. Check the address. Boarding now, so I can't call. I need eight Apple gift cards, $200 each, for client thank-yous. Reply with the codes. Don't loop in my assistant, it's a surprise." };
     case "phone":

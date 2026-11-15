@@ -41,6 +41,7 @@ export type LearnerRecord = {
   attestation_accepted_at: string | null;
   certificate_id: string | null;
   knowledge_check: { attempt: number; correct: number; asked: number; passed: boolean; answers: { id: string; choice: string; correct: boolean }[] }[];
+  variants: Record<string, number>;
 };
 
 const HOME = "https://harbor.example/tenant/harbor-demo";
@@ -68,6 +69,7 @@ function blank(now: string): LearnerRecord {
     attestation_accepted_at: null,
     certificate_id: null,
     knowledge_check: [],
+    variants: {},
   };
 }
 
@@ -79,6 +81,10 @@ export function resetRecord() {
 export function learnerRecord() {
   if (!record) resetRecord();
   return record as LearnerRecord;
+}
+
+export function noteVariants(pick: Record<string, number>) {
+  learnerRecord().variants = pick;
 }
 
 export function recordDecision(id: string) {
