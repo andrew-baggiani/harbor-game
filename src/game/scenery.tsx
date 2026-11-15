@@ -1,6 +1,6 @@
 import { useLayoutEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { useGLTF } from "@react-three/drei";
+import { preloadGLTF, useGLTFOnce } from "@/game/models";
 import { MeshBVH } from "three-mesh-bvh";
 import * as THREE from "three";
 import { variantOf } from "@/game/scenarios";
@@ -8,24 +8,23 @@ import { setWorldHit, setWorldLive } from "@/game/layout";
 import { useHarbor, world } from "@/game/state";
 
 export const MODEL_BASE = "/assets/models/";
+
+// Kick off every model download at once; the component then suspends on each in turn.
+preloadGLTF([
+  `${MODEL_BASE}harbor_block.glb`,
+  `${MODEL_BASE}harbor_office_f14.glb`,
+  `${MODEL_BASE}harbor_props.glb`,
+  `${MODEL_BASE}vehicle_Company_Sedan_Navy.glb`,
+  `${MODEL_BASE}harbor_lobby_detail.glb`,
+  `${MODEL_BASE}harbor_f14_detail.glb`,
+  `${MODEL_BASE}harbor_elevator_cab.glb`,
+  `${MODEL_BASE}harbor_shaft_cut.glb`,
+  `${MODEL_BASE}harbor_security_props.glb`,
+  `${MODEL_BASE}harbor_monday_beats.glb`,
+]);
 export const MODEL_FALLBACK = "https://raw.githubusercontent.com/andrew-baggiani/harbor-game/main/assets/models/";
 export const GLTF_LIGHT_SCALE = 0.000055;
 const SIMPLE_GLASS = true;
-
-const FILES = [
-  "harbor_block.glb",
-  "harbor_office_f14.glb",
-  "harbor_props.glb",
-  "vehicle_Company_Sedan_Navy.glb",
-  "harbor_lobby_detail.glb",
-  "harbor_f14_detail.glb",
-  "harbor_elevator_cab.glb",
-  "harbor_shaft_cut.glb",
-  "harbor_security_props.glb",
-  "harbor_monday_beats.glb",
-] as const;
-
-for (const file of FILES) useGLTF.preload(`${MODEL_BASE}${file}`);
 
 type Entry = {
   object: THREE.Object3D;
@@ -290,16 +289,16 @@ function showLed(root: THREE.Object3D, which: "off" | "red" | "green") {
 }
 
 export function HarborWorld() {
-  const block = useGLTF(`${MODEL_BASE}harbor_block.glb`);
-  const office = useGLTF(`${MODEL_BASE}harbor_office_f14.glb`);
-  const props = useGLTF(`${MODEL_BASE}harbor_props.glb`);
-  const car = useGLTF(`${MODEL_BASE}vehicle_Company_Sedan_Navy.glb`);
-  const lobbyDetail = useGLTF(`${MODEL_BASE}harbor_lobby_detail.glb`);
-  const floorDetail = useGLTF(`${MODEL_BASE}harbor_f14_detail.glb`);
-  const cab = useGLTF(`${MODEL_BASE}harbor_elevator_cab.glb`);
-  const shaft = useGLTF(`${MODEL_BASE}harbor_shaft_cut.glb`);
-  const security = useGLTF(`${MODEL_BASE}harbor_security_props.glb`);
-  const beats = useGLTF(`${MODEL_BASE}harbor_monday_beats.glb`);
+  const block = useGLTFOnce(`${MODEL_BASE}harbor_block.glb`);
+  const office = useGLTFOnce(`${MODEL_BASE}harbor_office_f14.glb`);
+  const props = useGLTFOnce(`${MODEL_BASE}harbor_props.glb`);
+  const car = useGLTFOnce(`${MODEL_BASE}vehicle_Company_Sedan_Navy.glb`);
+  const lobbyDetail = useGLTFOnce(`${MODEL_BASE}harbor_lobby_detail.glb`);
+  const floorDetail = useGLTFOnce(`${MODEL_BASE}harbor_f14_detail.glb`);
+  const cab = useGLTFOnce(`${MODEL_BASE}harbor_elevator_cab.glb`);
+  const shaft = useGLTFOnce(`${MODEL_BASE}harbor_shaft_cut.glb`);
+  const security = useGLTFOnce(`${MODEL_BASE}harbor_security_props.glb`);
+  const beats = useGLTFOnce(`${MODEL_BASE}harbor_monday_beats.glb`);
   const beat = useHarbor((s) => s.beat);
   const doors = useRef<{ left: THREE.Object3D | null; right: THREE.Object3D | null; openL: number; openR: number }>({
     left: null,

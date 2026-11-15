@@ -1,0 +1,137 @@
+{
+  "version": 1,
+  "files": {
+    "harbor_cab_baked.glb": {
+      "lightmap": "harbor_cab_lm.jpg",
+      "lightmap_uv": 1,
+      "lightmap_intensity": 20.06937,
+      "lightmap_scale": 11.61505,
+      "lightmap_colorspace": "srgb",
+      "replaces": [
+        "Elevator_Cab_Shell"
+      ],
+      "baked_nodes": [
+        "Elevator_Cab_Shell_Baked",
+        "Elevator_Cab_Labels_Baked"
+      ],
+      "unbaked_nodes": [],
+      "note": "Cab-local coordinates (origin = door threshold). Parent Elevator_Cab_Shell_Baked under the Elevator_Cab root of harbor_elevator_cab.glb (identity local transform) and hide Elevator_Cab_Shell.",
+      "parent": "Elevator_Cab"
+    },
+    "harbor_lobby_baked.glb": {
+      "lightmap": "harbor_lobby_lm.jpg",
+      "lightmap_uv": 1,
+      "lightmap_intensity": 26.28536,
+      "lightmap_scale": 8.36689,
+      "lightmap_colorspace": "srgb",
+      "replaces": [
+        "Lobby_Interior_ShaftCut",
+        "SpeedGate_Bank",
+        "Lobby_Seating",
+        "Lobby_Plants",
+        "Lobby_Art",
+        "Mailroom_Shelf",
+        "Stair_Core"
+      ],
+      "baked_nodes": [
+        "Lobby_Interior_ShaftCut_Baked",
+        "SpeedGate_Bank_Baked",
+        "Lobby_Seating_Baked",
+        "Lobby_Plants_Baked",
+        "Lobby_Art_Baked",
+        "Lobby_Art_Panels_Baked",
+        "Mailroom_Shelf_Baked",
+        "Mailroom_Shelf_Labels_Baked",
+        "Stair_Core_Baked",
+        "Stair_Core_Labels_Baked"
+      ],
+      "unbaked_nodes": [],
+      "note": "World space, load at the origin."
+    },
+    "harbor_frontage_baked.glb": {
+      "lightmap": "harbor_frontage_lm.jpg",
+      "lightmap_uv": 1,
+      "lightmap_intensity": 3.67559,
+      "lightmap_scale": 1.16998,
+      "lightmap_colorspace": "srgb",
+      "replaces": [
+        "Harbor_Tower_ShaftCut",
+        "Entrance_Canopy",
+        "Sidewalk",
+        "Curbs",
+        "Road"
+      ],
+      "baked_nodes": [
+        "Harbor_Tower_Base_Baked",
+        "HARBOR_Sign_Baked",
+        "Entrance_Canopy_Baked",
+        "Sidewalk_Frontage_Baked",
+        "Curbs_Frontage_Baked",
+        "Road_Frontage_Baked"
+      ],
+      "unbaked_nodes": [
+        "Sidewalk_Rest",
+        "Curbs_Rest",
+        "Road_Rest",
+        "Harbor_Tower_Upper"
+      ],
+      "note": "World space, load at the origin. *_Rest and Harbor_Tower_Upper_Baked are unbaked remainders of the split originals (same materials) and must be shown together with the baked pieces."
+    },
+    "harbor_f14_baked.glb": {
+      "lightmap": "harbor_f14_lm.jpg",
+      "lightmap_uv": 1,
+      "lightmap_intensity": 13.45492,
+      "lightmap_scale": 4.28283,
+      "lightmap_colorspace": "srgb",
+      "replaces": [
+        "Office_F14_Shell_ShaftCut",
+        "Desk_01",
+        "Desk_02",
+        "Desk_03",
+        "Desk_04",
+        "Desk_05",
+        "Desk_06",
+        "Desk_07",
+        "Desk_08",
+        "Break_Counter",
+        "ServerCloset_Walls",
+        "MeetingRoom_Furniture",
+        "PrintArea",
+        "Desk_Clutter",
+        "Coat_Hooks",
+        "F14_Plants",
+        "Window_Blinds",
+        "ServerRacks",
+        "Emergency_Exit_Frame"
+      ],
+      "baked_nodes": [
+        "Office_F14_Shell_ShaftCut_Baked",
+        "Floor_Name_ShaftCut_Baked",
+        "Floor_Number_14_ShaftCut_Baked",
+        "Desk_01_Baked",
+        "Desk_02_Baked",
+        "Desk_03_Baked",
+        "Desk_04_Baked",
+        "Desk_05_Baked",
+        "Desk_06_Baked",
+        "Desk_07_Baked",
+        "Desk_08_Baked",
+        "Break_Counter_Baked",
+        "ServerCloset_Walls_Baked",
+        "MeetingRoom_Furniture_Baked",
+        "PrintArea_Baked",
+        "Desk_Clutter_Baked",
+        "Desk_Monitor_Screens_Baked",
+        "Desk_Sticky_Notes_Baked",
+        "Coat_Hooks_Baked",
+        "F14_Plants_Baked",
+        "Window_Blinds_Baked",
+        "ServerRacks_Baked",
+        "Emergency_Exit_Frame_Baked",
+        "Emergency_Exit_Signs_Baked"
+      ],
+      "unbaked_nodes": [],
+      "note": "World space, load at the origin (floor at y = 50.6)."
+    }
+  }
+}

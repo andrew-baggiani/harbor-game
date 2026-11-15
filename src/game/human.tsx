@@ -1,14 +1,12 @@
 import { useLayoutEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { useGLTF, useTexture } from "@react-three/drei";
+import { useTexture } from "@react-three/drei";
+import { preloadGLTF, useGLTFOnce } from "@/game/models";
 import * as THREE from "three";
 import { clone as cloneSkinned } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { world } from "@/game/state";
 
-useGLTF.preload("/people/body.glb");
-useGLTF.preload("/people/idle.glb");
-useGLTF.preload("/people/walk.glb");
-useGLTF.preload("/people/jog.glb");
+preloadGLTF(["/people/body.glb", "/people/idle.glb", "/people/walk.glb", "/people/jog.glb"]);
 
 function plant(clip: THREE.AnimationClip) {
   const next = clip.clone();
@@ -344,10 +342,10 @@ export function Human({
   phase?: number;
   speed?: number;
 }) {
-  const body = useGLTF("/people/body.glb");
-  const idleGltf = useGLTF("/people/idle.glb");
-  const walkGltf = useGLTF("/people/walk.glb");
-  const jogGltf = useGLTF("/people/jog.glb");
+  const body = useGLTFOnce("/people/body.glb");
+  const idleGltf = useGLTFOnce("/people/idle.glb");
+  const walkGltf = useGLTFOnce("/people/walk.glb");
+  const jogGltf = useGLTFOnce("/people/jog.glb");
   const map = useTexture("/people/body.png");
   const model = useMemo(() => {
     const next = cloneSkinned(body.scene);
