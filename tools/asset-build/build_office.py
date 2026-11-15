@@ -19,7 +19,7 @@ def chair(mb, x, y, rot=0.0, fabric="fabric_grey"):
     mb.box(x - 0.25, y - 0.25, F + 0.44, x + 0.25, y + 0.25, F + 0.52, fabric, rot=rot)
     c, s = math.cos(rot), math.sin(rot)
     bx, by = x - 0.24 * s * -1 * 0 + 0.24 * -s * 0, y            # back offset along local +y
-    bx, by = x - s * 0.24, y + c * 0.24
+    bx, by = x + s * 0.24, y - c * 0.24
     mb.box(bx - 0.23, by - 0.03, F + 0.56, bx + 0.23, by + 0.03, F + 1.05, fabric, rot=rot)
     mb.box(bx - 0.02, by - 0.02, F + 0.5, bx + 0.02, by + 0.02, F + 0.6, "plastic_black", rot=rot)
 
