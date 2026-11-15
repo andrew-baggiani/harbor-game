@@ -1,0 +1,54 @@
+{
+  "id": "MON-01-tailgate",
+  "version": "1.0.0",
+  "day": "monday",
+  "location": "Lobby_Door",
+  "trigger": "courier",
+  "roles": ["all"],
+  "skill": "physical-social-engineering",
+  "controls": {
+    "CIS_v8.1": ["14.2"],
+    "NIST_800-53r5": ["AT-2(3)"],
+    "NIST_800-171r2": ["3.2.1"],
+    "CMMC_L2": ["AT.L2-3.2.1"],
+    "HIPAA": [],
+    "CSF_2.0": ["PR.AT-01"]
+  },
+  "variants": [{ "caller": "Courier", "pressure": "badge_in_the_van", "tell": "no_badge" }],
+  "prompt": {
+    "who": "Courier",
+    "role": "No badge",
+    "text": "Hey, can you grab the door? My badge is back in the van. I'm double-parked out there. Two seconds, I swear."
+  },
+  "choices": [
+    {
+      "id": "door-hold",
+      "label": "Hold it open",
+      "outcome": "tailgated",
+      "score": 0,
+      "verb": "decided",
+      "flag": "held",
+      "ok": false,
+      "debrief": "debrief/MON-01-a",
+      "bark": "The doors swing open. He walks in holding a blank card. The reader stays red.",
+      "report": "You held the door. He walked in with no badge."
+    },
+    {
+      "id": "door-shut",
+      "label": "The door closes",
+      "outcome": "refused_entry",
+      "score": 100,
+      "verb": "reported",
+      "flag": "shut",
+      "ok": true,
+      "debrief": "debrief/MON-01-b",
+      "bark": "The doors stay shut. He puts the card away. Badge yourself on the reader.",
+      "report": "You let the door close. He went back to the van."
+    }
+  ],
+  "beat": "door",
+  "next": "lobby",
+  "flagKey": "door",
+  "tenant_tokens": ["{{COMPANY}}", "{{HELPDESK_PHONE}}", "{{REPORT_CHANNEL}}"],
+  "knowledge_check_pool": "kc/physical"
+}

@@ -49,35 +49,16 @@ export function step(dt: number) {
   dt = Math.min(dt, 0.033);
   tickAudio(dt);
 
-  if (world.fadingIn) {
+  if (world.ride === "idle" && world.fadingIn) {
     world.fade = Math.max(0, world.fade - dt * 1.7);
     if (world.fade === 0) world.fadingIn = false;
   }
-
-  if (world.transition) {
-    world.fade = Math.min(1, world.fade + dt * 2.4);
-    if (world.fade >= 1) {
-      if (world.transition === "up") {
-        world.px = ELEVATOR_F14.x;
-        world.pz = ELEVATOR_F14.z;
-        world.py = OFFICE_Y;
-        world.face = Math.PI / 2;
-        world.camYaw = Math.PI / 2;
-        store.setBark(null);
-        useHarbor.setState({ beat: "desk", objective: objectiveFor("desk") });
-        world.minutes += 4;
-      } else {
-        world.px = ELEVATOR.x;
-        world.pz = ELEVATOR.z;
-        world.py = 0;
-        world.face = Math.PI / 2;
-        world.camYaw = Math.PI / 2;
-        useHarbor.setState({ beat: "leave", objective: objectiveFor("leave") });
-      }
-      world.transition = null;
-      world.fadingIn = true;
-      blip(320);
-    }
+  stepLanes(dt);
+  stepRide(dt);
+  if (world.ride === "hold" || world.ride === "shut" || world.ride === "ride") {
+    setEngine(0, false);
+    setRing(false);
+    setWalking(false, 0);
     return;
   }
 
@@ -185,14 +166,14 @@ export function step(dt: number) {
     fleet[0].yaw = world.carYaw;
   } else {
     const speed = pace;
-    const next = slide(world.px, world.pz, world.py, mx * speed * dt, mz * speed * dt, 0.32, doorBlock());
+    const next = slide(world.px, world.pz, world.py, mx * speed * dt, mz * speed * dt, 0.32, [...doorBlock(), ...gateBlock()]);
     world.moving = Math.hypot(next.x - world.px, next.z - world.pz) > 0.001;
     world.speed = world.moving ? speed : 0;
     world.px = next.x;
     world.pz = next.z;
     if (world.py > 40) {
       world.px = Math.max(-9.5, Math.min(9.5, world.px));
-      world.pz = Math.max(-16.2, Math.min(-1.05, world.pz));
+      world.pz = Math.max(-17.8, Math.min(-1.05, world.pz));
     }
     if (world.moving) {
       const desired = Math.atan2(mz, mx);
@@ -222,7 +203,7 @@ export function step(dt: number) {
     world.greeted = true;
     world.barkT = 6;
     say("reception");
-    store.setBark({ who: "June Park · Reception", text: "You're on the list. Elevator at the back. Floor fourteen." });
+    store.setBark({ who: "June Park · Reception", text: "You're on my list for fourteen. Straight back, gold doors." });
   }
 
   if (store.beat === "leave" && world.py < 5 && world.pz > 0.55 && Math.abs(world.px) < 8) {
@@ -244,6 +225,128 @@ export function step(dt: number) {
 function doorBlock() {
   if (world.doorOpen > 0.55 || world.py > 4) return [];
   return [{ minX: -1.4, maxX: 1.4, minZ: -1.2, maxZ: -0.45, minY: 0, maxY: 2.7 }];
+}
+
+const GATE_LANES: [number, number][] = [
+  [-1.7, -0.8],
+  [-0.6, 0.3],
+  [0.5, 1.4],
+  [1.6, 2.7],
+];
+
+function gateBlock() {
+  if (world.py > 4) return [];
+  return GATE_LANES.flatMap(([minX, maxX], index) =>
+    world.laneT[index] > 0.75 ? [] : [{ minX, maxX, minZ: -12.35, maxZ: -11.65, minY: 0, maxY: 1.5 }],
+  );
+}
+
+const RIDE_FLOORS = ["L", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14"];
+
+function inCab() {
+  return Math.abs(world.px - 1.5) < 0.75 && world.pz < world.cabZ - 0.35 && Math.abs(world.py - world.cabY) < 1.6;
+}
+
+function stepLanes(dt: number) {
+  for (let index = 0; index < 4; index += 1) {
+    const target = world.laneOpen[index];
+    const step = dt / 0.4;
+    world.laneT[index] = world.laneT[index] < target ? Math.min(target, world.laneT[index] + step) : Math.max(target, world.laneT[index] - step);
+    if (world.laneOpen[index] === 1 && world.laneT[index] > 0.95) {
+      world.laneHold[index] -= dt;
+      if (world.laneHold[index] <= 0) world.laneOpen[index] = 0;
+    }
+  }
+}
+
+function stepRide(dt: number) {
+  if (world.ride === "idle") return;
+  const up = world.rideDir === "up";
+  if (world.ride === "open") {
+    world.cabShown = true;
+    world.callLit = true;
+    world.elevDoor = Math.min(1, world.elevDoor + dt / 1.2);
+    world.indicator = up ? "L" : "14";
+    world.arrow = up ? "up" : "down";
+    if (world.elevDoor >= 1) world.ride = "board";
+    return;
+  }
+  if (world.ride === "board") {
+    if (inCab()) {
+      world.ride = "hold";
+      world.rideT = 0;
+      world.callLit = false;
+      world.cabButton = up ? "14" : "L";
+    }
+    return;
+  }
+  if (world.ride === "hold") {
+    world.rideT += dt;
+    if (world.rideT >= 1) world.ride = "shut";
+    return;
+  }
+  if (world.ride === "shut") {
+    world.elevDoor = Math.max(0, world.elevDoor - dt / 1.2);
+    if (world.elevDoor <= 0) {
+      world.ride = "ride";
+      world.rideT = 0;
+      world.rideMoved = false;
+      world.fade = 0;
+    }
+    return;
+  }
+  if (world.ride === "ride") {
+    world.rideT += dt;
+    world.rideBob = Math.sin(world.rideT * 9) * 0.02;
+    const floors = up ? RIDE_FLOORS : [...RIDE_FLOORS].reverse();
+    world.indicator = floors[Math.min(floors.length - 1, Math.floor(world.rideT / 0.3))];
+    world.arrow = up ? "up" : "down";
+    if (!world.rideMoved && world.rideT >= 2.4) {
+      world.fade = Math.min(1, world.fade + dt * 3);
+      if (world.fade >= 1) {
+        world.py += up ? 50.6 : -50.6;
+        world.pz += up ? 0.85 : -0.85;
+        world.cabY += up ? 50.6 : -50.6;
+        world.cabZ += up ? 0.85 : -0.85;
+        world.rideMoved = true;
+      }
+    } else if (world.rideMoved && world.fade > 0) {
+      world.fade = Math.max(0, world.fade - dt * 2);
+    }
+    if (world.rideT >= 5 && world.rideMoved && world.fade === 0) {
+      world.ride = "arrive";
+      world.rideT = 0;
+      world.cabButton = "";
+      world.indicator = up ? "14" : "L";
+      if (up) {
+        useHarbor.setState({ beat: "desk", objective: objectiveFor("desk") });
+        world.minutes += 4;
+      } else {
+        useHarbor.setState({ beat: "leave", objective: objectiveFor("leave") });
+      }
+      blip(880);
+    }
+    return;
+  }
+  if (world.ride === "arrive") {
+    world.elevDoor = Math.min(1, world.elevDoor + dt / 1.2);
+    world.callLit = false;
+    if (world.elevDoor >= 1) {
+      world.ride = "out";
+      world.rideT = 0;
+    }
+    return;
+  }
+  world.rideT += dt;
+  if (world.rideT > 3 || (world.rideT > 0.8 && !inCab())) {
+    world.elevDoor = Math.max(0, world.elevDoor - dt / 1.2);
+    if (world.elevDoor <= 0) {
+      world.cabShown = false;
+      world.ride = "idle";
+      world.arrow = "";
+      world.rideBob = 0;
+    }
+  }
 }
 
 function dampAngle(current: number, target: number, lambda: number, dt: number) {
@@ -320,13 +423,22 @@ function tryInteract() {
     if (car >= 0) takeCar(car);
     return;
   }
+  if (action.startsWith("gate-")) {
+    const lane = Number(action.slice(5)) - 1;
+    if (lane >= 0 && lane < 4) {
+      world.laneOpen[lane] = 1;
+      world.laneHold[lane] = 2.5;
+      blip(720);
+    }
+    return;
+  }
   if (action === "door") {
     useHarbor.setState({
       beat: "door",
       talk: {
         who: "Courier",
         role: "At the tower door · he has no badge",
-        text: "I'm the courier. Hold the door? My badge is in the van. I'll be two seconds.",
+        text: "Hey, can you grab the door? My badge is back in the van. I'm double-parked out there. Two seconds, I swear.",
         choices: [
           { id: "door-hold", label: "Hold it open for him" },
           { id: "door-shut", label: "Let the door close" },
@@ -348,13 +460,20 @@ function tryInteract() {
     world.barkT = 4.5;
     return;
   }
-  if (action === "up") {
-    world.transition = "up";
-    blip(240);
-    return;
-  }
-  if (action === "down") {
-    world.transition = "down";
+  if (action === "up" || action === "down") {
+    const up = action === "up";
+    world.ride = "open";
+    world.rideDir = up ? "up" : "down";
+    world.rideT = 0;
+    world.rideMoved = false;
+    world.cabShown = true;
+    world.cabY = up ? 0 : 50.6;
+    world.cabZ = up ? -17.36 : -16.51;
+    world.elevDoor = 0;
+    world.callLit = true;
+    world.cabButton = "";
+    world.indicator = up ? "L" : "14";
+    world.arrow = up ? "up" : "down";
     blip(240);
     return;
   }
@@ -387,7 +506,7 @@ function tryInteract() {
       talk: {
         who: "June Park",
         role: "Reception · she is at the lobby desk",
-        text: "June Park, reception. You're on tonight's list for floor fourteen. The elevator is straight back, gold doors. Badge yourself. If someone asks you to hold the door, they badge in on their own.",
+        text: "Hi, you must be the new hire. You're on my list for fourteen. Elevator's straight back, gold doors. Badge yourself up. Oh, and if anybody asks you to hold a door? They've got a badge. They can use it.",
         choices: [{ id: "reception-ok", label: "I'll badge myself. Where's the elevator?" }],
       },
     });
@@ -407,6 +526,8 @@ function computePrompt(): string | null {
     }
     return "↑ drives  ·  ← → steers";
   }
+  if (world.ride === "board") return "Walk into the cab";
+  if (world.ride !== "idle") return null;
   const x = world.px;
   const z = world.pz;
   if (world.py < 2 && nearestFleet(x, z, 7.5) >= 0) {
@@ -422,6 +543,14 @@ function computePrompt(): string | null {
   if (store.flags.door && world.doorOpen < 0.4 && world.py < 2 && !insideTower(x, z) && dist(x, z, DOOR) < 4) {
     world.use = "badge";
     return "E  ·  Badge in";
+  }
+  if (world.py < 3) {
+    for (const point of world.gatePoints) {
+      if (dist(x, z, point) < 0.8 && world.laneT[point.lane - 1] < 0.2) {
+        world.use = `gate-${point.lane}`;
+        return "E  ·  Badge the gate";
+      }
+    }
   }
   if (store.beat === "lobby" && world.py < 2 && dist(x, z, ELEVATOR) < 2.8 && insideTower(x, z)) {
     world.use = "up";

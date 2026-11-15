@@ -1,0 +1,66 @@
+{
+  "id": "MON-05-wire",
+  "version": "1.0.0",
+  "day": "monday",
+  "location": "Elevator_F14",
+  "trigger": "maya",
+  "roles": ["all"],
+  "skill": "payment-fraud",
+  "controls": {
+    "CIS_v8.1": ["14.2"],
+    "NIST_800-53r5": ["AT-2(3)"],
+    "NIST_800-171r2": ["3.2.1"],
+    "CMMC_L2": ["AT.L2-3.2.1"],
+    "HIPAA": [],
+    "CSF_2.0": ["PR.AT-01"]
+  },
+  "variants": [{ "caller": "Maya Ruiz", "pressure": "elena_said_so", "tell": "form_down" }],
+  "prompt": {
+    "who": "Maya Ruiz",
+    "role": "Finance",
+    "text": "Hey, sorry, you're the new hire, right? Elena says the acquisition wire has to go out now, and the approval form's down. She said you could release it. I really don't want to be the one who held this up."
+  },
+  "choices": [
+    {
+      "id": "wire-send",
+      "label": "Send the wire",
+      "outcome": "payment_fraud",
+      "score": 0,
+      "verb": "decided",
+      "flag": "send",
+      "ok": false,
+      "debrief": "debrief/MON-05-a",
+      "bark": "The payment leaves. Nobody confirmed it was Elena.",
+      "report": "You released a payment because a message said to."
+    },
+    {
+      "id": "wire-call",
+      "label": "Call Elena on the number we have",
+      "outcome": "verified",
+      "score": 100,
+      "verb": "reported",
+      "flag": "call",
+      "ok": true,
+      "debrief": "debrief/MON-05-b",
+      "bark": "You call the number finance already had. She didn't order a wire.",
+      "report": "The wire waited until Elena was on a number finance already had."
+    },
+    {
+      "id": "wire-refuse",
+      "label": "I don't send wires",
+      "outcome": "refused",
+      "score": 70,
+      "verb": "decided",
+      "flag": "refuse",
+      "ok": true,
+      "debrief": "debrief/MON-05-c",
+      "bark": "You don't send it. Maya calls Elena herself.",
+      "report": "You refused the wire. Maya called Elena herself."
+    }
+  ],
+  "beat": "maya",
+  "next": "down",
+  "flagKey": "wire",
+  "tenant_tokens": ["{{COMPANY}}", "{{HELPDESK_PHONE}}", "{{REPORT_CHANNEL}}"],
+  "knowledge_check_pool": "kc/payment"
+}

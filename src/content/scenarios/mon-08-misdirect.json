@@ -1,0 +1,160 @@
+{
+  "id": "MON-08-misdirect",
+  "version": "1.0.0",
+  "day": "monday",
+  "location": "Desk_Player",
+  "trigger": "Monitor_Player_Screen",
+  "roles": [
+    "all"
+  ],
+  "skill": "data-exposure",
+  "controls": {
+    "CIS_v8.1": [
+      "14.5",
+      "14.4",
+      "14.6"
+    ],
+    "NIST_800-53r5": [
+      "AT-2"
+    ],
+    "NIST_800-171r2": [
+      "3.2.1"
+    ],
+    "CMMC_L2": [
+      "AT.L2-3.2.1"
+    ],
+    "HIPAA": [],
+    "CSF_2.0": [
+      "PR.AT-01"
+    ]
+  },
+  "variants": [
+    {
+      "caller": "Maya Ruiz",
+      "pressure": "ship_before_load",
+      "tell": "autocomplete_external_lookalike",
+      "wrong_recipient": "Mark Delaney (external) <m.delaney@calderfreight.example>",
+      "right_recipient": "Mark Delgado ({{COMPANY}}) <mark.delgado@harborandco.com>",
+      "compose_node": "Beat_Misdirect_Screen_Compose_A",
+      "sent_node": "Beat_Misdirect_Screen_Sent_A"
+    },
+    {
+      "caller": "Maya Ruiz",
+      "pressure": "ship_before_load",
+      "tell": "autocomplete_personal_address",
+      "wrong_recipient": "Mark Delgado (personal) <markd.home@inboxly.example>",
+      "right_recipient": "Mark Delgado ({{COMPANY}}) <mark.delgado@harborandco.com>",
+      "compose_node": "Beat_Misdirect_Screen_Compose_B",
+      "sent_node": "Beat_Misdirect_Screen_Sent_B"
+    }
+  ],
+  "prompt": {
+    "who": "Maya Ruiz",
+    "role": "Finance · chat",
+    "text": "Hey, it's Maya. Can you send tonight's manifest to Mark Delgado on the dock team? He needs it before the Meridian loads. It's the full one, with the customer details."
+  },
+  "prompt_after_send": {
+    "who": "Mail",
+    "role": "Sent · Undo is no longer available",
+    "text": "Sent to {{WRONG_RECIPIENT}}. That's not the Mark on the dock team. The manifest has customer names, addresses and phone numbers."
+  },
+  "setup": {
+    "voice": "misdirect",
+    "speaker": "Maya Ruiz",
+    "text": "Hey, it's Maya. Can you send tonight's manifest to Mark Delgado on the dock team? He needs it before the Meridian loads. It's the full one, with the customer details."
+  },
+  "choices": [
+    {
+      "id": "misdirect-send",
+      "label": "Send",
+      "outcome": "misdelivered",
+      "score": 0,
+      "verb": "decided",
+      "flag": "send",
+      "ok": false,
+      "debrief": "",
+      "bark": "Sent. Wrong Mark.",
+      "report": "You sent the customer manifest to the wrong recipient.",
+      "voice": "misdirect-send",
+      "consequence_text": "Sent. Then you read the To line. That's not the Mark on the dock team.",
+      "stage": 1,
+      "then": [
+        "misdirect-report",
+        "misdirect-hide"
+      ],
+      "show_after": [
+        "{{SENT_NODE}}"
+      ],
+      "note": "Transitional. No debrief: play the consequence, swap to the sent overlay, then offer the stage-2 choices from prompt_after_send. The stage-2 choice overwrites the flag."
+    },
+    {
+      "id": "misdirect-check",
+      "label": "Check the To line first",
+      "outcome": "caught_before_send",
+      "score": 100,
+      "verb": "decided",
+      "flag": "check",
+      "ok": true,
+      "debrief": "debrief/MON-08-a",
+      "bark": "Caught it. Sent to the right Mark.",
+      "report": "You caught the wrong autocomplete recipient before sending customer data.",
+      "voice": "misdirect-check",
+      "consequence_text": "You caught it. Autocomplete picked the wrong Mark. You fixed the To line and sent it to the right one.",
+      "debrief_voice": "debrief-misdirect-check",
+      "debrief_text": "Good catch. Autocomplete guesses, and sometimes it guesses wrong. Read the To line before anything with customer data goes out.",
+      "stage": 1
+    },
+    {
+      "id": "misdirect-hide",
+      "label": "Delete it from Sent and move on",
+      "outcome": "concealed_exposure",
+      "score": 0,
+      "verb": "decided",
+      "flag": "hide",
+      "ok": false,
+      "debrief": "debrief/MON-08-b",
+      "bark": "Your copy's gone. Theirs isn't.",
+      "report": "You misdirected customer data and deleted the evidence instead of reporting it.",
+      "voice": "misdirect-hide",
+      "consequence_text": "You deleted it from Sent. Their copy is still sitting in their inbox.",
+      "debrief_voice": "debrief-misdirect-hide",
+      "debrief_text": "Deleting your copy doesn't unsend it. Customer data just left Harbor. Report it right away, so security can try to recall it and contain it.",
+      "stage": 2
+    },
+    {
+      "id": "misdirect-report",
+      "label": "Report it right now",
+      "outcome": "reported",
+      "score": 60,
+      "verb": "reported",
+      "flag": "report",
+      "ok": true,
+      "debrief": "debrief/MON-08-c",
+      "bark": "Security recalled it and reached the recipient.",
+      "report": "You misdirected customer data, then reported it within minutes ({{SECURITY_PHONE}}).",
+      "voice": "misdirect-report",
+      "consequence_text": "You called security straight away. They recalled the message and reached the person who got it.",
+      "debrief_voice": "debrief-misdirect-report",
+      "debrief_text": "Right call. Mistakes happen. Reporting in minutes, not days, is what keeps one small. Next time, check the To line before you hit send.",
+      "stage": 2
+    }
+  ],
+  "beat": "misdirect",
+  "next": "phone",
+  "flagKey": "misdirect",
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{SECURITY_PHONE}}",
+    "{{REPORT_CHANNEL}}",
+    "{{WRONG_RECIPIENT}}",
+    "{{SENT_NODE}}"
+  ],
+  "tenant_defaults": {
+    "{{COMPANY}}": "Harbor",
+    "{{HELPDESK_PHONE}}": "ext 4100",
+    "{{SECURITY_PHONE}}": "ext 4400",
+    "{{REPORT_CHANNEL}}": "security@harborandco.com"
+  },
+  "knowledge_check_pool": "kc/data-exposure"
+}

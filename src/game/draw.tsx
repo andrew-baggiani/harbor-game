@@ -1686,7 +1686,7 @@ export function Rig() {
     world.camX += (tx - world.camX) * k;
     world.camY += (ty - world.camY) * k;
     world.camZ += (tz - world.camZ) * k;
-    camera.position.set(world.camX, world.camY, world.camZ);
+    camera.position.set(world.camX, world.camY + world.rideBob, world.camZ);
     camera.lookAt(focusX, lookY, focusZ);
     const spot = markerNow();
     if (spot) {

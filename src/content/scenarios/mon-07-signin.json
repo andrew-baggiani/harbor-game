@@ -1,0 +1,137 @@
+{
+  "id": "MON-07-signin",
+  "version": "1.0.0",
+  "day": "monday",
+  "location": "Desk_Player",
+  "trigger": "Beat_Signin_Phone",
+  "roles": [
+    "all"
+  ],
+  "skill": "login-monitoring",
+  "controls": {
+    "CIS_v8.1": [
+      "14.6",
+      "14.3"
+    ],
+    "NIST_800-53r5": [
+      "AT-2",
+      "AT-2(4)"
+    ],
+    "NIST_800-171r2": [
+      "3.2.1"
+    ],
+    "CMMC_L2": [
+      "AT.L2-3.2.1"
+    ],
+    "HIPAA": [
+      "164.308(a)(5)(ii)(C)"
+    ],
+    "CSF_2.0": [
+      "PR.AT-01"
+    ]
+  },
+  "variants": [
+    {
+      "caller": "{{COMPANY}} Sign-in",
+      "pressure": "one_tap_approve",
+      "tell": "location_not_you",
+      "city": "Reno, NV",
+      "ip": "198.51.100.47",
+      "screen_node": "Beat_Signin_Phone_Screen_Alert_A"
+    },
+    {
+      "caller": "{{COMPANY}} Sign-in",
+      "pressure": "one_tap_approve",
+      "tell": "location_not_you",
+      "city": "Tulsa, OK",
+      "ip": "203.0.113.82",
+      "screen_node": "Beat_Signin_Phone_Screen_Alert_B"
+    }
+  ],
+  "prompt": {
+    "who": "{{COMPANY}} Sign-in",
+    "role": "Alert on your phone",
+    "text": "New sign-in to your {{COMPANY}} account from {{CITY}}. Unknown browser. Was this you?"
+  },
+  "setup": {
+    "voice": "signin",
+    "speaker": "Narrator",
+    "text": "Your phone buzzes on the desk. A sign-in alert for your Harbor account."
+  },
+  "choices": [
+    {
+      "id": "signin-yes",
+      "label": "Tap “Yes, it was me”",
+      "outcome": "account_takeover",
+      "score": 0,
+      "verb": "decided",
+      "flag": "yes",
+      "ok": false,
+      "debrief": "debrief/MON-07-a",
+      "bark": "You approved it. Someone else is signed in as you.",
+      "report": "You approved a sign-in you didn't make.",
+      "voice": "signin-yes",
+      "consequence_text": "You tapped yes. Whoever that was is now signed in as you.",
+      "debrief_voice": "debrief-signin-yes",
+      "debrief_text": "You were right here, on fourteen. That sign-in came from somewhere else. Never approve one you didn't start. Tap no, then call security at extension 4400.",
+      "show_after": [
+        "Beat_Signin_Phone_Screen_Dark"
+      ]
+    },
+    {
+      "id": "signin-ignore",
+      "label": "Swipe it away",
+      "outcome": "session_left_open",
+      "score": 40,
+      "verb": "decided",
+      "flag": "ignore",
+      "ok": false,
+      "debrief": "debrief/MON-07-b",
+      "bark": "Dismissed. The session is still open.",
+      "report": "You swiped away a sign-in alert you didn't trigger and didn't report it.",
+      "voice": "signin-ignore",
+      "consequence_text": "You swiped it away. The session stays open, and nobody is watching it.",
+      "debrief_voice": "debrief-signin-ignore",
+      "debrief_text": "Not approving it helps. But a sign-in you didn't make means someone may have your password. Tap no, and report it, so security can shut it down.",
+      "show_after": [
+        "Beat_Signin_Phone_Screen_Dark"
+      ]
+    },
+    {
+      "id": "signin-report",
+      "label": "Tap “No, it wasn't me” and report it",
+      "outcome": "reported",
+      "score": 100,
+      "verb": "reported",
+      "flag": "report",
+      "ok": true,
+      "debrief": "debrief/MON-07-c",
+      "bark": "Session killed. Security is resetting your password.",
+      "report": "You denied an unknown sign-in and reported it to security ({{SECURITY_PHONE}}).",
+      "voice": "signin-report",
+      "consequence_text": "You tapped no and called it in. Security ended the session and reset your password.",
+      "debrief_voice": "debrief-signin-report",
+      "debrief_text": "Exactly. A sign-in you didn't make is an incident, even at midnight. Tap no, then call security at extension 4400, or email security@harborandco.com.",
+      "show_after": [
+        "Beat_Signin_Phone_Screen_Secured"
+      ]
+    }
+  ],
+  "beat": "signin",
+  "next": "usb",
+  "flagKey": "signin",
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{SECURITY_PHONE}}",
+    "{{REPORT_CHANNEL}}",
+    "{{CITY}}"
+  ],
+  "tenant_defaults": {
+    "{{COMPANY}}": "Harbor",
+    "{{HELPDESK_PHONE}}": "ext 4100",
+    "{{SECURITY_PHONE}}": "ext 4400",
+    "{{REPORT_CHANNEL}}": "security@harborandco.com"
+  },
+  "knowledge_check_pool": "kc/login-monitoring"
+}

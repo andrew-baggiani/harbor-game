@@ -1,0 +1,164 @@
+{
+  "id": "MON-09-cleandesk",
+  "version": "1.0.0",
+  "day": "monday",
+  "location": "PrintArea",
+  "trigger": "Beat_CleanDesk_Printouts",
+  "roles": [
+    "all"
+  ],
+  "skill": "clean-desk",
+  "controls": {
+    "CIS_v8.1": [
+      "14.4",
+      "14.3"
+    ],
+    "NIST_800-53r5": [
+      "AT-2"
+    ],
+    "NIST_800-171r2": [
+      "3.2.1"
+    ],
+    "CMMC_L2": [
+      "AT.L2-3.2.1"
+    ],
+    "HIPAA": [
+      "164.308(a)(5)(ii)(D)"
+    ],
+    "CSF_2.0": [
+      "PR.AT-01"
+    ]
+  },
+  "variants": [
+    {
+      "caller": "End of shift",
+      "pressure": "last_one_out",
+      "tell": "own_desk_sticky_unlocked_printout",
+      "printout_node": "Beat_CleanDesk_Printouts_A",
+      "printout": "cargo manifest",
+      "screen": "Monitor_Player_Screen",
+      "sticky_node": "Beat_CleanDesk_Sticky_Player",
+      "lock_node": "Beat_CleanDesk_PlayerScreen_Locked"
+    },
+    {
+      "caller": "End of shift",
+      "pressure": "last_one_out",
+      "tell": "desk07_sticky_unlocked_printout",
+      "printout_node": "Beat_CleanDesk_Printouts_B",
+      "printout": "customer contact list",
+      "screen": "Monitor_Desk07_Screen",
+      "sticky_node": "Sticky_Password_Desk07",
+      "lock_node": "Beat_CleanDesk_Desk07Screen_Locked"
+    }
+  ],
+  "prompt": {
+    "who": "End of shift",
+    "role": "Floor 14",
+    "text": "Your print job is still on the printer: a {{PRINTOUT}} with customer data. A screen is still unlocked, and there's a password on a sticky note."
+  },
+  "setup": {
+    "voice": "cleandesk",
+    "speaker": "Narrator",
+    "text": "That's the shift. Before you head for the elevator, take one last look around. Your print job never got picked up."
+  },
+  "choices": [
+    {
+      "id": "cleandesk-leave",
+      "label": "Head out. It'll keep till morning",
+      "outcome": "data_left_exposed",
+      "score": 0,
+      "verb": "decided",
+      "flag": "leave",
+      "ok": false,
+      "debrief": "debrief/MON-09-a",
+      "bark": "Printouts, open screen, sticky note. All still out.",
+      "report": "You left customer printouts, an unlocked screen and a password note out overnight.",
+      "voice": "cleandesk-leave",
+      "consequence_text": "You left it all out. The night crew walks right past the printer, and the screen is still open.",
+      "debrief_voice": "debrief-cleandesk-leave",
+      "debrief_text": "Customer data on the printer, an open screen, a password on a sticky note. Anyone walking the floor gets all three. Shred the paper, lock the screen, lose the note."
+    },
+    {
+      "id": "cleandesk-home",
+      "label": "Take the printouts home to finish",
+      "outcome": "data_removed",
+      "score": 0,
+      "verb": "decided",
+      "flag": "home",
+      "ok": false,
+      "debrief": "debrief/MON-09-b",
+      "bark": "Customer data went home in your bag.",
+      "report": "You took printed customer data out of the building.",
+      "voice": "cleandesk-home",
+      "consequence_text": "The printouts went home in your bag. Customer data, off the premises.",
+      "debrief_voice": "debrief-cleandesk-home",
+      "debrief_text": "Paper with customer data stays in the building. A bag left on a train is a breach. When you're done with it, it goes in the locked shred bin.",
+      "hide_after": [
+        "{{PRINTOUT_NODE}}"
+      ]
+    },
+    {
+      "id": "cleandesk-lock",
+      "label": "Lock the screen and go",
+      "outcome": "partial_clean",
+      "score": 40,
+      "verb": "decided",
+      "flag": "lock",
+      "ok": false,
+      "debrief": "debrief/MON-09-c",
+      "bark": "Screen locked. Paper and note still out.",
+      "report": "You locked the screen but left customer printouts and a password note out.",
+      "voice": "cleandesk-lock",
+      "consequence_text": "Screen locked. The printouts and the sticky note are still out.",
+      "debrief_voice": "debrief-cleandesk-lock",
+      "debrief_text": "Locking the screen is half the job. The paper goes in the shred bin. The password comes off the monitor and into the password manager.",
+      "show_after": [
+        "{{LOCK_NODE}}"
+      ]
+    },
+    {
+      "id": "cleandesk-shred",
+      "label": "Shred the printouts, lock the screen, pull the note",
+      "outcome": "clean_desk",
+      "score": 100,
+      "verb": "decided",
+      "flag": "shred",
+      "ok": true,
+      "debrief": "debrief/MON-09-d",
+      "bark": "Shredded, locked, note gone.",
+      "report": "Customer printouts went in the locked shred bin, the screen was locked, and the password note was removed.",
+      "voice": "cleandesk-shred",
+      "consequence_text": "Printouts shredded. Screen locked. The note is gone.",
+      "debrief_voice": "debrief-cleandesk-shred",
+      "debrief_text": "Clean desk. Confidential paper goes in the locked shred bin, never the recycling. Lock your screen every time you stand up. Passwords live in the password manager, not on a sticky note.",
+      "show_after": [
+        "{{LOCK_NODE}}"
+      ],
+      "hide_after": [
+        "{{PRINTOUT_NODE}}",
+        "{{STICKY_NODE}}"
+      ],
+      "dispose_to": "Shred_Bin_Secure"
+    }
+  ],
+  "beat": "cleandesk",
+  "next": "down",
+  "flagKey": "cleandesk",
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{SECURITY_PHONE}}",
+    "{{REPORT_CHANNEL}}",
+    "{{PRINTOUT}}",
+    "{{PRINTOUT_NODE}}",
+    "{{STICKY_NODE}}",
+    "{{LOCK_NODE}}"
+  ],
+  "tenant_defaults": {
+    "{{COMPANY}}": "Harbor",
+    "{{HELPDESK_PHONE}}": "ext 4100",
+    "{{SECURITY_PHONE}}": "ext 4400",
+    "{{REPORT_CHANNEL}}": "security@harborandco.com"
+  },
+  "knowledge_check_pool": "kc/clean-desk"
+}

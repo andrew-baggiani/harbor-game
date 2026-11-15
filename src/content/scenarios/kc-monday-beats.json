@@ -1,0 +1,818 @@
+[
+  {
+    "id": "kcb-patch-1",
+    "skill": "patching",
+    "prompt": "A work laptop says “Updates failed — 23 days.” What do you do?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "Ignore it. Updates are IT's problem",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "Report it to IT through the help desk",
+        "correct": true
+      },
+      {
+        "id": "c",
+        "label": "Search online for an update tool and run it",
+        "correct": false
+      },
+      {
+        "id": "d",
+        "label": "Keep clicking Remind me later until it stops",
+        "correct": false
+      }
+    ],
+    "why": "Failed updates are something you report, not something you fix with tools from the internet. IT can see why it failed and push the fix safely.",
+    "beat": "MON-06-updates",
+    "controls": [
+      "CIS-14.7",
+      "CIS-14.6",
+      "164.308(a)(5)(ii)(B)"
+    ]
+  },
+  {
+    "id": "kcb-patch-2",
+    "skill": "patching",
+    "prompt": "The security agent icon on your laptop is grey with a line through it. Best move?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "Turn it back on in settings yourself",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "Uninstall and reinstall it",
+        "correct": false
+      },
+      {
+        "id": "c",
+        "label": "Tell IT the agent is off",
+        "correct": true
+      },
+      {
+        "id": "d",
+        "label": "Leave it. The firewall is enough",
+        "correct": false
+      }
+    ],
+    "why": "A security tool that's switched off can mean a fault or tampering. Let IT look at it. Don't toggle security tools on or off yourself.",
+    "beat": "MON-06-updates",
+    "controls": [
+      "CIS-14.7",
+      "CIS-14.6",
+      "164.308(a)(5)(ii)(B)"
+    ]
+  },
+  {
+    "id": "kcb-patch-3",
+    "skill": "patching",
+    "prompt": "You restart the laptop and the same “updates failed” warning comes back. Now what?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "Restart it again until it works",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "Report it to IT. A restart that doesn't clear it means something's wrong",
+        "correct": true
+      },
+      {
+        "id": "c",
+        "label": "Switch to your personal laptop for work",
+        "correct": false
+      },
+      {
+        "id": "d",
+        "label": "Turn off automatic updates to stop the warning",
+        "correct": false
+      }
+    ],
+    "why": "A restart is a fair first try. When the warning survives it, it's an IT problem. Report it.",
+    "beat": "MON-06-updates",
+    "controls": [
+      "CIS-14.7",
+      "CIS-14.6",
+      "164.308(a)(5)(ii)(B)"
+    ]
+  },
+  {
+    "id": "kcb-patch-4",
+    "skill": "patching",
+    "prompt": "Why do missing security updates matter?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "They slow the laptop down",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "Attackers target known holes that updates already fixed",
+        "correct": true
+      },
+      {
+        "id": "c",
+        "label": "They only affect new features",
+        "correct": false
+      },
+      {
+        "id": "d",
+        "label": "They don't, if you have a strong password",
+        "correct": false
+      }
+    ],
+    "why": "Most break-ins use flaws that already have a fix. An unpatched machine is an open window.",
+    "beat": "MON-06-updates",
+    "controls": [
+      "CIS-14.7",
+      "CIS-14.6",
+      "164.308(a)(5)(ii)(B)"
+    ]
+  },
+  {
+    "id": "kcb-patch-5",
+    "skill": "patching",
+    "prompt": "A pop-up in your browser says your software is out of date and offers a download. What do you do?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "Click it. It's helping",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "Close it, and report it if it keeps showing up. Updates come from IT's own tools",
+        "correct": true
+      },
+      {
+        "id": "c",
+        "label": "Download it, but scan it first",
+        "correct": false
+      },
+      {
+        "id": "d",
+        "label": "Forward the link to a coworker to check",
+        "correct": false
+      }
+    ],
+    "why": "Fake update prompts are a common way to deliver malware. Real updates come through IT's managed tools.",
+    "beat": "MON-06-updates",
+    "controls": [
+      "CIS-14.7",
+      "CIS-14.6",
+      "164.308(a)(5)(ii)(B)"
+    ]
+  },
+  {
+    "id": "kcb-patch-6",
+    "skill": "patching",
+    "prompt": "Who should you tell when a work device stops updating?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "Nobody, it will fix itself",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "A coworker who is good with computers",
+        "correct": false
+      },
+      {
+        "id": "c",
+        "label": "IT, using the help desk number on your badge",
+        "correct": true
+      },
+      {
+        "id": "d",
+        "label": "The device maker's support line",
+        "correct": false
+      }
+    ],
+    "why": "Use the official help desk contact you already have. IT owns the fix and the record.",
+    "beat": "MON-06-updates",
+    "controls": [
+      "CIS-14.7",
+      "CIS-14.6",
+      "164.308(a)(5)(ii)(B)"
+    ]
+  },
+  {
+    "id": "kcb-login-1",
+    "skill": "login-monitoring",
+    "prompt": "Your phone shows “New sign-in to your account from Reno, NV. Was this you?” You're at your desk in the office. What do you do?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "Tap Yes so it stops bugging you",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "Ignore it",
+        "correct": false
+      },
+      {
+        "id": "c",
+        "label": "Tap No, then report it to security",
+        "correct": true
+      },
+      {
+        "id": "d",
+        "label": "Change your phone's lock screen",
+        "correct": false
+      }
+    ],
+    "why": "A sign-in you didn't make means someone may have your password. Deny it and report it right away.",
+    "beat": "MON-07-signin",
+    "controls": [
+      "164.308(a)(5)(ii)(C)",
+      "CIS-14.6",
+      "CIS-14.3"
+    ]
+  },
+  {
+    "id": "kcb-login-2",
+    "skill": "login-monitoring",
+    "prompt": "You swiped away a sign-in alert you didn't trigger. What's the risk?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "None, swiping it away blocks it",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "The session may stay open, and nobody knows to stop it",
+        "correct": true
+      },
+      {
+        "id": "c",
+        "label": "Your phone battery runs down",
+        "correct": false
+      },
+      {
+        "id": "d",
+        "label": "Only that you'll get another alert",
+        "correct": false
+      }
+    ],
+    "why": "Dismissing isn't denying. Security can only shut down what they know about.",
+    "beat": "MON-07-signin",
+    "controls": [
+      "164.308(a)(5)(ii)(C)",
+      "CIS-14.6",
+      "CIS-14.3"
+    ]
+  },
+  {
+    "id": "kcb-login-3",
+    "skill": "login-monitoring",
+    "prompt": "Ten approve-sign-in prompts hit your phone in a row at 1 a.m. What does that usually mean?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "The app is glitching",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "Someone has your password and hopes you tap Approve",
+        "correct": true
+      },
+      {
+        "id": "c",
+        "label": "IT is testing the system",
+        "correct": false
+      },
+      {
+        "id": "d",
+        "label": "Your phone needs an update",
+        "correct": false
+      }
+    ],
+    "why": "Prompt bombing tries to wear you down. Approve nothing you didn't start, and report it.",
+    "beat": "MON-07-signin",
+    "controls": [
+      "164.308(a)(5)(ii)(C)",
+      "CIS-14.6",
+      "CIS-14.3"
+    ]
+  },
+  {
+    "id": "kcb-login-4",
+    "skill": "login-monitoring",
+    "prompt": "Where should you report an unexpected sign-in alert?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "Reply to the alert email",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "Security, at the number or address you already know",
+        "correct": true
+      },
+      {
+        "id": "c",
+        "label": "Post in the team chat",
+        "correct": false
+      },
+      {
+        "id": "d",
+        "label": "Wait and mention it at the next team meeting",
+        "correct": false
+      }
+    ],
+    "why": "Use a channel you already trust, not one from the alert. Report it as soon as you see it.",
+    "beat": "MON-07-signin",
+    "controls": [
+      "164.308(a)(5)(ii)(C)",
+      "CIS-14.6",
+      "CIS-14.3"
+    ]
+  },
+  {
+    "id": "kcb-login-5",
+    "skill": "login-monitoring",
+    "prompt": "An alert says someone signed in from your usual city, but at a time you were asleep. What do you do?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "Nothing, the city matches",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "Report it. The time doesn't fit, so it wasn't you",
+        "correct": true
+      },
+      {
+        "id": "c",
+        "label": "Sign in yourself to check it's still working",
+        "correct": false
+      },
+      {
+        "id": "d",
+        "label": "Delete the alert",
+        "correct": false
+      }
+    ],
+    "why": "Any sign-in you didn't make is worth reporting, even if the location looks normal.",
+    "beat": "MON-07-signin",
+    "controls": [
+      "164.308(a)(5)(ii)(C)",
+      "CIS-14.6",
+      "CIS-14.3"
+    ]
+  },
+  {
+    "id": "kcb-login-6",
+    "skill": "login-monitoring",
+    "prompt": "After you report a strange sign-in, what will security most likely do?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "Blame you for the breach",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "End the session and help you reset your password",
+        "correct": true
+      },
+      {
+        "id": "c",
+        "label": "Nothing until next week",
+        "correct": false
+      },
+      {
+        "id": "d",
+        "label": "Ask you to approve it to see who it is",
+        "correct": false
+      }
+    ],
+    "why": "Fast reports let security cut the session off and reset access before damage is done. Reporting isn't admitting fault.",
+    "beat": "MON-07-signin",
+    "controls": [
+      "164.308(a)(5)(ii)(C)",
+      "CIS-14.6",
+      "CIS-14.3"
+    ]
+  },
+  {
+    "id": "kcb-data-1",
+    "skill": "data-exposure",
+    "prompt": "You type “Mark” and autocomplete fills in an address. Before you send a file with customer data, you should",
+    "choices": [
+      {
+        "id": "a",
+        "label": "Trust autocomplete. It's usually right",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "Check the full address in the To line",
+        "correct": true
+      },
+      {
+        "id": "c",
+        "label": "Add more people so the right Mark gets it",
+        "correct": false
+      },
+      {
+        "id": "d",
+        "label": "Send it and ask Mark if he got it",
+        "correct": false
+      }
+    ],
+    "why": "Autocomplete guesses. Read the whole address, especially when it says external.",
+    "beat": "MON-08-misdirect",
+    "controls": [
+      "CIS-14.5",
+      "CIS-14.4",
+      "CIS-14.6"
+    ]
+  },
+  {
+    "id": "kcb-data-2",
+    "skill": "data-exposure",
+    "prompt": "You just sent a customer list to the wrong person outside the company. What's the right move?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "Delete it from Sent and hope nobody notices",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "Report it to security right away",
+        "correct": true
+      },
+      {
+        "id": "c",
+        "label": "Email the person asking them to ignore it",
+        "correct": false
+      },
+      {
+        "id": "d",
+        "label": "Wait to see if they reply",
+        "correct": false
+      }
+    ],
+    "why": "Fast reporting gives security the best chance to recall it and handle notice. Hiding it makes it worse.",
+    "beat": "MON-08-misdirect",
+    "controls": [
+      "CIS-14.5",
+      "CIS-14.4",
+      "CIS-14.6"
+    ]
+  },
+  {
+    "id": "kcb-data-3",
+    "skill": "data-exposure",
+    "prompt": "Which is an unintentional data exposure?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "Locking your screen",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "Sharing a file with an “anyone with the link” setting",
+        "correct": true
+      },
+      {
+        "id": "c",
+        "label": "Using the shred bin",
+        "correct": false
+      },
+      {
+        "id": "d",
+        "label": "Calling the help desk",
+        "correct": false
+      }
+    ],
+    "why": "Open share links travel far beyond the people you meant. Share only with named people.",
+    "beat": "MON-08-misdirect",
+    "controls": [
+      "CIS-14.5",
+      "CIS-14.4",
+      "CIS-14.6"
+    ]
+  },
+  {
+    "id": "kcb-data-4",
+    "skill": "data-exposure",
+    "prompt": "You want a chatbot to summarize a spreadsheet of customer names and addresses. What do you do?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "Paste it into a public AI tool",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "Use only the tools your company has approved for that data, or don't paste it at all",
+        "correct": true
+      },
+      {
+        "id": "c",
+        "label": "Paste half of it",
+        "correct": false
+      },
+      {
+        "id": "d",
+        "label": "Paste it, then delete the chat",
+        "correct": false
+      }
+    ],
+    "why": "Data pasted into a public tool has left the company. Use approved tools or leave customer data out.",
+    "beat": "MON-08-misdirect",
+    "controls": [
+      "CIS-14.5",
+      "CIS-14.4",
+      "CIS-14.6"
+    ]
+  },
+  {
+    "id": "kcb-data-5",
+    "skill": "data-exposure",
+    "prompt": "An “external” tag appears next to a recipient name. What is it telling you?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "The person is a VIP",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "The address is outside the company. Double-check before sending",
+        "correct": true
+      },
+      {
+        "id": "c",
+        "label": "The email will be encrypted",
+        "correct": false
+      },
+      {
+        "id": "d",
+        "label": "Nothing important",
+        "correct": false
+      }
+    ],
+    "why": "The external tag is your last warning before data leaves. Stop and check.",
+    "beat": "MON-08-misdirect",
+    "controls": [
+      "CIS-14.5",
+      "CIS-14.4",
+      "CIS-14.6"
+    ]
+  },
+  {
+    "id": "kcb-data-6",
+    "skill": "data-exposure",
+    "prompt": "Why does it matter whether a misdirected email is reported in minutes or in days?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "It doesn't, the data is gone either way",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "Quick reports can allow a recall and keep the exposure small",
+        "correct": true
+      },
+      {
+        "id": "c",
+        "label": "Only managers can report it",
+        "correct": false
+      },
+      {
+        "id": "d",
+        "label": "Reports are only needed for paper",
+        "correct": false
+      }
+    ],
+    "why": "Speed is what limits the damage. Mistakes happen; hiding them is what turns them into incidents.",
+    "beat": "MON-08-misdirect",
+    "controls": [
+      "CIS-14.5",
+      "CIS-14.4",
+      "CIS-14.6"
+    ]
+  },
+  {
+    "id": "kcb-desk-1",
+    "skill": "clean-desk",
+    "prompt": "You're leaving for the night. A printout with customer data is still on the printer. What do you do?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "Leave it for the morning",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "Put it in the paper recycling bin",
+        "correct": false
+      },
+      {
+        "id": "c",
+        "label": "Put it in the locked shred bin",
+        "correct": true
+      },
+      {
+        "id": "d",
+        "label": "Take it home to finish later",
+        "correct": false
+      }
+    ],
+    "why": "Confidential paper goes in the locked shred console, never the recycling or your bag.",
+    "beat": "MON-09-cleandesk",
+    "controls": [
+      "CIS-14.4",
+      "CIS-14.3",
+      "164.308(a)(5)(ii)(D)"
+    ]
+  },
+  {
+    "id": "kcb-desk-2",
+    "skill": "clean-desk",
+    "prompt": "You step away from your desk for two minutes. Your screen should be",
+    "choices": [
+      {
+        "id": "a",
+        "label": "Left on so you don't lose your place",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "Locked",
+        "correct": true
+      },
+      {
+        "id": "c",
+        "label": "Turned to face the wall",
+        "correct": false
+      },
+      {
+        "id": "d",
+        "label": "Dimmed",
+        "correct": false
+      }
+    ],
+    "why": "Lock it every time you stand up. Two minutes is long enough for someone to use it.",
+    "beat": "MON-09-cleandesk",
+    "controls": [
+      "CIS-14.4",
+      "CIS-14.3",
+      "164.308(a)(5)(ii)(D)"
+    ]
+  },
+  {
+    "id": "kcb-desk-3",
+    "skill": "clean-desk",
+    "prompt": "Where should you keep a work password?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "On a sticky note under the keyboard",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "In the company password manager",
+        "correct": true
+      },
+      {
+        "id": "c",
+        "label": "In a note on your phone",
+        "correct": false
+      },
+      {
+        "id": "d",
+        "label": "In your head and on the monitor as a backup",
+        "correct": false
+      }
+    ],
+    "why": "A password manager keeps it safe and lets you use long, unique passwords. Sticky notes are readable by anyone walking by.",
+    "beat": "MON-09-cleandesk",
+    "controls": [
+      "CIS-14.4",
+      "CIS-14.3",
+      "164.308(a)(5)(ii)(D)"
+    ]
+  },
+  {
+    "id": "kcb-desk-4",
+    "skill": "clean-desk",
+    "prompt": "You find a coworker's password on a sticky note on their monitor. Best move?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "Leave it, it's their business",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "Remove it and let them or IT know, so it gets changed",
+        "correct": true
+      },
+      {
+        "id": "c",
+        "label": "Take a photo of it as proof",
+        "correct": false
+      },
+      {
+        "id": "d",
+        "label": "Try it to see if it works",
+        "correct": false
+      }
+    ],
+    "why": "Take it off display and tell them or IT. Once a password has been out in the open, it should be changed.",
+    "beat": "MON-09-cleandesk",
+    "controls": [
+      "CIS-14.4",
+      "CIS-14.3",
+      "164.308(a)(5)(ii)(D)"
+    ]
+  },
+  {
+    "id": "kcb-desk-5",
+    "skill": "clean-desk",
+    "prompt": "Is it OK to take customer printouts home to finish your work?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "Yes, if you bring them back",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "Only in a folder",
+        "correct": false
+      },
+      {
+        "id": "c",
+        "label": "No. Customer data stays in the building unless policy says otherwise",
+        "correct": true
+      },
+      {
+        "id": "d",
+        "label": "Yes, if it's after hours",
+        "correct": false
+      }
+    ],
+    "why": "Paper outside the office is easy to lose and hard to track. Keep it in, and shred it when you're done.",
+    "beat": "MON-09-cleandesk",
+    "controls": [
+      "CIS-14.4",
+      "CIS-14.3",
+      "164.308(a)(5)(ii)(D)"
+    ]
+  },
+  {
+    "id": "kcb-desk-6",
+    "skill": "clean-desk",
+    "prompt": "Which bin is right for a page listing customer names and card numbers?",
+    "choices": [
+      {
+        "id": "a",
+        "label": "General trash",
+        "correct": false
+      },
+      {
+        "id": "b",
+        "label": "Open paper recycling",
+        "correct": false
+      },
+      {
+        "id": "c",
+        "label": "Locked secure-shred console",
+        "correct": true
+      },
+      {
+        "id": "d",
+        "label": "Any bin, if you tear it in half first",
+        "correct": false
+      }
+    ],
+    "why": "Only the locked shred console destroys it safely. Torn paper can be pieced back together.",
+    "beat": "MON-09-cleandesk",
+    "controls": [
+      "CIS-14.4",
+      "CIS-14.3",
+      "164.308(a)(5)(ii)(D)"
+    ]
+  }
+]

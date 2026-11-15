@@ -14,7 +14,7 @@ const NAV = [
     label: "Path",
     icon: Library,
     match: (path: string) =>
-      path.startsWith("/path") || path.startsWith("/lesson") || path.startsWith("/glossary"),
+      path.startsWith("/path") || path.startsWith("/lesson") || path.startsWith("/glossary") || path.startsWith("/coverage"),
   },
   { to: "/drills", label: "Drills", icon: Crosshair, match: (path: string) => path.startsWith("/drills") },
   {

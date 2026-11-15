@@ -133,29 +133,55 @@ export function blip(freq = 520) {
 
 let voice: AudioBufferSourceNode | null = null;
 const clips = new Map<string, AudioBuffer>();
+let queued: string | null = null;
+let queueTimer: number | null = null;
+let voiceGen = 0;
 
-export function say(id: string) {
+function clearQueue() {
+  queued = null;
+  if (queueTimer != null) {
+    window.clearTimeout(queueTimer);
+    queueTimer = null;
+  }
+}
+
+function queueNext(gen: number, delayMs: number) {
+  if (gen !== voiceGen) return;
+  const next = queued;
+  queued = null;
+  if (!next) return;
+  queueTimer = window.setTimeout(() => {
+    queueTimer = null;
+    if (gen !== voiceGen) return;
+    say(next);
+  }, delayMs);
+}
+
+export function say(id: string, thenId?: string) {
   if (typeof window === "undefined") return;
   const line = voiceFor(id);
   if (!line) return;
+  clearQueue();
+  const gen = ++voiceGen;
+  queued = thenId ?? null;
   unlockAudio();
-  caption.who = speaker[id] ?? "Harbor";
+  caption.who = speaker[id] ?? (id.startsWith("debrief-") ? "Narrator · debrief" : "Harbor");
   caption.text = line.text;
   caption.t = Math.min(16, 5 + line.text.length / 18);
   const audio = context();
   if (!audio) {
-    speak(line);
+    speak(line, gen);
     return;
   }
-  void playLine(audio, id, line);
+  void playLine(audio, id, line, gen);
 }
 
-async function playLine(audio: AudioContext, id: string, line: { text: string; kind: VoiceKind }) {
+async function playLine(audio: AudioContext, id: string, line: { text: string; kind: VoiceKind }, gen: number) {
   try {
     if (audio.state === "suspended") await audio.resume();
     let buffer = clips.get(id);
     if (!buffer) {
-      const response = await fetch(`/voice/${id}.mp3`);
+      const response = await fetch(`/voice/v2/${id}.mp3`);
       if (!response.ok) throw new Error("missing");
       buffer = await audio.decodeAudioData(await response.arrayBuffer());
       clips.set(id, buffer);
@@ -175,12 +201,15 @@ async function playLine(audio: AudioContext, id: string, line: { text: string; k
     gain.connect(audio.destination);
     source.start();
     voice = source;
+    source.onended = () => {
+      if (voice === source) queueNext(gen, 400);
+    };
   } catch {
-    speak(line);
+    speak(line, gen);
   }
 }
 
-function speak(line: { text: string; kind: VoiceKind }) {
+function speak(line: { text: string; kind: VoiceKind }, gen: number) {
   if (!window.speechSynthesis) return;
   const synth = window.speechSynthesis;
   const run = () => {
@@ -199,6 +228,7 @@ function speak(line: { text: string; kind: VoiceKind }) {
       );
     const picked = match(line.kind) ?? voices[0];
     if (picked) uttered.voice = picked;
+    uttered.onend = () => queueNext(gen, 400);
     synth.speak(uttered);
   };
   if (synth.getVoices().length === 0) {
@@ -215,8 +245,8 @@ const speaker: Record<string, string> = {
   door: "Courier · no badge",
   reception: "June Park · Reception",
   "reception-ok": "June Park · Reception",
-  mail: "Elena Voss · email, not Harbor",
-  phone: "Caller · says he is Harbor IT",
+  mail: "Narrator · mail from \"Elena Voss\"",
+  phone: "Caller · says he's Dan, Harbor IT",
   usb: "Narrator · break counter",
   maya: "Maya Ruiz · Finance",
   "door-hold": "Narrator",

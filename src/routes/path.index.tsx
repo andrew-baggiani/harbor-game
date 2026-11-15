@@ -13,7 +13,7 @@ function PathPage() {
   return (
     <div className="enter mx-auto w-full max-w-3xl">
       <p className="text-sm text-faint">Curriculum</p>
-      <h1 className="mt-2 font-display text-4xl text-balance md:text-5xl">Eight modules. One pause.</h1>
+      <h1 className="mt-2 font-display text-4xl text-balance md:text-5xl">Nine modules. One pause.</h1>
       <p className="mt-4 text-pretty text-muted">
         Take them in order once. Any lesson opens on its own link, so you can hand a single briefing to someone
         else. {LESSONS.length} lessons, each with a field rule and a short check.
@@ -21,6 +21,10 @@ function PathPage() {
       <p className="mt-3 text-sm">
         <Link to="/glossary" className="text-fg underline-offset-4 hover:underline">
           Glossary
+        </Link>
+        <span className="text-faint"> · </span>
+        <Link to="/coverage" className="text-fg underline-offset-4 hover:underline">
+          Coverage
         </Link>
       </p>
       <ol className="mt-8">

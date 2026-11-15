@@ -1,0 +1,728 @@
+[
+  {
+    "id": "kc-door-1",
+    "skill": "physical-social-engineering",
+    "prompt": "A courier with no badge asks you to hold the tower door. His badge is \u201cin the van.\u201d",
+    "choices": [
+      {
+        "id": "hold",
+        "label": "Hold it. He\u2019ll only be a second.",
+        "correct": false
+      },
+      {
+        "id": "close",
+        "label": "Let the door close. He badges himself.",
+        "correct": true
+      },
+      {
+        "id": "card",
+        "label": "Take his blank card and badge him in.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-door-2",
+    "skill": "physical-social-engineering",
+    "prompt": "Someone you don\u2019t know is walking in behind you. What is a badge?",
+    "choices": [
+      {
+        "id": "share",
+        "label": "Something you can lend if they look busy.",
+        "correct": false
+      },
+      {
+        "id": "personal",
+        "label": "Personal. It does not transfer to a visitor.",
+        "correct": true
+      },
+      {
+        "id": "lobby",
+        "label": "Only needed on the street, not in the lobby.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-mail-1",
+    "skill": "phishing",
+    "prompt": "Elena Voss asks for Apple gift-card codes. The address is harborandco-exec.com, not Harbor.",
+    "choices": [
+      {
+        "id": "send",
+        "label": "Send the codes. She\u2019s boarding.",
+        "correct": false
+      },
+      {
+        "id": "report",
+        "label": "Report the mail. Don\u2019t buy anything.",
+        "correct": true
+      },
+      {
+        "id": "reply",
+        "label": "Reply and ask her to confirm the amount.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-mail-2",
+    "skill": "phishing",
+    "prompt": "You don\u2019t trust a gift-card email, so you close it and leave it in the inbox.",
+    "choices": [
+      {
+        "id": "best",
+        "label": "That\u2019s the best move. Ignoring is the same as reporting.",
+        "correct": false
+      },
+      {
+        "id": "lower",
+        "label": "Safer than paying, but reporting scores higher.",
+        "correct": true
+      },
+      {
+        "id": "codes",
+        "label": "You should still send the codes so the request closes.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-phone-1",
+    "skill": "authentication",
+    "prompt": "A caller says he is Harbor IT and needs the six-digit code on your phone.",
+    "choices": [
+      {
+        "id": "read",
+        "label": "Read it. He already knows you\u2019re locked out.",
+        "correct": false
+      },
+      {
+        "id": "hang",
+        "label": "Hang up and use the help-desk number on your badge.",
+        "correct": true
+      },
+      {
+        "id": "text",
+        "label": "Text the code so there\u2019s a written record.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-phone-2",
+    "skill": "authentication",
+    "prompt": "When is it right to share a live MFA code?",
+    "choices": [
+      {
+        "id": "it",
+        "label": "When the caller says they are IT.",
+        "correct": false
+      },
+      {
+        "id": "never",
+        "label": "Never. A code is a password for the next few seconds.",
+        "correct": true
+      },
+      {
+        "id": "boss",
+        "label": "When your manager is copied on the call.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-usb-1",
+    "skill": "removable-media",
+    "prompt": "A USB stick labeled \u201cSalary review\u201d is on the break counter beside an open laptop.",
+    "choices": [
+      {
+        "id": "plug",
+        "label": "Plug it in. It might be yours.",
+        "correct": false
+      },
+      {
+        "id": "bag",
+        "label": "Bag it and call IT. Don\u2019t plug it in.",
+        "correct": true
+      },
+      {
+        "id": "open",
+        "label": "Open it on your phone first. Phones are safer.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-usb-2",
+    "skill": "removable-media",
+    "prompt": "Leaving the USB stick where you found it is\u2026",
+    "choices": [
+      {
+        "id": "same",
+        "label": "The same as reporting it.",
+        "correct": false
+      },
+      {
+        "id": "less",
+        "label": "Better than plugging it in, and worse than handing it to IT.",
+        "correct": true
+      },
+      {
+        "id": "required",
+        "label": "Required. Nobody should move found media.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-wire-1",
+    "skill": "payment-fraud",
+    "prompt": "Maya says Elena wants an acquisition wire released now, and the form is down.",
+    "choices": [
+      {
+        "id": "send",
+        "label": "Send it. Maya is in finance.",
+        "correct": false
+      },
+      {
+        "id": "call",
+        "label": "Call Elena on the number finance already has.",
+        "correct": true
+      },
+      {
+        "id": "chat",
+        "label": "Reply on the same message thread and then send it.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-wire-2",
+    "skill": "payment-fraud",
+    "prompt": "You refuse to send the wire, but you don\u2019t verify it with Elena.",
+    "choices": [
+      {
+        "id": "top",
+        "label": "That\u2019s the top score. Refusing is always enough.",
+        "correct": false
+      },
+      {
+        "id": "verify",
+        "label": "It\u2019s safer than sending. Calling the known number scores higher.",
+        "correct": true
+      },
+      {
+        "id": "sendnow",
+        "label": "You should send it once Maya asks twice.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-report-1",
+    "skill": "phishing",
+    "prompt": "Harbor scores a reported incident against an ignored one. Which is higher?",
+    "choices": [
+      {
+        "id": "ignore",
+        "label": "Ignoring it. You didn\u2019t make it worse.",
+        "correct": false
+      },
+      {
+        "id": "report",
+        "label": "Reporting it the right way.",
+        "correct": true
+      },
+      {
+        "id": "equal",
+        "label": "They\u2019re equal if nothing was paid.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-report-2",
+    "skill": "payment-fraud",
+    "prompt": "Who do you call to check a payment request that arrived as a message?",
+    "choices": [
+      {
+        "id": "thread",
+        "label": "Whoever is already in the message thread.",
+        "correct": false
+      },
+      {
+        "id": "file",
+        "label": "A number finance already had on file.",
+        "correct": true
+      },
+      {
+        "id": "link",
+        "label": "The callback number printed in the message.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-door-3",
+    "skill": "physical-social-engineering",
+    "prompt": "A visitor says they are with the courier and the door is already closing. What do you do?",
+    "choices": [
+      {
+        "id": "hold",
+        "label": "Catch the door. They are together.",
+        "correct": false
+      },
+      {
+        "id": "close",
+        "label": "Let it close. Each person badges themselves.",
+        "correct": true
+      },
+      {
+        "id": "ask",
+        "label": "Ask them to show any card, then hold it.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-door-4",
+    "skill": "physical-social-engineering",
+    "prompt": "Your badge works on the reader. A stranger asks to borrow it for one trip upstairs.",
+    "choices": [
+      {
+        "id": "lend",
+        "label": "Lend it. You will be right behind them.",
+        "correct": false
+      },
+      {
+        "id": "no",
+        "label": "No. A badge is personal.",
+        "correct": true
+      },
+      {
+        "id": "photo",
+        "label": "Let them photograph it instead.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-door-5",
+    "skill": "physical-social-engineering",
+    "prompt": "The courier\u2019s card is blank and the reader would stay red. Holding the door means\u2026",
+    "choices": [
+      {
+        "id": "help",
+        "label": "You helped a vendor finish a delivery.",
+        "correct": false
+      },
+      {
+        "id": "tail",
+        "label": "You tailed him into the lobby without a badge check.",
+        "correct": true
+      },
+      {
+        "id": "green",
+        "label": "The reader turns green because you were polite.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-mail-3",
+    "skill": "phishing",
+    "prompt": "The display name is Elena Voss. The domain is harborandco-exec.com. What is the tell?",
+    "choices": [
+      {
+        "id": "name",
+        "label": "The display name.",
+        "correct": false
+      },
+      {
+        "id": "domain",
+        "label": "The lookalike domain, not the display name.",
+        "correct": true
+      },
+      {
+        "id": "hour",
+        "label": "The message arrived after 5.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-mail-4",
+    "skill": "phishing",
+    "prompt": "A gift-card request says not to loop an assistant. That line is\u2026",
+    "choices": [
+      {
+        "id": "normal",
+        "label": "Normal executive efficiency.",
+        "correct": false
+      },
+      {
+        "id": "pressure",
+        "label": "Pressure to skip the people who would catch it.",
+        "correct": true
+      },
+      {
+        "id": "required",
+        "label": "Required by Harbor policy.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-mail-5",
+    "skill": "phishing",
+    "prompt": "You reported the gift-card mail. What should you not do next?",
+    "choices": [
+      {
+        "id": "buy",
+        "label": "Buy the cards anyway so the sender stops writing.",
+        "correct": true
+      },
+      {
+        "id": "stop",
+        "label": "Leave the codes unsent.",
+        "correct": false
+      },
+      {
+        "id": "note",
+        "label": "Tell security what the message asked for.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-mail-6",
+    "skill": "phishing",
+    "prompt": "Closing a suspicious mail without reporting it is scored\u2026",
+    "choices": [
+      {
+        "id": "same",
+        "label": "The same as reporting it.",
+        "correct": false
+      },
+      {
+        "id": "lower",
+        "label": "Below reporting, and above paying the request.",
+        "correct": true
+      },
+      {
+        "id": "best",
+        "label": "Above reporting, because you did not bother anyone.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-phone-3",
+    "skill": "authentication",
+    "prompt": "The caller already knows your name and desk. Does that make the code request legitimate?",
+    "choices": [
+      {
+        "id": "yes",
+        "label": "Yes. Secret knowledge means it is IT.",
+        "correct": false
+      },
+      {
+        "id": "no",
+        "label": "No. A code is still never read to a caller.",
+        "correct": true
+      },
+      {
+        "id": "if",
+        "label": "Only if they sound rushed.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-phone-4",
+    "skill": "authentication",
+    "prompt": "Where is the number you use to call Harbor IT back?",
+    "choices": [
+      {
+        "id": "caller",
+        "label": "The callback number the caller just gave you.",
+        "correct": false
+      },
+      {
+        "id": "badge",
+        "label": "The help-desk number already on your badge.",
+        "correct": true
+      },
+      {
+        "id": "search",
+        "label": "The first Harbor IT result in a search ad.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-phone-5",
+    "skill": "authentication",
+    "prompt": "A six-digit code arrives while someone is asking for it. The code is\u2026",
+    "choices": [
+      {
+        "id": "share",
+        "label": "Safe to share with anyone who says they opened a ticket.",
+        "correct": false
+      },
+      {
+        "id": "password",
+        "label": "A short-lived password. Reading it signs someone in.",
+        "correct": true
+      },
+      {
+        "id": "name",
+        "label": "Only your employee number.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-phone-6",
+    "skill": "authentication",
+    "prompt": "You hang up and then dial the number printed in the suspicious voicemail.",
+    "choices": [
+      {
+        "id": "good",
+        "label": "That is the right callback.",
+        "correct": false
+      },
+      {
+        "id": "bad",
+        "label": "No. Use a number you already had, not one they supplied.",
+        "correct": true
+      },
+      {
+        "id": "either",
+        "label": "Either number is fine if you wait five minutes.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-usb-3",
+    "skill": "removable-media",
+    "prompt": "The USB is labeled with something you care about, next to an open laptop. The label is\u2026",
+    "choices": [
+      {
+        "id": "proof",
+        "label": "Proof it is yours to open.",
+        "correct": false
+      },
+      {
+        "id": "bait",
+        "label": "A reason to be suspicious, not a reason to plug it in.",
+        "correct": true
+      },
+      {
+        "id": "it",
+        "label": "Instructions from IT to install it.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-usb-4",
+    "skill": "removable-media",
+    "prompt": "Bagging the stick for IT means\u2026",
+    "choices": [
+      {
+        "id": "open",
+        "label": "You open it once, then bag it.",
+        "correct": false
+      },
+      {
+        "id": "unplugged",
+        "label": "Nobody plugs it in. IT gets it sealed.",
+        "correct": true
+      },
+      {
+        "id": "trash",
+        "label": "You throw it in the regular trash.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-usb-5",
+    "skill": "removable-media",
+    "prompt": "Leaving the stick on the counter is better than plugging it in because\u2026",
+    "choices": [
+      {
+        "id": "equal",
+        "label": "It is equal to a report.",
+        "correct": false
+      },
+      {
+        "id": "avoids",
+        "label": "It avoids running whatever is on it, but the next person still might.",
+        "correct": true
+      },
+      {
+        "id": "worse",
+        "label": "It is worse than plugging it in.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-usb-6",
+    "skill": "removable-media",
+    "prompt": "A found stick belongs in which channel?",
+    "choices": [
+      {
+        "id": "laptop",
+        "label": "The nearest unlocked laptop, so you can see the file name.",
+        "correct": false
+      },
+      {
+        "id": "it",
+        "label": "IT, unplugged.",
+        "correct": true
+      },
+      {
+        "id": "home",
+        "label": "Your home machine, which is not on the Harbor network.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-wire-3",
+    "skill": "payment-fraud",
+    "prompt": "Maya is really in finance. Does that make the wire safe to send?",
+    "choices": [
+      {
+        "id": "yes",
+        "label": "Yes. Finance asking is the approval.",
+        "correct": false
+      },
+      {
+        "id": "no",
+        "label": "No. The request still has to be verified on a known number.",
+        "correct": true
+      },
+      {
+        "id": "half",
+        "label": "Yes, if you cut the amount in half.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-wire-4",
+    "skill": "payment-fraud",
+    "prompt": "\u201cElena said so\u201d arrived in a message. The form is down. The missing form is\u2026",
+    "choices": [
+      {
+        "id": "reason",
+        "label": "A reason to skip the check.",
+        "correct": false
+      },
+      {
+        "id": "tell",
+        "label": "A reason the check matters more, not less.",
+        "correct": true
+      },
+      {
+        "id": "approval",
+        "label": "The approval itself.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-wire-5",
+    "skill": "payment-fraud",
+    "prompt": "You call the number finance already had and Elena did not order the wire. You should\u2026",
+    "choices": [
+      {
+        "id": "send",
+        "label": "Send it. Maya will be embarrassed otherwise.",
+        "correct": false
+      },
+      {
+        "id": "hold",
+        "label": "Not send it, and let that callback stand as the check.",
+        "correct": true
+      },
+      {
+        "id": "new",
+        "label": "Call the new number in Maya\u2019s text instead.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-wire-6",
+    "skill": "payment-fraud",
+    "prompt": "Refusing to send the wire without calling Elena is\u2026",
+    "choices": [
+      {
+        "id": "top",
+        "label": "The highest score, because nothing moved.",
+        "correct": false
+      },
+      {
+        "id": "mid",
+        "label": "Safer than sending, and below a callback on a known number.",
+        "correct": true
+      },
+      {
+        "id": "fail",
+        "label": "A failure, the same as sending it.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-report-3",
+    "skill": "phishing",
+    "prompt": "Time-to-report matters because\u2026",
+    "choices": [
+      {
+        "id": "shame",
+        "label": "A late report is used to embarrass you.",
+        "correct": false
+      },
+      {
+        "id": "early",
+        "label": "An early report is how a small mistake stays small.",
+        "correct": true
+      },
+      {
+        "id": "optional",
+        "label": "Reporting is optional if you already closed the mail.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-report-4",
+    "skill": "physical-social-engineering",
+    "prompt": "Which Harbor outcome is the one the score treats as the success path?",
+    "choices": [
+      {
+        "id": "ignore",
+        "label": "Ignoring the ask so you stay out of it.",
+        "correct": false
+      },
+      {
+        "id": "report",
+        "label": "Reporting it the way the control says.",
+        "correct": true
+      },
+      {
+        "id": "help",
+        "label": "Helping first and reporting if something feels wrong later.",
+        "correct": false
+      }
+    ]
+  }
+]

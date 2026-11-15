@@ -1,3 +1,5 @@
+import { choiceOf, reportFromScenarios, skillScores, talkFromScenario } from "@/game/scenarios";
+
 export type DoorFlag = "held" | "shut";
 export type MailFlag = "codes" | "report" | "ignore";
 export type PhoneFlag = "code" | "hangup";
@@ -53,170 +55,49 @@ export function objectiveFor(beat: Beat): string {
   }
 }
 
+export type ReportLine = { ok: boolean; text: string };
+
+const barkWho: Record<string, string> = {
+  door: "Courier",
+  mail: "Mail",
+  phone: "Phone",
+  usb: "USB stick",
+  maya: "Maya",
+};
+
 export function talkFor(beat: Beat): Talk | null {
-  if (beat === "door") {
-    return {
-      who: "Courier",
-      role: "No badge",
-      text: "Hold the door? Badge is in the van. I'll be two seconds.",
-      choices: [
-        { id: "door-hold", label: "Hold it open" },
-        { id: "door-shut", label: "The door closes" },
-      ],
-    };
-  }
-  return null;
+  return beat === "door" ? talkFromScenario("door") : null;
 }
 
 export function panelFor(id: string): Talk | null {
-  if (id === "mail") {
-    return {
-      who: "Elena Voss",
-      role: "elena.voss@harborandco-exec.com",
-      text: "I'm boarding. Buy eight Apple gift cards, two hundred each, and reply with the codes. Don't loop my assistant.",
-      choices: [
-        { id: "mail-codes", label: "Send the codes" },
-        { id: "mail-report", label: "Report the mail" },
-        { id: "mail-ignore", label: "Close it" },
-      ],
-    };
-  }
-  if (id === "phone") {
-    return {
-      who: "Caller",
-      role: "Says he's Harbor IT",
-      text: "We blocked a login from overseas. Read me the six-digit code that just hit your phone.",
-      choices: [
-        { id: "phone-code", label: "Read the code" },
-        { id: "phone-hangup", label: "Hang up" },
-      ],
-    };
-  }
-  if (id === "usb") {
-    return {
-      who: "USB stick",
-      role: "Labeled Salary review",
-      text: "It's on the break counter, next to an open laptop.",
-      choices: [
-        { id: "usb-plug", label: "Plug it in" },
-        { id: "usb-it", label: "Bag it for IT" },
-        { id: "usb-leave", label: "Leave it" },
-      ],
-    };
-  }
-  if (id === "maya") {
-    return {
-      who: "Maya Ruiz",
-      role: "Finance",
-      text: "Elena says the acquisition wire has to leave now. The form is down. She told me you'd release it.",
-      choices: [
-        { id: "wire-send", label: "Send the wire" },
-        { id: "wire-call", label: "Call Elena on the number we have" },
-        { id: "wire-refuse", label: "I don't send wires" },
-      ],
-    };
-  }
-  return null;
+  return talkFromScenario(id);
 }
 
 export function barkFor(id: string): { who: string; text: string } {
-  switch (id) {
-    case "door-hold":
-      return { who: "Courier", text: "The doors swing open. He walks in holding a blank card. The reader stays red." };
-    case "door-shut":
-      return { who: "Courier", text: "The doors stay shut. He puts the card away. Badge yourself on the reader." };
-    case "mail-codes":
-      return { who: "Mail", text: "Sent. That address is not Harbor." };
-    case "mail-report":
-      return { who: "Mail", text: "Reported. You didn't buy a thing." };
-    case "mail-ignore":
-      return { who: "Mail", text: "You left it sitting in the inbox." };
-    case "phone-code":
-      return { who: "Phone", text: "That code just signed in a new device." };
-    case "phone-hangup":
-      return { who: "Phone", text: "You hang up. The number on your badge is the one you dial." };
-    case "usb-plug":
-      return { who: "Laptop", text: "The screen locks. It wants a payment." };
-    case "usb-it":
-      return { who: "You", text: "You bag it and call IT. Nobody plugs it in." };
-    case "usb-leave":
-      return { who: "USB stick", text: "It's still on the counter." };
-    case "wire-send":
-      return { who: "Maya", text: "The payment leaves. Nobody confirmed it was Elena." };
-    case "wire-call":
-      return { who: "Maya", text: "You call the number finance already had. She didn't order a wire." };
-    case "wire-refuse":
-      return { who: "Maya", text: "You don't send it. Maya calls Elena herself." };
-    default:
-      return { who: "Harbor", text: "" };
-  }
+  const found = choiceOf(id);
+  if (!found) return { who: "Harbor", text: "" };
+  const who = found.choice.id.startsWith("usb-plug") ? "Laptop" : found.choice.id.startsWith("usb-it") ? "You" : barkWho[found.scenario.beat] ?? "Harbor";
+  return { who, text: found.choice.bark };
 }
 
 export function nextBeat(id: string): Beat {
-  if (id.startsWith("door")) return "lobby";
-  if (id.startsWith("mail")) return "phone";
-  if (id.startsWith("phone")) return "usb";
-  if (id.startsWith("usb")) return "maya";
-  if (id.startsWith("wire")) return "down";
-  return "tower";
+  return choiceOf(id)?.scenario.next ?? "tower";
 }
 
 export function applyFlag(flags: Flags, id: string): Flags {
-  const next = { ...flags };
-  if (id === "door-hold") next.door = "held";
-  if (id === "door-shut") next.door = "shut";
-  if (id === "mail-codes") next.mail = "codes";
-  if (id === "mail-report") next.mail = "report";
-  if (id === "mail-ignore") next.mail = "ignore";
-  if (id === "phone-code") next.phone = "code";
-  if (id === "phone-hangup") next.phone = "hangup";
-  if (id === "usb-plug") next.usb = "plug";
-  if (id === "usb-it") next.usb = "it";
-  if (id === "usb-leave") next.usb = "leave";
-  if (id === "wire-send") next.wire = "send";
-  if (id === "wire-call") next.wire = "call";
-  if (id === "wire-refuse") next.wire = "refuse";
-  return next;
+  const found = choiceOf(id);
+  if (!found) return flags;
+  return { ...flags, [found.scenario.flagKey]: found.choice.flag };
 }
-
-export type ReportLine = { ok: boolean; text: string };
 
 export function reportLines(flags: Flags): ReportLine[] {
-  return [
-    flags.door === "shut"
-      ? { ok: true, text: "You let the door close. He went back to the van." }
-      : { ok: false, text: "You held the door. He walked in with no badge." },
-    flags.mail === "report"
-      ? { ok: true, text: "The gift-card mail went to security, not a checkout page." }
-      : flags.mail === "ignore"
-        ? { ok: false, text: "You left the gift-card mail in the inbox." }
-        : { ok: false, text: "You sent gift-card codes to a lookalike address." },
-    flags.phone === "hangup"
-      ? { ok: true, text: "You didn't read the code. You used the number on your badge." }
-      : { ok: false, text: "You read a live login code to someone who called you." },
-    flags.usb === "it"
-      ? { ok: true, text: "The USB stick went to IT, still unplugged." }
-      : flags.usb === "leave"
-        ? { ok: false, text: "The USB stick is still on the break counter." }
-        : { ok: false, text: "You plugged in a stick labeled Salary review. The laptop locked." },
-    flags.wire === "call"
-      ? { ok: true, text: "The wire waited until Elena was on a number finance already had." }
-      : flags.wire === "refuse"
-        ? { ok: true, text: "You refused the wire. Maya called Elena herself." }
-        : { ok: false, text: "You released a payment because a message said to." },
-  ];
+  return reportFromScenarios(flags);
 }
 
-export function scoreOf(flags: Flags): { score: number; clean: boolean; title: string } {
-  let score = 0;
-  if (flags.door === "shut") score += 20;
-  if (flags.mail === "report") score += 20;
-  else if (flags.mail === "ignore") score += 6;
-  if (flags.phone === "hangup") score += 20;
-  if (flags.usb === "it") score += 20;
-  else if (flags.usb === "leave") score += 6;
-  if (flags.wire === "call") score += 20;
-  else if (flags.wire === "refuse") score += 14;
+export function scoreOf(flags: Flags): { score: number; clean: boolean; title: string; skills: Record<string, number> } {
+  const skills = skillScores(flags);
+  const values = Object.values(skills);
+  const score = values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : 0;
   const clean =
     flags.door === "shut" &&
     flags.mail === "report" &&
@@ -224,7 +105,7 @@ export function scoreOf(flags: Flags): { score: number; clean: boolean; title: s
     flags.usb === "it" &&
     (flags.wire === "call" || flags.wire === "refuse");
   const title = clean ? "A quiet Monday" : score >= 70 ? "Mostly quiet" : "Monday cost something";
-  return { score, clean, title };
+  return { score, clean, title, skills };
 }
 
 export function nightPath(flags: Flags): string {
@@ -236,50 +117,73 @@ export type VoiceKind = "narrator" | "man" | "woman";
 export function voiceFor(id: string): { text: string; kind: VoiceKind } | null {
   switch (id) {
     case "brief":
-      return {
-        kind: "narrator",
-        text: "This is Monday night at Harbor and Company, a shipping firm on the quay. You are the new hire. The training is the shift. Walk the dock. Press E to get in a car, W to drive, Shift to run. Follow the gold blip to the tower door. People will ask you to hold a door, send gift card codes, read a login code, plug in a USB stick, and release a wire. The voice tells you who is asking.",
-      };
+      return { kind: "narrator", text: "Monday night at Harbor and Co. You're the new hire. Tonight, the shift is the training. Arrow keys or W to walk. Shift to run. E to use whatever's in front of you. Follow the gold blip to the tower. People are going to ask you for things tonight. Take your time with each one." };
     case "door":
-      return { kind: "man", text: "Courier, no badge. He says: hold the door. My badge is in the van. I'll be two seconds." };
+      return { kind: "man", text: "Hey, can you grab the door? My badge is back in the van. I'm double-parked out there. Two seconds, I swear." };
     case "reception":
-      return { kind: "woman", text: "June Park, reception, Harbor Tower. You are on the list for floor fourteen. The elevator is straight back. Badge yourself. If someone asks you to hold the door, they badge in on their own." };
-    case "mail":
-      return { kind: "woman", text: "Email. The name says Elena Voss, but the address is not Harbor. She writes: I'm boarding. Buy eight Apple gift cards and reply with the codes. Don't loop my assistant." };
-    case "phone":
-      return { kind: "man", text: "Phone. A man says he is Harbor IT. He says: we blocked a login from overseas. Read me the six digit code that just hit your phone." };
-    case "usb":
-      return { kind: "narrator", text: "On the break counter: a USB stick labeled Salary review, next to an open laptop. Nobody has asked you to plug it in." };
-    case "maya":
-      return { kind: "woman", text: "Maya Ruiz, finance. She says: Elena says the acquisition wire has to leave now. The form is down. She told me you would release it." };
-    case "door-hold":
-      return { kind: "narrator", text: "You held the door. The courier walks in behind you. He never badged in." };
-    case "door-shut":
-      return { kind: "narrator", text: "You let the door close. The courier goes back to the van." };
-    case "mail-codes":
-      return { kind: "narrator", text: "You sent the codes. That address is not Harbor." };
-    case "mail-report":
-      return { kind: "narrator", text: "You reported the gift card mail. You did not buy a thing." };
-    case "mail-ignore":
-      return { kind: "narrator", text: "You left the gift card mail sitting in the inbox." };
-    case "phone-code":
-      return { kind: "narrator", text: "You read the code out loud. That just signed in a new device." };
-    case "phone-hangup":
-      return { kind: "narrator", text: "You hung up. The number on your badge is the one you would dial." };
-    case "usb-plug":
-      return { kind: "narrator", text: "You plugged it in. The laptop locks and asks for a payment." };
-    case "usb-it":
-      return { kind: "narrator", text: "You bagged the USB stick for IT. Nobody plugs it in." };
-    case "usb-leave":
-      return { kind: "narrator", text: "You left the USB stick on the counter." };
-    case "wire-send":
-      return { kind: "narrator", text: "You sent the wire. Nobody confirmed it was Elena." };
-    case "wire-call":
-      return { kind: "narrator", text: "You called the number finance already had. Elena did not order a wire." };
-    case "wire-refuse":
-      return { kind: "narrator", text: "You refused the wire. Maya calls Elena herself." };
+      return { kind: "woman", text: "Hi, you must be the new hire. You're on my list for fourteen. Elevator's straight back, gold doors. Badge yourself up. Oh, and if anybody asks you to hold a door? They've got a badge. They can use it." };
     case "reception-ok":
-      return { kind: "woman", text: "June Park. Elevator at the back. Badge yourself. Floor fourteen." };
+      return { kind: "woman", text: "Straight back, gold doors. Badge in, floor fourteen. Have a good first night." };
+    case "mail":
+      return { kind: "narrator", text: "New mail. The name says Elena Voss. Check the address. Boarding now, so I can't call. I need eight Apple gift cards, $200 each, for client thank-yous. Reply with the codes. Don't loop in my assistant, it's a surprise." };
+    case "phone":
+      return { kind: "man", text: "Hi, this is Dan with Harbor IT. We just blocked a sign-in on your account from overseas. I'm locking it down now. Read me the six-digit code that just hit your phone. Quick, before it expires." };
+    case "usb":
+      return { kind: "narrator", text: "There's a USB stick on the break counter. Handwritten label: Salary review. An open laptop sits right next to it." };
+    case "maya":
+      return { kind: "woman", text: "Hey, sorry, you're the new hire, right? Elena says the acquisition wire has to go out now, and the approval form's down. She said you could release it. I really don't want to be the one who held this up." };
+    case "door-hold":
+      return { kind: "narrator", text: "You held it. He walked in right behind you. The reader never went green for him." };
+    case "door-shut":
+      return { kind: "narrator", text: "You let it close. He shrugged and headed back to the van." };
+    case "mail-codes":
+      return { kind: "narrator", text: "You sent the codes. That address isn't Harbor's, and the money's gone." };
+    case "mail-report":
+      return { kind: "narrator", text: "Reported. Security has it, and you didn't spend a dime." };
+    case "mail-ignore":
+      return { kind: "narrator", text: "You closed it. It's still sitting in the inbox, and the next person might bite." };
+    case "phone-code":
+      return { kind: "narrator", text: "You read it out. That code just signed a new device into your account." };
+    case "phone-hangup":
+      return { kind: "narrator", text: "You hung up. The number on your badge is the one you dial." };
+    case "usb-plug":
+      return { kind: "narrator", text: "You plugged it in. The screen locks, and it wants a payment." };
+    case "usb-it":
+      return { kind: "narrator", text: "You bagged it for IT. Nobody plugs it in." };
+    case "usb-leave":
+      return { kind: "narrator", text: "You left it on the counter. Somebody else will find it." };
+    case "wire-send":
+      return { kind: "narrator", text: "The wire's gone. Nobody ever confirmed it was Elena." };
+    case "wire-call":
+      return { kind: "narrator", text: "You called the number finance already had. Elena never ordered a wire." };
+    case "wire-refuse":
+      return { kind: "narrator", text: "You said no. Maya called Elena herself." };
+    case "debrief-door-hold":
+      return { kind: "narrator", text: "That's tailgating. A friendly face and a rush are the whole trick. Let the door close. If he belongs here, he badges in, or reception signs him in." };
+    case "debrief-door-shut":
+      return { kind: "narrator", text: "Good call. One badge, one person. If he belongs here, he badges in or checks in at reception. Letting a door close isn't rude." };
+    case "debrief-mail-codes":
+      return { kind: "narrator", text: "Gift cards, a rush, and keep it quiet. That's a scam every time. Read the address, not the name. Hit the Report button, or send it to security@harborandco.com." };
+    case "debrief-mail-report":
+      return { kind: "narrator", text: "Right move. The name said Elena. The address said harborandco-exec. Nobody at Harbor buys gift cards over email. Report button, every time." };
+    case "debrief-mail-ignore":
+      return { kind: "narrator", text: "Not replying is half of it. Reporting is the other half. One click on Report warns everyone who got the same mail." };
+    case "debrief-phone-code":
+      return { kind: "narrator", text: "IT will never ask for your code. Whoever asks for it is the one logging in. Hang up, and call the help desk number on your badge." };
+    case "debrief-phone-hangup":
+      return { kind: "narrator", text: "Exactly. Your code is only for you. Call back on the number on your badge, and report the call to security at extension 4400." };
+    case "debrief-usb-plug":
+      return { kind: "narrator", text: "A found USB stick is bait, and Salary review is the hook. Never plug in a stick that didn't come from IT. Bag it and hand it over." };
+    case "debrief-usb-it":
+      return { kind: "narrator", text: "That's it. Unknown sticks go to IT, unplugged. Curiosity is exactly what that label was counting on." };
+    case "debrief-usb-leave":
+      return { kind: "narrator", text: "You didn't plug it in. Good. But the next person might. Bag it and get it to IT, or report it at extension 4400." };
+    case "debrief-wire-send":
+      return { kind: "narrator", text: "Urgency, a big name, and a broken form. That's the setup. Money moves on the normal path, or after a callback on a number finance already has." };
+    case "debrief-wire-call":
+      return { kind: "narrator", text: "Perfect. A callback on a number you already trust beats any message. Then report it, so security can go after whoever sent it." };
+    case "debrief-wire-refuse":
+      return { kind: "narrator", text: "Fair. Wires aren't yours to send. Even better, help Maya verify. Call Elena back on the number finance has on file." };
     default:
       return null;
   }

@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { getLesson, getModule, neighborLessons } from "@/content/curriculum";
+import { controlsFor } from "@/content/controls";
 import { GrantLine } from "@/components/debrief";
 import { ShareButton } from "@/components/share-button";
 import { Button, Missing, buttonClass } from "@/components/ui";
@@ -35,6 +36,7 @@ function LessonPage() {
 
   if (!lesson) return <Missing what="lesson" />;
   const module = getModule(lesson.moduleId);
+  const mapped = controlsFor(lesson.id);
   const neighbors = neighborLessons(lesson.id);
   const complete = lesson.questions.every((question) => picked[question.id] != null);
   const correctCount = lesson.questions.filter((question) => picked[question.id] === question.answer).length;
@@ -76,6 +78,11 @@ function LessonPage() {
         {lesson.minutes} min
         {record ? ` · best on record ${record.best}` : ""}
       </p>
+      {mapped.length > 0 ? (
+        <p className="mt-3 text-sm text-muted">
+          Maps to {mapped.map((item) => item.id).join(" · ")}
+        </p>
+      ) : null}
       <div className="mt-5">
         <ShareButton
           label="Share this lesson"

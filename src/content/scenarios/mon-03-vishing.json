@@ -1,0 +1,56 @@
+{
+  "id": "MON-03-vishing-mfa",
+  "version": "1.0.0",
+  "day": "monday",
+  "location": "Desk_Player",
+  "trigger": "DeskPhone_RingLight",
+  "roles": ["all"],
+  "skill": "authentication",
+  "controls": {
+    "CIS_v8.1": ["14.3"],
+    "NIST_800-53r5": ["AT-2(3)"],
+    "NIST_800-171r2": ["3.2.1"],
+    "CMMC_L2": ["AT.L2-3.2.1"],
+    "HIPAA": ["164.308(a)(5)(ii)(C)", "164.308(a)(5)(ii)(D)"],
+    "CSF_2.0": ["PR.AT-01"]
+  },
+  "variants": [
+    { "caller": "Harbor IT", "pressure": "urgent_lockout", "tell": "asks_for_code" }
+  ],
+  "prompt": {
+    "who": "Caller",
+    "role": "Says he's Dan, Harbor IT",
+    "text": "Hi, this is Dan with Harbor IT. We just blocked a sign-in on your account from overseas. I'm locking it down now. Read me the six-digit code that just hit your phone. Quick, before it expires."
+  },
+  "choices": [
+    {
+      "id": "phone-code",
+      "label": "Read the code",
+      "outcome": "account_takeover",
+      "score": 0,
+      "verb": "decided",
+      "flag": "code",
+      "ok": false,
+      "debrief": "debrief/MON-03-a",
+      "bark": "That code just signed in a new device.",
+      "report": "You read a live login code to someone who called you."
+    },
+    {
+      "id": "phone-hangup",
+      "label": "Hang up",
+      "outcome": "safe_reported",
+      "score": 100,
+      "verb": "reported",
+      "flag": "hangup",
+      "ok": true,
+      "debrief": "debrief/MON-03-c",
+      "bark": "You hang up. The number on your badge is the one you dial.",
+      "report": "You didn't read the code. You used the number on your badge."
+    }
+  ],
+  "beat": "phone",
+  "next": "usb",
+  "flagKey": "phone",
+  "tenant_tokens": ["{{COMPANY}}", "{{HELPDESK_PHONE}}", "{{REPORT_CHANNEL}}"],
+  "knowledge_check_pool": "kc/authentication"
+}

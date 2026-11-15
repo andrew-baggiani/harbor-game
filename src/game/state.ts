@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { CAR_SPAWN, SPAWN } from "@/game/layout";
 import { applyFlag, barkFor, emptyFlags, nextBeat, objectiveFor, panelFor, scoreOf, talkFor, type Beat, type Flags, type Talk } from "@/game/story";
+import { recordDecision, resetRecord, sealShift } from "@/game/records";
 import { say } from "@/game/audio";
 
 export type Bark = { who: string; text: string };
@@ -66,6 +67,23 @@ export const world = {
   fadingIn: true,
   bootT: 0,
   transition: null as null | "up" | "down",
+  cabShown: false,
+  cabY: 0,
+  cabZ: -17.36,
+  elevDoor: 0,
+  ride: "idle" as "idle" | "open" | "board" | "hold" | "shut" | "ride" | "arrive" | "out",
+  rideT: 0,
+  rideDir: "up" as "up" | "down",
+  rideMoved: false,
+  rideBob: 0,
+  callLit: false,
+  cabButton: "" as "" | "L" | "14",
+  indicator: "L",
+  arrow: "" as "" | "up" | "down",
+  laneOpen: [0, 0, 0, 0] as number[],
+  laneT: [0, 0, 0, 0] as number[],
+  laneHold: [0, 0, 0, 0] as number[],
+  gatePoints: [] as { lane: number; x: number; z: number }[],
   greeted: false,
   ending: false,
   endT: 0,
@@ -146,22 +164,23 @@ export const useHarbor = create<HarborStore>((set, get) => ({
     if (id === "reception-ok") {
       world.barkT = 6;
       world.captionWho = "June Park · Reception";
-      world.captionText = "The elevator is at the back of the lobby. Badge yourself. Floor fourteen.";
+      world.captionText = "Straight back, gold doors. Badge in, floor fourteen. Have a good first night.";
       world.captionT = 7;
       say("reception-ok");
       set({
         talk: null,
-        bark: { who: "June Park · Reception", text: "Elevator at the back. Badge yourself. Floor fourteen." },
+        bark: { who: "June Park · Reception", text: "Straight back, gold doors. Badge in, floor fourteen." },
         objective: "June Park: elevator at the back. Floor fourteen.",
       });
       return;
     }
     const flags = applyFlag(get().flags, id);
+    recordDecision(id);
     const beat = nextBeat(id);
     const bark = barkFor(id);
     world.barkT = 5.5;
     world.minutes += 11;
-    say(id);
+    say(id, `debrief-${id}`);
     set({
       flags,
       beat,
@@ -207,10 +226,12 @@ export const useHarbor = create<HarborStore>((set, get) => ({
   },
   finish: () => {
     if (get().report) return;
+    sealShift(get().flags);
     set({ beat: "done", report: true, objective: objectiveFor("done"), prompt: null, talk: null });
     world.ending = true;
   },
   reset: () => {
+    resetRecord();
     world.px = SPAWN.x;
     world.py = 0;
     world.pz = SPAWN.z;
@@ -238,6 +259,23 @@ export const useHarbor = create<HarborStore>((set, get) => ({
     world.fadingIn = true;
     world.bootT = 0;
     world.transition = null;
+    world.cabShown = false;
+    world.cabY = 0;
+    world.cabZ = -17.36;
+    world.elevDoor = 0;
+    world.ride = "idle";
+    world.rideT = 0;
+    world.rideDir = "up";
+    world.rideMoved = false;
+    world.rideBob = 0;
+    world.callLit = false;
+    world.cabButton = "";
+    world.indicator = "L";
+    world.arrow = "";
+    world.laneOpen = [0, 0, 0, 0];
+    world.laneT = [0, 0, 0, 0];
+    world.laneHold = [0, 0, 0, 0];
+    world.gatePoints = [];
     world.greeted = false;
     world.ending = false;
     world.endT = 0;

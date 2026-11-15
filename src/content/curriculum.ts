@@ -1,9 +1,10 @@
 import { LESSONS_A, MODULES_A } from "@/content/curriculum-a";
 import { LESSONS_B, MODULES_B } from "@/content/curriculum-b";
+import { LESSONS_C, MODULES_C } from "@/content/curriculum-c";
 import type { Lesson, Module, Question } from "@/content/types";
 
-export const MODULES: Module[] = [...MODULES_A, ...MODULES_B];
-export const LESSONS: Lesson[] = [...LESSONS_A, ...LESSONS_B];
+export const MODULES: Module[] = [...MODULES_A, ...MODULES_B, ...MODULES_C];
+export const LESSONS: Lesson[] = [...LESSONS_A, ...LESSONS_B, ...LESSONS_C];
 
 export function getModule(id: string): Module | undefined {
   return MODULES.find((module) => module.id === id);

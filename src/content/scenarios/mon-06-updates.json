@@ -1,0 +1,131 @@
+{
+  "id": "MON-06-updates",
+  "version": "1.0.0",
+  "day": "monday",
+  "location": "Desk_08",
+  "trigger": "Beat_Updates_Laptop",
+  "roles": [
+    "all"
+  ],
+  "skill": "patching",
+  "controls": {
+    "CIS_v8.1": [
+      "14.7",
+      "14.6"
+    ],
+    "NIST_800-53r5": [
+      "AT-2",
+      "AT-2(4)"
+    ],
+    "NIST_800-171r2": [
+      "3.2.1"
+    ],
+    "CMMC_L2": [
+      "AT.L2-3.2.1"
+    ],
+    "HIPAA": [
+      "164.308(a)(5)(ii)(B)"
+    ],
+    "CSF_2.0": [
+      "PR.AT-01"
+    ]
+  },
+  "variants": [
+    {
+      "caller": "Device Health",
+      "pressure": "dock_log_due",
+      "tell": "updates_failed_23_days_agent_off",
+      "days": 23,
+      "failed_updates": 3,
+      "screen_node": "Beat_Updates_Screen_Warn_A"
+    },
+    {
+      "caller": "Device Health",
+      "pressure": "dock_log_due",
+      "tell": "updates_failed_31_days_agent_off",
+      "days": 31,
+      "failed_updates": 5,
+      "screen_node": "Beat_Updates_Screen_Warn_B"
+    }
+  ],
+  "prompt": {
+    "who": "Loaner laptop",
+    "role": "Hot desk 14-08",
+    "text": "Device Health: Updates failed — {{DAYS}} days. Security updates could not install. {{COMPANY}} Shield agent: OFF."
+  },
+  "setup": {
+    "voice": "updates",
+    "speaker": "Narrator",
+    "text": "IT left a loaner laptop at hot desk fourteen-oh-eight for the dock log. It's yours tonight. There's a warning in the corner of the screen."
+  },
+  "choices": [
+    {
+      "id": "updates-ignore",
+      "label": "Dismiss it and start the log",
+      "outcome": "unpatched_unreported",
+      "score": 0,
+      "verb": "decided",
+      "flag": "ignore",
+      "ok": false,
+      "debrief": "debrief/MON-06-a",
+      "bark": "Warning dismissed. The laptop is still weeks behind.",
+      "report": "You dismissed a failed-updates warning and kept working.",
+      "voice": "updates-ignore",
+      "consequence_text": "You closed the warning. The laptop is still weeks behind, and nobody knows.",
+      "debrief_voice": "debrief-updates-ignore",
+      "debrief_text": "Weeks of failed updates, and the security agent switched off. That's an open window. You don't have to fix it. Just tell IT, on the help desk number on your badge."
+    },
+    {
+      "id": "updates-restart",
+      "label": "Restart it and keep working",
+      "outcome": "unpatched_unreported",
+      "score": 40,
+      "verb": "decided",
+      "flag": "restart",
+      "ok": false,
+      "debrief": "debrief/MON-06-b",
+      "bark": "Same warning after the restart. The agent's still off.",
+      "report": "You restarted the laptop but never told IT the updates were failing.",
+      "voice": "updates-restart",
+      "consequence_text": "It restarted. Same warning. The agent is still off.",
+      "debrief_voice": "debrief-updates-restart",
+      "debrief_text": "A restart is a fair first try. When it comes back the same, it's IT's job. Call the help desk on your badge, and leave the security tools alone."
+    },
+    {
+      "id": "updates-report",
+      "label": "Call IT on the badge number",
+      "outcome": "reported",
+      "score": 100,
+      "verb": "reported",
+      "flag": "report",
+      "ok": true,
+      "debrief": "debrief/MON-06-c",
+      "bark": "IT is pushing the updates and swapping the laptop.",
+      "report": "You reported failed updates and a disabled security agent to IT ({{HELPDESK_PHONE}}).",
+      "voice": "updates-report",
+      "consequence_text": "You called the help desk. They're pushing the updates and swapping the laptop.",
+      "debrief_voice": "debrief-updates-report",
+      "debrief_text": "That's the move. Failed updates and a security agent that's off both get reported. Don't switch tools off or on yourself. Tell IT, and let them fix it.",
+      "show_after": [
+        "Beat_Updates_Screen_Ticket"
+      ]
+    }
+  ],
+  "beat": "updates",
+  "next": "maya",
+  "flagKey": "updates",
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{SECURITY_PHONE}}",
+    "{{REPORT_CHANNEL}}",
+    "{{DAYS}}"
+  ],
+  "tenant_defaults": {
+    "{{COMPANY}}": "Harbor",
+    "{{HELPDESK_PHONE}}": "ext 4100",
+    "{{SECURITY_PHONE}}": "ext 4400",
+    "{{REPORT_CHANNEL}}": "security@harborandco.com"
+  },
+  "knowledge_check_pool": "kc/patching"
+}

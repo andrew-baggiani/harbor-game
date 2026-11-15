@@ -9,6 +9,8 @@ import { Marker, People, Rain, Rig, Sky, Trail } from "@/game/draw";
 import { HarborWorld } from "@/game/scenery";
 import { blip, caption, say, unlockAudio } from "@/game/audio";
 import { nightPath, reportLines, scoreOf } from "@/game/story";
+import { drawKnowledgeCheck, type CheckItem } from "@/game/scenarios";
+import { exportRecord, gradeKnowledge } from "@/game/records";
 import { markerNow } from "@/game/sim";
 import { keys, useHarbor, world, fleet } from "@/game/state";
 import { ShareButton } from "@/components/share-button";
@@ -59,8 +61,8 @@ export function Harbor({
 
   return (
     <div
-      className="relative h-dvh w-full overflow-hidden bg-[#07090e] text-[#f4f0e6]"
-      style={{ touchAction: "none" }}
+      className="relative h-dvh w-full select-none overflow-hidden bg-[#07090e] text-[#f4f0e6]"
+      style={{ touchAction: "none", userSelect: "none", WebkitUserSelect: "none" }}
       tabIndex={0}
       onPointerDown={(event) => {
         event.currentTarget.focus();
@@ -80,11 +82,11 @@ export function Harbor({
         }}
         onPointerDown={() => unlockAudio()}
       >
-        <fog attach="fog" args={["#0c1218", 48, 240]} />
-        <hemisphereLight args={["#8aa0b8", "#1a1814", 0.42]} />
+        <fog attach="fog" args={["#121820", 16, 92]} />
+        <hemisphereLight args={["#8aa0b8", "#1a1814", 0.15]} />
         <directionalLight
           position={[40, 80, -30]}
-          intensity={0.85}
+          intensity={0.32}
           color="#d5e2f4"
           castShadow
           shadow-mapSize-width={2048}
@@ -97,7 +99,8 @@ export function Harbor({
           shadow-camera-top={60}
           shadow-camera-bottom={-60}
         />
-        <directionalLight position={[-30, 18, -20]} intensity={0.22} color="#ffc49a" />
+        <directionalLight position={[-30, 18, -20]} intensity={0.08} color="#ffc49a" />
+        <directionalLight position={[6, 10, 34]} intensity={0.42} color="#b7c9dc" />
         <Sky />
         <Suspense fallback={null}>
           <HarborWorld />
@@ -218,6 +221,60 @@ function storeTalk() {
   return useHarbor.getState().talk != null;
 }
 
+function KnowledgeGate({ onPassed }: { onPassed: () => void }) {
+  const [items, setItems] = useState<CheckItem[]>(() => drawKnowledgeCheck(8));
+  const [index, setIndex] = useState(0);
+  const [answers, setAnswers] = useState<{ id: string; choice: string }[]>([]);
+  const [missed, setMissed] = useState<{ correct: number; asked: number } | null>(null);
+  const item = items[index];
+  const pick = (choice: string) => {
+    if (!item) return;
+    const next = [...answers, { id: item.id, choice }];
+    if (index + 1 < items.length) {
+      setAnswers(next);
+      setIndex(index + 1);
+      return;
+    }
+    const graded = gradeKnowledge(items, next);
+    if (graded.passed) onPassed();
+    else setMissed({ correct: graded.correct, asked: graded.asked });
+  };
+  const retry = () => {
+    setItems(drawKnowledgeCheck(8));
+    setIndex(0);
+    setAnswers([]);
+    setMissed(null);
+  };
+  return (
+    <div className="absolute inset-0 z-30 flex items-end justify-start bg-[#07090e]/70 p-4 md:items-center md:p-10">
+      <div className="w-full max-w-lg select-none border border-white/10 bg-[#0c0d0f]/95 p-6 md:p-8">
+        <p className="text-[10px] tracking-[0.24em] text-[#c4a574]">KNOWLEDGE CHECK · 80% TO PASS</p>
+        {missed ? (
+          <>
+            <h2 className="mt-2 font-display text-5xl text-[#f4f0e6]">{missed.correct}/{missed.asked}</h2>
+            <p className="mt-3 text-sm text-[#a8a59c]">That is under 80%. The questions change. Try again.</p>
+            <button type="button" className="mt-6 min-h-11 border border-[#c4a574] px-4 text-sm" onClick={retry}>
+              Try again
+            </button>
+          </>
+        ) : item ? (
+          <>
+            <p className="mt-2 text-[10px] tracking-[0.16em] text-[#a8a59c]">{index + 1} / {items.length}</p>
+            <h2 className="mt-2 font-display text-3xl text-balance text-[#f4f0e6]">{item.prompt}</h2>
+            <div className="mt-5 flex flex-col border-t border-white/10">
+              {item.choices.map((choice) => (
+                <button key={choice.id} type="button" className="min-h-12 border-b border-white/10 text-left text-sm text-[#f4f0e6]" onClick={() => pick(choice.id)}>
+                  {choice.label}
+                </button>
+              ))}
+            </div>
+          </>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 function pinName(beat: string) {
   if (beat === "tower" || beat === "door") return "Harbor Tower";
   if (beat === "lobby" || beat === "down") return "Elevator";
@@ -227,6 +284,23 @@ function pinName(beat: string) {
   if (beat === "maya") return "Maya";
   if (beat === "leave") return "Front door";
   return "Next";
+}
+
+function RideFade() {
+  const veil = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    let id = 0;
+    const tick = () => {
+      if (veil.current) {
+        veil.current.style.opacity = String(world.fade);
+        veil.current.style.visibility = world.fade > 0.01 ? "visible" : "hidden";
+      }
+      id = requestAnimationFrame(tick);
+    };
+    id = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(id);
+  }, []);
+  return <div ref={veil} className="pointer-events-none absolute inset-0 z-30 bg-black" style={{ opacity: 0 }} />;
 }
 
 function Waypoint({ beat }: { beat: string }) {
@@ -251,7 +325,11 @@ function Waypoint({ beat }: { beat: string }) {
           y = Math.min(0.82, Math.max(0.14, y));
           el.style.left = `${x * 100}%`;
           el.style.top = `${y * 100}%`;
-          if (label.current) label.current.textContent = `${Math.max(0, Math.round(world.markerDist))} m`;
+          if (label.current) {
+            const spot = markerNow();
+            const dist = spot ? Math.hypot(world.px - spot.x, world.py - spot.y, world.pz - spot.z) : 0;
+            label.current.textContent = `${Math.max(0, Math.round(dist))} m`;
+          }
         }
       }
       id = requestAnimationFrame(tick);
@@ -264,12 +342,13 @@ function Waypoint({ beat }: { beat: string }) {
       <div className="mx-auto h-7 w-px bg-[#c4a574]" />
       <div className="mx-auto -mt-px h-1.5 w-1.5 rounded-full bg-[#c4a574]" />
       <p className="mt-1.5 text-[10px] tracking-[0.2em] text-[#c4a574]">{pinName(beat).toUpperCase()}</p>
-      <p ref={label} className="font-display text-sm tabular-nums text-[#f4f0e6]">—</p>
+      <p ref={label} className="font-display text-sm tabular-nums text-[#f4f0e6]" />
     </div>
   );
 }
 
 function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, clean: boolean) => void }) {
+  const [checked, setChecked] = useState(false);
   const beat = useHarbor((s) => s.beat);
   const talk = useHarbor((s) => s.talk);
   const bark = useHarbor((s) => s.bark);
@@ -286,6 +365,9 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
   const [speed, setSpeed] = useState(0);
   const [spoken, setSpoken] = useState({ who: "", text: "" });
   const [pick, setPick] = useState(0);
+  useEffect(() => {
+    if (!report) setChecked(false);
+  }, [report]);
   useEffect(() => {
     world.choice = 0;
     setPick(0);
@@ -422,6 +504,7 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
         </ol>
       </div>
       <Waypoint beat={beat} />
+      <RideFade />
       <canvas ref={map} width={180} height={180} className={coarse ? "pointer-events-none absolute left-4 top-32 h-16 w-16 rounded-full" : "pointer-events-none absolute bottom-5 left-5 h-24 w-24 rounded-full md:h-28 md:w-28"} />
       {driving && !boot ? (
         <p className={coarse ? "pointer-events-none absolute right-4 top-16 font-display text-3xl tabular-nums text-[#f4f0e6]" : "pointer-events-none absolute bottom-6 right-6 font-display text-4xl tabular-nums text-[#f4f0e6]"}>
@@ -474,12 +557,21 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
           </div>
         </div>
       ) : null}
-      {report ? (
+      {report && !checked ? <KnowledgeGate onPassed={() => setChecked(true)} /> : null}
+      {report && checked ? (
         <div className="absolute inset-0 flex items-end justify-start bg-[#07090e]/55 p-4 md:items-center md:p-10">
           <div className="w-full max-w-lg border border-white/10 bg-[#0c0d0f]/95 p-6 md:p-8">
             <p className="text-[10px] tracking-[0.24em] text-[#c4a574]">MONDAY CLOSED</p>
             <h2 className="mt-2 font-display text-5xl text-[#f4f0e6]">{scored.title}</h2>
             <p className="mt-2 font-display text-4xl tabular-nums text-[#f4f0e6]">{scored.score}</p>
+            <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] tracking-[0.08em] text-[#d9d4c8]">
+              {Object.entries(scored.skills).map(([skill, value]) => (
+                <li key={skill} className="flex justify-between gap-3 border-b border-white/10 py-1">
+                  <span>{skill}</span>
+                  <span className="tabular-nums text-[#c4a574]">{value}</span>
+                </li>
+              ))}
+            </ul>
             <ul className="mt-6 space-y-2 border-t border-white/10 pt-4">
               {lines.map((line) => (
                 <li key={line.text} className={line.ok ? "text-sm text-[#f4f0e6]" : "text-sm text-[#e7b2a4]"}>
@@ -494,6 +586,9 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
                 text={`Harbor Monday — ${scored.title}. ${scored.score}.`}
                 path={nightPath(flags)}
               />
+              <button type="button" className="min-h-11 border border-white/20 px-4 text-sm" onClick={() => exportRecord(callsign, flags)}>
+                Export record
+              </button>
               <button
                 type="button"
                 className="min-h-11 border border-white/20 px-4 text-sm"

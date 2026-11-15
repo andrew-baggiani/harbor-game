@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CardRouteImport } from './routes/card'
+import { Route as CoverageRouteImport } from './routes/coverage'
 import { Route as DrillsRouteImport } from './routes/drills'
 import { Route as GlossaryRouteImport } from './routes/glossary'
 import { Route as NightRouteImport } from './routes/night'
@@ -33,6 +34,11 @@ const IndexRoute = IndexRouteImport.update({
 const CardRoute = CardRouteImport.update({
   id: '/card',
   path: '/card',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoverageRoute = CoverageRouteImport.update({
+  id: '/coverage',
+  path: '/coverage',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DrillsRoute = DrillsRouteImport.update({
@@ -104,6 +110,7 @@ const PathModuleIdRoute = PathModuleIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/card': typeof CardRoute
+  '/coverage': typeof CoverageRoute
   '/drills': typeof DrillsRouteWithChildren
   '/glossary': typeof GlossaryRoute
   '/night': typeof NightRoute
@@ -121,6 +128,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/card': typeof CardRoute
+  '/coverage': typeof CoverageRoute
   '/glossary': typeof GlossaryRoute
   '/night': typeof NightRoute
   '/record': typeof RecordRoute
@@ -137,6 +145,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/card': typeof CardRoute
+  '/coverage': typeof CoverageRoute
   '/drills': typeof DrillsRouteWithChildren
   '/glossary': typeof GlossaryRoute
   '/night': typeof NightRoute
@@ -156,6 +165,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/card'
+    | '/coverage'
     | '/drills'
     | '/glossary'
     | '/night'
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/card'
+    | '/coverage'
     | '/glossary'
     | '/night'
     | '/record'
@@ -188,6 +199,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/card'
+    | '/coverage'
     | '/drills'
     | '/glossary'
     | '/night'
@@ -206,6 +218,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CardRoute: typeof CardRoute
+  CoverageRoute: typeof CoverageRoute
   DrillsRoute: typeof DrillsRouteWithChildren
   GlossaryRoute: typeof GlossaryRoute
   NightRoute: typeof NightRoute
@@ -231,6 +244,13 @@ declare module '@tanstack/react-router' {
       path: '/card'
       fullPath: '/card'
       preLoaderRoute: typeof CardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/coverage': {
+      id: '/coverage'
+      path: '/coverage'
+      fullPath: '/coverage'
+      preLoaderRoute: typeof CoverageRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/drills': {
@@ -355,6 +375,7 @@ const PathRouteWithChildren = PathRoute._addFileChildren(PathRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CardRoute: CardRoute,
+  CoverageRoute: CoverageRoute,
   DrillsRoute: DrillsRouteWithChildren,
   GlossaryRoute: GlossaryRoute,
   NightRoute: NightRoute,

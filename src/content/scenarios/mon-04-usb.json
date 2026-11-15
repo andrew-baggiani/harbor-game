@@ -1,0 +1,66 @@
+{
+  "id": "MON-04-usb",
+  "version": "1.0.0",
+  "day": "monday",
+  "location": "Break_Counter",
+  "trigger": "USB_SalaryReview",
+  "roles": ["all"],
+  "skill": "removable-media",
+  "controls": {
+    "CIS_v8.1": ["14.2"],
+    "NIST_800-53r5": ["AT-2(3)"],
+    "NIST_800-171r2": ["3.2.1"],
+    "CMMC_L2": ["AT.L2-3.2.1"],
+    "HIPAA": ["164.308(a)(5)(ii)(B)"],
+    "CSF_2.0": ["PR.AT-01"]
+  },
+  "variants": [{ "caller": "Unattended", "pressure": "open_laptop", "tell": "found_media" }],
+  "prompt": {
+    "who": "USB stick",
+    "role": "Labeled Salary review",
+    "text": "Handwritten label: Salary review. An open laptop sits right next to it."
+  },
+  "choices": [
+    {
+      "id": "usb-plug",
+      "label": "Plug it in",
+      "outcome": "malware",
+      "score": 0,
+      "verb": "decided",
+      "flag": "plug",
+      "ok": false,
+      "debrief": "debrief/MON-04-a",
+      "bark": "The screen locks. It wants a payment.",
+      "report": "You plugged in a stick labeled Salary review. The laptop locked."
+    },
+    {
+      "id": "usb-it",
+      "label": "Bag it for IT",
+      "outcome": "reported",
+      "score": 100,
+      "verb": "reported",
+      "flag": "it",
+      "ok": true,
+      "debrief": "debrief/MON-04-b",
+      "bark": "You bag it and call IT. Nobody plugs it in.",
+      "report": "The USB stick went to IT, still unplugged."
+    },
+    {
+      "id": "usb-leave",
+      "label": "Leave it",
+      "outcome": "safe_unreported",
+      "score": 40,
+      "verb": "decided",
+      "flag": "leave",
+      "ok": false,
+      "debrief": "debrief/MON-04-c",
+      "bark": "It's still on the counter.",
+      "report": "The USB stick is still on the break counter."
+    }
+  ],
+  "beat": "usb",
+  "next": "maya",
+  "flagKey": "usb",
+  "tenant_tokens": ["{{COMPANY}}", "{{HELPDESK_PHONE}}", "{{REPORT_CHANNEL}}"],
+  "knowledge_check_pool": "kc/malware"
+}

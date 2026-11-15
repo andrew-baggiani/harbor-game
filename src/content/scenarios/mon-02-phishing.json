@@ -1,0 +1,66 @@
+{
+  "id": "MON-02-phishing",
+  "version": "1.0.0",
+  "day": "monday",
+  "location": "Desk_Player",
+  "trigger": "Envelope_Mail",
+  "roles": ["all"],
+  "skill": "phishing",
+  "controls": {
+    "CIS_v8.1": ["14.2", "14.6"],
+    "NIST_800-53r5": ["AT-2(3)", "AT-2(4)"],
+    "NIST_800-171r2": ["3.2.1"],
+    "CMMC_L2": ["AT.L2-3.2.1"],
+    "HIPAA": ["164.308(a)(5)(ii)(A)"],
+    "CSF_2.0": ["PR.AT-01"]
+  },
+  "variants": [{ "caller": "Elena Voss", "pressure": "boarding_now", "tell": "lookalike_domain" }],
+  "prompt": {
+    "who": "Elena Voss",
+    "role": "elena.voss@harborandco-exec.com",
+    "text": "Boarding now, so I can't call. I need eight Apple gift cards, $200 each, for client thank-yous. Reply with the codes. Don't loop in my assistant, it's a surprise."
+  },
+  "choices": [
+    {
+      "id": "mail-codes",
+      "label": "Send the codes",
+      "outcome": "bec_paid",
+      "score": 0,
+      "verb": "decided",
+      "flag": "codes",
+      "ok": false,
+      "debrief": "debrief/MON-02-a",
+      "bark": "Sent. That address is not Harbor.",
+      "report": "You sent gift-card codes to a lookalike address."
+    },
+    {
+      "id": "mail-report",
+      "label": "Report the mail",
+      "outcome": "reported",
+      "score": 100,
+      "verb": "reported",
+      "flag": "report",
+      "ok": true,
+      "debrief": "debrief/MON-02-b",
+      "bark": "Reported. You didn't buy a thing.",
+      "report": "The gift-card mail went to security, not a checkout page."
+    },
+    {
+      "id": "mail-ignore",
+      "label": "Close it",
+      "outcome": "safe_unreported",
+      "score": 40,
+      "verb": "decided",
+      "flag": "ignore",
+      "ok": false,
+      "debrief": "debrief/MON-02-c",
+      "bark": "You left it sitting in the inbox.",
+      "report": "You left the gift-card mail in the inbox."
+    }
+  ],
+  "beat": "mail",
+  "next": "phone",
+  "flagKey": "mail",
+  "tenant_tokens": ["{{COMPANY}}", "{{HELPDESK_PHONE}}", "{{REPORT_CHANNEL}}"],
+  "knowledge_check_pool": "kc/phishing"
+}

@@ -11,7 +11,17 @@ export const MODEL_FALLBACK = "https://raw.githubusercontent.com/andrew-baggiani
 export const GLTF_LIGHT_SCALE = 0.000055;
 const SIMPLE_GLASS = true;
 
-const FILES = ["harbor_block.glb", "harbor_office_f14.glb", "harbor_props.glb", "vehicle_Company_Sedan_Navy.glb"] as const;
+const FILES = [
+  "harbor_block.glb",
+  "harbor_office_f14.glb",
+  "harbor_props.glb",
+  "vehicle_Company_Sedan_Navy.glb",
+  "harbor_lobby_detail.glb",
+  "harbor_f14_detail.glb",
+  "harbor_elevator_cab.glb",
+  "harbor_shaft_cut.glb",
+  "harbor_security_props.glb",
+] as const;
 
 for (const file of FILES) useGLTF.preload(`${MODEL_BASE}${file}`);
 
@@ -68,15 +78,40 @@ function prepare(root: THREE.Object3D) {
   root.traverse((obj) => {
     const data = obj.userData as Record<string, unknown>;
     const light = obj as THREE.Light;
-    if (light.isLight && !data.harborScaled) {
-      light.intensity *= GLTF_LIGHT_SCALE;
-      light.castShadow = false;
-      const point = light as THREE.PointLight;
-      if (point.isPointLight || (light as THREE.SpotLight).isSpotLight) {
-        if (!point.distance) point.distance = 32;
-        point.decay = 2;
+    if (light.isLight && data.harborLit !== 2) {
+      if (!data.harborScaled) {
+        light.intensity *= GLTF_LIGHT_SCALE;
+        light.castShadow = false;
+        const point = light as THREE.PointLight;
+        const spot = light as THREE.SpotLight;
+        if (point.isPointLight || spot.isSpotLight) {
+          if (!point.distance) point.distance = 32;
+          point.decay = 2;
+        }
+        data.harborScaled = true;
       }
-      data.harborScaled = true;
+      const point = light as THREE.PointLight;
+      const spot = light as THREE.SpotLight;
+      const lamp = obj.name;
+      if (lamp.startsWith("Street_Sodium") || lamp.startsWith("Quay_Mast")) {
+        light.color.set("#ff9d45");
+        light.intensity = lamp.startsWith("Quay_Mast") ? 180 : 120;
+        if (spot.isSpotLight) {
+          spot.distance = 28;
+          spot.angle = Math.max(spot.angle, 1.05);
+          spot.penumbra = 0.65;
+          spot.decay = 2;
+        }
+      } else if (lamp.startsWith("Lobby_Light") || lamp.startsWith("F14_")) {
+        light.color.set("#e7eef8");
+        light.intensity = 12;
+        if (point.isPointLight) point.distance = 16;
+      } else if (lamp.startsWith("Ship_Deck")) {
+        light.color.set("#d5e4f2");
+        light.intensity = 36;
+        if (point.isPointLight) point.distance = 24;
+      }
+      data.harborLit = 2;
     }
     const mesh = obj as THREE.Mesh;
     if (!mesh.isMesh) return;
@@ -99,7 +134,9 @@ function prepare(root: THREE.Object3D) {
 
 function collect(root: THREE.Object3D) {
   root.traverse((obj) => {
-    const data = obj.userData as { collider?: string; surface?: string; role?: string };
+    if (!shown(obj)) return;
+    const data = obj.userData as { collider?: string; surface?: string; role?: string; default_visible?: boolean };
+    if (data.default_visible === false) return;
     if (data.collider !== "mesh" && data.collider !== "box") return;
     if (data.surface === "asphalt_wet" || data.surface === "concrete" || data.surface === "water") return;
     if (data.role === "glazing" || data.role === "vehicle") return;
@@ -117,6 +154,91 @@ function collect(root: THREE.Object3D) {
   });
 }
 
+function shown(obj: THREE.Object3D) {
+  for (let node: THREE.Object3D | null = obj; node; node = node.parent) {
+    if (!node.visible) return false;
+  }
+  return true;
+}
+
+function applyDefaultVisible(root: THREE.Object3D) {
+  root.traverse((obj) => {
+    if ((obj.userData as { default_visible?: boolean }).default_visible === false) obj.visible = false;
+  });
+}
+
+function hideNamed(root: THREE.Object3D, name: string) {
+  const node = root.getObjectByName(name);
+  if (node) node.visible = false;
+}
+
+let blinkT = 0;
+
+function showCabReadout(root: THREE.Object3D) {
+  const floors = ["L", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14"];
+  for (const floor of floors) {
+    const node = root.getObjectByName(`Elevator_Cab_Indicator_${floor}`);
+    if (node) node.visible = floor === world.indicator;
+  }
+  const up = root.getObjectByName("Elevator_Cab_Indicator_Up");
+  const down = root.getObjectByName("Elevator_Cab_Indicator_Down");
+  if (up) up.visible = world.arrow === "up";
+  if (down) down.visible = world.arrow === "down";
+  for (const floor of ["14", "L"] as const) {
+    const lit = root.getObjectByName(`Elevator_Cab_Button_${floor}_Lit`);
+    const unlit = root.getObjectByName(`Elevator_Cab_Button_${floor}_Unlit`);
+    const on = world.cabButton === floor;
+    if (lit) lit.visible = on;
+    if (unlit) unlit.visible = !on;
+  }
+}
+
+function findNamed(roots: THREE.Object3D[], name: string) {
+  for (const root of roots) {
+    const node = root.getObjectByName(name);
+    if (node) return node;
+  }
+  return null;
+}
+
+function showLanding(block: THREE.Object3D, office: THREE.Object3D, floor: THREE.Object3D, lobby: THREE.Object3D) {
+  const roots = [block, office, floor, lobby];
+  const pair = (litName: string, unlitName: string, on: boolean) => {
+    const lit = findNamed(roots, litName);
+    const unlit = findNamed(roots, unlitName);
+    if (lit) lit.visible = on;
+    if (unlit) unlit.visible = !on;
+  };
+  const atLobby = world.cabY < 10;
+  pair("Elevator_Lobby_A_CallButton_Lit", "Elevator_Lobby_A_CallButton_Unlit", world.callLit && atLobby);
+  pair("Elevator_F14_A_CallButton_Lit", "Elevator_F14_A_CallButton_Unlit", world.callLit && !atLobby);
+  const lantern = (prefix: string, active: boolean, idle: "Up" | "Down") => {
+    const shown = active && world.arrow === "up" ? `${prefix}_Up_Lit` : active && world.arrow === "down" ? `${prefix}_Down_Lit` : `${prefix}_${idle}_Unlit`;
+    for (const name of [`${prefix}_Up_Lit`, `${prefix}_Up_Unlit`, `${prefix}_Down_Lit`, `${prefix}_Down_Unlit`]) {
+      const node = findNamed(roots, name);
+      if (node) node.visible = name === shown;
+    }
+  };
+  lantern("Elevator_Lobby_A_Lantern", atLobby && world.arrow !== "", "Up");
+  lantern("Elevator_F14_A_Lantern", !atLobby && world.arrow !== "", "Down");
+  const lobbyL = findNamed(roots, "Elevator_Lobby_A_Indicator_L");
+  const lobby14 = findNamed(roots, "Elevator_Lobby_A_Indicator_14");
+  if (lobbyL) lobbyL.visible = true;
+  if (lobby14) lobby14.visible = false;
+  const floorL = findNamed(roots, "Elevator_F14_A_Indicator_L");
+  const floor14 = findNamed(roots, "Elevator_F14_A_Indicator_14");
+  if (floorL) floorL.visible = false;
+  if (floor14) floor14.visible = true;
+}
+
+function blinkRacks(root: THREE.Object3D, dt: number) {
+  blinkT += dt;
+  const a = root.getObjectByName("ServerRack_LEDs_A");
+  const b = root.getObjectByName("ServerRack_LEDs_B");
+  if (a) a.visible = Math.sin(blinkT * Math.PI * 2 * 2) > 0;
+  if (b) b.visible = Math.sin(blinkT * Math.PI * 2 * 1.3 + Math.PI) > 0;
+}
+
 function showLed(root: THREE.Object3D, which: "off" | "red" | "green") {
   const off = root.getObjectByName("BadgeReader_LED_Off");
   const red = root.getObjectByName("BadgeReader_LED_Red");
@@ -131,6 +253,11 @@ export function HarborWorld() {
   const office = useGLTF(`${MODEL_BASE}harbor_office_f14.glb`);
   const props = useGLTF(`${MODEL_BASE}harbor_props.glb`);
   const car = useGLTF(`${MODEL_BASE}vehicle_Company_Sedan_Navy.glb`);
+  const lobbyDetail = useGLTF(`${MODEL_BASE}harbor_lobby_detail.glb`);
+  const floorDetail = useGLTF(`${MODEL_BASE}harbor_f14_detail.glb`);
+  const cab = useGLTF(`${MODEL_BASE}harbor_elevator_cab.glb`);
+  const shaft = useGLTF(`${MODEL_BASE}harbor_shaft_cut.glb`);
+  const security = useGLTF(`${MODEL_BASE}harbor_security_props.glb`);
   const beat = useHarbor((s) => s.beat);
   const doors = useRef<{ left: THREE.Object3D | null; right: THREE.Object3D | null; openL: number; openR: number }>({
     left: null,
@@ -142,24 +269,48 @@ export function HarborWorld() {
   const carRoot = useRef<THREE.Object3D | null>(null);
   const wheels = useRef<{ steer: boolean; bone: THREE.Object3D; rest: THREE.Quaternion }[]>([]);
   const spin = useRef(0);
-  const elevatorOpen = useRef({ lobby: 0, floor: 0 });
+  const flaps = useRef<{ node: THREE.Object3D; lane: number; deg: number }[]>([]);
+  const cabRoot = useRef<THREE.Object3D | null>(null);
 
   const scenes = useMemo(() => {
-    for (const gltf of [block, office, props, car]) prepare(gltf.scene);
+    const loaded = [block, office, props, car, lobbyDetail, floorDetail, cab, shaft, security];
+    for (const gltf of loaded) prepare(gltf.scene);
+    for (const gltf of [lobbyDetail, floorDetail, cab, shaft, security]) applyDefaultVisible(gltf.scene);
     const parked = block.scene.getObjectByName("Company_Sedan_Navy");
     if (parked) parked.visible = false;
+    hideNamed(block.scene, "Harbor_Tower");
+    hideNamed(block.scene, "Lobby_Interior");
+    hideNamed(office.scene, "Office_F14_Shell");
     props.scene.visible = true;
     props.scene.traverse((obj) => {
       obj.visible = false;
     });
     props.scene.visible = true;
-    return { block: block.scene, office: office.scene, props: props.scene, car: car.scene };
-  }, [block, office, props, car]);
+    security.scene.visible = false;
+    cab.scene.visible = false;
+    return {
+      block: block.scene,
+      office: office.scene,
+      props: props.scene,
+      car: car.scene,
+      lobby: lobbyDetail.scene,
+      floor: floorDetail.scene,
+      cab: cab.scene,
+      shaft: shaft.scene,
+      security: security.scene,
+    };
+  }, [block, office, props, car, lobbyDetail, floorDetail, cab, shaft, security]);
 
   useLayoutEffect(() => {
     colliders.length = 0;
     collect(block.scene);
     collect(office.scene);
+    collect(lobbyDetail.scene);
+    collect(floorDetail.scene);
+    cab.scene.visible = true;
+    collect(cab.scene);
+    cab.scene.visible = false;
+    collect(shaft.scene);
     ready = true;
     setWorldLive(true);
     const left = block.scene.getObjectByName("Lobby_Door_L");
@@ -171,12 +322,24 @@ export function HarborWorld() {
       "Elevator_Lobby_A_Door_R",
       "Elevator_F14_A_Door_L",
       "Elevator_F14_A_Door_R",
+      "Elevator_Cab_Door_L",
+      "Elevator_Cab_Door_R",
     ]
-      .map((name) => block.scene.getObjectByName(name) ?? office.scene.getObjectByName(name))
+      .map((name) => block.scene.getObjectByName(name) ?? office.scene.getObjectByName(name) ?? cab.scene.getObjectByName(name))
       .filter((node): node is THREE.Object3D => !!node);
     for (const door of elev.current) {
       door.userData.baseX = door.position.x;
+      if (door.name.startsWith("Elevator_Cab")) door.userData.cab = true;
     }
+    flaps.current = [];
+    lobbyDetail.scene.traverse((obj) => {
+      const data = obj.userData as { role?: string; lane?: number; open_deg?: number };
+      if (data.role !== "turnstile") return;
+      flaps.current.push({ node: obj, lane: Number(data.lane ?? 1), deg: Number(data.open_deg ?? 90) });
+    });
+    cabRoot.current = cab.scene.getObjectByName("Elevator_Cab") ?? cab.scene;
+    if (left && !left.userData.restQuat) left.userData.restQuat = left.quaternion.clone();
+    if (right && !right.userData.restQuat) right.userData.restQuat = right.quaternion.clone();
     showLed(block.scene, "off");
     const root = car.scene.getObjectByName("Company_Sedan_Navy") ?? car.scene;
     carRoot.current = root;
@@ -195,35 +358,62 @@ export function HarborWorld() {
       setWorldLive(false);
       colliders.length = 0;
     };
-  }, [block.scene, office.scene, car.scene]);
+  }, [block.scene, office.scene, car.scene, lobbyDetail.scene, floorDetail.scene, cab.scene, shaft.scene]);
 
   useFrame((_, raw) => {
     const dt = Math.min(raw, 0.05);
     const left = doors.current.left;
     const right = doors.current.right;
     if (left) {
+      const rest = left.userData.restQuat as THREE.Quaternion | undefined;
+      if (rest) left.quaternion.copy(rest);
       const deg = Number(left.userData.open_deg ?? 90);
-      left.rotation.y = THREE.MathUtils.degToRad(deg) * world.doorOpen;
+      left.rotateY(THREE.MathUtils.degToRad(deg) * world.doorOpen);
     }
     if (right) {
+      const rest = right.userData.restQuat as THREE.Quaternion | undefined;
+      if (rest) right.quaternion.copy(rest);
       const deg = Number(right.userData.open_deg ?? -90);
-      right.rotation.y = THREE.MathUtils.degToRad(deg) * world.doorOpen;
+      right.rotateY(THREE.MathUtils.degToRad(deg) * world.doorOpen);
     }
     showLed(block.scene, world.reader);
 
-    const nearLobby = world.py < 8 && Math.hypot(world.px - 1.5, world.pz + 15.8) < 3.6;
-    const nearFloor = world.py > 40 && Math.hypot(world.px - 1.5, world.pz + 15.4) < 3.6;
-    const lobbyTarget = world.transition === "up" || nearLobby ? 1 : 0;
-    const floorTarget = world.transition === "down" || nearFloor ? 1 : 0;
-    elevatorOpen.current.lobby += (lobbyTarget - elevatorOpen.current.lobby) * Math.min(1, dt * 3);
-    elevatorOpen.current.floor += (floorTarget - elevatorOpen.current.floor) * Math.min(1, dt * 3);
+    const at14 = world.cabY > 10;
     for (const door of elev.current) {
       const level = door.userData.level;
-      const amount = level === 14 || level === "14" ? elevatorOpen.current.floor : elevatorOpen.current.lobby;
+      const is14 = level === 14 || level === "14" || door.name.includes("F14");
+      const isCab = door.userData.cab === true;
+      const open = isCab || (is14 ? at14 : !at14) ? world.elevDoor : 0;
       const base = Number(door.userData.baseX ?? door.position.x);
-      const slide = Number(door.userData.slide_dist ?? 0);
-      door.position.x = base + slide * amount;
+      const slide = Number(door.userData.slide_dist ?? (door.name.endsWith("_L") ? -0.72 : 0.72));
+      door.position.x = base + slide * open;
     }
+    for (const flap of flaps.current) {
+      const t = world.laneT[flap.lane - 1] ?? 0;
+      flap.node.rotation.y = THREE.MathUtils.degToRad(flap.deg) * t;
+      const readerOn = t > 0.15 ? "Green" : "Off";
+      for (const state of ["Off", "Red", "Green"]) {
+        const led = lobbyDetail.scene.getObjectByName(`Turnstile_L${flap.lane}_Reader_LED_${state}`);
+        if (led) led.visible = state === readerOn;
+      }
+    }
+    const points: { lane: number; x: number; z: number }[] = [];
+    for (let lane = 1; lane <= 4; lane += 1) {
+      const reader = lobbyDetail.scene.getObjectByName(`Turnstile_L${lane}_Reader`);
+      if (!reader) continue;
+      reader.getWorldPosition(_center);
+      points.push({ lane, x: _center.x, z: _center.z });
+    }
+    world.gatePoints = points;
+
+    const cabNode = cabRoot.current;
+    if (cabNode) {
+      cab.scene.visible = world.cabShown;
+      cabNode.position.set(1.5, world.cabY, world.cabZ);
+    }
+    showCabReadout(cab.scene);
+    showLanding(block.scene, office.scene, floorDetail.scene, lobbyDetail.scene);
+    blinkRacks(floorDetail.scene, raw);
 
     const envelope = office.scene.getObjectByName("Envelope_Mail");
     const ring = office.scene.getObjectByName("DeskPhone_RingLight");
@@ -270,6 +460,12 @@ export function HarborWorld() {
       <primitive object={scenes.office} />
       <primitive object={scenes.props} />
       <primitive object={scenes.car} />
+      <primitive object={scenes.lobby} />
+      <primitive object={scenes.floor} />
+      <primitive object={scenes.shaft} />
+      <primitive object={scenes.cab} />
+      <primitive object={scenes.security} />
+      <pointLight position={[0, 6.5, 26]} color="#9eb6cc" intensity={18} distance={42} decay={2} />
       <Ring />
     </group>
   );
