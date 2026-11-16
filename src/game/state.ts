@@ -3,7 +3,7 @@ import { CAR_SPAWN, SPAWN } from "@/game/layout";
 import { applyFlag, barkFor, emptyFlags, nextBeat, objectiveFor, panelFor, scoreOf, talkFor, type Beat, type Flags, type Talk, type VoiceKind } from "@/game/story";
 import { recordDecision, resetRecord, sealShift, noteVariants } from "@/game/records";
 import { choiceOf, currentVariants, pickVariants, variantOf } from "@/game/scenarios";
-import { say, sayLine } from "@/game/audio";
+import { say, sayLineNext } from "@/game/audio";
 import { resetFocus } from "@/game/focus";
 import { FALLOUT_FROM_CHOICE, addFallout, after, resetFallout } from "@/game/fallout";
 
@@ -87,6 +87,8 @@ export const world = {
   laneT: [0, 0, 0, 0] as number[],
   laneHold: [0, 0, 0, 0] as number[],
   gatePoints: [] as { lane: number; x: number; z: number }[],
+  callX: 1.5,
+  callZ: -16.4,
   pending: "" as "" | "misdirect" | "signin" | "cleandesk",
   quiet: 0,
   buzz: 0,
@@ -181,7 +183,7 @@ export const useHarbor = create<HarborStore>((set, get) => ({
       after(seconds, () => {
         world.barkT = 9;
         get().setBark({ who, text });
-        sayLine(voice, text, kind, who);
+        sayLineNext(voice, text, kind, who);
       });
     if (fallout === "usb_plugged") {
       later("v2-fallout-printer", "narrator", "Printer · Floor 14", "The printer by the hot desks wakes up on its own and starts spitting out pages of garbage.", 75);

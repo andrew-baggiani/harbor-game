@@ -18,8 +18,12 @@ export function falloutList(): Fallout[] {
   return [...active];
 }
 
+/** Warning signs the player didn't catch, for the end-of-night report. */
+export const missedSigns: { beat: string; why: string }[] = [];
+
 export function resetFallout() {
   active.clear();
+  missedSigns.length = 0;
   timers = [];
   clock = 0;
 }

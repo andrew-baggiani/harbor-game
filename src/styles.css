@@ -6,11 +6,20 @@
 @import "@fontsource/source-sans-3/latin-400.css";
 @import "@fontsource/source-sans-3/latin-500.css";
 @import "@fontsource/source-sans-3/latin-600.css";
+@import "@fontsource/barlow-condensed/latin-500.css";
+@import "@fontsource/barlow-condensed/latin-600.css";
+@import "@fontsource/barlow-condensed/latin-700.css";
+@import "@fontsource/barlow/latin-400.css";
+@import "@fontsource/barlow/latin-500.css";
+@import "@fontsource/barlow/latin-600.css";
 
 @theme {
   --font-sans: "Source Sans 3", "Segoe UI", sans-serif;
   --font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
   --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  /* Game chrome: title screen, HUD keycaps, menus. */
+  --font-game: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --font-ui: "Barlow", "Segoe UI", sans-serif;
 
   --color-bg: #0c0d0f;
   --color-elevated: #15171a;

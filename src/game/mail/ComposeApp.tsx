@@ -26,7 +26,6 @@ export type ComposeResult = {
   variant: number;
 };
 
-const GOLD = "#c4a574";
 
 export function ComposeApp({
   content,
@@ -43,10 +42,9 @@ export function ComposeApp({
   const [suggest, setSuggest] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [preview, setPreview] = useState(false);
-  const [stage, setStage] = useState<"compose" | "sent" | "summary">("compose");
+  const [stage, setStage] = useState<"compose" | "sent">("compose");
   const [recallFailed, setRecallFailed] = useState(false);
   const [evidence] = useState(() => new Set<string>());
-  const [result, setResult] = useState<ComposeResult | null>(null);
 
   const external = (p: Person | null) => !!p && !p.email.endsWith(`@${content.internal_domain}`);
   const options = [v.wrong, v.right].filter((p) =>
@@ -55,8 +53,7 @@ export function ComposeApp({
 
   const finish = (steps: string[]) => {
     const r = { steps, evidence: [...evidence], tellsTotal: content.tells.length, variant };
-    setResult(r);
-    setStage("summary");
+    onDone(r);
   };
 
   const send = () => {
@@ -64,44 +61,6 @@ export function ComposeApp({
     if (to.email === v.right.email) finish(["misdirect-check"]);
     else setStage("sent");
   };
-
-  if (stage === "summary" && result) {
-    const ok = result.steps[0] === "misdirect-check";
-    const headline = ok
-      ? "Right Mark. Sent."
-      : result.steps[1] === "misdirect-report"
-        ? "Wrong Mark, but you reported it fast."
-        : "Wrong Mark, and you deleted the evidence.";
-    return (
-      <div className="absolute inset-0 flex items-center justify-center overflow-y-auto bg-[#07090e]/90 p-4 text-[#f4f0e6]">
-        <div className="w-full max-w-lg border border-white/10 bg-[#0c0d0f]/95 p-6 md:p-8">
-          <p className="text-[10px] tracking-[0.24em]" style={{ color: GOLD }}>
-            SEND · WHAT YOU CAUGHT
-          </p>
-          <h2 className="mt-2 font-display text-3xl text-balance">{headline}</h2>
-          <ul className="mt-5 space-y-2 text-sm">
-            {content.tells.map((t) => {
-              const got = result.evidence.includes(t.tell);
-              return (
-                <li key={t.tell} className="flex gap-3">
-                  <span style={{ color: got ? GOLD : "#6b6a66" }}>{got ? "✓" : "○"}</span>
-                  <span className={got ? "" : "text-[#a8a59c]"}>{t.why}</span>
-                </li>
-              );
-            })}
-          </ul>
-          <button
-            type="button"
-            className="mt-6 min-h-11 border px-4 text-sm"
-            style={{ borderColor: GOLD }}
-            onClick={() => onDone(result)}
-          >
-            Continue the shift
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div

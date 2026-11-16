@@ -9,11 +9,11 @@ import updatesJson from "@/content/scenarios/mon-06-updates-v2.json";
 import wireJson from "@/content/scenarios/mon-05-wire-v2.json";
 import cleandeskJson from "@/content/scenarios/mon-09-cleandesk-v2.json";
 import misdirectJson from "@/content/scenarios/mon-08-misdirect-v2.json";
-import { addFallout, hasFallout } from "@/game/fallout";
+import { addFallout, hasFallout, missedSigns } from "@/game/fallout";
 import { exitFocus, focus, type FocusApp } from "@/game/focus";
 import { ComposeApp, type ComposeContent, type ComposeResult } from "@/game/mail/ComposeApp";
 import { MailClient } from "@/game/mail/MailClient";
-import type { InboxContent, MailResult } from "@/game/mail/mailLogic";
+import { allTells, type InboxContent, type MailResult } from "@/game/mail/mailLogic";
 import type { CallContent } from "@/game/phone/callLogic";
 import { PhoneCall } from "@/game/phone/PhoneCall";
 import { SigninPush, type SigninContent } from "@/game/signin/SigninPush";
@@ -47,6 +47,10 @@ function cleandeskFor(base: TalkContent): TalkContent {
 
 /** Below this many CSS pixels wide, the monitor is too small to use: go full screen instead. */
 const MIN_EMBED_WIDTH = 760;
+
+function noteMissed(beat: string, tells: { tell: string; why: string }[], evidence: string[]) {
+  for (const t of tells) if (!evidence.includes(t.tell)) missedSigns.push({ beat, why: t.why });
+}
 
 /** Hand one or more v1 outcomes to the story once the app has closed. */
 function finish(steps: string[], result: unknown) {
@@ -82,17 +86,22 @@ export function DeskScreen() {
   if (app === "mail" || app === "misdirect") {
     const done = (r: MailResult) => {
       if (r.enteredCreds) addFallout("creds_phished");
+      const phish = inbox.messages.find((m) => m.id === r.phishId);
+      if (phish) noteMissed("Mail", allTells(phish), r.evidence);
       finish([r.choiceId], r);
     };
     return (
       <OnMonitor phase={snap.phase} rect={snap.rect}>
         {app === "mail" ? (
-          <MailClient content={inbox} variant={focus.mailVariant} onDone={done} embedded showSummary />
+          <MailClient content={inbox} variant={focus.mailVariant} onDone={done} embedded showSummary={false} />
         ) : (
           <ComposeApp
             content={compose}
             variant={focus.misdirectVariant}
-            onDone={(r: ComposeResult) => finish(r.steps, r)}
+            onDone={(r: ComposeResult) => {
+              noteMissed("Send", compose.tells, r.evidence);
+              finish(r.steps, r);
+            }}
           />
         )}
       </OnMonitor>
@@ -103,13 +112,33 @@ export function DeskScreen() {
   if (snap.phase !== "hold") return null;
 
   if (app === "phone") {
-    return createPortal(<PhoneCall content={call} onDone={(r) => finish([r.choiceId], r)} />, document.body);
+    return createPortal(
+      <PhoneCall
+        content={call}
+        onDone={(r) => {
+          noteMissed("Phone", call.tells, r.evidence);
+          finish([r.choiceId], r);
+        }}
+      />,
+      document.body,
+    );
   }
 
   if (app === "signin") {
     const fallout = hasFallout("code_given") ? "code_given" : hasFallout("creds_phished") ? "creds_phished" : null;
     return createPortal(
-      <SigninPush content={signin} fallout={fallout} onDone={(r) => finish([r.choiceId], r)} />,
+      <SigninPush
+        content={signin}
+        fallout={fallout}
+        onDone={(r) => {
+          const tells = [
+            ...signin.request.rows.filter((row) => row.tell).map((row) => ({ tell: row.tell!, why: row.why! })),
+            { tell: signin.monitor_check.tell, why: signin.monitor_check.why },
+          ];
+          noteMissed("Sign-in", tells, r.evidence);
+          finish([r.choiceId], r);
+        }}
+      />,
       document.body,
     );
   }
@@ -118,7 +147,14 @@ export function DeskScreen() {
   if (talk) {
     const content = app === "cleandesk" ? cleandeskFor(talk) : talk;
     return createPortal(
-      <TalkPanel key={app} content={content} onDone={(r) => finish([r.choiceId], r)} />,
+      <TalkPanel
+        key={app}
+        content={content}
+        onDone={(r) => {
+          noteMissed(content.speaker.who, content.tells, r.evidence);
+          finish([r.choiceId], r);
+        }}
+      />,
       document.body,
     );
   }

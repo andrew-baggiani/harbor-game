@@ -11,7 +11,6 @@ type Props = { content: CallContent; onDone: (r: CallResult) => void };
 type Entry = { name: string; title: string; email: string; ext: string; note: string };
 const directory = (mail as unknown as { directory: Entry[] }).directory;
 
-const GOLD = "#c4a574";
 
 export function PhoneCall({ content, onDone }: Props) {
   const call = useMemo(() => new Call(content), [content]);
@@ -19,7 +18,6 @@ export function PhoneCall({ content, onDone }: Props) {
   const [smsOpen, setSmsOpen] = useState(false);
   const [dirOpen, setDirOpen] = useState(false);
   const [calledBack, setCalledBack] = useState(false);
-  const [summary, setSummary] = useState<CallResult | null>(null);
   const idleTimer = useRef<number | null>(null);
   const idled = useRef(false);
   const logRef = useRef<HTMLDivElement>(null);
@@ -63,8 +61,6 @@ export function PhoneCall({ content, onDone }: Props) {
     f();
     rerender();
   };
-
-  if (summary) return <Summary content={content} result={summary} onContinue={() => onDone(summary)} />;
 
   const ended = call.ended;
 
@@ -160,7 +156,7 @@ export function PhoneCall({ content, onDone }: Props) {
                   Call {content.callback.number}
                 </button>
               )}
-              <button type="button" className="text-xs text-white/70" onClick={() => setSummary(call.result())}>
+              <button type="button" className="text-xs text-white/70" onClick={() => onDone(call.result())}>
                 <span className="mx-auto mb-1 flex h-11 w-11 items-center justify-center rounded-full border border-white/30">→</span>
                 Done
               </button>
@@ -229,34 +225,6 @@ function Directory({ onClose, onLook }: { onClose: () => void; onLook: (name: st
           <p className="mt-2 text-xs">{pick.note}</p>
         </div>
       )}
-    </div>
-  );
-}
-
-function Summary({ content, result, onContinue }: { content: CallContent; result: CallResult; onContinue: () => void }) {
-  const headline = result.choiceId === "phone-code" ? "You read a live code to a stranger." : "You didn't give up the code.";
-  return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-[#07090e]/85 p-4 text-[#f4f0e6] md:items-center">
-      <div className="w-full max-w-lg border border-white/10 bg-[#0c0d0f]/95 p-6 md:p-8">
-        <p className="text-[10px] tracking-[0.24em]" style={{ color: GOLD }}>
-          PHONE · WHAT YOU CAUGHT
-        </p>
-        <h2 className="mt-2 font-display text-3xl text-balance">{headline}</h2>
-        <ul className="mt-5 space-y-2 text-sm">
-          {content.tells.map((t) => {
-            const got = result.evidence.includes(t.tell);
-            return (
-              <li key={t.tell} className="flex gap-3">
-                <span style={{ color: got ? GOLD : "#6b6a66" }}>{got ? "✓" : "○"}</span>
-                <span className={got ? "" : "text-[#a8a59c]"}>{t.why}</span>
-              </li>
-            );
-          })}
-        </ul>
-        <button type="button" className="mt-6 min-h-11 border px-4 text-sm" style={{ borderColor: GOLD }} onClick={onContinue}>
-          Continue the shift
-        </button>
-      </div>
     </div>
   );
 }

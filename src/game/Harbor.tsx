@@ -8,6 +8,9 @@ import { Link } from "@tanstack/react-router";
 import { Marker, People, Rain, Rig, Sky, Trail } from "@/game/draw";
 import { HarborWorld } from "@/game/scenery";
 import { DeskScreen } from "@/game/mail/DeskScreen";
+import { missedSigns } from "@/game/fallout";
+import { focusActive } from "@/game/focus";
+import { Key, TitleScreen } from "@/game/TitleScreen";
 import { blip, caption, say, unlockAudio } from "@/game/audio";
 import { nightPath, reportLines, scoreOf } from "@/game/story";
 import { drawKnowledgeCheck, type CheckItem } from "@/game/scenarios";
@@ -22,7 +25,7 @@ function LoadBar() {
   const width = Math.max(6, Math.min(100, progress));
   return (
     <div className="absolute inset-x-0 bottom-0 z-40 px-6 pb-8">
-      <p className="mb-2 font-serif text-sm text-[#f4f0e6]">Loading the quay</p>
+      <p className="mb-2 font-serif text-sm text-[#f4f0e6]">Loading the waterfront</p>
       <div className="h-1.5 w-full overflow-hidden bg-[#1a1c20]">
         <div className="h-full bg-[#c4a574]" style={{ width: `${width}%` }} />
       </div>
@@ -195,11 +198,8 @@ function press(code: string, down: boolean) {
   if (code === "KeyE" || code === "Enter" || code === "NumpadEnter" || code === "Space") {
     unlockAudio();
     const live = useHarbor.getState();
-    if (live.boot) {
-      say("brief");
-      live.setBoot(false);
-      return;
-    }
+    // The title screen owns the keys until the shift starts.
+    if (live.boot) return;
     if (live.talk) return;
     world.wantInteract = true;
   }
@@ -292,6 +292,8 @@ function pinName(beat: string) {
 
 function RideFade() {
   const veil = useRef<HTMLDivElement>(null);
+  const floor = useRef<HTMLParagraphElement>(null);
+  const arrow = useRef<HTMLSpanElement>(null);
   useEffect(() => {
     let id = 0;
     const tick = () => {
@@ -299,12 +301,22 @@ function RideFade() {
         veil.current.style.opacity = String(world.fade);
         veil.current.style.visibility = world.fade > 0.01 ? "visible" : "hidden";
       }
+      // Elevator title card: the floor counter while the screen is black.
+      if (floor.current) floor.current.textContent = world.ride === "ride" ? world.indicator : "";
+      if (arrow.current) arrow.current.textContent = world.ride === "ride" ? (world.arrow === "up" ? "▲" : "▼") : "";
       id = requestAnimationFrame(tick);
     };
     id = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(id);
   }, []);
-  return <div ref={veil} className="pointer-events-none absolute inset-0 z-30 bg-black" style={{ opacity: 0 }} />;
+  return (
+    <div ref={veil} className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center bg-black" style={{ opacity: 0 }}>
+      <div className="flex items-center gap-5 font-game text-[#f4f0e6]">
+        <span ref={arrow} className="text-4xl text-[#c4a574]" />
+        <p ref={floor} className="min-w-[3ch] text-center text-8xl font-bold tabular-nums" />
+      </div>
+    </div>
+  );
 }
 
 function Waypoint({ beat }: { beat: string }) {
@@ -486,7 +498,7 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
     ["Desk", flags.cleandesk],
   ] as const;
 
-  if (boot) return <Briefing />;
+  if (boot) return <TitleScreen />;
 
   return (
     <>
@@ -495,8 +507,8 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
           <p className="text-[10px] tracking-[0.24em] text-[#c4a574]">MONDAY · {callsign || "HARBOR"}</p>
           <p className="tabular-nums text-xs text-[#a8a59c]">{clock}</p>
         </div>
-        <p className="mt-1 font-display text-2xl leading-tight text-balance text-[#f4f0e6] md:text-[1.7rem]">{objective}</p>
-        {spoken.who ? (
+        <p className="mt-1 font-game text-2xl leading-tight font-semibold text-balance text-[#f4f0e6] md:text-[1.8rem]">{objective}</p>
+        {spoken.who && !focusActive() && !talk ? (
           <div className="mt-3 max-w-md border border-[#c4a574]/40 bg-[#0c0d0f]/80 px-3 py-2">
             <p className="text-[10px] tracking-[0.18em] text-[#c4a574]">{spoken.who.toUpperCase()}</p>
             <p className="mt-1 text-sm leading-snug text-[#f4f0e6]">{spoken.text}</p>
@@ -524,13 +536,16 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
         <div className={coarse ? "absolute inset-x-0 bottom-48 z-30 flex justify-center px-16" : "absolute inset-x-0 bottom-24 z-30 flex justify-center md:bottom-16"}>
           <button
             type="button"
-            className="border border-[#c4a574]/50 bg-[#0c0d0f]/85 px-5 py-2.5 font-display text-2xl text-[#f4f0e6]"
+            className="border border-[#c4a574]/50 bg-[#0c0d0f]/85 px-5 py-2.5 font-game text-2xl font-semibold tracking-wide text-[#f4f0e6]"
             onClick={() => {
               unlockAudio();
               world.wantInteract = true;
             }}
           >
-            {prompt}
+            <span className="flex items-center gap-3">
+              {!coarse && /^E\s+·/.test(prompt) && <Key wide>Space</Key>}
+              <span>{prompt.replace(/^E\s+·\s+/, "")}</span>
+            </span>
           </button>
         </div>
       ) : null}
@@ -587,6 +602,19 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
                 </li>
               ))}
             </ul>
+            {missedSigns.length > 0 && (
+              <div className="mt-5 border-t border-white/10 pt-4">
+                <p className="text-[10px] tracking-[0.24em] text-[#c4a574]">SIGNS YOU MISSED</p>
+                <ul className="mt-2 max-h-40 space-y-1.5 overflow-y-auto pr-1 text-sm text-[#d9d4c8]">
+                  {missedSigns.slice(0, 8).map((m, i) => (
+                    <li key={i}>
+                      <span className="mr-2 font-game text-xs tracking-[0.14em] text-[#a8a59c] uppercase">{m.beat}</span>
+                      {m.why}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <div className="mt-6 flex flex-wrap gap-3">
               <ShareButton
                 label="Share the night"
@@ -648,47 +676,26 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
   );
 }
 
-function Briefing() {
-  return (
-    <div className="absolute inset-0 z-20 flex items-end bg-gradient-to-t from-[#07090e] via-[#07090e]/90 to-[#07090e]/20 p-5 md:items-center md:p-14">
-      <div className="w-full max-w-xl">
-        <p className="text-[10px] tracking-[0.28em] text-[#c4a574]">MERIDIAN · HARBOR & CO.</p>
-        <h1 className="mt-2 font-display text-6xl text-[#f4f0e6] md:text-7xl">Monday night</h1>
-        <p className="mt-4 max-w-lg text-base leading-relaxed text-[#d9d4c8]">
-          You are the new hire at Harbor and Company, a shipping firm on the quay. A narrator starts the night. After that, the voice is whoever is in front of you: the courier, June at reception, the mail, the caller, Maya in finance.
-        </p>
-        <p className="mt-3 max-w-lg text-base leading-relaxed text-[#d9d4c8]">
-          Those asks are the mistakes companies actually make. The game is the training. You walk there, you decide, and the night files a report on what you did.
-        </p>
-        <p className="mt-4 text-sm leading-relaxed text-[#a8a59c]">
-          Arrow keys walk, drive, and steer. Shift runs. Drag looks any direction, or I J K L. E or Enter uses whatever is in front of you. On a phone, the left thumb walks and steers, drag the right side to look, and USE is the round button. The gold dashes are the next decision.
-        </p>
-        <button
-          type="button"
-          className="mt-6 min-h-12 border border-[#c4a574] px-5 text-sm tracking-[0.18em] text-[#f4f0e6]"
-          onClick={() => {
-            unlockAudio();
-            blip(440);
-            say("brief");
-            useHarbor.getState().setBoot(false);
-          }}
-        >
-          START THE SHIFT
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function Keys() {
   return (
     <div className="pointer-events-none absolute inset-x-0 bottom-5 hidden justify-center md:flex">
-      <div className="flex items-center gap-4 border border-white/10 bg-[#0c0d0f]/75 px-4 py-2 text-xs text-[#d9d4c8]">
-        <span><kbd className="mr-1.5 border border-white/20 px-1.5 py-0.5 font-display text-[#f4f0e6]">↑←↓→</kbd>move</span>
-        <span><kbd className="mr-1.5 border border-white/20 px-1.5 py-0.5 font-display text-[#f4f0e6]">Shift</kbd>run</span>
-        <span><kbd className="mr-1.5 border border-white/20 px-1.5 py-0.5 font-display text-[#f4f0e6]">drag</kbd>look</span>
-        <span><kbd className="mr-1.5 border border-white/20 px-1.5 py-0.5 font-display text-[#f4f0e6]">IJKL</kbd>look</span>
-        <span><kbd className="mr-1.5 border border-white/20 px-1.5 py-0.5 font-display text-[#f4f0e6]">Enter</kbd>use</span>
+      <div className="flex items-center gap-5 border border-white/10 bg-[#0c0d0f]/75 px-4 py-2 font-game text-sm tracking-wide text-[#d9d4c8] uppercase">
+        <span className="flex items-center gap-1.5">
+          <Key>W</Key>
+          <Key>A</Key>
+          <Key>S</Key>
+          <Key>D</Key>
+          <span className="ml-1">move</span>
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Key wide>Shift</Key>run
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Key wide>Space</Key>use
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Key wide>Esc</Key>menu
+        </span>
       </div>
     </div>
   );
@@ -699,7 +706,7 @@ function useCoarse() {
   useEffect(() => {
     const query = () => {
       const coarse = window.matchMedia("(pointer: coarse)").matches || window.matchMedia("(hover: none)").matches;
-      setOn(coarse || window.innerWidth < 900);
+      setOn(coarse);
     };
     query();
     window.addEventListener("resize", query);

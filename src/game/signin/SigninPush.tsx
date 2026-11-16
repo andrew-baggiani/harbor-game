@@ -31,7 +31,6 @@ export type SigninResult = {
 
 type Props = { content: SigninContent; fallout: Fallout | null; onDone: (r: SigninResult) => void };
 
-const GOLD = "#c4a574";
 
 export function SigninPush({ content, fallout, onDone }: Props) {
   const [pushes, setPushes] = useState(1);
@@ -39,7 +38,6 @@ export function SigninPush({ content, fallout, onDone }: Props) {
   const [num, setNum] = useState("");
   const [peek, setPeek] = useState(false);
   const [stage, setStage] = useState<"ask" | "denied" | "reported">("ask");
-  const [summary, setSummary] = useState<SigninResult | null>(null);
   const found = useRef(new Set<string>());
   const started = useRef(Date.now());
   const fall = fallout ? content.fallout[fallout] : undefined;
@@ -66,7 +64,7 @@ export function SigninPush({ content, fallout, onDone }: Props) {
   const finish = (choiceId: SigninResult["choiceId"]) => {
     if (pushes > 1 && choiceId !== "signin-yes") found.current.add(content.fatigue.tell);
     if (fall && choiceId === "signin-report") found.current.add(fall.tell);
-    setSummary({
+    onDone({
       choiceId,
       evidence: [...found.current],
       tellsTotal: tells.length,
@@ -75,9 +73,6 @@ export function SigninPush({ content, fallout, onDone }: Props) {
       ms: Date.now() - started.current,
     });
   };
-
-  if (summary)
-    return <Summary tells={tells} result={summary} fallBanner={fall?.banner} onContinue={() => onDone(summary)} />;
 
   return (
     <div
@@ -184,50 +179,6 @@ export function SigninPush({ content, fallout, onDone }: Props) {
             </button>
           </div>
         )}
-      </div>
-    </div>
-  );
-}
-
-function Summary({
-  tells,
-  result,
-  fallBanner,
-  onContinue,
-}: {
-  tells: { tell: string; why: string }[];
-  result: SigninResult;
-  fallBanner?: string;
-  onContinue: () => void;
-}) {
-  const headline =
-    result.choiceId === "signin-yes"
-      ? "You let them in."
-      : result.choiceId === "signin-report"
-        ? "Denied and reported."
-        : "You didn't approve it, but nobody knows.";
-  return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-[#07090e]/85 p-4 text-[#f4f0e6] md:items-center">
-      <div className="w-full max-w-lg border border-white/10 bg-[#0c0d0f]/95 p-6 md:p-8">
-        <p className="text-[10px] tracking-[0.24em]" style={{ color: GOLD }}>
-          SIGN-IN · WHAT YOU CAUGHT
-        </p>
-        <h2 className="mt-2 font-display text-3xl text-balance">{headline}</h2>
-        {fallBanner && <p className="mt-2 text-sm text-[#ffb4ab]">{fallBanner}</p>}
-        <ul className="mt-5 space-y-2 text-sm">
-          {tells.map((t) => {
-            const got = result.evidence.includes(t.tell);
-            return (
-              <li key={t.tell} className="flex gap-3">
-                <span style={{ color: got ? GOLD : "#6b6a66" }}>{got ? "✓" : "○"}</span>
-                <span className={got ? "" : "text-[#a8a59c]"}>{t.why}</span>
-              </li>
-            );
-          })}
-        </ul>
-        <button type="button" className="mt-6 min-h-11 border px-4 text-sm" style={{ borderColor: GOLD }} onClick={onContinue}>
-          Continue the shift
-        </button>
       </div>
     </div>
   );

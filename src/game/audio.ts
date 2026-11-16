@@ -134,6 +134,8 @@ export function blip(freq = 520) {
 let voice: AudioBufferSourceNode | null = null;
 const clips = new Map<string, AudioBuffer>();
 let queued: string | null = null;
+/** Lines that wait for the current one to finish instead of cutting it off. */
+let waiting: string[] = [];
 let queueTimer: number | null = null;
 let voiceGen = 0;
 
@@ -147,7 +149,7 @@ function clearQueue() {
 
 function queueNext(gen: number, delayMs: number) {
   if (gen !== voiceGen) return;
-  const next = queued;
+  const next = queued ?? waiting.shift() ?? null;
   queued = null;
   if (!next) return;
   queueTimer = window.setTimeout(() => {
@@ -177,12 +179,28 @@ export function sayLine(id: string, text: string, kind: VoiceKind, who: string) 
   say(id);
 }
 
+/** Play after whatever is talking now finishes (or right away if nothing is). */
+export function sayNext(id: string) {
+  if (typeof window === "undefined") return;
+  if (playing || queueTimer != null) {
+    if (!waiting.includes(id)) waiting.push(id);
+    return;
+  }
+  say(id);
+}
+
+export function sayLineNext(id: string, text: string, kind: VoiceKind, who: string) {
+  registerLine(id, text, kind, who);
+  sayNext(id);
+}
+
 export function say(id: string, thenId?: string) {
   if (typeof window === "undefined") return;
   const extra = extraLines.get(id);
   const line = extra ?? voiceFor(id);
   if (!line) return;
   clearQueue();
+  waiting = waiting.filter((w) => w !== id);
   const gen = ++voiceGen;
   queued = thenId ?? null;
   unlockAudio();

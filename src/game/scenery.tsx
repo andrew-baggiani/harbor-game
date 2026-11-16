@@ -188,7 +188,7 @@ function collect(root: THREE.Object3D) {
     if (data.default_visible === false) return;
     if (data.collider !== "mesh" && data.collider !== "box") return;
     if (data.surface === "asphalt_wet" || data.surface === "concrete" || data.surface === "water") return;
-    if (data.role === "glazing" || data.role === "vehicle") return;
+    if (data.role === "glazing" || data.role === "vehicle" || data.role === "speed_gate_bank") return;
     const dynamic = data.role === "door" || data.role === "elevator_door";
     if (data.collider === "box") {
       colliders.push({ object: obj, kind: "box", dynamic, box: new THREE.Box3().setFromObject(obj) });
@@ -408,6 +408,10 @@ export function HarborWorld() {
     const cabRoot = cab.scene.getObjectByName("Elevator_Cab");
     const cabShell = cabBaked.scene.getObjectByName("Elevator_Cab_Shell_Baked");
     if (cabRoot && cabShell) cabRoot.add(cabShell);
+    const bakedGate = lobbyBaked.scene.getObjectByName("SpeedGate_Bank_Baked");
+    if (bakedGate) bakedGate.visible = false;
+    const liveGate = lobbyDetail.scene.getObjectByName("SpeedGate_Bank");
+    if (liveGate) liveGate.visible = true;
     for (const name of ["Elevator_Cab_Door_L", "Elevator_Cab_Door_R"]) {
       cab.scene.getObjectByName(name)?.traverse((obj) => {
         const mesh = obj as THREE.Mesh;
@@ -542,13 +546,22 @@ export function HarborWorld() {
       }
     }
     const points: { lane: number; x: number; z: number }[] = [];
+    const gateBox = new THREE.Box3();
     for (let lane = 1; lane <= 4; lane += 1) {
       const reader = lobbyDetail.scene.getObjectByName(`Turnstile_L${lane}_Reader`);
       if (!reader) continue;
-      reader.getWorldPosition(_center);
+      gateBox.setFromObject(reader);
+      if (gateBox.isEmpty()) continue;
+      gateBox.getCenter(_center);
       points.push({ lane, x: _center.x, z: _center.z });
     }
     world.gatePoints = points;
+    const call = lobbyDetail.scene.getObjectByName("Elevator_Lobby_A_CallButton");
+    if (call) {
+      call.getWorldPosition(_center);
+      world.callX = _center.x;
+      world.callZ = _center.z;
+    }
 
     const cabNode = cabRoot.current;
     if (cabNode) {

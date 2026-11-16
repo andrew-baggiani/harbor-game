@@ -445,13 +445,13 @@ export function Human({
         new THREE.BoxGeometry(0.1, 0.142, 0.006),
         new THREE.MeshStandardMaterial({ map: badgeTexture() ?? undefined, color: "#f4efe6", roughness: 0.58, metalness: 0 }),
       );
-      card.position.set(0, -0.08, -0.2);
+      card.position.set(-0.045, -0.04, 0.16);
       card.castShadow = true;
       const strap = new THREE.Mesh(
-        new THREE.BoxGeometry(0.01, 0.18, 0.006),
+        new THREE.BoxGeometry(0.012, 0.16, 0.006),
         new THREE.MeshStandardMaterial({ color: "#16120e", roughness: 0.62 }),
       );
-      strap.position.set(0, 0.02, -0.15);
+      strap.position.set(0, 0.08, 0.12);
       badge.add(strap, card);
       spine.add(badge);
     }

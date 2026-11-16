@@ -22,6 +22,7 @@ import { Route as ReviewRouteImport } from './routes/review'
 import { Route as ShiftRouteImport } from './routes/shift'
 import { Route as DrillsIndexRouteImport } from './routes/drills.index'
 import { Route as DrillsDrillIdRouteImport } from './routes/drills.$drillId'
+import { Route as LabMailRouteImport } from './routes/lab.mail'
 import { Route as LessonLessonIdRouteImport } from './routes/lesson.$lessonId'
 import { Route as PathIndexRouteImport } from './routes/path.index'
 import { Route as PathModuleIdRouteImport } from './routes/path.$moduleId'
@@ -91,6 +92,11 @@ const DrillsDrillIdRoute = DrillsDrillIdRouteImport.update({
   path: '/$drillId',
   getParentRoute: () => DrillsRoute,
 } as any)
+const LabMailRoute = LabMailRouteImport.update({
+  id: '/lab/mail',
+  path: '/lab/mail',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LessonLessonIdRoute = LessonLessonIdRouteImport.update({
   id: '/lesson/$lessonId',
   path: '/lesson/$lessonId',
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/review': typeof ReviewRoute
   '/shift': typeof ShiftRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
+  '/lab/mail': typeof LabMailRoute
   '/lesson/$lessonId': typeof LessonLessonIdRoute
   '/path/$moduleId': typeof PathModuleIdRoute
   '/drills/': typeof DrillsIndexRoute
@@ -136,6 +143,7 @@ export interface FileRoutesByTo {
   '/review': typeof ReviewRoute
   '/shift': typeof ShiftRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
+  '/lab/mail': typeof LabMailRoute
   '/lesson/$lessonId': typeof LessonLessonIdRoute
   '/path/$moduleId': typeof PathModuleIdRoute
   '/drills': typeof DrillsIndexRoute
@@ -155,6 +163,7 @@ export interface FileRoutesById {
   '/review': typeof ReviewRoute
   '/shift': typeof ShiftRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
+  '/lab/mail': typeof LabMailRoute
   '/lesson/$lessonId': typeof LessonLessonIdRoute
   '/path/$moduleId': typeof PathModuleIdRoute
   '/drills/': typeof DrillsIndexRoute
@@ -175,6 +184,7 @@ export interface FileRouteTypes {
     | '/review'
     | '/shift'
     | '/drills/$drillId'
+    | '/lab/mail'
     | '/lesson/$lessonId'
     | '/path/$moduleId'
     | '/drills/'
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/review'
     | '/shift'
     | '/drills/$drillId'
+    | '/lab/mail'
     | '/lesson/$lessonId'
     | '/path/$moduleId'
     | '/drills'
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
     | '/review'
     | '/shift'
     | '/drills/$drillId'
+    | '/lab/mail'
     | '/lesson/$lessonId'
     | '/path/$moduleId'
     | '/drills/'
@@ -227,6 +239,7 @@ export interface RootRouteChildren {
   ResultRoute: typeof ResultRoute
   ReviewRoute: typeof ReviewRoute
   ShiftRoute: typeof ShiftRoute
+  LabMailRoute: typeof LabMailRoute
   LessonLessonIdRoute: typeof LessonLessonIdRoute
 }
 
@@ -323,6 +336,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DrillsDrillIdRouteImport
       parentRoute: typeof DrillsRoute
     }
+    '/lab/mail': {
+      id: '/lab/mail'
+      path: '/lab/mail'
+      fullPath: '/lab/mail'
+      preLoaderRoute: typeof LabMailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lesson/$lessonId': {
       id: '/lesson/$lessonId'
       path: '/lesson/$lessonId'
@@ -384,6 +404,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResultRoute: ResultRoute,
   ReviewRoute: ReviewRoute,
   ShiftRoute: ShiftRoute,
+  LabMailRoute: LabMailRoute,
   LessonLessonIdRoute: LessonLessonIdRoute,
 }
 export const routeTree = rootRouteImport

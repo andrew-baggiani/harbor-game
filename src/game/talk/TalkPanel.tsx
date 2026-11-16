@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef } from "react";
 import { sayLine } from "@/game/audio";
 import { Dialogue, type TalkContent, type TalkResult } from "@/game/talk/dialogue";
 
@@ -10,7 +10,6 @@ const GOLD = "#c4a574";
 export function TalkPanel({ content, onDone }: { content: TalkContent; onDone: (r: TalkResult) => void }) {
   const d = useMemo(() => new Dialogue(content), [content]);
   const [, rerender] = useReducer((n: number) => n + 1, 0);
-  const [summary, setSummary] = useState<TalkResult | null>(null);
   const spoken = useRef(content.start);
 
   // Voice each new node (the start node is voiced by the beat's own v1 clip).
@@ -20,8 +19,6 @@ export function TalkPanel({ content, onDone }: { content: TalkContent; onDone: (
     const n = content.nodes[d.node];
     sayLine(`${content.voice}-${d.node}`, n.say, n.kind ?? content.speaker.kind ?? "narrator", n.who ?? content.speaker.who);
   });
-
-  if (summary) return <Summary content={content} result={summary} onContinue={() => onDone(summary)} />;
 
   const notes = d.lines.filter((l) => l.who === "look" || l.who === "act");
   const lastYou = [...d.lines].reverse().find((l) => l.who === "you");
@@ -62,6 +59,8 @@ export function TalkPanel({ content, onDone }: { content: TalkContent; onDone: (
                 onClick={() => {
                   d.pick(o.id);
                   rerender();
+                  // The beat's own voiced debrief explains what happened, so no summary card here.
+                  if (d.ended) window.setTimeout(() => onDone(d.result()), 700);
                 }}
                 className={`min-h-11 px-3 py-2 text-left text-sm ${
                   o.kind === "look"
@@ -75,46 +74,7 @@ export function TalkPanel({ content, onDone }: { content: TalkContent; onDone: (
               </button>
             ))}
           </div>
-        ) : (
-          <button
-            type="button"
-            className="mt-4 min-h-11 border px-4 text-sm"
-            style={{ borderColor: GOLD }}
-            onClick={() => setSummary(d.result())}
-          >
-            Continue
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function Summary({ content, result, onContinue }: { content: TalkContent; result: TalkResult; onContinue: () => void }) {
-  const ok = result.score >= 100;
-  return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-[#07090e]/80 p-4 text-[#f4f0e6] md:items-center">
-      <div className="w-full max-w-lg border border-white/10 bg-[#0c0d0f]/95 p-6 md:p-8">
-        <p className="text-[10px] tracking-[0.24em]" style={{ color: GOLD }}>
-          {content.speaker.who.toUpperCase()} · WHAT YOU CAUGHT
-        </p>
-        <h2 className="mt-2 font-display text-3xl text-balance">
-          {content.headlines?.[result.choiceId] ?? (ok ? "Handled." : "That one got through.")}
-        </h2>
-        <ul className="mt-5 space-y-2 text-sm">
-          {content.tells.map((t) => {
-            const got = result.evidence.includes(t.tell);
-            return (
-              <li key={t.tell} className="flex gap-3">
-                <span style={{ color: got ? GOLD : "#6b6a66" }}>{got ? "✓" : "○"}</span>
-                <span className={got ? "" : "text-[#a8a59c]"}>{t.why}</span>
-              </li>
-            );
-          })}
-        </ul>
-        <button type="button" className="mt-6 min-h-11 border px-4 text-sm" style={{ borderColor: GOLD }} onClick={onContinue}>
-          Continue the shift
-        </button>
+        ) : null}
       </div>
     </div>
   );

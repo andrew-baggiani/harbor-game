@@ -1,7 +1,7 @@
 import { enterFocus, focusActive, showApp } from "@/game/focus";
 import { tickFallout } from "@/game/fallout";
 import { DESK, DOOR, ELEVATOR, ELEVATOR_F14, MAYA, OFFICE_Y, USB, slide } from "@/game/layout";
-import { blip, caption, say, setEngine, setRing, setWalking, tickAudio, voiceBusy } from "@/game/audio";
+import { blip, caption, say, setEngine, setRing, setWalking, tickAudio, voiceBusy, sayNext } from "@/game/audio";
 import { objectiveFor } from "@/game/story";
 import { keys, useHarbor, world, fleet } from "@/game/state";
 
@@ -218,7 +218,7 @@ export function step(dt: number) {
   if (!world.greeted && store.beat === "lobby" && world.py < 2 && insideTower(world.px, world.pz)) {
     world.greeted = true;
     world.barkT = 6;
-    say("reception");
+    sayNext("reception");
     store.setBark({ who: "June Park · Reception", text: "You're on my list for fourteen. Straight back, gold doors." });
   }
 
@@ -237,18 +237,18 @@ export function step(dt: number) {
       world.quiet = 0;
       if (which === "misdirect") {
         world.misdirectScreen = "compose";
-        say("misdirect");
+        sayNext("misdirect");
         if (!enterFocus("desk", "misdirect")) store.openPanel("misdirect");
       } else if (which === "signin") {
         world.signinScreen = "alert";
         world.buzz = 1.2;
         blip(740);
-        say("signin");
+        sayNext("signin");
         // v2: authenticator push with number matching and repeat pushes; v1 panel is the fallback.
         if (!showApp("signin")) store.openPanel("signin");
       } else {
         world.printouts = true;
-        say("cleandesk");
+        sayNext("cleandesk");
         blip(480);
       }
     }
@@ -331,11 +331,12 @@ function stepRide(dt: number) {
   }
   if (world.ride === "shut") {
     world.elevDoor = Math.max(0, world.elevDoor - dt / 1.2);
+    // Cut away as the doors close: the ride itself is a short title card, not a close-up of the cab wall.
+    world.fade = Math.min(1, world.fade + dt * 1.4);
     if (world.elevDoor <= 0) {
       world.ride = "ride";
       world.rideT = 0;
       world.rideMoved = false;
-      world.fade = 0;
     }
     return;
   }
@@ -343,21 +344,25 @@ function stepRide(dt: number) {
     world.rideT += dt;
     world.rideBob = Math.sin(world.rideT * 9) * 0.02;
     const floors = up ? RIDE_FLOORS : [...RIDE_FLOORS].reverse();
-    world.indicator = floors[Math.min(floors.length - 1, Math.floor(world.rideT / 0.3))];
+    world.indicator = floors[Math.min(floors.length - 1, Math.floor((world.rideT / 2.5) * floors.length))];
     world.arrow = up ? "up" : "down";
-    if (!world.rideMoved && world.rideT >= 2.4) {
+    if (!world.rideMoved) {
       world.fade = Math.min(1, world.fade + dt * 3);
       if (world.fade >= 1) {
         world.py += up ? 50.6 : -50.6;
         world.pz += up ? 0.85 : -0.85;
         world.cabY += up ? 50.6 : -50.6;
         world.cabZ += up ? 0.85 : -0.85;
+        // Turn to face the doors so you can walk straight out when they open.
+        world.face += Math.PI;
+        world.camYaw += Math.PI;
+        world.snap = true;
         world.rideMoved = true;
       }
-    } else if (world.rideMoved && world.fade > 0) {
-      world.fade = Math.max(0, world.fade - dt * 2);
+    } else if (world.rideT >= 2.4 && world.fade > 0) {
+      world.fade = Math.max(0, world.fade - dt * 2.2);
     }
-    if (world.rideT >= 5 && world.rideMoved && world.fade === 0) {
+    if (world.rideT >= 2.4 && world.rideMoved && world.fade === 0) {
       world.ride = "arrive";
       world.rideT = 0;
       world.cabButton = "";
@@ -382,7 +387,8 @@ function stepRide(dt: number) {
     return;
   }
   world.rideT += dt;
-  if (world.rideT > 3 || (world.rideT > 0.8 && !inCab())) {
+  // Doors stay open until you've stepped out: never close on the player.
+  if (world.rideT > 0.8 && !inCab()) {
     world.elevDoor = Math.max(0, world.elevDoor - dt / 1.2);
     if (world.elevDoor <= 0) {
       world.cabShown = false;
@@ -441,7 +447,7 @@ function takeCar(index: number) {
   world.camYaw = world.carYaw;
   world.barkT = 4.5;
   caption.who = "Narrator";
-  caption.text = "Company car. Hold the up arrow to drive. Left and right steer. It will not slide off the quay.";
+  caption.text = "Company car. Hold the up arrow to drive. Left and right steer. It won't slide off the dock.";
   caption.t = 5;
   useHarbor.getState().setBark({ who: "Narrator", text: caption.text });
   blip(160);
@@ -480,7 +486,7 @@ function tryInteract() {
     // v2: talk to the courier at the door (docs/MONDAY_V2.md). v1 panel is the fallback.
     if (showApp("door")) {
       useHarbor.setState({ beat: "door" });
-      say("door");
+      sayNext("door");
       world.badgeOut = 1;
       world.reader = "red";
       world.doorOpen = 0;
@@ -499,7 +505,7 @@ function tryInteract() {
         ],
       },
     });
-    say("door");
+    sayNext("door");
     world.badgeOut = 1;
     world.reader = "red";
     world.doorOpen = 0;
@@ -534,12 +540,12 @@ function tryInteract() {
   if (action === "updates") {
     // v2 beats open as apps; the v1 panel stays as the fallback.
     if (showApp("updates")) {
-      say("updates");
+      sayNext("updates");
       blip(420);
       return;
     }
     store.openPanel("updates");
-    say("updates");
+    sayNext("updates");
     blip(420);
     return;
   }
@@ -570,34 +576,34 @@ function tryInteract() {
     // v2: the call is a conversation (docs/MONDAY_V2.md). v1 panel is the fallback.
     if (showApp("phone")) {
       setRing(false);
-      say("phone"); // the v1 opening line is the same as the call's first line
+      sayNext("phone"); // the v1 opening line is the same as the call's first line
       return;
     }
     store.openPanel("phone");
-    say("phone");
+    sayNext("phone");
     blip(520);
     return;
   }
   if (action === "usb") {
     // v2: look at it, call IT, decide (docs/MONDAY_V2.md). v1 panel is the fallback.
     if (showApp("usb")) {
-      say("usb");
+      sayNext("usb");
       blip(360);
       return;
     }
     store.openPanel("usb");
-    say("usb");
+    sayNext("usb");
     blip(360);
     return;
   }
   if (action === "maya") {
     if (showApp("wire")) {
-      say("maya");
+      sayNext("maya");
       blip(420);
       return;
     }
     store.openPanel("maya");
-    say("maya");
+    sayNext("maya");
     blip(420);
     return;
   }
@@ -606,11 +612,11 @@ function tryInteract() {
       talk: {
         who: "June Park",
         role: "Reception · she is at the lobby desk",
-        text: "Hi, you must be the new hire. You're on my list for fourteen. Elevator's straight back, gold doors. Badge yourself up. Oh, and if anybody asks you to hold a door? They've got a badge. They can use it.",
+        text: "Hi, you must be the new hire. You're on my list for fourteen. Elevator's straight back, gold doors. Badge yourself up.",
         choices: [{ id: "reception-ok", label: "I'll badge myself. Where's the elevator?" }],
       },
     });
-    say("reception");
+    sayNext("reception");
     blip(300);
   }
 }
@@ -630,6 +636,7 @@ function computePrompt(): string | null {
     return "↑ drives  ·  ← → steers";
   }
   if (world.ride === "board") return "Walk into the cab";
+  if (world.ride === "out" && inCab()) return "Step out of the elevator";
   if (world.ride !== "idle") return null;
   const x = world.px;
   const z = world.pz;
@@ -649,15 +656,15 @@ function computePrompt(): string | null {
   }
   if (world.py < 3) {
     for (const point of world.gatePoints) {
-      if (dist(x, z, point) < 0.8 && world.laneT[point.lane - 1] < 0.2) {
+      if (dist(x, z, point) < 1.15 && world.laneT[point.lane - 1] < 0.2) {
         world.use = `gate-${point.lane}`;
         return "E  ·  Badge the gate";
       }
     }
   }
-  if (store.beat === "lobby" && world.py < 2 && dist(x, z, ELEVATOR) < 2.8 && insideTower(x, z)) {
+  if (store.beat === "lobby" && world.py < 2 && dist(x, z, { x: world.callX, z: world.callZ }) < 1.8 && insideTower(x, z)) {
     world.use = "up";
-    return "E  ·  Elevator to floor 14";
+    return "E  ·  Badge the elevator";
   }
   if (store.beat === "down" && world.py > 10 && dist(x, z, ELEVATOR) < 2.8) {
     world.use = "down";

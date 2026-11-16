@@ -159,7 +159,7 @@ export function voiceFor(id: string): { text: string; kind: VoiceKind } | null {
     case "door":
       return { kind: "man", text: "Hey, can you grab the door? My badge is back in the van. I'm double-parked out there. Two seconds, I swear." };
     case "reception":
-      return { kind: "woman", text: "Hi, you must be the new hire. You're on my list for fourteen. Elevator's straight back, gold doors. Badge yourself up. Oh, and if anybody asks you to hold a door? They've got a badge. They can use it." };
+      return { kind: "woman", text: "Hi, you must be the new hire. You're on my list for fourteen. Elevator's straight back, gold doors. Badge yourself up." };
     case "reception-ok":
       return { kind: "woman", text: "Straight back, gold doors. Badge in, floor fourteen. Have a good first night." };
     case "updates":
