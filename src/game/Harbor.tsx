@@ -24,9 +24,9 @@ function LoadBar() {
   if (!active && progress >= 100) return null;
   const width = Math.max(6, Math.min(100, progress));
   return (
-    <div className="absolute inset-x-0 bottom-0 z-40 px-6 pb-8">
-      <p className="mb-2 font-serif text-sm text-[#f4f0e6]">Loading the waterfront</p>
-      <div className="h-1.5 w-full overflow-hidden bg-[#1a1c20]">
+    <div className="pointer-events-none absolute right-6 bottom-6 z-40 w-56">
+      <p className="mb-1.5 text-right font-game text-xs tracking-[0.2em] text-[#a8a59c] uppercase">Loading the waterfront</p>
+      <div className="h-1 w-full overflow-hidden bg-[#1a1c20]">
         <div className="h-full bg-[#c4a574]" style={{ width: `${width}%` }} />
       </div>
     </div>
