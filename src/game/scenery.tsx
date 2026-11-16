@@ -1,6 +1,8 @@
 import { useLayoutEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { preloadGLTF, useGLTFOnce } from "@/game/models";
+import { loadGLTF, useGLTFOnce } from "@/game/models";
+import { applyBakedLighting, hideReplaced } from "@/game/baked";
+import { applyScreenImage, focus, registerScreen } from "@/game/focus";
 import { MeshBVH } from "three-mesh-bvh";
 import * as THREE from "three";
 import { variantOf } from "@/game/scenarios";
@@ -8,23 +10,28 @@ import { setWorldHit, setWorldLive } from "@/game/layout";
 import { useHarbor, world } from "@/game/state";
 
 export const MODEL_BASE = "/assets/models/";
-
-// Kick off every model download at once; the component then suspends on each in turn.
-preloadGLTF([
-  `${MODEL_BASE}harbor_block.glb`,
-  `${MODEL_BASE}harbor_office_f14.glb`,
-  `${MODEL_BASE}harbor_props.glb`,
-  `${MODEL_BASE}vehicle_Company_Sedan_Navy.glb`,
-  `${MODEL_BASE}harbor_lobby_detail.glb`,
-  `${MODEL_BASE}harbor_f14_detail.glb`,
-  `${MODEL_BASE}harbor_elevator_cab.glb`,
-  `${MODEL_BASE}harbor_shaft_cut.glb`,
-  `${MODEL_BASE}harbor_security_props.glb`,
-  `${MODEL_BASE}harbor_monday_beats.glb`,
-]);
 export const MODEL_FALLBACK = "https://raw.githubusercontent.com/andrew-baggiani/harbor-game/main/assets/models/";
 export const GLTF_LIGHT_SCALE = 0.000055;
 const SIMPLE_GLASS = true;
+
+const preloadGLTF = [
+  "harbor_block.glb",
+  "harbor_office_f14.glb",
+  "harbor_props.glb",
+  "vehicle_Company_Sedan_Navy.glb",
+  "harbor_lobby_detail.glb",
+  "harbor_f14_detail.glb",
+  "harbor_elevator_cab.glb",
+  "harbor_shaft_cut.glb",
+  "harbor_security_props.glb",
+  "harbor_monday_beats.glb",
+  "harbor_lobby_baked.glb",
+  "harbor_frontage_baked.glb",
+  "harbor_f14_baked.glb",
+  "harbor_cab_baked.glb",
+] as const;
+
+for (const file of preloadGLTF) void loadGLTF(`${MODEL_BASE}${file}`).catch(() => undefined);
 
 type Entry = {
   object: THREE.Object3D;
@@ -75,6 +82,43 @@ function hitScenery(x: number, z: number, y: number, radius: number) {
 
 setWorldHit(hitScenery);
 
+const _rayO = new THREE.Vector3();
+const _rayD = new THREE.Vector3();
+const _ray = new THREE.Ray();
+const _localRay = new THREE.Ray();
+const _boxHit = new THREE.Vector3();
+
+/**
+ * Distance from the focus point toward the camera before the first collider.
+ * Returns the full length when nothing is in the way. Used to keep the follow
+ * camera on the player's side of walls.
+ */
+export function cameraReach(fx: number, fy: number, fz: number, tx: number, ty: number, tz: number): number {
+  _rayD.set(tx - fx, ty - fy, tz - fz);
+  const len = _rayD.length();
+  if (!ready || len < 1e-4) return len;
+  _rayD.divideScalar(len);
+  _rayO.set(fx, fy, fz);
+  _ray.set(_rayO, _rayD);
+  let best = len;
+  for (const entry of colliders) {
+    if (!entry.object.visible) continue;
+    if (entry.kind === "box") {
+      const box = entry.dynamic ? entry.box.setFromObject(entry.object) : entry.box;
+      if (box.isEmpty() || box.containsPoint(_rayO)) continue;
+      if (_ray.intersectBox(box, _boxHit)) best = Math.min(best, _rayO.distanceTo(_boxHit));
+    } else if (entry.tree && entry.mesh) {
+      const mesh = entry.mesh;
+      mesh.updateWorldMatrix(true, false);
+      _inv.copy(mesh.matrixWorld).invert();
+      _localRay.copy(_ray).applyMatrix4(_inv);
+      const hit = entry.tree.raycastFirst(_localRay, THREE.DoubleSide);
+      if (hit) best = Math.min(best, _rayO.distanceTo(hit.point.applyMatrix4(mesh.matrixWorld)));
+    }
+  }
+  return best;
+}
+
 function prepare(root: THREE.Object3D) {
   root.traverse((obj) => {
     const data = obj.userData as Record<string, unknown>;
@@ -107,6 +151,10 @@ function prepare(root: THREE.Object3D) {
         light.color.set("#e7eef8");
         light.intensity = 12;
         if (point.isPointLight) point.distance = 16;
+      } else if (lamp === "Elevator_Cab_Light") {
+        light.color.set("#f1f4ff");
+        light.intensity = 2.5;
+        if (point.isPointLight) point.distance = 4;
       } else if (lamp.startsWith("Ship_Deck")) {
         light.color.set("#d5e4f2");
         light.intensity = 36;
@@ -299,6 +347,10 @@ export function HarborWorld() {
   const shaft = useGLTFOnce(`${MODEL_BASE}harbor_shaft_cut.glb`);
   const security = useGLTFOnce(`${MODEL_BASE}harbor_security_props.glb`);
   const beats = useGLTFOnce(`${MODEL_BASE}harbor_monday_beats.glb`);
+  const lobbyBaked = useGLTFOnce(`${MODEL_BASE}harbor_lobby_baked.glb`);
+  const frontBaked = useGLTFOnce(`${MODEL_BASE}harbor_frontage_baked.glb`);
+  const f14Baked = useGLTFOnce(`${MODEL_BASE}harbor_f14_baked.glb`);
+  const cabBaked = useGLTFOnce(`${MODEL_BASE}harbor_cab_baked.glb`);
   const beat = useHarbor((s) => s.beat);
   const doors = useRef<{ left: THREE.Object3D | null; right: THREE.Object3D | null; openL: number; openR: number }>({
     left: null,
@@ -316,6 +368,13 @@ export function HarborWorld() {
   const scenes = useMemo(() => {
     const loaded = [block, office, props, car, lobbyDetail, floorDetail, cab, shaft, security, beats];
     for (const gltf of loaded) prepare(gltf.scene);
+    // Desk monitor: register it for the desk zoom and show this shift's inbox on it,
+    // the same picture the clickable inbox opens with, so the hand-off is invisible.
+    const deskScreen = office.scene.getObjectByName("Monitor_Player_Screen");
+    if (deskScreen) {
+      registerScreen("desk", deskScreen);
+      applyScreenImage(deskScreen, `/assets/ui/desk_inbox_${focus.mailVariant === 0 ? "a" : "b"}.jpg`);
+    }
     for (const gltf of [lobbyDetail, floorDetail, cab, shaft, security, beats]) applyDefaultVisible(gltf.scene);
     beats.scene.traverse((obj) => {
       const mesh = obj as THREE.Mesh;
@@ -339,6 +398,26 @@ export function HarborWorld() {
     props.scene.visible = true;
     security.scene.visible = false;
     cab.scene.visible = false;
+    const baked = [lobbyBaked.scene, frontBaked.scene, f14Baked.scene, cabBaked.scene];
+    const originals = [block.scene, office.scene, lobbyDetail.scene, floorDetail.scene, cab.scene, shaft.scene];
+    for (const scene of baked) {
+      prepare(scene);
+      hideReplaced(scene, originals);
+      void applyBakedLighting(scene, MODEL_BASE);
+    }
+    const cabRoot = cab.scene.getObjectByName("Elevator_Cab");
+    const cabShell = cabBaked.scene.getObjectByName("Elevator_Cab_Shell_Baked");
+    if (cabRoot && cabShell) cabRoot.add(cabShell);
+    for (const name of ["Elevator_Cab_Door_L", "Elevator_Cab_Door_R"]) {
+      cab.scene.getObjectByName(name)?.traverse((obj) => {
+        const mesh = obj as THREE.Mesh;
+        if (!mesh.isMesh || mesh.userData.harborDoorMetal || Array.isArray(mesh.material)) return;
+        const material = (mesh.material as THREE.MeshStandardMaterial).clone();
+        material.metalness = 0.5;
+        mesh.material = material;
+        mesh.userData.harborDoorMetal = true;
+      });
+    }
     return {
       block: block.scene,
       office: office.scene,
@@ -350,8 +429,11 @@ export function HarborWorld() {
       shaft: shaft.scene,
       security: security.scene,
       beats: beats.scene,
+      lobbyBaked: lobbyBaked.scene,
+      frontBaked: frontBaked.scene,
+      f14Baked: f14Baked.scene,
     };
-  }, [block, office, props, car, lobbyDetail, floorDetail, cab, shaft, security, beats]);
+  }, [block, office, props, car, lobbyDetail, floorDetail, cab, shaft, security, beats, lobbyBaked, frontBaked, f14Baked, cabBaked]);
 
   useLayoutEffect(() => {
     colliders.length = 0;
@@ -364,6 +446,9 @@ export function HarborWorld() {
     cab.scene.visible = false;
     collect(shaft.scene);
     collect(beats.scene);
+    collect(lobbyBaked.scene);
+    collect(frontBaked.scene);
+    collect(f14Baked.scene);
     ready = true;
     setWorldLive(true);
     const left = block.scene.getObjectByName("Lobby_Door_L");
@@ -411,10 +496,16 @@ export function HarborWorld() {
       setWorldLive(false);
       colliders.length = 0;
     };
-  }, [block.scene, office.scene, car.scene, lobbyDetail.scene, floorDetail.scene, cab.scene, shaft.scene, beats.scene]);
+  }, [block.scene, office.scene, car.scene, lobbyDetail.scene, floorDetail.scene, cab.scene, shaft.scene, beats.scene, lobbyBaked.scene, frontBaked.scene, f14Baked.scene, cabBaked.scene]);
 
-  useFrame((_, raw) => {
+  useFrame(({ scene }, raw) => {
     const dt = Math.min(raw, 0.05);
+    const fog = scene.fog as THREE.Fog | null;
+    if (fog && "near" in fog) {
+      const indoors = world.py > 40 || (Math.abs(world.px) < 11 && world.pz < -0.8 && world.pz > -18);
+      fog.near = indoors ? 45 : 16;
+      fog.far = indoors ? 160 : 92;
+    }
     const left = doors.current.left;
     const right = doors.current.right;
     if (left) {
@@ -520,6 +611,9 @@ export function HarborWorld() {
       <primitive object={scenes.cab} />
       <primitive object={scenes.security} />
       <primitive object={scenes.beats} />
+      <primitive object={scenes.lobbyBaked} />
+      <primitive object={scenes.frontBaked} />
+      <primitive object={scenes.f14Baked} />
       <pointLight position={[0, 6.5, 26]} color="#9eb6cc" intensity={18} distance={42} decay={2} />
       <Ring />
     </group>

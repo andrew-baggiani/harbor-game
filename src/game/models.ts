@@ -24,9 +24,3 @@ export function loadGLTF(url: string): Promise<GLTF> {
 export function useGLTFOnce(url: string): GLTF {
   return suspend(() => loadGLTF(url), ["harbor-gltf", url]);
 }
-
-/** Start downloads in parallel before any component suspends on them. */
-export function preloadGLTF(urls: readonly string[]): void {
-  if (typeof window === "undefined") return;
-  for (const url of urls) void loadGLTF(url).catch(() => undefined);
-}

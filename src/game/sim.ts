@@ -1,3 +1,4 @@
+import { enterFocus, focusActive } from "@/game/focus";
 import { DESK, DOOR, ELEVATOR, ELEVATOR_F14, MAYA, OFFICE_Y, USB, slide } from "@/game/layout";
 import { blip, caption, say, setEngine, setRing, setWalking, tickAudio, voiceBusy } from "@/game/audio";
 import { objectiveFor } from "@/game/story";
@@ -43,6 +44,17 @@ function dist(x: number, z: number, p: { x: number; z: number }) {
   return Math.hypot(x - p.x, z - p.z);
 }
 
+// Freeze the hero in place: stops footsteps and drops the run/walk animation to idle.
+function standStill() {
+  setEngine(0, false);
+  setRing(false);
+  setWalking(false, 0);
+  if (!world.driving) {
+    world.moving = false;
+    world.speed = 0;
+  }
+}
+
 export function step(dt: number) {
   const store = useHarbor.getState();
   publishProbe();
@@ -56,23 +68,25 @@ export function step(dt: number) {
   stepLanes(dt);
   stepRide(dt);
   if (world.ride === "hold" || world.ride === "shut" || world.ride === "ride") {
-    setEngine(0, false);
-    setRing(false);
-    setWalking(false, 0);
+    standStill();
+    return;
+  }
+
+  // Zoomed into the desk screen: the player is sitting, the app has the keyboard.
+  if (focusActive()) {
+    standStill();
+    store.setPrompt(null);
     return;
   }
 
   if (world.ending) {
     world.endT += dt;
-    setEngine(0, false);
-    setRing(false);
+    standStill();
     return;
   }
 
   if (store.paused || store.boot) {
-    setEngine(0, false);
-    setRing(false);
-    setWalking(false, 0);
+    standStill();
     return;
   }
 
@@ -516,6 +530,15 @@ function tryInteract() {
     return;
   }
   if (action === "mail") {
+    // v2: glide onto the monitor and open the real inbox (see docs/MONDAY_V2.md).
+    // Falls back to the v1 choice panel if the desk screen isn't registered.
+    if (enterFocus("desk", "mail")) {
+      world.captionWho = "Narrator";
+      world.captionText = "Your inbox. Work it like you would at work. Anything off, report it.";
+      world.captionT = 5;
+      blip(480);
+      return;
+    }
     store.openPanel("mail");
     say("mail");
     blip(480);

@@ -1,0 +1,264 @@
+{
+  "id": "MON-02-phishing",
+  "version": "2.0.0-proto",
+  "mode": "inbox",
+  "note": "Inbox version of the mail beat. The player investigates a real-looking inbox instead of picking from a menu. One phish per run (picked by variant), the rest are legitimate. Choice ids map back to the v1 outcomes so records and scoring keep working: mail-report, mail-codes, mail-ignore.",
+  "clock": "11:42 PM",
+  "mailbox": "you@harborandco.com",
+  "internal_domain": "harborandco.com",
+  "report_label": "Report phish",
+  "directory": [
+    {
+      "name": "Elena Voss",
+      "title": "Chief Financial Officer",
+      "email": "elena.voss@harborandco.com",
+      "ext": "2210",
+      "note": "In the office all week. Assistant: Priya Nair, ext 2214."
+    },
+    {
+      "name": "Maya Chen",
+      "title": "Logistics Coordinator, Floor 14",
+      "email": "maya.chen@harborandco.com",
+      "ext": "1432",
+      "note": "On shift tonight."
+    },
+    {
+      "name": "IT Service Desk",
+      "title": "Harbor IT",
+      "email": "it-notices@harborandco.com",
+      "ext": "4400",
+      "note": "Staffed 24/7. Password resets and anything suspicious."
+    },
+    {
+      "name": "Security Desk",
+      "title": "Harbor Security",
+      "email": "security@harborandco.com",
+      "ext": "4400",
+      "note": "Report suspicious mail with the Report phish button."
+    },
+    {
+      "name": "People Team",
+      "title": "Human Resources",
+      "email": "hr@harborandco.com",
+      "ext": "1100",
+      "note": "Benefits enrollment closes Friday."
+    }
+  ],
+  "messages": [
+    {
+      "id": "phish-giftcard",
+      "variant": 0,
+      "kind": "phish",
+      "unread": true,
+      "time": "11:38 PM",
+      "from_name": "Elena Voss",
+      "from_email": "elena.voss@harborandco-exec.com",
+      "reply_to": "elena.voss.travel@gmail.com",
+      "external": true,
+      "subject": "Quick favor before I board",
+      "preview": "Boarding now, so I can't call. I need eight Apple gift cards...",
+      "body": [
+        {
+          "text": "Hi,"
+        },
+        {
+          "text": "Boarding now, so I can't call.",
+          "tell": "urgency",
+          "why": "Pressure plus a reason you can't check. Classic."
+        },
+        {
+          "text": "I need eight Apple gift cards, $200 each, for client thank-yous.",
+          "tell": "giftcards",
+          "why": "Nobody at Harbor buys gift cards over email. Ever."
+        },
+        {
+          "text": "Scratch the backs and reply with the codes."
+        },
+        {
+          "text": "Don't loop in my assistant, it's a surprise.",
+          "tell": "secrecy",
+          "why": "Cutting out the person who could confirm it is the point."
+        },
+        {
+          "text": "Elena"
+        },
+        {
+          "text": "Sent from my iPhone"
+        }
+      ],
+      "header_tells": [
+        {
+          "field": "from",
+          "tell": "lookalike",
+          "why": "harborandco-exec.com is not harborandco.com. The name is free to fake. The address isn't."
+        },
+        {
+          "field": "reply_to",
+          "tell": "replyto",
+          "why": "Replies would go to a Gmail address, not to Harbor."
+        },
+        {
+          "field": "external",
+          "tell": "external",
+          "why": "The EXTERNAL tag on mail from your own CFO means it came from outside Harbor."
+        }
+      ],
+      "verify": {
+        "who": "Elena Voss",
+        "result": "Elena picks up at her desk on 14. \"Boarding? I'm right here. I didn't send that. Report it.\""
+      },
+      "reply_draft": "Hi Elena, here are the codes:\n\nXXXX-XXXX-XXXX (x8)\n\nSafe travels!",
+      "fail_on_send": "mail-codes"
+    },
+    {
+      "id": "phish-mailbox",
+      "variant": 1,
+      "kind": "phish",
+      "unread": true,
+      "time": "11:36 PM",
+      "from_name": "Microsoft 365",
+      "from_email": "no-reply@m365-harborandco.com",
+      "reply_to": null,
+      "external": true,
+      "subject": "Action required: mailbox will be deleted in 24 hours",
+      "preview": "We could not verify your account. Sign in to keep your mailbox...",
+      "body": [
+        {
+          "text": "Dear user,",
+          "tell": "generic",
+          "why": "Your own IT knows your name."
+        },
+        {
+          "text": "We could not verify your account during the overnight security update."
+        },
+        {
+          "text": "Your mailbox and all files will be permanently deleted in 24 hours.",
+          "tell": "threat",
+          "why": "A deadline plus a threat is meant to stop you thinking."
+        },
+        {
+          "link": "Keep my mailbox",
+          "shown": "https://login.microsoftonline.com/harborandco",
+          "href": "https://harborandco-m365.verify-login.co/session?id=88213",
+          "tell": "link",
+          "why": "The button says microsoftonline.com. The real link goes to verify-login.co."
+        },
+        {
+          "text": "Microsoft 365 Account Team"
+        }
+      ],
+      "header_tells": [
+        {
+          "field": "from",
+          "tell": "lookalike",
+          "why": "m365-harborandco.com is not a Microsoft or Harbor domain."
+        },
+        {
+          "field": "external",
+          "tell": "external",
+          "why": "Real Harbor IT notices are internal. This one came from outside."
+        }
+      ],
+      "verify": {
+        "who": "IT Service Desk",
+        "result": "The service desk picks up. \"No mailbox checks tonight. Real IT notices come from it-notices@harborandco.com. Hit Report phish on it.\""
+      },
+      "fake_login": {
+        "title": "Sign in",
+        "domain": "harborandco-m365.verify-login.co",
+        "fail": "mail-codes"
+      }
+    },
+    {
+      "id": "legit-maint",
+      "variant": -1,
+      "kind": "legit",
+      "unread": true,
+      "time": "10:05 PM",
+      "from_name": "Harbor IT",
+      "from_email": "it-notices@harborandco.com",
+      "reply_to": null,
+      "external": false,
+      "subject": "Planned maintenance tonight, 1:00 to 3:00 AM",
+      "preview": "Email may be slow for a few minutes. No action needed...",
+      "body": [
+        {
+          "text": "Hi team,"
+        },
+        {
+          "text": "We're patching mail servers tonight between 1:00 and 3:00 AM."
+        },
+        {
+          "text": "Email may be slow for a few minutes. No action needed, and we will never ask for your password."
+        },
+        {
+          "text": "Questions: IT Service Desk, ext 4400."
+        },
+        {
+          "text": "Harbor IT"
+        }
+      ],
+      "header_tells": []
+    },
+    {
+      "id": "legit-maya",
+      "variant": -1,
+      "kind": "legit",
+      "unread": true,
+      "time": "9:51 PM",
+      "from_name": "Maya Chen",
+      "from_email": "maya.chen@harborandco.com",
+      "reply_to": null,
+      "external": false,
+      "subject": "2 AM pickup",
+      "preview": "Can you have the Kessler manifest ready before the truck...",
+      "body": [
+        {
+          "text": "Hey, welcome aboard."
+        },
+        {
+          "text": "Can you have the Kessler manifest ready before the 2 AM truck? I'll ask for it in a bit."
+        },
+        {
+          "text": "Thanks, Maya"
+        }
+      ],
+      "header_tells": []
+    },
+    {
+      "id": "legit-hr",
+      "variant": -1,
+      "kind": "legit",
+      "unread": false,
+      "time": "4:12 PM",
+      "from_name": "People Team",
+      "from_email": "hr@harborandco.com",
+      "reply_to": null,
+      "external": false,
+      "subject": "Benefits enrollment closes Friday",
+      "preview": "Pick your plans in the HR portal by Friday...",
+      "body": [
+        {
+          "text": "Reminder: benefits enrollment closes Friday at 5 PM."
+        },
+        {
+          "link": "Open the HR portal",
+          "shown": "https://hr.harborandco.com/benefits",
+          "href": "https://hr.harborandco.com/benefits"
+        },
+        {
+          "text": "People Team"
+        }
+      ],
+      "header_tells": []
+    }
+  ],
+  "scoring": {
+    "report_phish": 100,
+    "ignore_phish": 40,
+    "fall_for_phish": 0,
+    "investigation_bonus_max": 20,
+    "verified_bonus": 10,
+    "note": "Decision score stays on the v1 scale (0/40/100) so pass rules don't move. Investigation is recorded separately as evidence, plus an optional bonus the tenant can turn on."
+  }
+}

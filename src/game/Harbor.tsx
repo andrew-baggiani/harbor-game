@@ -7,6 +7,7 @@ import * as THREE from "three";
 import { Link } from "@tanstack/react-router";
 import { Marker, People, Rain, Rig, Sky, Trail } from "@/game/draw";
 import { HarborWorld } from "@/game/scenery";
+import { DeskScreen } from "@/game/mail/DeskScreen";
 import { blip, caption, say, unlockAudio } from "@/game/audio";
 import { nightPath, reportLines, scoreOf } from "@/game/story";
 import { drawKnowledgeCheck, type CheckItem } from "@/game/scenarios";
@@ -120,6 +121,7 @@ export function Harbor({
         </EffectComposer>
       </Canvas>
       <LoadBar />
+      <DeskScreen />
       <div
         className="absolute inset-0 z-10"
         onPointerDown={(event) => {

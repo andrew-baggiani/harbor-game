@@ -8,6 +8,8 @@ import { markerNow, step, trafficCars } from "@/game/sim";
 import { facadeMaterial, sidewalkMaterial } from "@/game/shade";
 import { useHarbor, world, fleet } from "@/game/state";
 import { HarborDetail } from "@/game/detail";
+import { cameraReach } from "@/game/scenery";
+import { applyFocus, focus, stepFocus } from "@/game/focus";
 import { Human } from "@/game/human";
 
 function BlockMesh({ x, z, w, d, h, seed }: Block) {
@@ -960,7 +962,8 @@ export function People() {
         <Human gait="idle" tint="#8d3d28" hair="#1a120e" scale={1.12} phase={1.4} />
         <CourierBadge />
       </group>
-      <group position={[-4.4, 0, -6.35]}><Human gait="idle" tint="#2f6a4a" hair="#e0c07a" scale={0.92} phase={0.8} /></group>
+      {/* Receptionist stands behind the desk (desk front at z -7.0, chair at -8.9), facing the entrance. */}
+      <group position={[-4.4, 0, -8.35]}><Human gait="idle" tint="#2f6a4a" hair="#e0c07a" scale={0.92} phase={0.8} /></group>
       <group position={[3.35, OFFICE_Y, -14.55]} rotation={[0, Math.PI, 0]}><Human gait="idle" tint="#6e2438" hair="#2a160e" scale={0.86} phase={2.2} /></group>
       <Walker origin={-40} span={16} z={2.6} speed={1.05} tint="#4e6a38" hair="#14110e" phase={0.3} scale={1.08} />
       <Walker origin={-6} span={8} z={3.1} speed={0.7} tint="#8a6230" hair="#d9d4cc" phase={1.7} scale={0.9} />
@@ -1661,8 +1664,11 @@ export function Rain() {
   return <lineSegments geometry={geo}><lineBasicMaterial color="#c9d4e2" transparent opacity={0.2} /></lineSegments>;
 }
 
+const _followLook = new THREE.Vector3();
+
 export function Rig() {
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
+  const gl = useThree((s) => s.gl);
   useFrame((_, raw) => {
     const dt = Math.min(raw, 0.05);
     step(dt);
@@ -1681,14 +1687,48 @@ export function Rig() {
     const tz = focusZ - Math.sin(yaw) * horiz - Math.cos(yaw) * shoulder;
     const ty = Math.max(world.py + 0.55, focusY + 0.4 + lookDown * dist * 0.95 - lookUp * dist * 0.35);
     const lookY = focusY + lookUp * dist * 2.6 - lookDown * 1.4;
-    const k = world.snap ? 1 : 1 - Math.exp(-8 * dt);
+    // Keep the camera on the player's side of walls: cast from the head toward the
+    // wanted spot and stop just short of the first collider.
+    let cx = tx;
+    let cy = ty;
+    let cz = tz;
+    let blockedCam = false;
+    if (!aerial) {
+      const want = Math.hypot(tx - focusX, ty - focusY, tz - focusZ);
+      const reach = cameraReach(focusX, focusY, focusZ, tx, ty, tz);
+      if (reach < want) {
+        const f = Math.max(0.35, reach - 0.28) / want;
+        cx = focusX + (tx - focusX) * f;
+        cy = focusY + (ty - focusY) * f;
+        cz = focusZ + (tz - focusZ) * f;
+        blockedCam = true;
+      }
+    }
+    // Pull in immediately when something is in the way; ease back out when clear.
+    const k = world.snap || blockedCam ? 1 : 1 - Math.exp(-8 * dt);
     world.snap = false;
-    world.camX += (tx - world.camX) * k;
-    world.camY += (ty - world.camY) * k;
-    world.camZ += (tz - world.camZ) * k;
+    if (blockedCam) {
+      const nowD = Math.hypot(world.camX - focusX, world.camY - focusY, world.camZ - focusZ);
+      const newD = Math.hypot(cx - focusX, cy - focusY, cz - focusZ);
+      if (newD > nowD) {
+        const ease = 1 - Math.exp(-8 * dt);
+        cx = world.camX + (cx - world.camX) * ease;
+        cy = world.camY + (cy - world.camY) * ease;
+        cz = world.camZ + (cz - world.camZ) * ease;
+      }
+    }
+    world.camX += (cx - world.camX) * k;
+    world.camY += (cy - world.camY) * k;
+    world.camZ += (cz - world.camZ) * k;
     camera.position.set(world.camX, world.camY + world.rideBob, world.camZ);
     camera.lookAt(focusX, lookY, focusZ);
-    const spot = markerNow();
+    if (focus.phase !== "off") {
+      // Desk zoom: glide from the follow camera onto the in-world screen.
+      stepFocus(dt);
+      _followLook.set(focusX, lookY, focusZ);
+      applyFocus(camera, _followLook, gl.domElement);
+    }
+    const spot = focus.phase !== "off" ? null : markerNow();
     if (spot) {
       const p = new THREE.Vector3(spot.x, spot.y + 2.2, spot.z).project(camera);
       world.markerSx = p.x * 0.5 + 0.5;

@@ -1,12 +1,13 @@
 import { useLayoutEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
-import { preloadGLTF, useGLTFOnce } from "@/game/models";
+import { loadGLTF, useGLTFOnce } from "@/game/models";
 import * as THREE from "three";
 import { clone as cloneSkinned } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { world } from "@/game/state";
 
-preloadGLTF(["/people/body.glb", "/people/idle.glb", "/people/walk.glb", "/people/jog.glb"]);
+// Start the four character files together instead of one after another.
+for (const url of ["/people/body.glb", "/people/idle.glb", "/people/walk.glb", "/people/jog.glb"]) void loadGLTF(url).catch(() => undefined);
 
 function plant(clip: THREE.AnimationClip) {
   const next = clip.clone();

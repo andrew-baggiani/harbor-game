@@ -4,6 +4,7 @@ import { applyFlag, barkFor, emptyFlags, nextBeat, objectiveFor, panelFor, score
 import { recordDecision, resetRecord, sealShift, noteVariants } from "@/game/records";
 import { choiceOf, currentVariants, pickVariants, variantOf } from "@/game/scenarios";
 import { say } from "@/game/audio";
+import { resetFocus } from "@/game/focus";
 
 export type Bark = { who: string; text: string };
 
@@ -277,6 +278,7 @@ export const useHarbor = create<HarborStore>((set, get) => ({
   },
   reset: () => {
     resetRecord();
+    resetFocus();
     world.px = SPAWN.x;
     world.py = 0;
     world.pz = SPAWN.z;
