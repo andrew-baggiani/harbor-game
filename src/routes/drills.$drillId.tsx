@@ -13,7 +13,7 @@ import { useProgress } from "@/lib/progress";
 
 export const Route = createFileRoute("/drills/$drillId")({
   head: ({ params }) => ({
-    meta: [{ title: `${getDrill(params.drillId)?.title ?? "Drill"} · Meridian` }],
+    meta: [{ title: `${getDrill(params.drillId)?.title ?? "Drill"} · Dry Run Cyber` }],
   }),
   component: DrillPage,
 });
@@ -51,7 +51,7 @@ function DrillPage() {
   }
 
   const shareText = result
-    ? `Meridian · ${drill.title} · ${result.pct} out of 100. Open the drill and run it yourself.`
+    ? `Dry Run Cyber · ${drill.title} · ${result.pct} out of 100. Open the drill and run it yourself.`
     : `${drill.title}. ${drill.summary}`;
 
   return (
@@ -72,7 +72,7 @@ function DrillPage() {
             <Button onClick={() => setPhase("play")}>Start</Button>
             <ShareButton
               label="Share this drill"
-              title={`Meridian · ${drill.title}`}
+              title={`Dry Run Cyber · ${drill.title}`}
               text={shareText}
               path={`/drills/${drill.id}`}
             />

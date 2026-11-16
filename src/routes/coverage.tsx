@@ -4,7 +4,7 @@ import { getLesson } from "@/content/curriculum";
 import { mondayScenarios } from "@/game/scenarios";
 
 export const Route = createFileRoute("/coverage")({
-  head: () => ({ meta: [{ title: "Coverage · Meridian" }] }),
+  head: () => ({ meta: [{ title: "Coverage · Dry Run Cyber" }] }),
   component: CoveragePage,
 });
 

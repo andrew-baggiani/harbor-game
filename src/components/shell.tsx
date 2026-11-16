@@ -44,7 +44,7 @@ export function Shell({ children }: { children: ReactNode }) {
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-60 flex-col border-r border-line bg-bg md:flex">
         <div className="px-5 pt-7">
           <Link to="/" className="font-display text-3xl tracking-tight text-fg">
-            Meridian
+            Dry Run Cyber
           </Link>
           <p className="mt-1 text-sm text-faint">Harbor</p>
         </div>
@@ -70,9 +70,9 @@ export function Shell({ children }: { children: ReactNode }) {
         </nav>
         <div className="mt-auto px-5 pb-6">
           <ShareButton
-            label="Share Meridian"
-            title="Meridian"
-            text="Meridian is a cybersecurity awareness field school. Lessons, drills, and a record you can share as a snapshot."
+            label="Share Dry Run Cyber"
+            title="Dry Run Cyber"
+            text="Dry Run Cyber is a cybersecurity awareness field school. Lessons, drills, and a record you can share as a snapshot."
             path="/"
             variant="ghost"
             className="mb-5"
@@ -92,11 +92,11 @@ export function Shell({ children }: { children: ReactNode }) {
       <div className="md:pl-60">
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-line bg-bg px-4 py-3 md:hidden">
           <Link to="/" className="font-display text-2xl text-fg">
-            Meridian
+            Dry Run Cyber
           </Link>
           <ShareButton
             label="Share"
-            title="Meridian"
+            title="Dry Run Cyber"
             text="A lesson, a drill, or the whole field school."
             variant="ghost"
           />

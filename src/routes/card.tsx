@@ -23,7 +23,7 @@ export const Route = createFileRoute("/card")({
     b: num(search.b, BADGES.length),
     q: typeof search.q === "string" ? search.q.slice(0, 400) : "",
   }),
-  head: () => ({ meta: [{ title: "Field card · Meridian" }] }),
+  head: () => ({ meta: [{ title: "Field card · Dry Run Cyber" }] }),
   component: CardPage,
 });
 
@@ -65,7 +65,7 @@ function CardPage() {
         <>
           <h1 className="mt-2 font-display text-4xl text-balance">This link has no snapshot on it.</h1>
           <p className="mt-4 max-w-prose text-pretty text-muted">
-            A field card is a score you chose to share. Start Meridian, then share one from your record.
+            A field card is a score you chose to share. Start Dry Run Cyber, then share one from your record.
           </p>
           <Link to="/play" className={`${buttonClass()} mt-6`}>
             Enter the field school
@@ -103,8 +103,8 @@ function CardPage() {
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <ShareButton
               label="Share this card"
-              title={`Meridian · ${callsign || "Field card"}`}
-              text={`Meridian field card — ${callsign || "Unnamed"}, ${current.name}, ${xp} XP. Snapshot, not a credential.`}
+              title={`Dry Run Cyber · ${callsign || "Field card"}`}
+              text={`Dry Run Cyber field card — ${callsign || "Unnamed"}, ${current.name}, ${xp} XP. Snapshot, not a credential.`}
               path={path}
             />
             <Link to="/play" className={buttonClass({ variant: "secondary" })}>

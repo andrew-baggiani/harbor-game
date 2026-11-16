@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/lesson/$lessonId")({
   head: ({ params }) => ({
-    meta: [{ title: `${getLesson(params.lessonId)?.title ?? "Lesson"} · Meridian` }],
+    meta: [{ title: `${getLesson(params.lessonId)?.title ?? "Lesson"} · Dry Run Cyber` }],
   }),
   component: LessonPage,
 });
@@ -86,8 +86,8 @@ function LessonPage() {
       <div className="mt-5">
         <ShareButton
           label="Share this lesson"
-          title={`Meridian · ${lesson.title}`}
-          text={`Lesson on Meridian: ${lesson.title}. Field rule: ${lesson.fieldRule}`}
+          title={`Dry Run Cyber · ${lesson.title}`}
+          text={`Lesson on Dry Run Cyber: ${lesson.title}. Field rule: ${lesson.fieldRule}`}
           path={`/lesson/${lesson.id}`}
         />
       </div>

@@ -55,10 +55,10 @@ function Landing() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#07090e]/30 via-[#07090e]/70 to-[#07090e]" />
         <div className="relative mx-auto max-w-6xl px-6 pt-24 pb-28 md:pt-36 md:pb-40">
           <p className="font-game text-sm font-semibold tracking-[0.32em]" style={{ color: GOLD }}>
-            SECURITY AWARENESS TRAINING · WEEK 1
+            SECURITY AWARENESS TRAINING · THE NIGHT SHIFT
           </p>
           <h1 className="mt-4 max-w-3xl font-game text-6xl leading-[0.9] font-bold uppercase md:text-8xl">
-            Training people actually play.
+            Rehearse the attack before it’s real.
           </h1>
           <p className="mt-6 max-w-xl text-lg text-[#f4f0e6]/80">
             Your people work one night at a harbor office. The phishing email, the fake IT call, the stranger at the door: they happen in the moment, and every choice lands in a record mapped to the frameworks your clients are audited on.
@@ -140,7 +140,7 @@ function Landing() {
 
       <footer className="border-t border-[#f4f0e6]/10">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-8 text-sm text-[#f4f0e6]/45">
-          <span>{BRAND.product} by {BRAND.maker}</span>
+          <span>{BRAND.product} · dryruncyber.com</span>
           <span>Partner portal coming soon</span>
         </div>
       </footer>

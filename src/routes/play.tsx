@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useProgress } from "@/lib/progress";
 
 export const Route = createFileRoute("/play")({
-  head: () => ({ meta: [{ title: "Play · The Night Shift" }] }),
+  head: () => ({ meta: [{ title: "The Night Shift · Dry Run Cyber" }] }),
   component: CityPage,
 });
 

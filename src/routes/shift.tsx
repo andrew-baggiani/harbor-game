@@ -9,7 +9,7 @@ import { startRun, type Run } from "@/lib/shift-game";
 import { cleanCallsign } from "@/lib/utils";
 
 export const Route = createFileRoute("/shift")({
-  head: () => ({ meta: [{ title: "Desk drill · Meridian" }] }),
+  head: () => ({ meta: [{ title: "Desk drill · Dry Run Cyber" }] }),
   component: Home,
 });
 
@@ -80,7 +80,7 @@ function Lobby({
 
   return (
     <div className="enter mx-auto w-full max-w-3xl">
-      <p className="text-sm text-faint">Meridian · one shift</p>
+      <p className="text-sm text-faint">Dry Run Cyber · one shift</p>
       <h1 className="mt-3 font-display text-5xl text-balance md:text-6xl">Hold the floor.</h1>
       <p className="mt-4 max-w-prose text-lg text-pretty text-muted">
         You are the person at the desk. Two actions an hour. Threats you ignore get older, then they go off.
@@ -113,8 +113,8 @@ function Lobby({
       <div className="mt-4">
         <ShareButton
           label="Share the shift"
-          title="Meridian"
-          text="Meridian is a shift you play: hold Harbor's floor for three watches before the pressure breaks."
+          title="Dry Run Cyber"
+          text="Dry Run Cyber is a shift you play: hold Harbor's floor for three watches before the pressure breaks."
           path="/"
         />
       </div>

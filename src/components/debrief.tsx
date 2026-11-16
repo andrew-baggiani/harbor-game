@@ -68,7 +68,7 @@ export function Debrief({
         <Button variant="secondary" onClick={replay}>
           Run it again
         </Button>
-        <ShareButton title={`Meridian · ${title}`} text={shareText} path={sharePath} label="Share this result" />
+        <ShareButton title={`Dry Run Cyber · ${title}`} text={shareText} path={sharePath} label="Share this result" />
       </div>
       <p className="mt-4 max-w-prose text-sm text-pretty text-faint">
         The link opens this drill for anyone. The score rides in the message, not in an account. A field card of your whole record is on the Record page.

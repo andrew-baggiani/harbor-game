@@ -93,7 +93,7 @@ export function TitleScreen() {
           {panel === "main" && (
             <>
               <p className="font-game text-sm font-semibold tracking-[0.3em]" style={{ color: GOLD }}>
-                WEEK 1 · MONDAY
+                DRY RUN CYBER · WEEK 1 · MONDAY
               </p>
               <h1 className="mt-1 font-game text-7xl leading-[0.86] font-bold uppercase md:text-[6.5rem]">
                 The night

@@ -16,7 +16,7 @@ export const Route = createFileRoute("/result")({
     pr: num(search.pr, 100),
     n: typeof search.n === "string" ? search.n.slice(0, 40) : "",
   }),
-  head: () => ({ meta: [{ title: "Shift result · Meridian" }] }),
+  head: () => ({ meta: [{ title: "Shift result · Dry Run Cyber" }] }),
   component: ResultPage,
 });
 

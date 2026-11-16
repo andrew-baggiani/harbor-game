@@ -6,7 +6,7 @@ import { moduleMastery, useProgress } from "@/lib/progress";
 
 export const Route = createFileRoute("/path/$moduleId")({
   head: ({ params }) => ({
-    meta: [{ title: `${getModule(params.moduleId)?.title ?? "Module"} · Meridian` }],
+    meta: [{ title: `${getModule(params.moduleId)?.title ?? "Module"} · Dry Run Cyber` }],
   }),
   component: ModulePage,
 });
@@ -30,8 +30,8 @@ function ModulePage() {
       <div className="mt-5">
         <ShareButton
           label="Share this module"
-          title={`Meridian · ${module.title}`}
-          text={`Module ${module.num} of Meridian: ${module.title}. ${module.summary}`}
+          title={`Dry Run Cyber · ${module.title}`}
+          text={`Module ${module.num} of Dry Run Cyber: ${module.title}. ${module.summary}`}
           path={`/path/${module.id}`}
         />
       </div>

@@ -391,7 +391,7 @@ function Forge() {
     <section className="mt-10 border-t border-line pt-8">
       <h2 className="font-display text-3xl text-balance">Shape one you will not submit</h2>
       <p className="mt-2 max-w-prose text-pretty text-muted">
-        This draft never leaves the page. Meridian does not file it, score it, or send it anywhere. A manager-generated secret is still the better default. This is only the shape.
+        This draft never leaves the page. Dry Run Cyber does not file it, score it, or send it anywhere. A manager-generated secret is still the better default. This is only the shape.
       </p>
       <div className="mt-4 grid gap-2 sm:grid-cols-2">
         {words.map((word, index) => (
