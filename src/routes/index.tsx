@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { BRAND } from "@/site/brand";
+import { ChatWidget } from "@/site/ChatWidget";
 import { WEEK } from "@/game/week";
 import phishing from "@/content/scenarios/mon-02-phishing.json";
 
@@ -39,6 +40,7 @@ function Landing() {
       <Nav />
       <main id="main">
         <Hero />
+        <TryOne />
         <Night />
         <Later />
         <Evidence />
@@ -46,6 +48,7 @@ function Landing() {
         <Close />
       </main>
       <Footer />
+      <ChatWidget />
     </div>
   );
 }
@@ -79,7 +82,56 @@ function Nav() {
   );
 }
 
-/* ---------------------------------------------------------------- hero: a real one-decision dry run */
+/* ---------------------------------------------------------------- hero: the game, first person */
+
+function Hero() {
+  const [Scene, setScene] = useState<typeof import("@/site/RehearsalScene").RehearsalScene | null>(null);
+  useEffect(() => {
+    let live = true;
+    void import("@/site/RehearsalScene").then((m) => live && setScene(() => m.RehearsalScene));
+    return () => {
+      live = false;
+    };
+  }, []);
+  return (
+    <section aria-labelledby="hero-title" className="mx-auto max-w-[1240px] px-6 pb-24 pt-8 md:px-10 lg:pb-32 lg:pt-14">
+      <div className="grid items-end gap-8 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
+        <h1 id="hero-title" className="display text-[44px] sm:text-[60px] lg:text-[72px] xl:text-[80px]">
+          Rehearse the attack before it's real.
+        </h1>
+        <div>
+          <p className="max-w-[32rem] text-lg leading-relaxed text-site-mist">
+            A first-person game your people play, not a video they sit through. One night shift on the job, nine real-world attacks, and every
+            choice logged against the controls your clients are audited on.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center gap-4">
+            <a href={CONTACT} className="rounded-md bg-site-violet px-6 py-3.5 text-base font-semibold text-white transition-colors hover:bg-site-violet-hi">
+              Get access
+            </a>
+            <a href="#night" className="rounded-md px-2 py-3.5 text-base font-semibold text-site-paper underline decoration-site-rule decoration-2 underline-offset-[6px] hover:decoration-site-mint">
+              See what's in a shift
+            </a>
+          </div>
+        </div>
+      </div>
+      <figure className="mt-14 lg:mt-20">
+        <div
+          className="brackets lock-in"
+          style={{ "--arm": "clamp(28px, 5vw, 56px)", "--stroke": "clamp(5px, 1vw, 9px)", "--inset": "clamp(-24px, -2.5vw, -12px)" } as React.CSSProperties}
+        >
+          <div className="aspect-[4/5] overflow-hidden rounded-[10px] bg-site-ink-2 sm:aspect-[16/10] lg:aspect-[21/9]">
+            {Scene ? <Scene className="h-full w-full" /> : null}
+          </div>
+        </div>
+        <figcaption className="mt-8 text-sm text-site-dim">
+          A grey-box walkthrough of the Monday shift. In the game, you're the one deciding.
+        </figcaption>
+      </figure>
+    </section>
+  );
+}
+
+/* ---------------------------------------------------------------- try one: a real one-decision dry run */
 
 type Pick = null | "report" | "click" | "reply";
 
@@ -107,39 +159,27 @@ const FLAGS = [
   { id: "link", text: "The button goes to the same lookalike domain, not your real sign-in page." },
 ];
 
-function Hero() {
+function TryOne() {
   const [pick, setPick] = useState<Pick>(null);
   const [peek, setPeek] = useState(false);
   const out = pick ? OUTCOME[pick] : null;
   const flagged = pick !== null;
 
   return (
-    <section aria-labelledby="hero-title" className="mx-auto grid max-w-[1240px] items-center gap-14 px-6 pb-24 pt-10 md:px-10 lg:grid-cols-[1fr_minmax(0,500px)] lg:gap-16 xl:gap-24 lg:pb-36 lg:pt-16">
+    <section aria-labelledby="try-title" className="border-t border-site-rule">
+      <div className="mx-auto grid max-w-[1240px] items-center gap-14 px-6 py-24 md:px-10 lg:grid-cols-[1fr_minmax(0,500px)] lg:gap-16 lg:py-32 xl:gap-24">
       <div>
-        <h1 id="hero-title" className="display text-[44px] sm:text-[60px] lg:text-[64px] xl:text-[76px]">
-          Rehearse the attack before it's real.
-        </h1>
-        <p className="mt-7 max-w-[34rem] text-lg leading-relaxed text-site-mist">
-          Security awareness training your people play, not watch. One night shift, nine decisions: the phishing email, the fake IT call, the
-          stranger at the door. Every choice is logged against the controls your clients are audited on.
+        <h2 id="try-title" className="display text-[38px] lg:text-[52px]">Try one decision.</h2>
+        <p className="mt-6 max-w-[30rem] text-lg leading-relaxed text-site-mist">
+          In the game this lands on your desk monitor halfway through the shift, with a phone ringing behind you. Here it's just the email. What do you do?
         </p>
-        <div className="mt-10 flex flex-wrap items-center gap-4">
-          <a href={CONTACT} className="rounded-md bg-site-violet px-6 py-3.5 text-base font-semibold text-white transition-colors hover:bg-site-violet-hi">
-            Get access
-          </a>
-          <a href="#night" className="rounded-md px-2 py-3.5 text-base font-semibold text-site-paper underline decoration-site-rule decoration-2 underline-offset-[6px] hover:decoration-site-mint">
-            See what's in a shift
-          </a>
-        </div>
-        <p className="mt-6 text-sm text-site-dim">Runs in the browser on desktop or phone. Nothing to install.</p>
       </div>
-
       <div className="relative">
         <p className="mb-6 text-[15px] text-site-mist">
-          {pick ? "Here's what was hiding in it." : "Try one. This landed in your inbox at 4:52 PM."}
+          {pick ? "Here's what was hiding in it." : "Landed in your inbox at 4:52 PM."}
         </p>
         <div
-          className="brackets lock-in"
+          className="brackets"
           style={{ "--arm": "clamp(28px, 6vw, 44px)", "--stroke": "clamp(5px, 1.2vw, 8px)", "--inset": "clamp(-22px, -3vw, -12px)", "--c": out ? (out.good ? "var(--color-site-mint)" : "var(--color-site-alarm)") : "var(--color-site-violet)" } as React.CSSProperties}
         >
           <article aria-label="Practice email" className="rounded-[10px] bg-site-ink-2 text-[15px] shadow-[0_40px_90px_-30px_rgba(0,0,0,0.8)]">
@@ -225,6 +265,7 @@ function Hero() {
             </div>
           )}
         </div>
+      </div>
       </div>
     </section>
   );

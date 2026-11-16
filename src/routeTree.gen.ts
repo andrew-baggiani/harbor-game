@@ -21,6 +21,7 @@ import { Route as RecordRouteImport } from './routes/record'
 import { Route as ResultRouteImport } from './routes/result'
 import { Route as ReviewRouteImport } from './routes/review'
 import { Route as ShiftRouteImport } from './routes/shift'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as DrillsIndexRouteImport } from './routes/drills.index'
 import { Route as DrillsDrillIdRouteImport } from './routes/drills.$drillId'
 import { Route as LabMailRouteImport } from './routes/lab.mail'
@@ -88,6 +89,11 @@ const ShiftRoute = ShiftRouteImport.update({
   path: '/shift',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DrillsIndexRoute = DrillsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -132,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/result': typeof ResultRoute
   '/review': typeof ReviewRoute
   '/shift': typeof ShiftRoute
+  '/api/chat': typeof ApiChatRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
   '/lab/mail': typeof LabMailRoute
   '/lesson/$lessonId': typeof LessonLessonIdRoute
@@ -150,6 +157,7 @@ export interface FileRoutesByTo {
   '/result': typeof ResultRoute
   '/review': typeof ReviewRoute
   '/shift': typeof ShiftRoute
+  '/api/chat': typeof ApiChatRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
   '/lab/mail': typeof LabMailRoute
   '/lesson/$lessonId': typeof LessonLessonIdRoute
@@ -171,6 +179,7 @@ export interface FileRoutesById {
   '/result': typeof ResultRoute
   '/review': typeof ReviewRoute
   '/shift': typeof ShiftRoute
+  '/api/chat': typeof ApiChatRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
   '/lab/mail': typeof LabMailRoute
   '/lesson/$lessonId': typeof LessonLessonIdRoute
@@ -193,6 +202,7 @@ export interface FileRouteTypes {
     | '/result'
     | '/review'
     | '/shift'
+    | '/api/chat'
     | '/drills/$drillId'
     | '/lab/mail'
     | '/lesson/$lessonId'
@@ -211,6 +221,7 @@ export interface FileRouteTypes {
     | '/result'
     | '/review'
     | '/shift'
+    | '/api/chat'
     | '/drills/$drillId'
     | '/lab/mail'
     | '/lesson/$lessonId'
@@ -231,6 +242,7 @@ export interface FileRouteTypes {
     | '/result'
     | '/review'
     | '/shift'
+    | '/api/chat'
     | '/drills/$drillId'
     | '/lab/mail'
     | '/lesson/$lessonId'
@@ -252,6 +264,7 @@ export interface RootRouteChildren {
   ResultRoute: typeof ResultRoute
   ReviewRoute: typeof ReviewRoute
   ShiftRoute: typeof ShiftRoute
+  ApiChatRoute: typeof ApiChatRoute
   LabMailRoute: typeof LabMailRoute
   LessonLessonIdRoute: typeof LessonLessonIdRoute
 }
@@ -342,6 +355,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShiftRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/drills/': {
       id: '/drills/'
       path: '/'
@@ -425,6 +445,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResultRoute: ResultRoute,
   ReviewRoute: ReviewRoute,
   ShiftRoute: ShiftRoute,
+  ApiChatRoute: ApiChatRoute,
   LabMailRoute: LabMailRoute,
   LessonLessonIdRoute: LessonLessonIdRoute,
 }
