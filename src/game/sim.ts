@@ -1,4 +1,4 @@
-import { enterFocus, focusActive } from "@/game/focus";
+import { enterFocus, focusActive, showApp } from "@/game/focus";
 import { DESK, DOOR, ELEVATOR, ELEVATOR_F14, MAYA, OFFICE_Y, USB, slide } from "@/game/layout";
 import { blip, caption, say, setEngine, setRing, setWalking, tickAudio, voiceBusy } from "@/game/audio";
 import { objectiveFor } from "@/game/story";
@@ -545,6 +545,12 @@ function tryInteract() {
     return;
   }
   if (action === "phone") {
+    // v2: the call is a conversation (docs/MONDAY_V2.md). v1 panel is the fallback.
+    if (showApp("phone")) {
+      setRing(false);
+      say("phone"); // the v1 opening line is the same as the call's first line
+      return;
+    }
     store.openPanel("phone");
     say("phone");
     blip(520);

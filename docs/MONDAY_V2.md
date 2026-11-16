@@ -41,7 +41,8 @@ Each beat keeps its v1 id, outcomes, voice lines and debriefs. What changes is h
 - Today: Send / Check the To line, then Report / Delete.
 - v2: Maya's manifest request opens a compose window. The To field autocompletes "Kessler" to two addresses, kessler-logistics.com (real customer) and kesslerlogistics.co (lookalike from last month's thread). The player has to look at the autocomplete. Send to the wrong one and the "Recall" option fails; the right move after is Report to Security (data went outside). Bonus evidence for opening the attachment preview and noticing it has customer data.
 
-### MON-03 Phone (vishing)
+### MON-03 Phone (vishing). Built.
+- Built as `src/game/phone/` + `mon-03-vishing-v2.json`. Opens as a call screen (no camera move, player frozen), opening line voiced with the existing `phone` clip; the follow-up caller lines are text for now and need voice takes.
 - Today: Give the code / Hang up.
 - v2: A conversation, not a yes/no. The caller says he's from the IT desk and needs the six-digit code. You can **ask his name**, **ask for his extension**, **say you'll call back**, **give the code**, or **hang up**. He has answers for the first two (fake name, "4401"). The directory shows the real desk is 4400 and 4401 doesn't exist. Calling 4400 back gets "We never ask for codes." Giving the code ends the beat as a fail; hanging up without reporting is the 40-point outcome.
 - Later: if you gave the code, your account sends the sign-in push in MON-07.

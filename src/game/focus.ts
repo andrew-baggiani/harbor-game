@@ -11,7 +11,7 @@ import * as THREE from "three";
 // while focusActive(). Nothing here touches React state; DeskScreen polls `focus`.
 
 export type FocusPhase = "off" | "in" | "hold" | "out";
-export type FocusApp = "mail";
+export type FocusApp = "mail" | "phone";
 
 type Screen = { center: THREE.Vector3; normal: THREE.Vector3; up: THREE.Vector3; right: THREE.Vector3; w: number; h: number };
 
@@ -70,6 +70,16 @@ export function enterFocus(id: string, app: FocusApp): boolean {
   focus.app = app;
   focus.phase = "in";
   focus.t = 0;
+  return true;
+}
+
+/** Open an app with no camera move (e.g. a phone call). Freezes the player like a focus. */
+export function showApp(app: FocusApp): boolean {
+  if (focus.phase !== "off") return false;
+  focus.target = "";
+  focus.app = app;
+  focus.phase = "hold";
+  focus.t = 1;
   return true;
 }
 
@@ -170,7 +180,7 @@ export function applyScreenImage(mesh: THREE.Object3D, url: string) {
   mat.map = tex;
   mat.emissiveMap = tex;
   mat.emissive = new THREE.Color("#ffffff");
-  mat.emissiveIntensity = 0.9;
+  mat.emissiveIntensity = 0.45; // bright enough to read at night without blooming to white
   mat.needsUpdate = true;
   m.material = mat;
 }

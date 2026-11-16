@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import content from "@/content/scenarios/mon-02-phishing-v2.json";
+import callContent from "@/content/scenarios/mon-03-vishing-v2.json";
 import { exitFocus, focus } from "@/game/focus";
 import { MailClient } from "@/game/mail/MailClient";
+import { PhoneCall } from "@/game/phone/PhoneCall";
+import type { CallContent, CallResult } from "@/game/phone/callLogic";
 import type { InboxContent, MailResult } from "@/game/mail/mailLogic";
 import { useHarbor } from "@/game/state";
 
 const inbox = content as unknown as InboxContent;
+const call = callContent as unknown as CallContent;
 
 /** Below this many CSS pixels wide, the monitor is too small to use: go full screen instead. */
 const MIN_EMBED_WIDTH = 760;
@@ -34,7 +38,16 @@ export function DeskScreen() {
     return () => cancelAnimationFrame(raf);
   }, []);
 
-  if (snap.phase === "off" || snap.app !== "mail" || typeof document === "undefined") return null;
+  if (snap.phase === "off" || !snap.app || typeof document === "undefined") return null;
+
+  if (snap.app === "phone") {
+    if (snap.phase !== "hold") return null;
+    const hangUp = (result: CallResult) => {
+      focus.lastResult = result;
+      exitFocus(() => useHarbor.getState().choose(result.choiceId));
+    };
+    return createPortal(<PhoneCall content={call} onDone={hangUp} />, document.body);
+  }
 
   const shown = snap.phase === "hold";
   const narrow = snap.rect.w < MIN_EMBED_WIDTH || window.innerWidth < MIN_EMBED_WIDTH;
