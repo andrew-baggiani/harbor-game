@@ -8,7 +8,7 @@ import { useHydratedProgress, useProgress } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
 const NAV = [
-  { to: "/", label: "City", icon: Map, match: (path: string) => path === "/" || path === "/night" },
+  { to: "/play", label: "City", icon: Map, match: (path: string) => path === "/play" || path === "/night" },
   {
     to: "/path",
     label: "Path",
@@ -34,7 +34,8 @@ export function Shell({ children }: { children: ReactNode }) {
   const into = next ? Math.min(100, Math.round(((xp - current.min) / span) * 100)) : 100;
   useHydratedProgress();
 
-  if (pathname === "/") {
+  if (pathname === "/") return <>{children}</>;
+  if (pathname === "/play") {
     return <div className="h-dvh w-full overflow-hidden bg-[#07090e] text-fg">{children}</div>;
   }
 

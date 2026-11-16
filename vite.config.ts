@@ -142,6 +142,13 @@ function authPopupPlugin(): Plugin {
   };
 }
 
+/**
+ * Own hosting: `DEPLOY_TARGET=cloudflare` builds a Cloudflare Worker (see wrangler.jsonc)
+ * without the Grok-only chrome (the "Created with Grok" badge injector and PWA middleware).
+ * Unset, the build is unchanged for the Grok / Vercel deploy.
+ */
+const CLOUDFLARE = process.env.DEPLOY_TARGET === "cloudflare";
+
 // `0.0.0.0:8080` is the live-preview contract — don't change host/port.
 // The dev server starts once `src/router.tsx` and `src/routes/` exist — see
 // AGENTS.md § "First scaffold".
@@ -163,19 +170,23 @@ export default defineConfig(({ command, isPreview }) => ({
     authPopupPlugin(),
     // Dev-only /__app-env, read by scripts/check-auth-invariant.mjs.
     appEnvPlugin(),
-    // PWA head + ?install=1 tutorial page; runs before Start/Nitro.
-    grokPwaPlugin(),
+    // PWA head + ?install=1 tutorial page; runs before Start/Nitro. Grok hosting only.
+    ...(CLOUDFLARE ? [] : [grokPwaPlugin()]),
     tailwindcss(),
     tanstackStart(),
     ...(command === "build" || isPreview
       ? [
-          nitro({
-            preset: "vercel",
-            // Auto-registers server/middleware/* (the PWA install page +
-            // manifest + head-tag middleware). Nitro v3 defaults serverDir to
-            // false, so removing this silently unwires /?install=1 on deploys.
-            serverDir: "./server",
-          }),
+          nitro(
+            CLOUDFLARE
+              ? { preset: "cloudflare_module" }
+              : {
+                  preset: "vercel",
+                  // Auto-registers server/middleware/* (the PWA install page +
+                  // manifest + head-tag middleware). Nitro v3 defaults serverDir to
+                  // false, so removing this silently unwires /?install=1 on deploys.
+                  serverDir: "./server",
+                },
+          ),
         ]
       : []),
     viteReact(),

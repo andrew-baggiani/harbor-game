@@ -58,7 +58,7 @@ function NightPage() {
       ) : (
         <h1 className="mt-3 font-display text-4xl">This link has no Monday on it.</h1>
       )}
-      <Link to="/" className={`${buttonClass()} mt-8`}>
+      <Link to="/play" className={`${buttonClass()} mt-8`}>
         Walk into Harbor
       </Link>
     </div>

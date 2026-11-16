@@ -16,6 +16,7 @@ import { Route as DrillsRouteImport } from './routes/drills'
 import { Route as GlossaryRouteImport } from './routes/glossary'
 import { Route as NightRouteImport } from './routes/night'
 import { Route as PathRouteImport } from './routes/path'
+import { Route as PlayRouteImport } from './routes/play'
 import { Route as RecordRouteImport } from './routes/record'
 import { Route as ResultRouteImport } from './routes/result'
 import { Route as ReviewRouteImport } from './routes/review'
@@ -60,6 +61,11 @@ const NightRoute = NightRouteImport.update({
 const PathRoute = PathRouteImport.update({
   id: '/path',
   path: '/path',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlayRoute = PlayRouteImport.update({
+  id: '/play',
+  path: '/play',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecordRoute = RecordRouteImport.update({
@@ -121,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/glossary': typeof GlossaryRoute
   '/night': typeof NightRoute
   '/path': typeof PathRouteWithChildren
+  '/play': typeof PlayRoute
   '/record': typeof RecordRoute
   '/result': typeof ResultRoute
   '/review': typeof ReviewRoute
@@ -138,6 +145,7 @@ export interface FileRoutesByTo {
   '/coverage': typeof CoverageRoute
   '/glossary': typeof GlossaryRoute
   '/night': typeof NightRoute
+  '/play': typeof PlayRoute
   '/record': typeof RecordRoute
   '/result': typeof ResultRoute
   '/review': typeof ReviewRoute
@@ -158,6 +166,7 @@ export interface FileRoutesById {
   '/glossary': typeof GlossaryRoute
   '/night': typeof NightRoute
   '/path': typeof PathRouteWithChildren
+  '/play': typeof PlayRoute
   '/record': typeof RecordRoute
   '/result': typeof ResultRoute
   '/review': typeof ReviewRoute
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/glossary'
     | '/night'
     | '/path'
+    | '/play'
     | '/record'
     | '/result'
     | '/review'
@@ -196,6 +206,7 @@ export interface FileRouteTypes {
     | '/coverage'
     | '/glossary'
     | '/night'
+    | '/play'
     | '/record'
     | '/result'
     | '/review'
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/glossary'
     | '/night'
     | '/path'
+    | '/play'
     | '/record'
     | '/result'
     | '/review'
@@ -235,6 +247,7 @@ export interface RootRouteChildren {
   GlossaryRoute: typeof GlossaryRoute
   NightRoute: typeof NightRoute
   PathRoute: typeof PathRouteWithChildren
+  PlayRoute: typeof PlayRoute
   RecordRoute: typeof RecordRoute
   ResultRoute: typeof ResultRoute
   ReviewRoute: typeof ReviewRoute
@@ -292,6 +305,13 @@ declare module '@tanstack/react-router' {
       path: '/path'
       fullPath: '/path'
       preLoaderRoute: typeof PathRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/play': {
+      id: '/play'
+      path: '/play'
+      fullPath: '/play'
+      preLoaderRoute: typeof PlayRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/record': {
@@ -400,6 +420,7 @@ const rootRouteChildren: RootRouteChildren = {
   GlossaryRoute: GlossaryRoute,
   NightRoute: NightRoute,
   PathRoute: PathRouteWithChildren,
+  PlayRoute: PlayRoute,
   RecordRoute: RecordRoute,
   ResultRoute: ResultRoute,
   ReviewRoute: ReviewRoute,

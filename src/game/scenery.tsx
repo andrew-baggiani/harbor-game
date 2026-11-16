@@ -373,7 +373,7 @@ export function HarborWorld() {
     const deskScreen = office.scene.getObjectByName("Monitor_Player_Screen");
     if (deskScreen) {
       registerScreen("desk", deskScreen);
-      applyScreenImage(deskScreen, `/assets/ui/desk_inbox_${focus.mailVariant === 0 ? "a" : "b"}.jpg`);
+      applyScreenImage(deskScreen, `/assets/ui/desk_inbox_${focus.mailVariant === 0 ? "a" : "b"}.jpg?v=2`);
     }
     for (const gltf of [lobbyDetail, floorDetail, cab, shaft, security, beats]) applyDefaultVisible(gltf.scene);
     beats.scene.traverse((obj) => {

@@ -67,7 +67,7 @@ function CardPage() {
           <p className="mt-4 max-w-prose text-pretty text-muted">
             A field card is a score you chose to share. Start Meridian, then share one from your record.
           </p>
-          <Link to="/" className={`${buttonClass()} mt-6`}>
+          <Link to="/play" className={`${buttonClass()} mt-6`}>
             Enter the field school
           </Link>
         </>
@@ -107,7 +107,7 @@ function CardPage() {
               text={`Meridian field card — ${callsign || "Unnamed"}, ${current.name}, ${xp} XP. Snapshot, not a credential.`}
               path={path}
             />
-            <Link to="/" className={buttonClass({ variant: "secondary" })}>
+            <Link to="/play" className={buttonClass({ variant: "secondary" })}>
               Start your own record
             </Link>
           </div>
