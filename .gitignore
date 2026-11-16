@@ -10,3 +10,7 @@ screenshots
 *.log
 .env
 .env.*
+
+# Voice download scripts (signed links) and untrimmed raw clips: never commit
+tools/fetch-voice-*.ps1
+public/voice/v2/_raw*/
