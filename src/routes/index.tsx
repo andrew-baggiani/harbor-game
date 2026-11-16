@@ -164,16 +164,17 @@ function Hero() {
               </p>
               <p className="pt-1">
                 <span className="flag brackets inline-block" data-on={flagged}>
-                  <span
-                    tabIndex={0}
+                  <button
+                    type="button"
                     onMouseEnter={() => setPeek(true)}
                     onMouseLeave={() => setPeek(false)}
                     onFocus={() => setPeek(true)}
                     onBlur={() => setPeek(false)}
-                    className="inline-block cursor-default rounded bg-[#2b62d9] px-4 py-2 font-semibold text-white"
+                    onClick={() => setPick((p) => p ?? "click")}
+                    className="inline-block rounded bg-[#2b62d9] px-4 py-2 font-semibold text-white"
                   >
                     Verify account
-                  </span>
+                  </button>
                 </span>
               </p>
               <p className="pt-1 text-site-dim">IT Service Desk</p>
@@ -443,7 +444,7 @@ function Close() {
 function Footer() {
   return (
     <footer className="border-t border-site-rule">
-      <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-4 px-6 py-8 text-sm text-site-dim md:px-10">
+      <div className="mx-auto flex max-w-[1240px] flex-col items-start gap-4 px-6 py-8 text-sm text-site-dim sm:flex-row sm:flex-wrap sm:items-center sm:justify-between md:px-10">
         <img src="/brand/dry-run-cyber-icon-white.svg" alt="" className="h-6 w-6 opacity-60" />
         <span>© {new Date().getFullYear()} Dry Run Cyber</span>
         <a href="mailto:hello@dryruncyber.com" className="hover:text-site-paper">hello@dryruncyber.com</a>
