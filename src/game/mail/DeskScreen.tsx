@@ -8,6 +8,9 @@ import { PhoneCall } from "@/game/phone/PhoneCall";
 import signinContent from "@/content/scenarios/mon-07-signin-v2.json";
 import { SigninPush, type SigninContent, type SigninResult } from "@/game/signin/SigninPush";
 import { addFallout, hasFallout } from "@/game/fallout";
+import doorContent from "@/content/scenarios/mon-01-tailgate-v2.json";
+import { TalkPanel } from "@/game/talk/TalkPanel";
+import type { TalkContent, TalkResult } from "@/game/talk/dialogue";
 import type { CallContent, CallResult } from "@/game/phone/callLogic";
 import type { InboxContent, MailResult } from "@/game/mail/mailLogic";
 import { useHarbor } from "@/game/state";
@@ -15,6 +18,7 @@ import { useHarbor } from "@/game/state";
 const inbox = content as unknown as InboxContent;
 const call = callContent as unknown as CallContent;
 const signin = signinContent as unknown as SigninContent;
+const door = doorContent as unknown as TalkContent;
 
 /** Below this many CSS pixels wide, the monitor is too small to use: go full screen instead. */
 const MIN_EMBED_WIDTH = 760;
@@ -43,6 +47,15 @@ export function DeskScreen() {
   }, []);
 
   if (snap.phase === "off" || !snap.app || typeof document === "undefined") return null;
+
+  if (snap.app === "door") {
+    if (snap.phase !== "hold") return null;
+    const decide = (result: TalkResult) => {
+      focus.lastResult = result;
+      exitFocus(() => useHarbor.getState().choose(result.choiceId));
+    };
+    return createPortal(<TalkPanel content={door} onDone={decide} />, document.body);
+  }
 
   if (snap.app === "signin") {
     if (snap.phase !== "hold") return null;

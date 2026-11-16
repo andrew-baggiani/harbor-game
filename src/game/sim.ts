@@ -475,6 +475,16 @@ function tryInteract() {
     return;
   }
   if (action === "door") {
+    // v2: talk to the courier at the door (docs/MONDAY_V2.md). v1 panel is the fallback.
+    if (showApp("door")) {
+      useHarbor.setState({ beat: "door" });
+      say("door");
+      world.badgeOut = 1;
+      world.reader = "red";
+      world.doorOpen = 0;
+      blip(420);
+      return;
+    }
     useHarbor.setState({
       beat: "door",
       talk: {

@@ -27,7 +27,8 @@ Optional tenant setting: turn evidence into a bonus (up to +30 per beat) for a l
 
 Each beat keeps its v1 id, outcomes, voice lines and debriefs. What changes is how the player gets to the outcome.
 
-### MON-01 Door (tailgating)
+### MON-01 Door (tailgating). Built.
+- Built as a reusable in-world conversation bar (`src/game/talk/`, scene stays visible) + `mon-01-tailgate-v2.json`. Look options (lanyard, parcel, reception through the glass) inspect without answering. Holding the door adds `courier_in` fallout for the clean-desk beat (parcel on desk 07, missing laptop: 3D side still to do).
 - Today: Hold the door / Shut it.
 - v2: The courier walks up as you badge in, arms full, and says he's late. You can **look at him** (no badge on the lanyard, parcel label says "Finance" but no name), **ask who it's for**, **point to reception**, or **let the door close**. If you shut it, he pushes back once ("I do this every night, man"), and you have to repeat yourself or call reception (ext 1000). Holding the door is still possible and still fails.
 - Later: if you let him in, the parcel is on desk 07 in the clean-desk beat and a laptop is missing from the hot desk.

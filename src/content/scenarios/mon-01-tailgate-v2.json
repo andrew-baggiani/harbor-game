@@ -1,0 +1,118 @@
+{
+  "id": "MON-01-tailgate",
+  "version": "2.0.0-proto",
+  "mode": "talk",
+  "note": "Door beat as a conversation at the door. You can look at him and his parcel, ask questions, point him to reception. He pushes back. Ends map to v1 ids: door-hold, door-shut.",
+  "speaker": {
+    "who": "Courier",
+    "role": "At the tower door · arms full"
+  },
+  "start": "ask",
+  "nodes": {
+    "ask": {
+      "say": "Hey, can you grab the door? My badge is back in the van. I'm double-parked out there. Two seconds, I swear.",
+      "options": [
+        "look_badge",
+        "look_parcel",
+        "ask_who",
+        "reception",
+        "close",
+        "hold"
+      ]
+    },
+    "who": {
+      "say": "Finance, fourteenth floor. They're waiting on it. Come on, man, it's raining.",
+      "options": [
+        "look_badge",
+        "look_parcel",
+        "reception",
+        "close",
+        "hold"
+      ]
+    },
+    "reception": {
+      "say": "Reception? Nobody's at reception this late. Just let me in, I'll be in and out.",
+      "pressure": true,
+      "options": [
+        "look_reception",
+        "close_firm",
+        "hold"
+      ]
+    },
+    "push": {
+      "say": "Seriously? I do this every night, man. You're gonna get me fired over a door?",
+      "pressure": true,
+      "options": [
+        "close_firm",
+        "hold"
+      ]
+    }
+  },
+  "choices": {
+    "look_badge": {
+      "label": "Look at his lanyard",
+      "look": "No lanyard, no badge clip. A hi-vis vest that says SWIFTLINE. No company ID anywhere.",
+      "evidence": "no_badge"
+    },
+    "look_parcel": {
+      "label": "Look at the parcel",
+      "look": "Label: HARBOR & CO · FINANCE · FL 14. No name, no tracking sticker, no carrier barcode.",
+      "evidence": "vague_label"
+    },
+    "look_reception": {
+      "label": "Look through the glass at reception",
+      "look": "Through the glass: the reception desk is lit and staffed. Someone's looking right at you.",
+      "evidence": "reception_staffed"
+    },
+    "ask_who": {
+      "label": "Who's it for?",
+      "next": "who",
+      "evidence": "asked_who"
+    },
+    "reception": {
+      "label": "Reception's right inside. They'll sign you in.",
+      "next": "reception",
+      "evidence": "pointed_reception"
+    },
+    "close": {
+      "label": "Sorry, I can't let you in.",
+      "next": "push",
+      "evidence": "refused"
+    },
+    "close_firm": {
+      "label": "Sorry. Reception will sign you in. I'm letting the door close.",
+      "end": "door-shut",
+      "evidence": "held_line"
+    },
+    "hold": {
+      "label": "Hold the door for him.",
+      "end": "door-hold"
+    }
+  },
+  "tells": [
+    {
+      "tell": "no_badge",
+      "why": "No badge, no company ID. \"It's in the van\" is the oldest line there is."
+    },
+    {
+      "tell": "vague_label",
+      "why": "The parcel has a department but no name and no tracking. Real deliveries have both."
+    },
+    {
+      "tell": "reception_staffed",
+      "why": "He said nobody was at reception. Someone was sitting right there."
+    },
+    {
+      "tell": "held_line",
+      "why": "He pushed back and you still let the door close. That's the hard part."
+    }
+  ],
+  "outcomes": {
+    "door-hold": 0,
+    "door-shut": 100
+  },
+  "headlines": {
+    "door-shut": "The door closed. Good.",
+    "door-hold": "You let him in."
+  }
+}
