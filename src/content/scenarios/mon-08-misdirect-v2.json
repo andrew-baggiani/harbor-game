@@ -1,0 +1,41 @@
+{
+  "id": "MON-08-misdirect",
+  "version": "2.0.0-proto",
+  "mode": "compose",
+  "note": "Misdirect beat as a real compose window on the desk monitor. Autocomplete offers the wrong Mark first. Ends map to v1 ids: misdirect-check, or misdirect-send followed by misdirect-report / misdirect-hide.",
+  "chat": {
+    "from": "Maya Ruiz",
+    "role": "Finance",
+    "text": "Hey, it's Maya. Can you send tonight's manifest to Mark Delgado on the dock team? He needs it before the Meridian loads. It's the full one, with the customer details."
+  },
+  "subject": "Tonight's manifest · Meridian load",
+  "body": "Hi Mark,\n\nAttached is tonight's manifest for the Meridian load.\n\nThanks",
+  "attachment": {
+    "name": "Meridian_manifest_tonight.xlsx",
+    "size": "212 KB",
+    "preview": "214 rows: customer name, delivery address, phone, order value."
+  },
+  "internal_domain": "harborandco.com",
+  "variants": [
+    {
+      "wrong": { "name": "Mark Delaney", "email": "m.delaney@calderfreight.example", "tag": "External" },
+      "right": { "name": "Mark Delgado", "email": "mark.delgado@harborandco.com", "tag": "Dock team" }
+    },
+    {
+      "wrong": { "name": "Mark Delgado", "email": "markd.home@inboxly.example", "tag": "Personal" },
+      "right": { "name": "Mark Delgado", "email": "mark.delgado@harborandco.com", "tag": "Dock team" }
+    }
+  ],
+  "mailtip": "{{NAME}} is outside your organization. The attachment contains customer data.",
+  "sent": {
+    "title": "Sent",
+    "text": "Sent to {{NAME}} <{{EMAIL}}>. That's not the Mark on the dock team. The manifest has customer names, addresses and phone numbers.",
+    "recall": "Recall failed. The recipient is outside Harbor, so the message can't be pulled back."
+  },
+  "tells": [
+    { "tell": "checked_to", "why": "You looked at the full address before sending. Autocomplete picks the most recent Mark, not the right one." },
+    { "tell": "mailtip", "why": "The warning said the recipient was outside Harbor. That banner is there for exactly this." },
+    { "tell": "sensitive", "why": "You knew what was in the attachment: customer names, addresses, phones." },
+    { "tell": "reported", "why": "Sent to the wrong person? Report it right away. Security can act; deleting it from Sent can't." }
+  ]
+}

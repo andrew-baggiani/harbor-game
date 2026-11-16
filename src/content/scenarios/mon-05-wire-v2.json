@@ -1,0 +1,118 @@
+{
+  "id": "MON-05-wire",
+  "version": "2.0.0-proto",
+  "mode": "talk",
+  "voice": "v2-wire",
+  "note": "Wire beat as a conversation with Maya. You can see the 'Elena' message, check the form, ask why you, call Elena on the number Harbor has. The fake Elena escalates. Ends map to v1 ids: wire-send, wire-call, wire-refuse.",
+  "speaker": {
+    "who": "Maya Ruiz",
+    "role": "Finance",
+    "kind": "woman"
+  },
+  "start": "ask",
+  "nodes": {
+    "ask": {
+      "say": "Hey, sorry, you're the new hire, right? Elena says the acquisition wire has to go out now, and the approval form's down. She said you could release it. I really don't want to be the one who held this up.",
+      "options": [
+        "look_text",
+        "look_form",
+        "why_me",
+        "call",
+        "refuse",
+        "send"
+      ]
+    },
+    "whyme": {
+      "say": "She said anyone with portal access can do it, and you've got access. It's two point four million and the bank cutoff is nine. Oh no, she's texting again: \"Why is this not done? Send it now.\" Please.",
+      "pressure": true,
+      "options": [
+        "look_text",
+        "look_form",
+        "call",
+        "refuse",
+        "send"
+      ]
+    },
+    "refused": {
+      "say": "Okay. I'll tell her you said no. She's going to be furious. Are you sure?",
+      "pressure": true,
+      "options": [
+        "call",
+        "hold",
+        "send"
+      ]
+    },
+    "elena": {
+      "say": "Elena. No, I never sent that. I'm at my desk, not at a dinner. Do not release anything, and tell security. Thank you for calling me.",
+      "who": "Elena Voss · ext 2210",
+      "kind": "woman",
+      "options": [
+        "tell_maya"
+      ]
+    }
+  },
+  "choices": {
+    "look_text": {
+      "label": "Ask to see Elena's message",
+      "look": "Maya shows you a text: \"Need the Calder wire out tonight, form's broken, have the new hire release it. Don't call, I'm in a board dinner. -E\" It's from a number that isn't in Maya's contacts.",
+      "evidence": "unknown_number"
+    },
+    "look_form": {
+      "label": "Open the payments portal",
+      "look": "The approval form loads fine. It isn't down.",
+      "evidence": "form_works"
+    },
+    "why_me": {
+      "label": "Why does it have to be me?",
+      "next": "whyme",
+      "evidence": "asked_why"
+    },
+    "call": {
+      "label": "Call Elena on the number Harbor has, ext 2210",
+      "next": "elena",
+      "evidence": "called_elena"
+    },
+    "refuse": {
+      "label": "I'm not able to release wires.",
+      "next": "refused",
+      "evidence": "refused"
+    },
+    "hold": {
+      "label": "I'm sure. Wires go through the approval form.",
+      "end": "wire-refuse",
+      "evidence": "held_line"
+    },
+    "send": {
+      "label": "Release the wire",
+      "end": "wire-send"
+    },
+    "tell_maya": {
+      "label": "Tell Maya it's fake, and report it",
+      "end": "wire-call"
+    }
+  },
+  "tells": [
+    {
+      "tell": "unknown_number",
+      "why": "\"Elena\" texted from a number nobody has, and said not to call. That's the tell."
+    },
+    {
+      "tell": "form_works",
+      "why": "The form wasn't down. The story only worked if you didn't check."
+    },
+    {
+      "tell": "called_elena",
+      "why": "You called Elena on the number Harbor has, not the one in the message. That's the whole skill."
+    }
+  ],
+  "headlines": {
+    "wire-call": "You called the real Elena. Wire stopped.",
+    "wire-refuse": "You held the line.",
+    "wire-send": "$2.4 million just left Harbor."
+  },
+  "outcomes": {
+    "wire-call": 100,
+    "wire-refuse": 70,
+    "wire-send": 0
+  }
+}

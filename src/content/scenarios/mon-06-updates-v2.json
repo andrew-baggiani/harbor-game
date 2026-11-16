@@ -1,0 +1,108 @@
+{
+  "id": "MON-06-updates",
+  "version": "2.0.0-proto",
+  "mode": "talk",
+  "narration": true,
+  "voice": "v2-updates",
+  "note": "Updates beat: look at what's actually wrong, try a restart, call IT. Ends map to v1 ids: updates-ignore, updates-restart, updates-report.",
+  "speaker": {
+    "who": "Loaner laptop",
+    "role": "Hot desk 14-08",
+    "kind": "narrator"
+  },
+  "start": "warn",
+  "nodes": {
+    "warn": {
+      "say": "The loaner at hot desk 14-08. In the corner: Device Health. Updates failed, 23 days. Harbor Shield agent: off. The dock log is due in ten minutes.",
+      "options": [
+        "look_updates",
+        "look_shield",
+        "look_badge",
+        "restart",
+        "call_it",
+        "ignore"
+      ]
+    },
+    "restarted": {
+      "say": "It restarts. Two minutes later, the same warning is back. Shield is still off.",
+      "options": [
+        "look_updates",
+        "look_shield",
+        "look_badge",
+        "call_it",
+        "keep_working"
+      ]
+    },
+    "it": {
+      "say": "Thanks for calling. That loaner hasn't checked in for weeks, so don't use it for anything sensitive. I've opened a ticket and I'm pushing a fix now. Use desk 14-11 for the dock log tonight.",
+      "who": "IT Service Desk · ext 4100",
+      "kind": "woman",
+      "options": [
+        "thanks"
+      ]
+    }
+  },
+  "choices": {
+    "look_updates": {
+      "label": "Open Windows Update",
+      "look": "Last successful update: 23 days ago. Three security updates failed to install.",
+      "evidence": "failed"
+    },
+    "look_shield": {
+      "label": "Look at the Shield icon",
+      "look": "The Harbor Shield icon in the tray is grey. Hover: \"Protection off. Contact IT.\" You didn't turn it off.",
+      "evidence": "agent_off"
+    },
+    "look_badge": {
+      "label": "Check your badge",
+      "look": "On the back of your badge: IT help desk, ext 4100.",
+      "evidence": "badge_number"
+    },
+    "restart": {
+      "label": "Restart it",
+      "next": "restarted",
+      "evidence": "tried_restart"
+    },
+    "call_it": {
+      "label": "Call IT, ext 4100",
+      "next": "it",
+      "evidence": "called_it"
+    },
+    "ignore": {
+      "label": "Dismiss it and start the dock log",
+      "end": "updates-ignore"
+    },
+    "keep_working": {
+      "label": "Dismiss it and keep working",
+      "end": "updates-restart"
+    },
+    "thanks": {
+      "label": "Got it. I'll use 14-11.",
+      "end": "updates-report"
+    }
+  },
+  "tells": [
+    {
+      "tell": "failed",
+      "why": "Three security updates have failed for 23 days. That laptop is missing weeks of fixes."
+    },
+    {
+      "tell": "agent_off",
+      "why": "The security agent is off and you didn't turn it off. Something, or someone, did."
+    },
+    {
+      "tell": "called_it",
+      "why": "You called the number on your badge. You don't have to fix it, just tell IT."
+    }
+  ],
+  "headlines": {
+    "updates-report": "Reported. IT's on it.",
+    "updates-restart": "You tried a restart, then kept working on it.",
+    "updates-ignore": "You dismissed it. Nobody knows."
+  },
+  "outcomes": {
+    "updates-report": 100,
+    "updates-restart": 40,
+    "updates-ignore": 0
+  }
+}

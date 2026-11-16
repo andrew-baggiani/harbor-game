@@ -1,11 +1,11 @@
 import { create } from "zustand";
 import { CAR_SPAWN, SPAWN } from "@/game/layout";
-import { applyFlag, barkFor, emptyFlags, nextBeat, objectiveFor, panelFor, scoreOf, talkFor, type Beat, type Flags, type Talk } from "@/game/story";
+import { applyFlag, barkFor, emptyFlags, nextBeat, objectiveFor, panelFor, scoreOf, talkFor, type Beat, type Flags, type Talk, type VoiceKind } from "@/game/story";
 import { recordDecision, resetRecord, sealShift, noteVariants } from "@/game/records";
 import { choiceOf, currentVariants, pickVariants, variantOf } from "@/game/scenarios";
-import { say } from "@/game/audio";
+import { say, sayLine } from "@/game/audio";
 import { resetFocus } from "@/game/focus";
-import { FALLOUT_FROM_CHOICE, addFallout, resetFallout } from "@/game/fallout";
+import { FALLOUT_FROM_CHOICE, addFallout, after, resetFallout } from "@/game/fallout";
 
 export type Bark = { who: string; text: string };
 
@@ -176,6 +176,20 @@ export const useHarbor = create<HarborStore>((set, get) => ({
   choose: (id) => {
     const fallout = FALLOUT_FROM_CHOICE[id];
     if (fallout) addFallout(fallout);
+    // Some mistakes come back later in the shift (docs/MONDAY_V2.md section 5).
+    const later = (voice: string, kind: VoiceKind, who: string, text: string, seconds: number) =>
+      after(seconds, () => {
+        world.barkT = 9;
+        get().setBark({ who, text });
+        sayLine(voice, text, kind, who);
+      });
+    if (fallout === "usb_plugged") {
+      later("v2-fallout-printer", "narrator", "Printer · Floor 14", "The printer by the hot desks wakes up on its own and starts spitting out pages of garbage.", 75);
+      later("v2-fallout-it", "woman", "IT Service Desk · ext 4100", "We're seeing strange traffic from fourteen. Did anyone plug anything into a laptop up there tonight?", 85);
+    }
+    if (fallout === "misdirect_sent") {
+      later("v2-fallout-misdirect", "man", "Desk phone · outside caller", "Hi, I think someone at Harbor just emailed me a manifest full of customer names and addresses. I don't work for you. Thought you should know.", 60);
+    }
     if (id === "reception-ok") {
       world.barkT = 6;
       world.captionWho = "June Park · Reception";

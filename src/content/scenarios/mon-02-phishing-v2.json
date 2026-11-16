@@ -26,7 +26,7 @@
       "name": "IT Service Desk",
       "title": "Harbor IT",
       "email": "it-notices@harborandco.com",
-      "ext": "4400",
+      "ext": "4100",
       "note": "Staffed 24/7. Password resets and anything suspicious."
     },
     {
@@ -192,7 +192,7 @@
           "text": "Email may be slow for a few minutes. No action needed, and we will never ask for your password."
         },
         {
-          "text": "Questions: IT Service Desk, ext 4400."
+          "text": "Questions: IT Service Desk, ext 4100."
         },
         {
           "text": "Harbor IT"

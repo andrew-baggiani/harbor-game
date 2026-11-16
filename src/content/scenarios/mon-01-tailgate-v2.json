@@ -5,7 +5,8 @@
   "note": "Door beat as a conversation at the door. You can look at him and his parcel, ask questions, point him to reception. He pushes back. Ends map to v1 ids: door-hold, door-shut.",
   "speaker": {
     "who": "Courier",
-    "role": "At the tower door · arms full"
+    "role": "At the tower door · arms full",
+    "kind": "man"
   },
   "start": "ask",
   "nodes": {
@@ -114,5 +115,6 @@
   "headlines": {
     "door-shut": "The door closed. Good.",
     "door-hold": "You let him in."
-  }
+  },
+  "voice": "v2-door"
 }

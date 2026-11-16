@@ -11,7 +11,7 @@ import * as THREE from "three";
 // while focusActive(). Nothing here touches React state; DeskScreen polls `focus`.
 
 export type FocusPhase = "off" | "in" | "hold" | "out";
-export type FocusApp = "mail" | "phone" | "signin" | "door";
+export type FocusApp = "mail" | "phone" | "signin" | "door" | "usb" | "updates" | "wire" | "cleandesk" | "misdirect";
 
 type Screen = { center: THREE.Vector3; normal: THREE.Vector3; up: THREE.Vector3; right: THREE.Vector3; w: number; h: number };
 
@@ -29,6 +29,8 @@ export const focus = {
   rect: { x: 0, y: 0, w: 0, h: 0 },
   /** Which phish the desk inbox shows this shift (0 gift cards, 1 fake sign-in). */
   mailVariant: Math.random() < 0.5 ? 0 : 1,
+  /** Which wrong Mark autocomplete offers (0 external lookalike, 1 personal address). */
+  misdirectVariant: Math.random() < 0.5 ? 0 : 1,
   /** Last MailResult, for records (evidence, verified). */
   lastResult: null as unknown,
   onOut: null as null | (() => void),
@@ -188,7 +190,9 @@ export function applyScreenImage(mesh: THREE.Object3D, url: string) {
 // Test hook, same pattern as sim.ts __controlsTest: lets automated checks open the desk zoom.
 if (typeof window !== "undefined") {
   (window as unknown as { __focusTest?: Record<string, unknown> }).__focusTest = {
-    enter: () => enterFocus("desk", "mail"),
+    enter: (app: FocusApp = "mail") => enterFocus("desk", app),
+    open: (app: FocusApp) => showApp(app),
+    close: () => exitFocus(),
     state: () => ({ phase: focus.phase, t: focus.t, rect: { ...focus.rect } }),
   };
 }

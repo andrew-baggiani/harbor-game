@@ -20,6 +20,8 @@ export function falloutList(): Fallout[] {
 
 export function resetFallout() {
   active.clear();
+  timers = [];
+  clock = 0;
 }
 
 /** v1 choice ids that leave something behind. */
@@ -29,3 +31,22 @@ export const FALLOUT_FROM_CHOICE: Record<string, Fallout> = {
   "door-hold": "courier_in",
   "misdirect-send": "misdirect_sent",
 };
+
+// Timed follow-ups, in game seconds. Ticked by sim.step while the player is in the world
+// (not paused, not inside an app), so a consequence never lands mid-conversation.
+type Timed = { at: number; fire: () => void };
+let clock = 0;
+let timers: Timed[] = [];
+
+export function after(seconds: number, fire: () => void) {
+  timers.push({ at: clock + seconds, fire });
+}
+
+export function tickFallout(dt: number) {
+  clock += dt;
+  if (timers.length === 0) return;
+  const due = timers.filter((t) => clock >= t.at);
+  if (due.length === 0) return;
+  timers = timers.filter((t) => clock < t.at);
+  for (const t of due) t.fire();
+}

@@ -1,4 +1,5 @@
 import { enterFocus, focusActive, showApp } from "@/game/focus";
+import { tickFallout } from "@/game/fallout";
 import { DESK, DOOR, ELEVATOR, ELEVATOR_F14, MAYA, OFFICE_Y, USB, slide } from "@/game/layout";
 import { blip, caption, say, setEngine, setRing, setWalking, tickAudio, voiceBusy } from "@/game/audio";
 import { objectiveFor } from "@/game/story";
@@ -78,6 +79,7 @@ export function step(dt: number) {
     store.setPrompt(null);
     return;
   }
+  if (!store.paused && !store.boot && !world.ending) tickFallout(dt);
 
   if (world.ending) {
     world.endT += dt;
@@ -236,7 +238,7 @@ export function step(dt: number) {
       if (which === "misdirect") {
         world.misdirectScreen = "compose";
         say("misdirect");
-        store.openPanel("misdirect");
+        if (!enterFocus("desk", "misdirect")) store.openPanel("misdirect");
       } else if (which === "signin") {
         world.signinScreen = "alert";
         world.buzz = 1.2;
@@ -530,12 +532,22 @@ function tryInteract() {
     return;
   }
   if (action === "updates") {
+    // v2 beats open as apps; the v1 panel stays as the fallback.
+    if (showApp("updates")) {
+      say("updates");
+      blip(420);
+      return;
+    }
     store.openPanel("updates");
     say("updates");
     blip(420);
     return;
   }
   if (action === "cleandesk") {
+    if (showApp("cleandesk")) {
+      blip(420);
+      return;
+    }
     store.openPanel("cleandesk");
     blip(420);
     return;
@@ -544,9 +556,8 @@ function tryInteract() {
     // v2: glide onto the monitor and open the real inbox (see docs/MONDAY_V2.md).
     // Falls back to the v1 choice panel if the desk screen isn't registered.
     if (enterFocus("desk", "mail")) {
-      world.captionWho = "Narrator";
-      world.captionText = "Your inbox. Work it like you would at work. Anything off, report it.";
-      world.captionT = 5;
+      world.barkT = 6;
+      store.setBark({ who: "Narrator", text: "Your inbox. Work it like you would at work. Anything off, report it." });
       blip(480);
       return;
     }
@@ -568,12 +579,23 @@ function tryInteract() {
     return;
   }
   if (action === "usb") {
+    // v2: look at it, call IT, decide (docs/MONDAY_V2.md). v1 panel is the fallback.
+    if (showApp("usb")) {
+      say("usb");
+      blip(360);
+      return;
+    }
     store.openPanel("usb");
     say("usb");
     blip(360);
     return;
   }
   if (action === "maya") {
+    if (showApp("wire")) {
+      say("maya");
+      blip(420);
+      return;
+    }
     store.openPanel("maya");
     say("maya");
     blip(420);

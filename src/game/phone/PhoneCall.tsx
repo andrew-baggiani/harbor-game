@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import mail from "@/content/scenarios/mon-02-phishing-v2.json";
+import { sayLine } from "@/game/audio";
 import { Call, type CallContent, type CallResult } from "@/game/phone/callLogic";
 
 // Phone beat as a conversation. The caller talks; you talk back with real lines,
@@ -39,6 +40,23 @@ export function PhoneCall({ content, onDone }: Props) {
 
   useEffect(() => {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight, behavior: "smooth" });
+  });
+
+  // Voice new caller / service-desk lines (the opening line is the beat's own v1 clip).
+  const voiced = useRef(1);
+  useEffect(() => {
+    if (call.lines.length <= voiced.current) return;
+    const fresh = call.lines.slice(voiced.current);
+    voiced.current = call.lines.length;
+    const line = [...fresh].reverse().find((l) => l.who === "caller" || l.who === "desk");
+    if (!line) return;
+    const id =
+      line.who === "desk"
+        ? "v2-phone-desk"
+        : line.text === content.idle_line
+          ? "v2-phone-idle"
+          : `v2-phone-${call.node}`;
+    sayLine(id, line.text, line.who === "desk" ? "woman" : "man", line.who === "desk" ? "IT Service Desk" : "Caller · \"Dan, Harbor IT\"");
   });
 
   const act = (f: () => void) => {

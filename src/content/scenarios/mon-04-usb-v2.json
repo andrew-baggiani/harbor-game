@@ -1,0 +1,91 @@
+{
+  "id": "MON-04-usb",
+  "version": "2.0.0-proto",
+  "mode": "talk",
+  "narration": true,
+  "note": "USB beat as an object you inspect. Ends map to v1 ids: usb-plug, usb-it, usb-leave. Plugging it in schedules the printer glitch and IT's call later in the shift.",
+  "speaker": {
+    "who": "USB stick",
+    "role": "On hot desk 14-08"
+  },
+  "start": "find",
+  "nodes": {
+    "find": {
+      "say": "A USB stick on the hot desk. Handwritten label: Salary review. An open laptop sits right next to it.",
+      "options": [
+        "look_label",
+        "look_laptop",
+        "call_it",
+        "plug",
+        "bag",
+        "leave"
+      ]
+    },
+    "it": {
+      "say": "Don't plug it in. Bag it and drop it at the security desk on your way out. We'll pick it up. Good call asking.",
+      "options": [
+        "look_label",
+        "look_laptop",
+        "bag",
+        "plug",
+        "leave"
+      ],
+      "who": "IT Service Desk · ext 4100",
+      "kind": "woman"
+    }
+  },
+  "choices": {
+    "look_label": {
+      "label": "Look at the label",
+      "look": "Black marker: SALARY REVIEW · Q4. No asset tag, no IT sticker. Nobody's name.",
+      "evidence": "bait"
+    },
+    "look_laptop": {
+      "label": "Look at the laptop",
+      "look": "The loaner is unlocked and signed in. Whatever you plug in here runs as whoever's signed in.",
+      "evidence": "unlocked"
+    },
+    "call_it": {
+      "label": "Call IT, ext 4100",
+      "next": "it",
+      "evidence": "asked_it"
+    },
+    "plug": {
+      "label": "Plug it in to see whose it is",
+      "end": "usb-plug"
+    },
+    "bag": {
+      "label": "Bag it for IT",
+      "end": "usb-it"
+    },
+    "leave": {
+      "label": "Leave it where it is",
+      "end": "usb-leave"
+    }
+  },
+  "tells": [
+    {
+      "tell": "bait",
+      "why": "\"Salary review\" is bait. The label is written to make you curious enough to look."
+    },
+    {
+      "tell": "unlocked",
+      "why": "An unlocked laptop right next to it. One plug-in and it runs as that person."
+    },
+    {
+      "tell": "asked_it",
+      "why": "You asked IT before touching it. That's the habit."
+    }
+  ],
+  "headlines": {
+    "usb-it": "Bagged for IT. Nothing ran.",
+    "usb-leave": "You left it. The next person might not.",
+    "usb-plug": "You plugged in a stranger's USB."
+  },
+  "outcomes": {
+    "usb-it": 100,
+    "usb-leave": 40,
+    "usb-plug": 0
+  },
+  "voice": "v2-usb"
+}

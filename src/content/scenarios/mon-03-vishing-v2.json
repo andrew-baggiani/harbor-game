@@ -3,7 +3,7 @@
   "version": "2.0.0-proto",
   "mode": "call",
   "note": "Phone beat as a conversation. The player talks instead of picking Safe/Unsafe. Ends map to v1 choice ids: phone-code, phone-hangup.",
-  "caller_id": { "name": "Harbor IT", "number": "ext 4401" },
+  "caller_id": { "name": "Harbor IT", "number": "ext 4101" },
   "sms": {
     "from": "Harbor Sign-in",
     "text": "Your Harbor sign-in code is 482 913. Never share this code. IT will never ask you for it.",
@@ -23,7 +23,7 @@
       "options": ["ask_ext", "ask_why", "callback", "refuse", "read"]
     },
     "ext": {
-      "say": "4401. Can we do this? Your account is getting hammered right now.",
+      "say": "4101. Can we do this? Your account is getting hammered right now.",
       "options": ["ask_name", "ask_why", "callback", "refuse", "read"]
     },
     "why": {
@@ -51,17 +51,17 @@
   "directory_tells": {
     "IT Service Desk": {
       "tell": "spoofed_ext",
-      "why": "The real service desk is ext 4400. Nobody has 4401."
+      "why": "The real service desk is ext 4100. Nobody has 4101."
     }
   },
   "callback": {
-    "number": "4400",
+    "number": "4100",
     "say": "Service desk. No, nobody here called you. We never ask for codes, ever. I'm locking your session and flagging it. Thanks for calling it in.",
     "evidence": "called_back"
   },
   "tells": [
     { "tell": "sms_warning", "why": "The text with the code says IT will never ask for it." },
-    { "tell": "spoofed_ext", "why": "Caller ID said ext 4401. The real service desk is 4400." },
+    { "tell": "spoofed_ext", "why": "Caller ID said ext 4101. The real service desk is 4100." },
     { "tell": "pressure", "why": "Thirty seconds, payroll, your fault: pressure so you don't stop and check." },
     { "tell": "called_back", "why": "You called the real number back. That's the move." }
   ],

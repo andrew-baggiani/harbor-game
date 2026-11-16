@@ -163,15 +163,30 @@ export function voiceBusy() {
   return playing || queueTimer != null;
 }
 
+// v2 lines (conversations, follow-up calls) register here at runtime instead of
+// living in story.ts. Same playback: /voice/v2/<id>.mp3, browser voice if missing.
+const extraLines = new Map<string, { text: string; kind: VoiceKind; who: string }>();
+
+export function registerLine(id: string, text: string, kind: VoiceKind, who: string) {
+  extraLines.set(id, { text, kind, who });
+}
+
+/** Register and play a v2 line in one go. */
+export function sayLine(id: string, text: string, kind: VoiceKind, who: string) {
+  registerLine(id, text, kind, who);
+  say(id);
+}
+
 export function say(id: string, thenId?: string) {
   if (typeof window === "undefined") return;
-  const line = voiceFor(id);
+  const extra = extraLines.get(id);
+  const line = extra ?? voiceFor(id);
   if (!line) return;
   clearQueue();
   const gen = ++voiceGen;
   queued = thenId ?? null;
   unlockAudio();
-  caption.who = speaker[id] ?? (id.startsWith("debrief-") ? "Narrator · debrief" : "Harbor");
+  caption.who = extra?.who ?? speaker[id] ?? (id.startsWith("debrief-") ? "Narrator · debrief" : "Harbor");
   caption.text = line.text;
   caption.t = Math.min(16, 5 + line.text.length / 18);
   const audio = context();

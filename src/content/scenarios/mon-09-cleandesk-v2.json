@@ -1,0 +1,138 @@
+{
+  "id": "MON-09-cleandesk",
+  "version": "2.0.0-proto",
+  "mode": "talk",
+  "narration": true,
+  "voice": "v2-cleandesk",
+  "note": "Clean desk as a checklist you work through, then Head out. The outcome comes from what you actually did. If the courier got in (courier_in fallout), DeskScreen starts at end_courier.",
+  "speaker": {
+    "who": "End of shift",
+    "role": "Floor 14",
+    "kind": "narrator"
+  },
+  "start": "end",
+  "nodes": {
+    "end": {
+      "say": "End of shift. Before you go: your print job is still on the printer, your screen is unlocked, and there's a password on a sticky note.",
+      "options": [
+        "shred",
+        "lock",
+        "sticky",
+        "home",
+        "out"
+      ]
+    },
+    "end_courier": {
+      "say": "End of shift. Your print job is still on the printer, your screen is unlocked, there's a password on a sticky note. And there's a parcel on desk 07 that wasn't there before.",
+      "options": [
+        "look_parcel",
+        "report_theft",
+        "shred",
+        "lock",
+        "sticky",
+        "home",
+        "out"
+      ]
+    }
+  },
+  "choices": {
+    "shred": {
+      "label": "Shred the printout",
+      "act": "Printout shredded.",
+      "does": "shred",
+      "evidence": "shredded"
+    },
+    "lock": {
+      "label": "Lock your screen",
+      "act": "Screen locked.",
+      "does": "lock",
+      "evidence": "locked"
+    },
+    "sticky": {
+      "label": "Pull the sticky note and shred it",
+      "act": "Sticky note gone.",
+      "does": "sticky",
+      "evidence": "pulled_note"
+    },
+    "home": {
+      "label": "Bag the printout to finish at home",
+      "act": "Printout in your bag.",
+      "does": "home"
+    },
+    "look_parcel": {
+      "label": "Look at the parcel on desk 07",
+      "look": "The courier's parcel. Next to it, the cable lock on hot desk 14-08 hangs empty. The loaner laptop is gone.",
+      "evidence": "saw_theft"
+    },
+    "report_theft": {
+      "label": "Call security, ext 4400",
+      "act": "Security's on the way up. You told them about the courier you let in.",
+      "does": "report_theft",
+      "evidence": "reported_theft"
+    },
+    "out": {
+      "label": "Head out",
+      "finish": [
+        {
+          "need": [
+            "home"
+          ],
+          "id": "cleandesk-home"
+        },
+        {
+          "need": [
+            "shred",
+            "lock",
+            "sticky"
+          ],
+          "id": "cleandesk-shred"
+        },
+        {
+          "need": [
+            "lock"
+          ],
+          "id": "cleandesk-lock"
+        },
+        {
+          "id": "cleandesk-leave"
+        }
+      ]
+    }
+  },
+  "tells": [
+    {
+      "tell": "shredded",
+      "why": "The printout had customer data. Shred it, don't leave it and don't take it home."
+    },
+    {
+      "tell": "locked",
+      "why": "Lock your screen every time you walk away. Win+L."
+    },
+    {
+      "tell": "pulled_note",
+      "why": "A password on a sticky note is a password for anyone who walks by."
+    }
+  ],
+  "courier_tells": [
+    {
+      "tell": "saw_theft",
+      "why": "The courier you let in left a parcel and walked out with a laptop."
+    },
+    {
+      "tell": "reported_theft",
+      "why": "You reported it right away. That's the only good ending once someone's in."
+    }
+  ],
+  "headlines": {
+    "cleandesk-shred": "Desk clean. Good night.",
+    "cleandesk-lock": "Screen locked, paper left out.",
+    "cleandesk-home": "Customer data just went home in your bag.",
+    "cleandesk-leave": "You left it all out."
+  },
+  "outcomes": {
+    "cleandesk-shred": 100,
+    "cleandesk-lock": 40,
+    "cleandesk-home": 0,
+    "cleandesk-leave": 0
+  }
+}

@@ -38,7 +38,8 @@ Each beat keeps its v1 id, outcomes, voice lines and debriefs. What changes is h
 - Outcomes: Report phish = `mail-report`. Reply with codes or type a password on the fake page = `mail-codes`. Close the inbox without reporting = `mail-ignore`. Reporting a legitimate mail costs nothing and gets a "that's fine" note.
 - Later: if you typed your password, the sign-in beat (MON-07) gets nastier: the push comes from your own account, and IT calls at 1 AM.
 
-### MON-08 Misdirect (wrong recipient)
+### MON-08 Misdirect (wrong recipient). Built.
+- Built as `src/game/mail/ComposeApp.tsx` on the desk monitor (same zoom as mail) + `mon-08-misdirect-v2.json`: Maya's chat, a compose window whose autocomplete offers the wrong Mark first, an EXTERNAL warning, an attachment preview, then Sent / failed recall / Report or Delete. Calls choose() for both v1 steps.
 - Today: Send / Check the To line, then Report / Delete.
 - v2: Maya's manifest request opens a compose window. The To field autocompletes "Kessler" to two addresses, kessler-logistics.com (real customer) and kesslerlogistics.co (lookalike from last month's thread). The player has to look at the autocomplete. Send to the wrong one and the "Recall" option fails; the right move after is Report to Security (data went outside). Bonus evidence for opening the attachment preview and noticing it has customer data.
 
@@ -53,16 +54,20 @@ Each beat keeps its v1 id, outcomes, voice lines and debriefs. What changes is h
 - Today: Approve / Ignore / Report.
 - v2: The desk phone shows an authenticator prompt with a **location** (Lagos, or your own city on legit runs), an **app name** and a **number match**. On some runs it's legit: you just tried to sign into the HR portal yourself, and the number on screen matches. The player has to compare. Prompts repeat every 20 seconds while the beat is open: fatigue is the attack.
 
-### MON-04 USB (removable media)
+### MON-04 USB (removable media). Built.
+- Built with the conversation bar in narration mode + `mon-04-usb-v2.json`: look at the label (bait), look at the unlocked laptop, call IT, then bag / leave / plug. Plugging in schedules the printer glitch (75 s of play later) and IT's call (85 s), via `after()` in `fallout.ts`. Sending the manifest to the wrong Kessler schedules Kessler's call (60 s).
 - v2: The drive is labeled "Q4 bonuses - CONFIDENTIAL". You can pick it up, look at it, plug it in, hand it to IT, or leave it. If you plug it in, nothing visible happens. Forty minutes later the printer prints garbage and IT calls. If you hand it to IT, the debrief tells you what was on it.
 
-### MON-06 Updates (fake update)
+### MON-06 Updates. Built.
+- Built with the conversation bar (narration) + `mon-06-updates-v2.json`. Kept the v1 story (a real Device Health warning, not a fake pop-up): open Windows Update, look at the Shield icon, check your badge, restart, call IT (ext 4100).
 - v2: The loaner at hot desk 14-08 shows a browser pop-up: "Your Chrome is out of date". On legit runs, it's the real Windows Update tray notice instead. The tells: it's a web page (address bar visible), it asks you to download an .exe, the real updater never does that. Restart via the system tray = fine on legit runs. Click the pop-up = fail.
 
-### MON-05 Wire (payment fraud)
+### MON-05 Wire (payment fraud). Built.
+- Built with the conversation bar + `mon-05-wire-v2.json`: see "Elena's" text (unknown number, "don't call"), check the form (it works), ask why you, Maya relays the escalation, call the real Elena on ext 2210.
 - v2: Maya relays an "urgent" vendor email changing bank details. You have a phone, the vendor master file and Maya. The right path: call the vendor on the number in the master file (not the one in the email) and report. The "CFO" escalates by email if you stall: "Why is this not done?" Holding firm against that is the skill.
 
-### MON-09 Clean desk
+### MON-09 Clean desk. Built.
+- Built with the conversation bar as a checklist (shred, lock, pull the note, or bag it home) then Head out; the outcome comes from what you did. If the courier got in, it opens with his parcel on desk 07 and the loaner gone, plus a Call security action.
 - v2: End of shift, free roam of your desk area. Things to deal with: the manifest printout, a sticky note with a password on the monitor, an unlocked screen, a visitor badge someone left. No menu: you interact with each object (shred, lock, return to reception). Score is how many you handled before leaving.
 
 ## 5. Delayed consequences: how they work
@@ -113,3 +118,11 @@ Still to do: write `focus.lastResult` (evidence, verified, reportedLegit) into t
 5. The rest.
 
 Each beat ships on its own and keeps the v1 outcome ids, so nothing else breaks while the rest are still v1.
+
+## 8. Phone numbers (keep consistent)
+
+IT Service Desk ext 4100 (the badge number). Security ext 4400. Elena Voss ext 2210. The fake "Dan" calls from ext 4101.
+
+## 9. Voice for v2 lines
+
+New lines play from `public/voice/v2/<id>.mp3` and fall back to the browser voice until the file exists. Ids: `v2-door-*`, `v2-phone-*`, `v2-usb-it`, `v2-updates-*`, `v2-wire-*`, `v2-fallout-*` (19 clips). ElevenLabs flow "Harbor & Co. - Monday v2 conversations" (`bm1YpGEy8qhT5sXAir0Q`), eleven_v4, 1 take each. Voices: Courier Mike `kSSJYNGo5Kev6qgwVloV`, Dan Jake `CDdUdrzh7qrDE2xpRZyQ`, Maya Tasha `az2Mp58wQOuqO5SHlCwL`, Narrator Benjamin `rBBV1yn6Ib1hDeOTrn08`, plus new: IT Service Desk Olive Lark `MhYVsEu6Sf1YdDhCRTmn`, Elena Voss Lyn Gardez `H4onjBoahJ3LnzTxVZXs`, outside caller David Jones `UyxbZcMvz2Bnex0kFYXU`.
