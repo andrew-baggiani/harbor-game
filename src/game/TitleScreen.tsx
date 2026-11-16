@@ -85,7 +85,7 @@ export function TitleScreen() {
           <span className="flex h-9 w-9 items-center justify-center border border-[#c4a574] font-game text-lg font-bold text-[#c4a574]">H</span>
           <div className="leading-none">
             <p className="font-game text-lg font-semibold tracking-[0.18em]">HARBOR &amp; CO.</p>
-            <p className="mt-1 text-[11px] tracking-[0.2em] text-[#a8a59c]">SECURITY TRAINING · MERIDIAN</p>
+            <p className="mt-1 text-[11px] tracking-[0.2em] text-[#a8a59c]">SECURITY TRAINING · DRY RUN CYBER</p>
           </div>
         </header>
 

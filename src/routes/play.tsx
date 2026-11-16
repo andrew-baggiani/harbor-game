@@ -25,7 +25,7 @@ function CityPage() {
   if (!Game) {
     return (
       <div className="flex h-dvh w-full flex-col items-center justify-center bg-[#07090e] text-[#f4f0e6]">
-        <p className="text-xs tracking-[0.28em] text-[#c4a574]">MERIDIAN</p>
+        <p className="text-xs tracking-[0.28em] text-[#c4a574]">DRY RUN CYBER</p>
         <h1 className="mt-3 font-display text-6xl">Harbor</h1>
       </div>
     );

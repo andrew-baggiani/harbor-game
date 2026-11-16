@@ -12,7 +12,6 @@ export const Route = createFileRoute("/")({
         content:
           "A walkable 3D night shift where employees meet phishing, phone scams, tailgaters and wire fraud in the moment, with every decision mapped to NIST, CIS, HIPAA and CMMC controls.",
       },
-      { property: "og:image", content: "/og.jpg" },
     ],
   }),
   component: Landing,
@@ -51,8 +50,7 @@ function Landing() {
       </header>
 
       <section className="relative overflow-hidden">
-        <img src="/og.jpg" alt="" className="absolute inset-0 h-full w-full object-cover opacity-35" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#07090e]/30 via-[#07090e]/70 to-[#07090e]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_20%,rgba(196,165,116,0.18),transparent_55%),radial-gradient(ellipse_at_20%_80%,rgba(70,110,160,0.14),transparent_50%)]" />
         <div className="relative mx-auto max-w-6xl px-6 pt-24 pb-28 md:pt-36 md:pb-40">
           <p className="font-game text-sm font-semibold tracking-[0.32em]" style={{ color: GOLD }}>
             SECURITY AWARENESS TRAINING · THE NIGHT SHIFT
