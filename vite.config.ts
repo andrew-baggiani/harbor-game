@@ -178,7 +178,7 @@ export default defineConfig(({ command, isPreview }) => ({
       ? [
           nitro(
             CLOUDFLARE
-              ? { preset: "cloudflare_module" }
+              ? { preset: "cloudflare_module", cloudflare: { wrangler: { name: "harbor-game" } } }
               : {
                   preset: "vercel",
                   // Auto-registers server/middleware/* (the PWA install page +
