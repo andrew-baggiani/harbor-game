@@ -155,7 +155,7 @@ export type VoiceKind = "narrator" | "man" | "woman";
 export function voiceFor(id: string): { text: string; kind: VoiceKind } | null {
   switch (id) {
     case "brief":
-      return { kind: "narrator", text: "Monday night at Harbor and Co. You're the new hire. Tonight, the shift is the training. Follow the gold blip to the tower. People are going to ask you for things tonight. Take your time with each one." };
+      return { kind: "narrator", text: "Monday night. You're the new hire. Tonight, the shift is the training. Follow the gold marker to the tower. People are going to ask you for things tonight. Take your time with each one." };
     case "door":
       return { kind: "man", text: "Hey, can you grab the door? My badge is back in the van. I'm double-parked out there. Two seconds, I swear." };
     case "reception":
@@ -177,11 +177,11 @@ export function voiceFor(id: string): { text: string; kind: VoiceKind } | null {
     case "debrief-updates-report":
       return { kind: "narrator", text: "That's the move. Failed updates and a security agent that's off both get reported. Don't switch tools off or on yourself. Tell IT, and let them fix it." };
     case "signin":
-      return { kind: "narrator", text: "Your phone buzzes on the desk. A sign-in alert for your Harbor account." };
+      return { kind: "narrator", text: "Your phone buzzes on the desk. A sign-in alert for your work account." };
     case "signin-yes":
       return { kind: "narrator", text: "You tapped yes. Whoever that was is now signed in as you." };
     case "debrief-signin-yes":
-      return { kind: "narrator", text: "You were right here, on fourteen. That sign-in came from somewhere else. Never approve one you didn't start. Tap no, then call security at extension 4400." };
+      return { kind: "narrator", text: "You were right here at your desk. That sign-in came from somewhere else. Never approve one you didn't start. Tap no, then call security." };
     case "signin-ignore":
       return { kind: "narrator", text: "You swiped it away. The session stays open, and nobody is watching it." };
     case "debrief-signin-ignore":
@@ -189,7 +189,7 @@ export function voiceFor(id: string): { text: string; kind: VoiceKind } | null {
     case "signin-report":
       return { kind: "narrator", text: "You tapped no and called it in. Security ended the session and reset your password." };
     case "debrief-signin-report":
-      return { kind: "narrator", text: "Exactly. A sign-in you didn't make is an incident, even at midnight. Tap no, then call security at extension 4400, or email security@harborandco.com." };
+      return { kind: "narrator", text: "Exactly. A sign-in you didn't make is an incident, even at midnight. Tap no, then call security, or use the report button." };
     case "misdirect":
       return { kind: "woman", text: "Hey, it's Maya. Can you send tonight's manifest to Mark Delgado on the dock team? He needs it before the Meridian loads. It's the full one, with the customer details." };
     case "misdirect-send":
@@ -201,7 +201,7 @@ export function voiceFor(id: string): { text: string; kind: VoiceKind } | null {
     case "misdirect-hide":
       return { kind: "narrator", text: "You deleted it from Sent. Their copy is still sitting in their inbox." };
     case "debrief-misdirect-hide":
-      return { kind: "narrator", text: "Deleting your copy doesn't unsend it. Customer data just left Harbor. Report it right away, so security can try to recall it and contain it." };
+      return { kind: "narrator", text: "Deleting your copy doesn't unsend it. Customer data just left the company. Report it right away, so security can try to recall it and contain it." };
     case "misdirect-report":
       return { kind: "narrator", text: "You called security straight away. They recalled the message and reached the person who got it." };
     case "debrief-misdirect-report":
@@ -227,7 +227,7 @@ export function voiceFor(id: string): { text: string; kind: VoiceKind } | null {
     case "mail":
       return { kind: "narrator", text: "New mail. The name says Elena Voss. Check the address. Boarding now, so I can't call. I need eight Apple gift cards, $200 each, for client thank-yous. Reply with the codes. Don't loop in my assistant, it's a surprise." };
     case "phone":
-      return { kind: "man", text: "Hi, this is Dan with Harbor IT. We just blocked a sign-in on your account from overseas. I'm locking it down now. Read me the six-digit code that just hit your phone. Quick, before it expires." };
+      return { kind: "man", text: "Hi, this is Dan from IT. We just blocked a sign-in on your account from overseas. I'm locking it down now. Read me the six-digit code that just hit your phone. Quick, before it expires." };
     case "usb":
       return { kind: "narrator", text: "There's a USB stick on the break counter. Handwritten label: Salary review. An open laptop sits right next to it." };
     case "maya":
@@ -263,21 +263,21 @@ export function voiceFor(id: string): { text: string; kind: VoiceKind } | null {
     case "debrief-door-shut":
       return { kind: "narrator", text: "Good call. One badge, one person. If he belongs here, he badges in or checks in at reception. Letting a door close isn't rude." };
     case "debrief-mail-codes":
-      return { kind: "narrator", text: "Gift cards, a rush, and keep it quiet. That's a scam every time. Read the address, not the name. Hit the Report button, or send it to security@harborandco.com." };
+      return { kind: "narrator", text: "A rush, a threat or a secret, and an address that doesn't match. That's a scam every time. Read the address, not the name, and never type your password into a page an email sent you to. Report button, every time." };
     case "debrief-mail-report":
-      return { kind: "narrator", text: "Right move. The name said Elena. The address said harborandco-exec. Nobody at Harbor buys gift cards over email. Report button, every time." };
+      return { kind: "narrator", text: "Right move. The name looked right. The address didn't. Real requests don't come with a rush and a secret. Report button, every time." };
     case "debrief-mail-ignore":
       return { kind: "narrator", text: "Not replying is half of it. Reporting is the other half. One click on Report warns everyone who got the same mail." };
     case "debrief-phone-code":
       return { kind: "narrator", text: "IT will never ask for your code. Whoever asks for it is the one logging in. Hang up, and call the help desk number on your badge." };
     case "debrief-phone-hangup":
-      return { kind: "narrator", text: "Exactly. Your code is only for you. Call back on the number on your badge, and report the call to security at extension 4400." };
+      return { kind: "narrator", text: "Exactly. Your code is only for you. Call back on the number on your badge, and report the call to security." };
     case "debrief-usb-plug":
       return { kind: "narrator", text: "A found USB stick is bait, and Salary review is the hook. Never plug in a stick that didn't come from IT. Bag it and hand it over." };
     case "debrief-usb-it":
       return { kind: "narrator", text: "That's it. Unknown sticks go to IT, unplugged. Curiosity is exactly what that label was counting on." };
     case "debrief-usb-leave":
-      return { kind: "narrator", text: "You didn't plug it in. Good. But the next person might. Bag it and get it to IT, or report it at extension 4400." };
+      return { kind: "narrator", text: "You didn't plug it in. Good. But the next person might. Bag it and get it to IT, or report it to security." };
     case "debrief-wire-send":
       return { kind: "narrator", text: "Urgency, a big name, and a broken form. That's the setup. Money moves on the normal path, or after a callback on a number finance already has." };
     case "debrief-wire-call":

@@ -190,7 +190,7 @@ export const useHarbor = create<HarborStore>((set, get) => ({
       later("v2-fallout-it", "woman", "IT Service Desk · ext 4100", "We're seeing strange traffic from fourteen. Did anyone plug anything into a laptop up there tonight?", 85);
     }
     if (fallout === "misdirect_sent") {
-      later("v2-fallout-misdirect", "man", "Desk phone · outside caller", "Hi, I think someone at Harbor just emailed me a manifest full of customer names and addresses. I don't work for you. Thought you should know.", 60);
+      later("v2-fallout-misdirect", "man", "Desk phone · outside caller", "Hi, I think someone at your company just emailed me a manifest full of customer names and addresses. I don't work for you. Thought you should know.", 60);
     }
     if (id === "reception-ok") {
       world.barkT = 6;

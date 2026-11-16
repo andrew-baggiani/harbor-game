@@ -3,7 +3,10 @@
   "version": "2.0.0-proto",
   "mode": "call",
   "note": "Phone beat as a conversation. The player talks instead of picking Safe/Unsafe. Ends map to v1 choice ids: phone-code, phone-hangup.",
-  "caller_id": { "name": "Harbor IT", "number": "ext 4101" },
+  "caller_id": {
+    "name": "IT Service Desk",
+    "number": "ext 4101"
+  },
   "sms": {
     "from": "Harbor Sign-in",
     "text": "Your Harbor sign-in code is 482 913. Never share this code. IT will never ask you for it.",
@@ -15,38 +18,98 @@
   "start": "open",
   "nodes": {
     "open": {
-      "say": "Hi, this is Dan with Harbor IT. We just blocked a sign-in on your account from overseas. I'm locking it down now. Read me the six-digit code that just hit your phone. Quick, before it expires.",
-      "options": ["ask_name", "ask_ext", "ask_why", "callback", "refuse", "read"]
+      "say": "Hi, this is Dan from IT. We just blocked a sign-in on your account from overseas. I'm locking it down now. Read me the six-digit code that just hit your phone. Quick, before it expires.",
+      "options": [
+        "ask_name",
+        "ask_ext",
+        "ask_why",
+        "callback",
+        "refuse",
+        "read"
+      ]
     },
     "name": {
       "say": "Dan. Dan Reyes, service desk. Look, it's expiring.",
-      "options": ["ask_ext", "ask_why", "callback", "refuse", "read"]
+      "options": [
+        "ask_ext",
+        "ask_why",
+        "callback",
+        "refuse",
+        "read"
+      ]
     },
     "ext": {
       "say": "4101. Can we do this? Your account is getting hammered right now.",
-      "options": ["ask_name", "ask_why", "callback", "refuse", "read"]
+      "options": [
+        "ask_name",
+        "ask_why",
+        "callback",
+        "refuse",
+        "read"
+      ]
     },
     "why": {
       "say": "To prove it's you before I kick the attacker out. Standard procedure, I do this ten times a night.",
-      "options": ["ask_name", "ask_ext", "callback", "refuse", "read"]
+      "options": [
+        "ask_name",
+        "ask_ext",
+        "callback",
+        "refuse",
+        "read"
+      ]
     },
     "callback": {
       "say": "There's no time for that. The code dies in thirty seconds. If they get in, they've got your email and your payroll.",
-      "options": ["ask_name", "ask_ext", "refuse", "read"]
+      "options": [
+        "ask_name",
+        "ask_ext",
+        "refuse",
+        "read"
+      ]
     },
     "push": {
       "say": "Fine. When your paycheck bounces Friday, that's on you. Last chance, read me the code.",
-      "options": ["read", "hold"]
+      "options": [
+        "read",
+        "hold"
+      ]
     }
   },
   "choices": {
-    "ask_name": { "label": "Sorry, who is this again?", "next": "name", "evidence": "asked_name" },
-    "ask_ext": { "label": "What's your extension?", "next": "ext", "evidence": "asked_ext" },
-    "ask_why": { "label": "Why do you need my code?", "next": "why", "evidence": "asked_why" },
-    "callback": { "label": "Let me call you back on the service desk number.", "next": "callback", "evidence": "offered_callback" },
-    "refuse": { "label": "I'm not reading a code over the phone.", "next": "push", "evidence": "refused" },
-    "hold": { "label": "No. I'll call the service desk myself.", "end": "hangup", "evidence": "refused" },
-    "read": { "label": "Okay. It's 482 913.", "end": "code" }
+    "ask_name": {
+      "label": "Sorry, who is this again?",
+      "next": "name",
+      "evidence": "asked_name"
+    },
+    "ask_ext": {
+      "label": "What's your extension?",
+      "next": "ext",
+      "evidence": "asked_ext"
+    },
+    "ask_why": {
+      "label": "Why do you need my code?",
+      "next": "why",
+      "evidence": "asked_why"
+    },
+    "callback": {
+      "label": "Let me call you back on the service desk number.",
+      "next": "callback",
+      "evidence": "offered_callback"
+    },
+    "refuse": {
+      "label": "I'm not reading a code over the phone.",
+      "next": "push",
+      "evidence": "refused"
+    },
+    "hold": {
+      "label": "No. I'll call the service desk myself.",
+      "end": "hangup",
+      "evidence": "refused"
+    },
+    "read": {
+      "label": "Okay. It's 482 913.",
+      "end": "code"
+    }
   },
   "directory_tells": {
     "IT Service Desk": {
@@ -60,13 +123,31 @@
     "evidence": "called_back"
   },
   "tells": [
-    { "tell": "sms_warning", "why": "The text with the code says IT will never ask for it." },
-    { "tell": "spoofed_ext", "why": "Caller ID said ext 4101. The real service desk is 4100." },
-    { "tell": "pressure", "why": "Thirty seconds, payroll, your fault: pressure so you don't stop and check." },
-    { "tell": "called_back", "why": "You called the real number back. That's the move." }
+    {
+      "tell": "sms_warning",
+      "why": "The text with the code says IT will never ask for it."
+    },
+    {
+      "tell": "spoofed_ext",
+      "why": "Caller ID said ext 4101. The real service desk is 4100."
+    },
+    {
+      "tell": "pressure",
+      "why": "Thirty seconds, payroll, your fault: pressure so you don't stop and check."
+    },
+    {
+      "tell": "called_back",
+      "why": "You called the real number back. That's the move."
+    }
   ],
   "outcomes": {
-    "code": { "choiceId": "phone-code", "score": 0 },
-    "hangup": { "choiceId": "phone-hangup", "score": 100 }
+    "code": {
+      "choiceId": "phone-code",
+      "score": 0
+    },
+    "hangup": {
+      "choiceId": "phone-hangup",
+      "score": 100
+    }
   }
 }
