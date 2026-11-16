@@ -22,6 +22,17 @@ Rules:
 
 type Msg = { role: "user" | "assistant"; content: string };
 
+const hits = new Map<string, number[]>();
+function localAllow(key: string): boolean {
+  const now = Date.now();
+  const recent = (hits.get(key) ?? []).filter((t) => now - t < 60_000);
+  if (recent.length >= 10) return false;
+  recent.push(now);
+  hits.set(key, recent);
+  if (hits.size > 5000) hits.clear();
+  return true;
+}
+
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
 
@@ -41,12 +52,23 @@ export const Route = createFileRoute("/api/chat")({
         }
         if (!messages.length || messages[messages.length - 1].role !== "user") return json({ error: "Ask a question first." }, 400);
 
+        type Limiter = { limit: (o: { key: string }) => Promise<{ success: boolean }> };
         let ai: { run: (model: string, input: unknown) => Promise<{ response?: string }> } | undefined;
+        let limiter: Limiter | undefined;
         try {
-          const mod = (await import(/* @vite-ignore */ "cloudflare:workers")) as { env?: { AI?: typeof ai } };
+          const mod = (await import(/* @vite-ignore */ "cloudflare:workers")) as { env?: { AI?: typeof ai; CHAT_LIMIT?: Limiter } };
           ai = mod.env?.AI;
+          limiter = mod.env?.CHAT_LIMIT;
         } catch {
           ai = undefined;
+        }
+
+        // Per-visitor cap: 10 questions a minute (Cloudflare rate limiting binding), with a small
+        // in-memory backstop if the binding is missing.
+        const who = request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for") ?? "anon";
+        const allowed = limiter ? (await limiter.limit({ key: who }).catch(() => ({ success: true }))).success : localAllow(who);
+        if (!allowed) {
+          return json({ reply: "That's a lot of questions in a minute. Give it a moment and ask again, or email hello@dryruncyber.com." }, 429);
         }
         if (!ai) return json({ reply: "The assistant isn't available here right now. Email hello@dryruncyber.com and a person will answer." });
 

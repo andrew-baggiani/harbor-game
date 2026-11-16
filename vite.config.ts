@@ -178,7 +178,7 @@ export default defineConfig(({ command, isPreview }) => ({
       ? [
           nitro(
             CLOUDFLARE
-              ? { preset: "cloudflare_module", cloudflare: { wrangler: { name: "harbor-game", ai: { binding: "AI" } } } }
+              ? { preset: "cloudflare_module", cloudflare: { wrangler: { name: "harbor-game", ai: { binding: "AI" }, ratelimits: [{ name: "CHAT_LIMIT", namespace_id: "1001", simple: { limit: 10, period: 60 } }] } as Record<string, unknown> } }
               : {
                   preset: "vercel",
                   // Auto-registers server/middleware/* (the PWA install page +

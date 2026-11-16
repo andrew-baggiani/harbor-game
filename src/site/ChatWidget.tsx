@@ -12,6 +12,18 @@ export function ChatWidget() {
   const list = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
   const launcher = useRef<HTMLButtonElement>(null);
+  // On phones the floating button would sit on top of the hero game, so it appears once the visitor scrolls past it.
+  const [shown, setShown] = useState(true);
+  useEffect(() => {
+    const on = () => setShown(window.innerWidth >= 640 || window.scrollY > window.innerHeight * 1.1);
+    on();
+    window.addEventListener("scroll", on, { passive: true });
+    window.addEventListener("resize", on);
+    return () => {
+      window.removeEventListener("scroll", on);
+      window.removeEventListener("resize", on);
+    };
+  }, []);
 
   useEffect(() => {
     list.current?.scrollTo({ top: list.current.scrollHeight, behavior: "smooth" });
@@ -63,7 +75,8 @@ export function ChatWidget() {
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-controls="site-chat"
-        className="fixed bottom-5 right-5 z-40 flex items-center gap-2.5 rounded-full border border-site-violet bg-site-ink-2 p-2.5 sm:py-2.5 sm:pl-3 sm:pr-4 text-[15px] font-semibold text-site-paper shadow-[0_18px_40px_-12px_rgba(0,0,0,0.8)] transition-colors hover:bg-[#1f1630]"
+        tabIndex={shown || open ? 0 : -1}
+        className={`fixed bottom-5 right-5 z-40 flex items-center gap-2.5 rounded-full border border-site-violet bg-site-ink-2 p-2.5 sm:py-2.5 sm:pl-3 sm:pr-4 text-[15px] font-semibold text-site-paper shadow-[0_18px_40px_-12px_rgba(0,0,0,0.8)] hover:bg-[#1f1630] transition-[opacity,transform,background-color] duration-300 ${shown || open ? "opacity-100" : "pointer-events-none translate-y-3 opacity-0"}`}
       >
         <img src="/brand/dry-run-cyber-icon-dark-surface.svg" alt="" className="h-7 w-7 rounded-full" />
         <span className={open ? "" : "sr-only sm:not-sr-only"}>{open ? "Close" : "Ask a question"}</span>

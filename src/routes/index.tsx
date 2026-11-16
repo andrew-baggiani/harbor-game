@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { BRAND } from "@/site/brand";
 import { ChatWidget } from "@/site/ChatWidget";
+import { CONTACT, SiteFooter, SiteNav, SkipLink } from "@/site/SiteChrome";
 import { WEEK } from "@/game/week";
 import phishing from "@/content/scenarios/mon-02-phishing.json";
 
@@ -29,15 +30,12 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
-const CONTACT = "mailto:hello@dryruncyber.com?subject=Dry%20Run%20Cyber%20access";
 
 function Landing() {
   return (
     <div className="site min-h-dvh overflow-x-clip">
-      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-site-paper focus:px-3 focus:py-2 focus:text-site-ink">
-        Skip to content
-      </a>
-      <Nav />
+      <SkipLink />
+      <SiteNav />
       <main id="main">
         <Hero />
         <TryOne />
@@ -47,37 +45,8 @@ function Landing() {
         <ForMsps />
         <Close />
       </main>
-      <Footer />
+      <SiteFooter />
       <ChatWidget />
-    </div>
-  );
-}
-
-/* ---------------------------------------------------------------- nav */
-
-function Nav() {
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const on = () => setScrolled(window.scrollY > 24);
-    on();
-    window.addEventListener("scroll", on, { passive: true });
-    return () => window.removeEventListener("scroll", on);
-  }, []);
-  return (
-    <div className={`sticky top-0 z-30 transition-colors duration-300 ${scrolled ? "border-b border-site-rule bg-site-ink/85 backdrop-blur-md" : "border-b border-transparent"}`}>
-    <header className="mx-auto flex max-w-[1240px] items-center justify-between gap-6 px-6 py-4 md:px-10 md:py-5">
-      <a href="/" aria-label="Dry Run Cyber home" className="shrink-0">
-        <img src="/brand/logo-horizontal.svg" alt="Dry Run Cyber" className="h-10 w-auto md:h-12" />
-      </a>
-      <nav aria-label="Primary" className="flex items-center gap-7 text-[15px] text-site-mist">
-        <a href="#night" className="hidden hover:text-site-paper lg:inline">How it works</a>
-        <a href="#msps" className="hidden hover:text-site-paper md:inline">For MSPs</a>
-        <a href="/play" className="hidden hover:text-site-paper sm:inline">Partner login</a>
-        <a href={CONTACT} className="rounded-md border border-site-violet px-4 py-2 font-semibold text-site-paper transition-colors hover:bg-site-violet">
-          Request access
-        </a>
-      </nav>
-    </header>
     </div>
   );
 }
@@ -111,7 +80,7 @@ function Hero() {
             <a href={CONTACT} className="rounded-md bg-site-violet px-6 py-3.5 text-base font-semibold text-white transition-colors hover:bg-site-violet-hi">
               Request partner access
             </a>
-            <a href="#night" className="rounded-md px-2 py-3.5 text-base font-semibold text-site-paper underline decoration-site-rule decoration-2 underline-offset-[6px] hover:decoration-site-mint">
+            <a href="#night" className="rounded-md py-3.5 text-base font-semibold text-site-paper underline sm:px-2 decoration-site-rule decoration-2 underline-offset-[6px] hover:decoration-site-mint">
               See what's in a shift
             </a>
           </div>
@@ -125,7 +94,7 @@ function Hero() {
           className="brackets lock-in"
           style={{ "--arm": "clamp(28px, 5vw, 56px)", "--stroke": "clamp(5px, 1vw, 9px)", "--inset": "clamp(-24px, -2.5vw, -12px)" } as React.CSSProperties}
         >
-          <div className="aspect-[4/5] overflow-hidden rounded-[10px] bg-site-ink-2 ring-1 ring-site-violet/35 shadow-[0_0_80px_-20px_rgba(139,44,245,0.35)] sm:aspect-[16/10] lg:aspect-[21/9]">
+          <div className="aspect-square overflow-hidden rounded-[10px] bg-site-ink-2 ring-1 ring-site-violet/35 shadow-[0_0_80px_-20px_rgba(139,44,245,0.35)] sm:aspect-[16/10] lg:aspect-[21/9]">
             {Scene ? <Scene className="h-full w-full" /> : null}
           </div>
         </div>
@@ -485,21 +454,5 @@ function Close() {
         </a>
       </div>
     </section>
-  );
-}
-
-function Footer() {
-  return (
-    <footer className="border-t border-site-rule">
-      <div className="mx-auto flex max-w-[1240px] flex-col items-start gap-4 px-6 py-8 text-sm text-site-dim sm:flex-row sm:flex-wrap sm:items-center sm:justify-between md:px-10">
-        <img src="/brand/dry-run-cyber-icon-white.svg" alt="" className="h-6 w-6 opacity-60" />
-        <span>© {new Date().getFullYear()} Dry Run Cyber</span>
-        <a href="mailto:hello@dryruncyber.com" className="hover:text-site-paper">hello@dryruncyber.com</a>
-        <span className="flex gap-6">
-          <a href="/coverage" className="hover:text-site-paper">Control coverage</a>
-          <a href="/play" className="hover:text-site-paper">Partner login</a>
-        </span>
-      </div>
-    </footer>
   );
 }
