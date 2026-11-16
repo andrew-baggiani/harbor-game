@@ -5,12 +5,16 @@ import callContent from "@/content/scenarios/mon-03-vishing-v2.json";
 import { exitFocus, focus } from "@/game/focus";
 import { MailClient } from "@/game/mail/MailClient";
 import { PhoneCall } from "@/game/phone/PhoneCall";
+import signinContent from "@/content/scenarios/mon-07-signin-v2.json";
+import { SigninPush, type SigninContent, type SigninResult } from "@/game/signin/SigninPush";
+import { addFallout, hasFallout } from "@/game/fallout";
 import type { CallContent, CallResult } from "@/game/phone/callLogic";
 import type { InboxContent, MailResult } from "@/game/mail/mailLogic";
 import { useHarbor } from "@/game/state";
 
 const inbox = content as unknown as InboxContent;
 const call = callContent as unknown as CallContent;
+const signin = signinContent as unknown as SigninContent;
 
 /** Below this many CSS pixels wide, the monitor is too small to use: go full screen instead. */
 const MIN_EMBED_WIDTH = 760;
@@ -40,6 +44,16 @@ export function DeskScreen() {
 
   if (snap.phase === "off" || !snap.app || typeof document === "undefined") return null;
 
+  if (snap.app === "signin") {
+    if (snap.phase !== "hold") return null;
+    const fallout = hasFallout("code_given") ? "code_given" : hasFallout("creds_phished") ? "creds_phished" : null;
+    const answer = (result: SigninResult) => {
+      focus.lastResult = result;
+      exitFocus(() => useHarbor.getState().choose(result.choiceId));
+    };
+    return createPortal(<SigninPush content={signin} fallout={fallout} onDone={answer} />, document.body);
+  }
+
   if (snap.app === "phone") {
     if (snap.phase !== "hold") return null;
     const hangUp = (result: CallResult) => {
@@ -57,6 +71,7 @@ export function DeskScreen() {
 
   const done = (result: MailResult) => {
     focus.lastResult = result;
+    if (result.enteredCreds) addFallout("creds_phished");
     // Glide back out, then hand the v1 outcome to the story: debrief voice, flags, records.
     exitFocus(() => useHarbor.getState().choose(result.choiceId));
   };

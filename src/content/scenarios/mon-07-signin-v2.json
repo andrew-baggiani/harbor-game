@@ -1,0 +1,51 @@
+{
+  "id": "MON-07-signin",
+  "version": "2.0.0-proto",
+  "mode": "push",
+  "note": "Sign-in push as an authenticator prompt with number matching and repeat pushes (MFA fatigue). If the player read the code to Dan or typed their password on the fake page, the push comes from someone already holding their password. Ends map to v1 ids: signin-yes, signin-ignore, signin-report.",
+  "app": "Harbor Authenticator",
+  "repeat_seconds": 8,
+  "max_repeats": 6,
+  "request": {
+    "title": "Are you trying to sign in?",
+    "rows": [
+      { "label": "App", "value": "Harbor Mail" },
+      { "label": "Location", "value": "Lagos, Nigeria (approximate)", "tell": "location", "why": "You're on floor 14 in Harbor. The sign-in is from Lagos." },
+      { "label": "Device", "value": "Windows · Chrome · new device", "tell": "new_device", "why": "A new device you've never used." },
+      { "label": "Time", "value": "12:18 AM" }
+    ],
+    "number_prompt": "Enter the number shown on your sign-in screen"
+  },
+  "monitor_check": {
+    "label": "Look at your monitor",
+    "result": "Your monitor shows your inbox. There's no sign-in page and no number on it.",
+    "tell": "no_number",
+    "why": "Number matching only works if you started the sign-in. You didn't, so there's no number to match."
+  },
+  "fatigue": { "tell": "repeat", "why": "The same request kept coming back. Repeated pushes are an attack: they're hoping you tap yes to make it stop." },
+  "fallout": {
+    "code_given": {
+      "banner": "This sign-in used your password and the six-digit code you read to Dan.",
+      "tell": "fallout",
+      "why": "This is the code from the phone call. Whoever has it is trying to finish getting in."
+    },
+    "creds_phished": {
+      "banner": "This sign-in used the password you typed on the fake Microsoft page.",
+      "tell": "fallout",
+      "why": "This is the password from the fake sign-in page. Whoever has it is trying to finish getting in."
+    }
+  },
+  "after_deny": {
+    "text": "Denied. Report it? A sign-in you didn't make means someone may have your password.",
+    "report_label": "Report to Security (ext 4400)",
+    "report_done": "Security ended the session and is resetting your password. Thanks for calling it in.",
+    "skip_label": "Not now"
+  },
+  "tells_order": ["location", "new_device", "no_number", "repeat", "fallout"],
+  "outcomes": {
+    "approve": "signin-yes",
+    "deny": "signin-ignore",
+    "dismiss": "signin-ignore",
+    "report": "signin-report"
+  }
+}

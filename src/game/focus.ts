@@ -11,7 +11,7 @@ import * as THREE from "three";
 // while focusActive(). Nothing here touches React state; DeskScreen polls `focus`.
 
 export type FocusPhase = "off" | "in" | "hold" | "out";
-export type FocusApp = "mail" | "phone";
+export type FocusApp = "mail" | "phone" | "signin";
 
 type Screen = { center: THREE.Vector3; normal: THREE.Vector3; up: THREE.Vector3; right: THREE.Vector3; w: number; h: number };
 

@@ -47,7 +47,8 @@ Each beat keeps its v1 id, outcomes, voice lines and debriefs. What changes is h
 - v2: A conversation, not a yes/no. The caller says he's from the IT desk and needs the six-digit code. You can **ask his name**, **ask for his extension**, **say you'll call back**, **give the code**, or **hang up**. He has answers for the first two (fake name, "4401"). The directory shows the real desk is 4400 and 4401 doesn't exist. Calling 4400 back gets "We never ask for codes." Giving the code ends the beat as a fail; hanging up without reporting is the 40-point outcome.
 - Later: if you gave the code, your account sends the sign-in push in MON-07.
 
-### MON-07 Sign-in (MFA fatigue)
+### MON-07 Sign-in (MFA fatigue). Built.
+- Built as `src/game/signin/SigninPush.tsx` + `mon-07-signin-v2.json`: authenticator push with location, device, number matching, "Look at your monitor" (no number there because you didn't start a sign-in), and the request re-pushing every 8 s. Deny then Report = `signin-report`, approve = `signin-yes`, swipe/deny-only = `signin-ignore`. Legit runs still to do (needs a new outcome id).
 - Today: Approve / Ignore / Report.
 - v2: The desk phone shows an authenticator prompt with a **location** (Lagos, or your own city on legit runs), an **app name** and a **number match**. On some runs it's legit: you just tried to sign into the HR portal yourself, and the number on screen matches. The player has to compare. Prompts repeat every 20 seconds while the beat is open: fatigue is the attack.
 
@@ -64,6 +65,8 @@ Each beat keeps its v1 id, outcomes, voice lines and debriefs. What changes is h
 - v2: End of shift, free roam of your desk area. Things to deal with: the manifest printout, a sticky note with a password on the monitor, an unlocked screen, a visitor badge someone left. No menu: you interact with each object (shred, lock, return to reception). Score is how many you handled before leaving.
 
 ## 5. Delayed consequences: how they work
+
+Built: `src/game/fallout.ts`. `choose()` adds fallout from v1 ids (phone-code, usb-plug, door-hold, misdirect-send); the inbox adds `creds_phished` when a password goes into the fake page. Live today: `code_given` / `creds_phished` change the sign-in push (red banner, extra tell). The others are recorded and waiting for their beats.
 
 Add one field to the world flags: `fallout: string[]`. A failed beat pushes an event (`creds_phished`, `usb_plugged`, `courier_in`). A small scheduler fires each event at a set game-time minute:
 

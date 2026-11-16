@@ -242,7 +242,8 @@ export function step(dt: number) {
         world.buzz = 1.2;
         blip(740);
         say("signin");
-        store.openPanel("signin");
+        // v2: authenticator push with number matching and repeat pushes; v1 panel is the fallback.
+        if (!showApp("signin")) store.openPanel("signin");
       } else {
         world.printouts = true;
         say("cleandesk");

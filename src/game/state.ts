@@ -5,6 +5,7 @@ import { recordDecision, resetRecord, sealShift, noteVariants } from "@/game/rec
 import { choiceOf, currentVariants, pickVariants, variantOf } from "@/game/scenarios";
 import { say } from "@/game/audio";
 import { resetFocus } from "@/game/focus";
+import { FALLOUT_FROM_CHOICE, addFallout, resetFallout } from "@/game/fallout";
 
 export type Bark = { who: string; text: string };
 
@@ -173,6 +174,8 @@ const initial: Data = {
 export const useHarbor = create<HarborStore>((set, get) => ({
   ...initial,
   choose: (id) => {
+    const fallout = FALLOUT_FROM_CHOICE[id];
+    if (fallout) addFallout(fallout);
     if (id === "reception-ok") {
       world.barkT = 6;
       world.captionWho = "June Park · Reception";
@@ -279,6 +282,7 @@ export const useHarbor = create<HarborStore>((set, get) => ({
   reset: () => {
     resetRecord();
     resetFocus();
+    resetFallout();
     world.px = SPAWN.x;
     world.py = 0;
     world.pz = SPAWN.z;
