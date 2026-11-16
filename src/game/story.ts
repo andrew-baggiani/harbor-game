@@ -155,7 +155,7 @@ export type VoiceKind = "narrator" | "man" | "woman";
 export function voiceFor(id: string): { text: string; kind: VoiceKind } | null {
   switch (id) {
     case "brief":
-      return { kind: "narrator", text: "Monday night at Harbor and Co. You're the new hire. Tonight, the shift is the training. Arrow keys or W to walk. Shift to run. E to use whatever's in front of you. Follow the gold blip to the tower. People are going to ask you for things tonight. Take your time with each one." };
+      return { kind: "narrator", text: "Monday night at Harbor and Co. You're the new hire. Tonight, the shift is the training. Follow the gold blip to the tower. People are going to ask you for things tonight. Take your time with each one." };
     case "door":
       return { kind: "man", text: "Hey, can you grab the door? My badge is back in the van. I'm double-parked out there. Two seconds, I swear." };
     case "reception":

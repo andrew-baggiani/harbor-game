@@ -225,8 +225,9 @@ export const useHarbor = create<HarborStore>((set, get) => ({
     const beat = nextBeat(id);
     world.barkT = 5.5;
     world.minutes += 11;
-    if (found?.choice.debrief_voice) say(found.choice.voice ?? id, found.choice.debrief_voice);
-    else say(id, `debrief-${id}`);
+    // One narrator line per decision: the debrief. (The short "You did X" consequence line
+    // played first sounded like the narrator answering for the player.)
+    say(found?.choice.debrief_voice ?? `debrief-${id}`);
     if (beat === "misdirect") world.pending = "misdirect";
     if (beat === "signin") world.pending = "signin";
     if (beat === "cleandesk") world.pending = "cleandesk";
