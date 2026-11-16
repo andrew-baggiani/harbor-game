@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import tailgate from "@/content/scenarios/mon-01-tailgate.json";
+import phishing from "@/content/scenarios/mon-02-phishing.json";
+import vishing from "@/content/scenarios/mon-03-vishing.json";
+import usbScenario from "@/content/scenarios/mon-04-usb.json";
 
 /**
  * Hero visual for the public site: a first-person walk through a grey-box
@@ -7,14 +11,15 @@ import * as THREE from "three";
  * the product is a first-person game without showing unfinished art.
  */
 
+type Choice = { key: "E" | "Q"; label: string; good: boolean; result: string };
 type Beat = {
   to: [number, number, number];
   look: string; // target name
   walk: number; // seconds moving
-  hold: number; // seconds holding on the target
-  objective: string;
   clock: string;
-  prompts: [string, string][];
+  objective: string;
+  choices: [Choice, Choice];
+  controls: Record<string, string[]>;
   caption?: [string, string];
 };
 
@@ -23,41 +28,68 @@ const BEATS: Beat[] = [
     to: [0.1, 1.65, -4.6],
     look: "visitor",
     walk: 4.2,
-    hold: 3.2,
     clock: "18:42",
     objective: "Get to floor 14",
-    prompts: [["E", "Hold the door"], ["Q", "Let it close"]],
     caption: ["Courier", "Mind getting that? My hands are full."],
+    controls: tailgate.controls,
+    choices: [
+      { key: "E", label: "Hold the door", good: false, result: "No badge, and now he's inside. You'll see him again at the end of the shift." },
+      { key: "Q", label: "Let it close", good: true, result: "He can buzz reception like everyone else. Polite and safe." },
+    ],
   },
   {
     to: [0.2, 1.65, -12.4],
     look: "monitor",
     walk: 3.6,
-    hold: 3,
     clock: "19:10",
     objective: "Check your inbox",
-    prompts: [["E", "Read the email"]],
+    controls: phishing.controls,
+    choices: [
+      { key: "E", label: "Report it", good: true, result: "Lookalike domain, fake deadline. Reporting it lets IT pull it from every inbox." },
+      { key: "Q", label: "Open the link", good: false, result: "A copy of your sign-in page. Whatever you type goes straight to them." },
+    ],
   },
   {
     to: [0.2, 1.65, -12.4],
     look: "phone",
     walk: 1.2,
-    hold: 3.2,
     clock: "19:36",
     objective: "Answer the desk phone",
-    prompts: [["E", "Answer"], ["Q", "Let it ring"]],
     caption: ["IT Service Desk · ext 4101", "Hi, it's Dan from IT. I just need the code we sent you."],
+    controls: vishing.controls,
+    choices: [
+      { key: "E", label: "Read out the code", good: false, result: "That code was your second factor. Real IT never asks for it." },
+      { key: "Q", label: "Hang up, call 4100", good: true, result: "You called the real help desk number. Nobody named Dan works there." },
+    ],
   },
   {
     to: [-0.2, 1.65, -17],
     look: "usb",
     walk: 3.4,
-    hold: 3,
     clock: "20:40",
     objective: "Head to the elevator",
-    prompts: [["E", "Pick it up"], ["Q", "Leave it"]],
+    controls: usbScenario.controls,
+    choices: [
+      { key: "E", label: "Hand it to IT", good: true, result: "Unknown drives go to IT, unplugged. That's the whole trick." },
+      { key: "Q", label: "Plug it in", good: false, result: "75 seconds from now, the printer on your floor starts acting up." },
+    ],
   },
 ];
+
+const FW: Record<string, string> = {
+  "CIS_v8.1": "CIS",
+  "NIST_800-53r5": "NIST 800-53",
+  "NIST_800-171r2": "NIST 800-171",
+  CMMC_L2: "CMMC",
+  HIPAA: "HIPAA",
+  "CSF_2.0": "CSF",
+};
+const controlLine = (c: Record<string, string[]>) =>
+  Object.entries(c)
+    .filter(([, ids]) => ids.length)
+    .slice(0, 4)
+    .map(([fw, ids]) => `${FW[fw] ?? fw} ${ids[0]}`)
+    .join(", ");
 
 const VIOLET = 0x8b2cf5;
 const MINT = 0x19f5a5;
@@ -203,6 +235,13 @@ export function RehearsalScene({ className = "" }: { className?: string }) {
   const reticle = useRef<HTMLDivElement>(null);
   const [beat, setBeat] = useState(0);
   const [locked, setLocked] = useState(false);
+  const [picked, setPicked] = useState<Choice | null>(null);
+  const choiceRef = useRef<Choice | null>(null);
+  const choose = (c: Choice) => {
+    if (choiceRef.current) return;
+    choiceRef.current = c;
+    setPicked(c);
+  };
 
   useEffect(() => {
     const el = host.current;
@@ -245,6 +284,7 @@ export function RehearsalScene({ className = "" }: { className?: string }) {
     let i = 0;
     let t = 0;
     let lastLocked = false;
+    let chosenAt = -1;
     let visible = true;
     const io = new IntersectionObserver(([e]) => (visible = e.isIntersecting));
     io.observe(el);
@@ -306,7 +346,13 @@ export function RehearsalScene({ className = "" }: { className?: string }) {
           setLocked(nowLocked);
         }
         placeReticle(target);
-        if (t > b.walk + b.hold) {
+        // Hold on the target until the visitor picks (or 7s pass), then show the result.
+        if (!walking && choiceRef.current && chosenAt < 0) chosenAt = t;
+        const done = chosenAt >= 0 ? t > chosenAt + 4.2 : t > b.walk + 7;
+        if (done) {
+          chosenAt = -1;
+          choiceRef.current = null;
+          setPicked(null);
           from = pos.clone();
           i = (i + 1) % BEATS.length;
           if (i === 0) {
@@ -331,8 +377,23 @@ export function RehearsalScene({ className = "" }: { className?: string }) {
   }, []);
 
   const b = BEATS[beat];
+  const onKey = (e: React.KeyboardEvent) => {
+    if (!locked) return;
+    const c = b.choices.find((x) => x.key === e.key.toUpperCase());
+    if (c) {
+      e.preventDefault();
+      choose(c);
+    }
+  };
   return (
-    <div ref={host} className={`relative overflow-hidden ${className}`}>
+    <div
+      ref={host}
+      tabIndex={0}
+      onKeyDown={onKey}
+      role="group"
+      aria-label="Playable sketch of the Monday shift. Press E or Q when a prompt appears."
+      className={`relative overflow-hidden focus:outline-none ${className}`}
+    >
       {/* HUD, in the game's own type. */}
       <div className="pointer-events-none absolute inset-0 font-game text-[#f4f0e6]" aria-hidden="true">
         <div className="absolute left-4 top-4 sm:left-6 sm:top-6">
@@ -350,23 +411,39 @@ export function RehearsalScene({ className = "" }: { className?: string }) {
             "--c": locked ? "var(--color-site-violet)" : "rgba(139,44,245,0.45)",
           } as React.CSSProperties}
         />
-        {b.caption && locked && (
+        {b.caption && locked && !picked && (
           <div className="absolute left-1/2 bottom-[22%] w-[min(88%,30rem)] -translate-x-1/2 rounded-md bg-black/55 px-4 py-2.5 text-center font-ui text-[15px] backdrop-blur-sm">
             <span className="font-game text-[13px] font-semibold uppercase tracking-[0.14em] text-[#c4a574]">{b.caption[0]}</span>
             <p className="mt-0.5">{b.caption[1]}</p>
           </div>
         )}
-        <div className={`absolute bottom-5 left-1/2 flex -translate-x-1/2 gap-3 transition-opacity duration-300 sm:bottom-7 ${locked ? "opacity-100" : "opacity-0"}`}>
-          {b.prompts.map(([key, label]) => (
-            <span key={key} className="flex items-center gap-2 whitespace-nowrap rounded-md bg-black/50 px-2.5 py-1.5 text-[15px] font-semibold uppercase tracking-wide backdrop-blur-sm sm:text-base">
-              <kbd className="inline-flex h-7 min-w-7 items-center justify-center rounded-md border border-white/25 border-b-[3px] border-b-white/35 bg-white/[0.07] px-1.5 text-sm">
-                {key}
+      </div>
+      {locked && !picked && (
+        <div className="absolute bottom-5 left-1/2 flex w-[calc(100%-1.5rem)] -translate-x-1/2 flex-wrap justify-center gap-2 font-game text-[#f4f0e6] sm:bottom-7 sm:gap-3">
+          {b.choices.map((c) => (
+            <button
+              key={c.key}
+              type="button"
+              onClick={() => choose(c)}
+              className="flex items-center gap-2 whitespace-nowrap rounded-md bg-black/55 px-2.5 py-1.5 text-[14px] font-semibold uppercase tracking-wide backdrop-blur-sm transition-colors hover:bg-black/75 sm:text-base"
+            >
+              <kbd className="inline-flex h-7 min-w-7 items-center justify-center rounded-md border border-white/25 border-b-[3px] border-b-white/35 bg-white/[0.07] px-1.5 font-game text-sm">
+                {c.key}
               </kbd>
-              {label}
-            </span>
+              {c.label}
+            </button>
           ))}
         </div>
-      </div>
+      )}
+      {picked && (
+        <div className="absolute inset-x-3 bottom-4 mx-auto max-w-[34rem] rounded-lg border bg-black/70 px-4 py-3 backdrop-blur-md sm:bottom-6 sm:px-5 sm:py-4" style={{ borderColor: picked.good ? "var(--color-site-mint)" : "var(--color-site-alarm)" }} role="status">
+          <p className="font-game text-[15px] font-semibold uppercase tracking-[0.12em]" style={{ color: picked.good ? "var(--color-site-mint)" : "var(--color-site-alarm)" }}>
+            {picked.good ? "Good call" : "Logged as a miss"}
+          </p>
+          <p className="mt-1 text-[15px] leading-snug text-[#f4f0e6]">{picked.result}</p>
+          <p className="mt-2 text-[13px] text-[#a6abba]">Recorded against {controlLine(b.controls)}</p>
+        </div>
+      )}
     </div>
   );
 }

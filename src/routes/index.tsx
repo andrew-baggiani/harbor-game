@@ -8,7 +8,7 @@ import phishing from "@/content/scenarios/mon-02-phishing.json";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: `${BRAND.product}: security awareness training people rehearse, not watch` },
+      { title: `${BRAND.product}: first-person security awareness training for MSPs` },
       {
         name: "description",
         content:
@@ -74,7 +74,7 @@ function Nav() {
         <a href="#msps" className="hidden hover:text-site-paper md:inline">For MSPs</a>
         <a href="/play" className="hidden hover:text-site-paper sm:inline">Partner login</a>
         <a href={CONTACT} className="rounded-md border border-site-violet px-4 py-2 font-semibold text-site-paper transition-colors hover:bg-site-violet">
-          Get access
+          Request access
         </a>
       </nav>
     </header>
@@ -96,22 +96,28 @@ function Hero() {
   return (
     <section aria-labelledby="hero-title" className="mx-auto max-w-[1240px] px-6 pb-24 pt-8 md:px-10 lg:pb-32 lg:pt-14">
       <div className="grid items-end gap-8 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
-        <h1 id="hero-title" className="display text-[44px] sm:text-[60px] lg:text-[72px] xl:text-[80px]">
-          Rehearse the attack before it's real.
-        </h1>
+        <div>
+          <p className="mb-5 text-[15px] font-semibold text-site-mint">First-person security awareness training for MSPs</p>
+          <h1 id="hero-title" className="display text-[44px] sm:text-[60px] lg:text-[72px] xl:text-[80px]">
+            Rehearse the attack before it's real.
+          </h1>
+        </div>
         <div>
           <p className="max-w-[32rem] text-lg leading-relaxed text-site-mist">
-            A first-person game your people play, not a video they sit through. One night shift on the job, nine real-world attacks, and every
-            choice logged against the controls your clients are audited on.
+            A game your clients' employees actually play, not a video they mute in another tab. One night shift, nine real-world attacks, and
+            every decision recorded against the controls your clients are audited on.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <a href={CONTACT} className="rounded-md bg-site-violet px-6 py-3.5 text-base font-semibold text-white transition-colors hover:bg-site-violet-hi">
-              Get access
+              Request partner access
             </a>
             <a href="#night" className="rounded-md px-2 py-3.5 text-base font-semibold text-site-paper underline decoration-site-rule decoration-2 underline-offset-[6px] hover:decoration-site-mint">
               See what's in a shift
             </a>
           </div>
+          <p className="mt-6 max-w-[32rem] text-sm leading-relaxed text-site-dim">
+            Mapped to NIST SP 800-53, NIST SP 800-171, CMMC Level 2, HIPAA, CIS Controls v8.1 and NIST CSF 2.0.
+          </p>
         </div>
       </div>
       <figure className="mt-14 lg:mt-20">
@@ -119,12 +125,12 @@ function Hero() {
           className="brackets lock-in"
           style={{ "--arm": "clamp(28px, 5vw, 56px)", "--stroke": "clamp(5px, 1vw, 9px)", "--inset": "clamp(-24px, -2.5vw, -12px)" } as React.CSSProperties}
         >
-          <div className="aspect-[4/5] overflow-hidden rounded-[10px] bg-site-ink-2 sm:aspect-[16/10] lg:aspect-[21/9]">
+          <div className="aspect-[4/5] overflow-hidden rounded-[10px] bg-site-ink-2 ring-1 ring-site-violet/35 shadow-[0_0_80px_-20px_rgba(139,44,245,0.35)] sm:aspect-[16/10] lg:aspect-[21/9]">
             {Scene ? <Scene className="h-full w-full" /> : null}
           </div>
         </div>
         <figcaption className="mt-8 text-sm text-site-dim">
-          A grey-box walkthrough of the Monday shift. In the game, you're the one deciding.
+          A playable sketch of the Monday shift. When a prompt appears, press E or Q, or tap it.
         </figcaption>
       </figure>
     </section>

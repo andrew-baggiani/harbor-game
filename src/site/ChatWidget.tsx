@@ -63,10 +63,10 @@ export function ChatWidget() {
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-controls="site-chat"
-        className="fixed bottom-5 right-5 z-40 flex items-center gap-2.5 rounded-full border border-site-violet bg-site-ink-2 py-2.5 pl-3 pr-4 text-[15px] font-semibold text-site-paper shadow-[0_18px_40px_-12px_rgba(0,0,0,0.8)] transition-colors hover:bg-[#1f1630]"
+        className="fixed bottom-5 right-5 z-40 flex items-center gap-2.5 rounded-full border border-site-violet bg-site-ink-2 p-2.5 sm:py-2.5 sm:pl-3 sm:pr-4 text-[15px] font-semibold text-site-paper shadow-[0_18px_40px_-12px_rgba(0,0,0,0.8)] transition-colors hover:bg-[#1f1630]"
       >
         <img src="/brand/dry-run-cyber-icon-dark-surface.svg" alt="" className="h-7 w-7 rounded-full" />
-        {open ? "Close" : "Ask a question"}
+        <span className={open ? "" : "sr-only sm:not-sr-only"}>{open ? "Close" : "Ask a question"}</span>
       </button>
 
       {open && (
