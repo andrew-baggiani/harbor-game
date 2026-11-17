@@ -1,0 +1,74 @@
+day,beat_id,speaker_role,line,delivery_note,max_seconds
+monday,MON-01,courier,"Hey, can you grab the door? My badge is back in the van. I'm double-parked out there. Two seconds, I swear.","friendly, out of breath, not shifty",8
+monday,MON-02,"executive, email","Boarding now, so I can't call. I need eight gift cards, two hundred dollars each, for client thank-yous. Reply with the codes. Don't loop in my assistant. It's a surprise.","read as mail, not a live call. Warm, hurried.",12
+monday,MON-03,fake service desk,"Hi, this is the service desk. We just blocked a sign-in on your account from overseas. I'm locking it down now. Read me the six-digit code that just hit your phone. Quick, before it expires.","helpful, close, unhurried. The rush is in the words.",14
+monday,MON-05,desk coworker,"Hey, sorry, you're the new hire, right? The boss says the wire has to go out now, and the approval form is down. They said you could release it. I really don't want to be the one who held this up.","friendly, passing on someone else's panic",14
+monday,MON-08,desk coworker,"Hey. Can you send tonight's manifest to the dock lead? He needs it before the ship loads. It's the full one, with the customer details.","casual, already walking",10
+tuesday,TUE-01,desk coworker,Their bank account changed last night. The invoice is due today. I don't have time to chase it.,"leaning on the partition, believing it",8
+tuesday,TUE-02,contractor,"My login died at noon. The job has to go out tonight. Can I use yours, just to upload one folder?","embarrassed, reasonable, close because the aisle is narrow",8
+tuesday,TUE-03,desk coworker,Company share is down. Ten minutes. This site will send the file. The client is waiting.,already holding the link out,7
+tuesday,TUE-04,night desk,You found that? I'll kill it. They already called it in.,only if the player hands it over. Calm.,5
+wednesday,WED-01,desk coworker,The client needs the drawings tonight. Anyone with the link is the fast way. The button is right there.,"helpful, not scheming",7
+wednesday,WED-02,desk coworker,"Drop the full list in the slide. The meeting isn't about them, but they asked for everyone.",matter of fact,7
+thursday,THU-03,finance lead,Release the payment before the bank closes. Don't call back. I'm walking into a meeting.,"pressed, familiar, walking. Not theatrical.",7
+thursday,THU-03-callback,finance lead,I was in that meeting. I didn't call you.,"same actor, flat, a little confused",4
+thursday,THU-04,at home,I only need it for a minute.,"easy, the table is theirs",3
+friday,FRI-01,last day,I stopped.,"quiet, coat on. Only if asked.",2
+friday,FRI-01-report,night desk,We'll take the drive. Tell me what the screen was doing.,checklist calm,5
+thursday,THU-02,real desk,Say it once. The laptop is missing. We're killing the session.,"short, glad you called",5
+friday,FRI-03,real desk,"Don't pay. Don't wipe it. Unplug, and stay on the line.",same voice as the laptop desk. No charm.,6
+tuesday,TUE-01-pay,narrator,You paid a new account from an email. The vendor never changed banks.,after the choice. Flat. No lecture.,6
+tuesday,TUE-01-call,narrator,You called the number already on file. They never changed the account.,after the choice. Flat. No lecture.,6
+tuesday,TUE-01-wait,narrator,"You left it for morning. Safe, and the fake request is still in the box.",after the choice. Flat. No lecture.,7
+tuesday,TUE-02-share,narrator,You lent your login. The work will be filed under your name.,after the choice. Flat. No lecture.,6
+tuesday,TUE-02-desk,narrator,"You sent him to the service desk. One person, one login.",after the choice. Flat. No lecture.,5
+tuesday,TUE-02-watch,narrator,"You did the upload yourself, with him looking over your shoulder.",after the choice. Flat. No lecture.,5
+tuesday,TUE-03-send,narrator,You put the file on a site the company does not own.,after the choice. Flat. No lecture.,6
+tuesday,TUE-03-wait,narrator,You told them to wait for the company share.,after the choice. Flat. No lecture.,5
+tuesday,TUE-03-zip,narrator,You mailed the file to a personal address.,after the choice. Flat. No lecture.,4
+tuesday,TUE-04-use,narrator,You used a badge you found. The gates will show the wrong person.,after the choice. Flat. No lecture.,6
+tuesday,TUE-04-desk,narrator,You took the found badge to the security desk.,after the choice. Flat. No lecture.,5
+tuesday,TUE-04-leave,narrator,You left the badge on the bench.,after the choice. Flat. No lecture.,4
+wednesday,WED-01-anyone,narrator,You sent a link that works for anyone who receives it.,after the choice. Flat. No lecture.,5
+wednesday,WED-01-names,narrator,You sent it only to the client's work addresses.,after the choice. Flat. No lecture.,5
+wednesday,WED-01-personal,narrator,You sent the drawings to a personal mailbox.,after the choice. Flat. No lecture.,4
+wednesday,WED-02-all,narrator,You pasted the whole list into a deck that did not need it.,after the choice. Flat. No lecture.,6
+wednesday,WED-02-ask,narrator,You asked the owner of the list before you copied it.,after the choice. Flat. No lecture.,5
+wednesday,WED-02-count,narrator,"You pasted a count instead of the names, without asking.",after the choice. Flat. No lecture.,5
+wednesday,WED-03-paste,narrator,You pasted a customer complaint into a personal tool.,after the choice. Flat. No lecture.,5
+wednesday,WED-03-strip,narrator,You removed the name and still pasted the rest.,after the choice. Flat. No lecture.,5
+wednesday,WED-03-local,narrator,You rewrote it in company mail. Nothing was pasted out.,after the choice. Flat. No lecture.,5
+thursday,THU-01-join,narrator,You read company mail on a network with no password.,after the choice. Flat. No lecture.,5
+thursday,THU-01-hotspot,narrator,You used the company hotspot. The cafe network stayed off.,after the choice. Flat. No lecture.,5
+thursday,THU-01-once,narrator,You joined the open network for a single reply.,after the choice. Flat. No lecture.,5
+thursday,THU-02-wait,narrator,You waited on a missing laptop instead of calling it in.,after the choice. Flat. No lecture.,5
+thursday,THU-02-call,narrator,You called the help desk and told them the laptop was gone.,after the choice. Flat. No lecture.,6
+thursday,THU-02-lock,narrator,You tried to lock it from your phone and did not call.,after the choice. Flat. No lecture.,6
+thursday,THU-03-send,narrator,You released a payment because the voice sounded right.,after the choice. Flat. No lecture.,5
+thursday,THU-03-callback,narrator,You hung up and called the number the company has.,after the choice. Flat. No lecture.,5
+thursday,THU-03-text,narrator,You asked the same number to confirm itself.,after the choice. Flat. No lecture.,4
+thursday,THU-04-let,narrator,You let someone else onto the work laptop.,after the choice. Flat. No lecture.,4
+thursday,THU-04-lock,narrator,You locked the laptop and took it with you.,after the choice. Flat. No lecture.,5
+thursday,THU-04-watch,narrator,You watched someone else use the work laptop.,after the choice. Flat. No lecture.,4
+friday,FRI-01-ignore,narrator,You saw a copy running and let it finish.,after the choice. Flat. No lecture.,5
+friday,FRI-01-report,narrator,You told security what you saw. You did not have to decide why.,after the choice. Flat. No lecture.,6
+friday,FRI-01-ask,narrator,"You asked them to stop, and no one else was told.",after the choice. Flat. No lecture.,5
+friday,FRI-02-delete,narrator,You deleted the thread instead of reporting it.,after the choice. Flat. No lecture.,4
+friday,FRI-02-channel,narrator,You reported it on the channel the company posted.,after the choice. Flat. No lecture.,5
+friday,FRI-02-forward,narrator,You forwarded it to your manager and did not use the reporting channel.,after the choice. Flat. No lecture.,6
+friday,FRI-03-pay,narrator,You paid the note from a department card.,after the choice. Flat. No lecture.,4
+friday,FRI-03-call,narrator,You unplugged the machine and called the incident number.,after the choice. Flat. No lecture.,5
+friday,FRI-03-wipe,narrator,You wiped the machine before you called anyone.,after the choice. Flat. No lecture.,4
+tuesday,TUE-01-fallout,desk coworker,The payment left.,20 seconds after they pay. Quieter than the ask.,4
+tuesday,TUE-01-fallout-2,desk coworker,The money is not coming back tonight.,about a minute later. Almost to themselves.,4
+tuesday,TUE-02-fallout,contractor,I'll only be a minute.,they do not get up,3
+tuesday,TUE-02-fallout-2,desk coworker,He asked me for that same folder path.,"later, another desk. Confused, not accusing.",5
+tuesday,TUE-03-fallout,desk coworker,It went.,30 seconds after the upload,2
+tuesday,TUE-04-fallout,night desk,They already reported it lost. The log shows a use after that.,"looking at the log, then at the player. No anger.",7
+wednesday,WED-01-fallout,desk coworker,The client has it.,they think this is good news,3
+wednesday,WED-02-fallout,desk coworker,Why is this name on the slide?,they should not have it. Genuine surprise.,4
+thursday,THU-02-fallout,real desk,"It checked in once, on a network that isn't the cafe. Nobody had called.","only on the wrong path, if they call late",7
+thursday,THU-04-fallout,narrator,A file left the laptop for a place the company doesn't own.,"kitchen, after they come back. Flat.",6
+friday,FRI-01-fallout,narrator,The copy finished. The drive is in the bag.,end of the aisle. No accusation in the voice.,5
+friday,FRI-03-fallout,narrator,The timer reset. The files are still locked.,if they paid. No triumph.,5
+friday,FRI-03-fallout-2,real desk,"The other machines are still locked, and this one has nothing left to show how it started.",if they wiped first,8

@@ -1,0 +1,92 @@
+{
+  "id": "MON-02-phishing-v4",
+  "version": "1.0.0-draft",
+  "day": "monday",
+  "location": "Desk_Player",
+  "trigger": "Envelope_Mail",
+  "roles": [
+    "all"
+  ],
+  "skill": "phishing",
+  "controls": {
+    "CIS_v8.1": [
+      "14.2",
+      "14.6"
+    ],
+    "NIST_800-53r5": [
+      "AT-2(3)",
+      "AT-2(4)"
+    ],
+    "NIST_800-171r2": [
+      "3.2.1"
+    ],
+    "CMMC_L2": [
+      "AT.L2-3.2.1"
+    ],
+    "HIPAA": [
+      "164.308(a)(5)(ii)(A)"
+    ],
+    "CSF_2.0": [
+      "PR.AT-01"
+    ]
+  },
+  "variants": [
+    {
+      "caller": "Keel Ledger",
+      "pressure": "deadline",
+      "tell": "captcha_then_login"
+    }
+  ],
+  "prompt": {
+    "who": "Keel Ledger",
+    "role": "billing@keel-ledger.example",
+    "text": "Confirm you are human, then sign in. The September invoice is waiting, and the shipment holds if you do not review it in the next hour."
+  },
+  "choices": [
+    {
+      "id": "mail-review",
+      "label": "Review the invoice",
+      "outcome": "credential_phish",
+      "score": 0,
+      "verb": "decided",
+      "flag": "click",
+      "ok": false,
+      "debrief": "debrief/MON-02-v4-a",
+      "bark": "A puzzle, then a sign-in page. The invoice was not in the system you already use.",
+      "report": "You signed in from a link in the invoice mail."
+    },
+    {
+      "id": "mail-report",
+      "label": "Report the mail",
+      "outcome": "reported",
+      "score": 100,
+      "verb": "reported",
+      "flag": "report",
+      "ok": true,
+      "debrief": "debrief/MON-02-v4-b",
+      "bark": "Reported. You opened the ledger the company already uses. Nothing was waiting.",
+      "report": "You reported the invoice mail and checked the real ledger."
+    },
+    {
+      "id": "mail-ignore",
+      "label": "Close it",
+      "outcome": "safe_unreported",
+      "score": 40,
+      "verb": "decided",
+      "flag": "ignore",
+      "ok": false,
+      "debrief": "debrief/MON-02-v4-c",
+      "bark": "You closed it. The mail is still there.",
+      "report": "You closed the invoice mail and did not report it."
+    }
+  ],
+  "beat": "mail",
+  "next": "misdirect",
+  "flagKey": "mail",
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{REPORT_CHANNEL}}"
+  ],
+  "knowledge_check_pool": "kc/phishing"
+}

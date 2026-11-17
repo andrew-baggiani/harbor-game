@@ -1,0 +1,92 @@
+{
+  "id": "MON-02-phishing-v3",
+  "version": "1.0.0-draft",
+  "day": "monday",
+  "location": "Desk_Player",
+  "trigger": "Envelope_Mail",
+  "roles": [
+    "all"
+  ],
+  "skill": "phishing",
+  "controls": {
+    "CIS_v8.1": [
+      "14.2",
+      "14.6"
+    ],
+    "NIST_800-53r5": [
+      "AT-2(3)",
+      "AT-2(4)"
+    ],
+    "NIST_800-171r2": [
+      "3.2.1"
+    ],
+    "CMMC_L2": [
+      "AT.L2-3.2.1"
+    ],
+    "HIPAA": [
+      "164.308(a)(5)(ii)(A)"
+    ],
+    "CSF_2.0": [
+      "PR.AT-01"
+    ]
+  },
+  "variants": [
+    {
+      "caller": "Service Health",
+      "pressure": "deadline",
+      "tell": "outage_held_messages"
+    }
+  ],
+  "prompt": {
+    "who": "Service Health",
+    "role": "notice@keel-status.example",
+    "text": "Four messages were held during last night's outage. They will be deleted in 24 hours unless you restore them. Take action now."
+  },
+  "choices": [
+    {
+      "id": "mail-restore",
+      "label": "Restore the messages",
+      "outcome": "credential_phish",
+      "score": 0,
+      "verb": "decided",
+      "flag": "click",
+      "ok": false,
+      "debrief": "debrief/MON-02-v3-a",
+      "bark": "The page asked you to sign in. The mail service did not.",
+      "report": "You followed a restore link in an outage notice."
+    },
+    {
+      "id": "mail-report",
+      "label": "Report the mail",
+      "outcome": "reported",
+      "score": 100,
+      "verb": "reported",
+      "flag": "report",
+      "ok": true,
+      "debrief": "debrief/MON-02-v3-b",
+      "bark": "Reported. You checked status the way the company does.",
+      "report": "You reported the outage notice instead of restoring from the link."
+    },
+    {
+      "id": "mail-ignore",
+      "label": "Close it",
+      "outcome": "safe_unreported",
+      "score": 40,
+      "verb": "decided",
+      "flag": "ignore",
+      "ok": false,
+      "debrief": "debrief/MON-02-v3-c",
+      "bark": "You left the notice in the inbox.",
+      "report": "You closed the outage notice and did not report it."
+    }
+  ],
+  "beat": "mail",
+  "next": "misdirect",
+  "flagKey": "mail",
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{REPORT_CHANNEL}}"
+  ],
+  "knowledge_check_pool": "kc/phishing"
+}
