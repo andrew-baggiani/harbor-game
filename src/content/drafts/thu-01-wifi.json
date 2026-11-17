@@ -1,0 +1,105 @@
+{
+  "id": "THU-01-wifi",
+  "version": "1.0.0-draft",
+  "day": "thursday",
+  "location": "Cafe",
+  "trigger": "Wifi_Prompt",
+  "roles": [
+    "all"
+  ],
+  "skill": "remote-access",
+  "controls": {
+    "CIS_v8.1": [
+      "14.8"
+    ],
+    "NIST_800-53r5": [
+      "AC-18",
+      "SC-8"
+    ],
+    "NIST_800-171r2": [
+      "3.1.16",
+      "3.13.8"
+    ],
+    "CMMC_L2": [
+      "AC.L2-3.1.16",
+      "SC.L2-3.13.8"
+    ],
+    "HIPAA": [
+      "164.312(e)(1)"
+    ],
+    "CSF_2.0": [
+      "PR.DS-02"
+    ]
+  },
+  "variants": [
+    {
+      "caller": "Laptop",
+      "pressure": "rushed",
+      "tell": "join"
+    }
+  ],
+  "prompt": {
+    "who": "Laptop",
+    "role": "Cafe, between meetings",
+    "text": "The cafe network has no password. Mail is already trying to sync. A window offers to join."
+  },
+  "choices": [
+    {
+      "id": "thu-wifi-join",
+      "label": "Join and read the mail",
+      "outcome": "joined",
+      "score": 0,
+      "verb": "decided",
+      "flag": "join",
+      "ok": false,
+      "debrief": "That network belongs to anyone sitting near you.",
+      "bark": "You joined the open network.",
+      "report": "Company mail synced on an open cafe network.",
+      "voice_line": "You read company mail on a network with no password.",
+      "fallout": {
+        "when": "thursday-night",
+        "text": "A session from that network reads the same mailbox again, after you have left the cafe."
+      }
+    },
+    {
+      "id": "thu-wifi-hotspot",
+      "label": "Use the company hotspot and wait to sync",
+      "outcome": "tunneled",
+      "score": 100,
+      "verb": "decided",
+      "flag": "hotspot",
+      "ok": true,
+      "debrief": "The hotspot is the path the company can see. The cafe network is not.",
+      "bark": "You used the company hotspot.",
+      "report": "Mail waited for the company connection.",
+      "voice_line": "You used the company hotspot. The cafe network stayed off."
+    },
+    {
+      "id": "thu-wifi-once",
+      "label": "Join just to send one reply",
+      "outcome": "once",
+      "score": 0,
+      "verb": "decided",
+      "flag": "once",
+      "ok": false,
+      "debrief": "One reply is still the mailbox, on their network.",
+      "bark": "You joined for one reply.",
+      "report": "One message went out on the open network.",
+      "voice_line": "You joined the open network for a single reply.",
+      "fallout": {
+        "when": "friday",
+        "text": "The reply is intact. The mailbox token from that session is not."
+      }
+    }
+  ],
+  "beat": "wifi",
+  "next": "laptop",
+  "flagKey": "thuWifi",
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{REPORT_CHANNEL}}"
+  ],
+  "knowledge_check_pool": "kc/thursday",
+  "draft_note": "Right choice is the company path, not a shorter visit to the open network."
+}

@@ -5,6 +5,7 @@ import { ChatWidget } from "@/site/ChatWidget";
 import { CONTACT, SiteFooter, SiteNav, SkipLink } from "@/site/SiteChrome";
 import { WEEK } from "@/game/week";
 import phishing from "@/content/scenarios/mon-02-phishing.json";
+import { Arrow, Avatar, Check, Gauge, LiveDot, Lock, MiniRing, Pill, btn } from "@/portal/ui";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -63,10 +64,14 @@ function Hero() {
     };
   }, []);
   return (
-    <section aria-labelledby="hero-title" className="mx-auto max-w-[1240px] px-6 pb-24 pt-8 md:px-10 lg:pb-32 lg:pt-14">
+    <section aria-labelledby="hero-title" className="hero-glow relative">
+      <div className="relative mx-auto max-w-[1240px] px-6 pb-24 pt-8 md:px-10 lg:pb-32 lg:pt-14">
       <div className="grid items-end gap-8 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
         <div>
-          <p className="mb-5 text-[15px] font-semibold text-site-mint">First-person security awareness training for MSPs</p>
+          <p className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] py-1.5 pl-2 pr-4 text-[14px] font-semibold text-site-paper backdrop-blur">
+            <span className="rounded-full bg-site-mint/15 px-2 py-0.5 text-[12px] text-site-mint">New</span>
+            First-person security awareness training for MSPs
+          </p>
           <h1 id="hero-title" className="display text-[44px] sm:text-[60px] lg:text-[72px] xl:text-[80px]">
             Rehearse the attack before it's real.
           </h1>
@@ -77,16 +82,20 @@ function Hero() {
             every decision recorded against the controls your clients are audited on.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
-            <a href={CONTACT} className="rounded-md bg-site-violet px-6 py-3.5 text-base font-semibold text-white transition-colors hover:bg-site-violet-hi">
-              Request partner access
+            <a href={CONTACT} className={`${btn.primary} !px-6 !py-3.5 text-base`}>
+              Request partner access <Arrow size={17} />
             </a>
-            <a href="#night" className="rounded-md py-3.5 text-base font-semibold text-site-paper underline sm:px-2 decoration-site-rule decoration-2 underline-offset-[6px] hover:decoration-site-mint">
+            <a href="#night" className={`${btn.ghost} !px-6 !py-3.5 text-base`}>
               See what's in a shift
             </a>
           </div>
-          <p className="mt-6 max-w-[32rem] text-sm leading-relaxed text-site-dim">
-            Mapped to NIST SP 800-53, NIST SP 800-171, CMMC Level 2, HIPAA, CIS Controls v8.1 and NIST CSF 2.0.
-          </p>
+          <ul className="mt-7 flex max-w-[34rem] flex-wrap gap-2" aria-label="Mapped frameworks">
+            {["NIST 800-53", "NIST 800-171", "CMMC L2", "HIPAA", "CIS v8.1", "NIST CSF 2.0"].map((f) => (
+              <li key={f}>
+                <Pill tone="dim">{f}</Pill>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
       <figure className="mt-14 lg:mt-20">
@@ -94,7 +103,7 @@ function Hero() {
           className="brackets lock-in"
           style={{ "--arm": "clamp(28px, 5vw, 56px)", "--stroke": "clamp(5px, 1vw, 9px)", "--inset": "clamp(-24px, -2.5vw, -12px)" } as React.CSSProperties}
         >
-          <div className="aspect-square overflow-hidden rounded-[10px] bg-site-ink-2 ring-1 ring-site-violet/35 shadow-[0_0_80px_-20px_rgba(139,44,245,0.35)] sm:aspect-[16/10] lg:aspect-[21/9]">
+          <div className="aspect-square overflow-hidden rounded-[22px] bg-site-ink-2 ring-1 ring-site-violet/40 shadow-[0_40px_120px_-30px_rgba(139,44,245,0.55)] sm:aspect-[16/10] lg:aspect-[21/9]">
             {Scene ? <Scene className="h-full w-full" /> : null}
           </div>
         </div>
@@ -102,6 +111,7 @@ function Hero() {
           A playable sketch of the Monday shift. When a prompt appears, press E or Q, or tap it.
         </figcaption>
       </figure>
+      </div>
     </section>
   );
 }
@@ -157,7 +167,7 @@ function TryOne() {
           className="brackets"
           style={{ "--arm": "clamp(28px, 6vw, 44px)", "--stroke": "clamp(5px, 1.2vw, 8px)", "--inset": "clamp(-22px, -3vw, -12px)", "--c": out ? (out.good ? "var(--color-site-mint)" : "var(--color-site-alarm)") : "var(--color-site-violet)" } as React.CSSProperties}
         >
-          <article aria-label="Practice email" className="rounded-[10px] bg-site-ink-2 text-[15px] shadow-[0_40px_90px_-30px_rgba(0,0,0,0.8)]">
+          <article aria-label="Practice email" className="panel !p-0 overflow-hidden text-[15px]">
             <div className="border-b border-site-rule px-5 py-4">
               <p className="font-semibold">Action required: your mailbox locks at 5:00 PM</p>
               <p className="mt-1.5 text-site-mist">
@@ -234,7 +244,7 @@ function TryOne() {
                   </li>
                 ))}
               </ul>
-              <button type="button" onClick={() => setPick(null)} className="mt-5 text-[15px] font-semibold text-site-paper underline decoration-site-rule decoration-2 underline-offset-[6px] hover:decoration-site-mint">
+              <button type="button" onClick={() => setPick(null)} className={`${btn.ghost} mt-6 !py-2 text-[15px]`}>
                 Run it again
               </button>
             </div>
@@ -251,7 +261,7 @@ function DemoButton({ onClick, children }: { onClick: () => void; children: Reac
     <button
       type="button"
       onClick={onClick}
-      className="rounded-md border border-site-rule bg-site-ink-2 px-4 py-3 text-left text-[15px] font-medium text-site-paper transition-colors hover:border-site-violet hover:bg-[#1d2230]"
+      className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-left text-[15px] font-semibold text-site-paper transition hover:border-site-violet hover:bg-site-violet/10"
     >
       {children}
     </button>
@@ -282,12 +292,12 @@ function Night() {
             No slides and no quiz at the end. People walk the floor, open the apps, take the calls, and decide. About twenty minutes a night.
           </p>
         </div>
-        <ol className="divide-y divide-site-rule border-y border-site-rule">
+        <ol className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {BEATS.map(([t, d], i) => (
-            <li key={t} className="grid grid-cols-[3rem_1fr] gap-x-4 py-6 sm:grid-cols-[3.5rem_11rem_1fr] sm:items-baseline">
-              <span className="text-[15px] tabular-nums text-site-dim">{String(i + 1).padStart(2, "0")}</span>
-              <span className="text-xl font-bold" style={{ fontStretch: "118%" }}>{t}</span>
-              <span className="col-start-2 mt-1 leading-relaxed text-site-mist sm:col-start-3 sm:mt-0">{d}</span>
+            <li key={t} className="panel lift !p-5">
+              <span className="num inline-grid h-8 w-8 place-items-center rounded-lg bg-site-violet/15 text-[13px] font-bold text-site-violet-hi">{i + 1}</span>
+              <p className="mt-4 text-xl font-bold" style={{ fontStretch: "118%" }}>{t}</p>
+              <p className="mt-1.5 leading-relaxed text-site-mist">{d}</p>
             </li>
           ))}
         </ol>
@@ -306,21 +316,23 @@ const LATER = [
 
 function Later() {
   return (
-    <section aria-labelledby="later-title" className="bg-site-ink-2">
+    <section aria-labelledby="later-title" className="later-glow relative">
       <div className="mx-auto max-w-[1240px] px-6 py-24 md:px-10 lg:py-32">
         <h2 id="later-title" className="display max-w-[16ch] text-[38px] lg:text-[52px]">Mistakes don't end the scene. They come back.</h2>
         <p className="mt-6 max-w-[36rem] text-lg leading-relaxed text-site-mist">
           Nobody gets a red X and a lecture. The night carries on, and what you did shows up later, the way it would at work.
         </p>
-        <div className="mt-14 divide-y divide-site-rule border-y border-site-rule">
+        <div className="mt-14 grid grid-cols-1 gap-4 lg:grid-cols-3">
           {LATER.map((r) => (
-            <div key={r.now} className="grid gap-3 py-8 md:grid-cols-[1fr_11rem_1fr] md:items-baseline md:gap-10">
-              <p className="text-lg font-semibold">{r.now}</p>
-              <p className="flex items-center gap-3 text-[15px] font-semibold text-site-alarm">
-                <span aria-hidden="true" className="hidden h-[2px] w-8 bg-site-alarm md:inline-block" />
-                {r.gap}
-              </p>
-              <p className="text-lg leading-relaxed text-site-mist">{r.later}</p>
+            <div key={r.now} className="panel flex flex-col">
+              <p className="text-lg font-semibold leading-snug">{r.now}</p>
+              <div className="my-5 flex items-center gap-3">
+                <Pill tone="alarm" dot>
+                  {r.gap}
+                </Pill>
+                <span aria-hidden="true" className="h-px flex-1 bg-gradient-to-r from-site-alarm/50 to-transparent" />
+              </div>
+              <p className="leading-relaxed text-site-mist">{r.later}</p>
             </div>
           ))}
         </div>
@@ -351,21 +363,20 @@ function Evidence() {
             The record shows what each person actually did, when, and which requirement it covers. It reads like an audit artifact, not a
             completion certificate.
           </p>
-          <a href="/coverage" className="mt-8 inline-block text-[15px] font-semibold underline decoration-site-rule decoration-2 underline-offset-[6px] hover:decoration-site-mint">
-            See the full control coverage
+          <a href="/coverage" className={`${btn.ghost} mt-8`}>
+            See the full control coverage <Arrow size={16} />
           </a>
         </div>
         <figure>
-          <div className="brackets rounded-[10px] bg-site-ink-2 p-6 sm:p-8" style={{ "--arm": "30px", "--stroke": "6px", "--inset": "-14px" } as React.CSSProperties}>
+          <div className="brackets panel !p-6 sm:!p-8" style={{ "--arm": "30px", "--stroke": "6px", "--inset": "-14px" } as React.CSSProperties}>
             <dl className="grid grid-cols-[7.5rem_1fr] gap-x-6 gap-y-3 text-[15px]">
               <dt className="text-site-dim">Decision</dt>
               <dd>Reported the password-reset email as phishing</dd>
               <dt className="text-site-dim">Outcome</dt>
-              <dd className="flex items-center gap-2 text-site-mint">
-                <svg viewBox="0 0 300 260" className="h-3.5 w-4" aria-hidden="true">
-                  <path d="M28 190 L66 226 L282 14" fill="none" stroke="currentColor" strokeWidth="40" />
-                </svg>
-                Correct
+              <dd>
+                <Pill tone="mint" dot>
+                  Correct
+                </Pill>
               </dd>
               <dt className="text-site-dim">Scenario</dt>
               <dd>Monday, the inbox</dd>
@@ -396,7 +407,7 @@ function ForMsps() {
     <section id="msps" aria-labelledby="msps-title" className="border-t border-site-rule">
       <div className="mx-auto max-w-[1240px] px-6 py-24 md:px-10 lg:py-32">
         <h2 id="msps-title" className="display max-w-[18ch] text-[38px] lg:text-[52px]">Built for MSPs to resell.</h2>
-        <div className="mt-14 grid gap-x-16 gap-y-10 md:grid-cols-2">
+        <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2">
           <Point title="Training clients finish">
             A short night shift people want to see the end of, instead of a video they leave running in another tab.
           </Point>
@@ -407,21 +418,30 @@ function ForMsps() {
             One shift a day, Monday to Friday. A full week of required training, delivered as a story.
           </Point>
           <Point title="Your brand on it">
-            Per-client branding and partner reporting are on the roadmap, so it can ship as part of your stack.
+            A partner portal for every client you manage today. Per-client branding is next, so it ships as part of your stack.
           </Point>
         </div>
 
+        <PortalPreview />
+
         <h3 className="mt-24 text-2xl font-bold" style={{ fontStretch: "118%" }}>The week</h3>
-        <ol className="mt-6 divide-y divide-site-rule border-y border-site-rule">
+        <ol className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
           {WEEK.map((s) => (
-            <li key={s.day} className="grid gap-1 py-5 md:grid-cols-[9rem_13rem_1fr] md:items-baseline md:gap-6">
-              <span className={s.status === "open" ? "font-semibold text-site-mint" : "text-site-dim"}>
-                {s.day}
-                {s.status === "soon" && <span className="block text-sm font-normal">Coming soon</span>}
-                {s.status === "open" && <span className="block text-sm font-normal text-site-mist">Live now</span>}
-              </span>
-              <span className="text-lg font-bold" style={{ fontStretch: "112%" }}>{s.title}</span>
-              <span className="leading-relaxed text-site-mist">{s.topics.replaceAll(" · ", ", ")}</span>
+            <li key={s.day} className={`panel !p-5 ${s.status === "open" ? "ring-1 ring-site-violet/50" : "opacity-85"}`}>
+              <div className="flex items-center justify-between gap-2">
+                <span className={`text-sm font-bold ${s.status === "open" ? "text-site-mint" : "text-site-dim"}`}>{s.day}</span>
+                {s.status === "open" ? (
+                  <Pill tone="mint" dot>
+                    Live
+                  </Pill>
+                ) : (
+                  <Pill tone="dim">
+                    <Lock size={12} /> Soon
+                  </Pill>
+                )}
+              </div>
+              <p className="mt-3 text-lg font-bold" style={{ fontStretch: "112%" }}>{s.title}</p>
+              <p className="mt-1.5 text-[14px] leading-relaxed text-site-dim">{s.topics.replaceAll(" · ", ", ")}.</p>
             </li>
           ))}
         </ol>
@@ -432,9 +452,14 @@ function ForMsps() {
 
 function Point({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div>
-      <p className="text-xl font-bold" style={{ fontStretch: "112%" }}>{title}</p>
-      <p className="mt-2 max-w-[30rem] text-lg leading-relaxed text-site-mist">{children}</p>
+    <div className="panel">
+      <p className="flex items-center gap-2.5 text-xl font-bold" style={{ fontStretch: "112%" }}>
+        <span className="grid h-7 w-7 place-items-center rounded-full bg-site-mint/15 text-site-mint">
+          <Check size={15} />
+        </span>
+        {title}
+      </p>
+      <p className="mt-3 max-w-[30rem] text-[17px] leading-relaxed text-site-mist">{children}</p>
     </div>
   );
 }
@@ -444,15 +469,85 @@ function Point({ title, children }: { title: string; children: React.ReactNode }
 function Close() {
   return (
     <section aria-labelledby="close-title" className="mx-auto max-w-[1240px] px-6 pb-28 pt-8 md:px-10 lg:pb-40">
-      <div className="brackets mx-auto max-w-[880px] px-6 py-16 text-center sm:px-12" style={{ "--arm": "64px", "--stroke": "10px", "--inset": "0px" } as React.CSSProperties}>
+      <div className="aurora mx-auto max-w-[980px] px-6 py-16 text-center sm:px-12 sm:py-20">
         <h2 id="close-title" className="display mx-auto max-w-[12ch] text-[38px] lg:text-[64px]">Run it before it runs you.</h2>
         <p className="mx-auto mt-6 max-w-[34rem] text-lg leading-relaxed text-site-mist">
           Monday is ready now. Tell us about your clients and we'll set you up with partner access.
         </p>
-        <a href={CONTACT} className="mt-10 inline-block rounded-md bg-site-violet px-7 py-4 text-base font-semibold text-white transition-colors hover:bg-site-violet-hi">
-          Email hello@dryruncyber.com
-        </a>
+        <div className="mt-10 flex flex-wrap justify-center gap-3">
+          <a href={CONTACT} className={`${btn.primary} !px-7 !py-4 text-base`}>
+            Email hello@dryruncyber.com
+          </a>
+          <a href="/login" className={`${btn.ghost} !px-7 !py-4 text-base`}>
+            Partner sign in
+          </a>
+        </div>
       </div>
     </section>
+  );
+}
+
+/* ---------------------------------------------------------------- the partner portal, shown live with sample data */
+
+const SAMPLE = [
+  { name: "Pinecrest Credit Union", pct: 69, tone: "amber" as const, label: "Due in 2 days" },
+  { name: "Acme Freight", pct: 60, tone: "violet" as const, label: "In progress" },
+  { name: "Summit Orthopedics", pct: 25, tone: "alarm" as const, label: "Overdue" },
+];
+const FEED = [
+  ["Quinn F.", "made the right call on the USB drop", "Pinecrest", "1 min ago"],
+  ["Jamal D.", "finished Monday", "Summit Ortho", "9 min ago"],
+  ["Maria O.", "reported the phishing email", "Acme Freight", "25 min ago"],
+];
+
+function PortalPreview() {
+  return (
+    <figure className="mt-16">
+      <div className="aurora p-4 sm:p-6 lg:p-8">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="panel !bg-[#121620]/80">
+            <div className="flex flex-wrap items-center justify-between gap-6">
+              <div className="min-w-0">
+                <p className="text-sm text-site-mist">Good evening,</p>
+                <p className="text-3xl font-extrabold" style={{ fontStretch: "118%" }}>Northbridge IT</p>
+                <p className="mt-2 text-site-mist">14 of 28 people across 5 clients have finished Monday.</p>
+              </div>
+              <Gauge value={50} size={132} sub="finished" />
+            </div>
+            <ul className="mt-6 space-y-2">
+              {SAMPLE.map((c) => (
+                <li key={c.name} className="flex items-center gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] px-3 py-2.5">
+                  <MiniRing value={c.pct} size={36} />
+                  <span className="min-w-0 flex-1 truncate font-semibold">{c.name}</span>
+                  <Pill tone={c.tone} dot>
+                    {c.label}
+                  </Pill>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="panel !bg-[#121620]/80">
+            <div className="flex items-center justify-between">
+              <p className="font-bold">Live activity</p>
+              <LiveDot />
+            </div>
+            <ul className="mt-4 space-y-3">
+              {FEED.map(([who, what, org, when]) => (
+                <li key={who} className="flex gap-3 text-[14px] leading-snug">
+                  <Avatar name={who} size={30} />
+                  <span>
+                    <b>{who}</b> <span className="text-site-mist">{what}</span>
+                    <span className="mt-0.5 block text-[12.5px] text-site-dim">
+                      {org} · {when}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+      <figcaption className="mt-6 text-sm text-site-dim">The partner portal, with sample data. Every client's readiness, one-click reminders, and evidence on demand.</figcaption>
+    </figure>
   );
 }

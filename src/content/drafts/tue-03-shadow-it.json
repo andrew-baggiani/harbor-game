@@ -1,0 +1,104 @@
+{
+  "id": "TUE-03-shadow",
+  "version": "1.0.0-draft",
+  "day": "tuesday",
+  "location": "Desk_Player",
+  "trigger": "Chat_Install",
+  "roles": [
+    "all"
+  ],
+  "skill": "shadow-it",
+  "controls": {
+    "CIS_v8.1": [
+      "2.1",
+      "14.2"
+    ],
+    "NIST_800-53r5": [
+      "AC-20",
+      "CM-8"
+    ],
+    "NIST_800-171r2": [
+      "3.1.20"
+    ],
+    "CMMC_L2": [
+      "AC.L2-3.1.20"
+    ],
+    "HIPAA": [
+      "164.308(a)(4)(ii)(B)"
+    ],
+    "CSF_2.0": [
+      "ID.AM-02"
+    ]
+  },
+  "variants": [
+    {
+      "caller": "Coworker",
+      "pressure": "rushed",
+      "tell": "send"
+    }
+  ],
+  "prompt": {
+    "who": "Coworker",
+    "role": "Chat, Floor 14",
+    "text": "A coworker sends a link to a free transfer site. The company share is down, they say, and the client file has to move in the next ten minutes."
+  },
+  "choices": [
+    {
+      "id": "tue-shadow-send",
+      "label": "Upload the file there",
+      "outcome": "external",
+      "score": 0,
+      "verb": "decided",
+      "flag": "send",
+      "ok": false,
+      "debrief": "The file is now on a site the company does not run, under a personal login.",
+      "bark": "You uploaded it.",
+      "report": "A client file went to a personal transfer site.",
+      "voice_line": "You put the file on a site the company does not own.",
+      "fallout": {
+        "when": "thursday",
+        "text": "The link is still live. Someone outside the company opens it."
+      }
+    },
+    {
+      "id": "tue-shadow-wait",
+      "label": "Tell them to wait for the company share",
+      "outcome": "held",
+      "score": 100,
+      "verb": "reported",
+      "flag": "wait",
+      "ok": true,
+      "debrief": "Ten minutes is not a reason to invent a new place for the file.",
+      "bark": "You told them to wait.",
+      "report": "The file stayed off the outside site.",
+      "voice_line": "You told them to wait for the company share."
+    },
+    {
+      "id": "tue-shadow-zip",
+      "label": "Zip it and mail it to their personal address",
+      "outcome": "mailed",
+      "score": 0,
+      "verb": "decided",
+      "flag": "mail",
+      "ok": false,
+      "debrief": "A personal inbox is not the company share.",
+      "bark": "You mailed it.",
+      "report": "The file was mailed to a personal address.",
+      "voice_line": "You mailed the file to a personal address.",
+      "fallout": {
+        "when": "wednesday",
+        "text": "The attachment is forwarded from that personal mailbox to a client who was not on the list."
+      }
+    }
+  ],
+  "beat": "shadow",
+  "next": "badge",
+  "flagKey": "tueShadow",
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{REPORT_CHANNEL}}"
+  ],
+  "knowledge_check_pool": "kc/tuesday",
+  "draft_note": "CM-8 is the inventory control for an unsanctioned service. Mark it in review if Claude wants a tighter ID."
+}

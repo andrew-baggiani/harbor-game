@@ -284,3 +284,26 @@ html:has(.site) { scroll-behavior: smooth; }
   .aurora::after, .live-dot::after, .sheet, .sheet-scrim, .toast, .feed-in { animation: none; }
   .lift, .lift:hover { transition: none; transform: none; }
 }
+
+/* Main site: the portal's light, behind the hero and the consequences. */
+.hero-glow::before {
+  content: "";
+  position: absolute;
+  inset: -120px 0 0 0;
+  background:
+    radial-gradient(50% 45% at 85% 8%, rgba(25, 245, 165, 0.1), transparent 70%),
+    radial-gradient(55% 55% at 15% 0%, rgba(139, 44, 245, 0.22), transparent 70%),
+    radial-gradient(60% 40% at 50% 85%, rgba(139, 44, 245, 0.16), transparent 70%);
+  pointer-events: none;
+}
+.hero-glow::after {
+  content: "";
+  position: absolute;
+  inset: -120px 0 40% 0;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(60% 70% at 50% 20%, #000 10%, transparent 75%);
+  pointer-events: none;
+}
+.later-glow { background: radial-gradient(60% 80% at 80% 50%, rgba(255, 90, 95, 0.08), transparent 70%), #12151d; }
+.site .num { font-variant-numeric: tabular-nums; font-stretch: 112%; }

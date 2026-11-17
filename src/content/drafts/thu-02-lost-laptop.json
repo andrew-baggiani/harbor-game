@@ -1,0 +1,108 @@
+{
+  "id": "THU-02-laptop",
+  "version": "1.0.0-draft",
+  "day": "thursday",
+  "location": "Street",
+  "trigger": "Empty_Bag",
+  "roles": [
+    "all"
+  ],
+  "skill": "asset-loss",
+  "controls": {
+    "CIS_v8.1": [
+      "3.6",
+      "17.3"
+    ],
+    "NIST_800-53r5": [
+      "IR-6",
+      "AC-19"
+    ],
+    "NIST_800-171r2": [
+      "3.8.1",
+      "3.6.2"
+    ],
+    "CMMC_L2": [
+      "MP.L2-3.8.1",
+      "IR.L2-3.6.2"
+    ],
+    "HIPAA": [
+      "164.310(d)(1)",
+      "164.308(a)(6)(ii)"
+    ],
+    "CSF_2.0": [
+      "RS.MA-02",
+      "PR.DS-01"
+    ]
+  },
+  "variants": [
+    {
+      "caller": "Laptop bag",
+      "pressure": "rushed",
+      "tell": "wait"
+    }
+  ],
+  "prompt": {
+    "who": "Laptop bag",
+    "role": "Back seat, then gone",
+    "text": "You set the bag down for a minute. When you turn around it is gone. The laptop was asleep, not shut down."
+  },
+  "choices": [
+    {
+      "id": "thu-laptop-wait",
+      "label": "Wait and see if it turns up",
+      "outcome": "unreported",
+      "score": 0,
+      "verb": "decided",
+      "flag": "wait",
+      "ok": false,
+      "debrief": "Asleep is not locked down. The drive is still the company's.",
+      "bark": "You waited.",
+      "report": "A missing laptop was not reported.",
+      "voice_line": "You waited on a missing laptop instead of calling it in.",
+      "fallout": {
+        "when": "monday",
+        "text": "The drive is copied before anyone asks for a wipe."
+      }
+    },
+    {
+      "id": "thu-laptop-call",
+      "label": "Call the help desk now and say it is missing",
+      "outcome": "reported",
+      "score": 100,
+      "verb": "reported",
+      "flag": "call",
+      "ok": true,
+      "debrief": "They can kill the session and start the wipe while you are still on the street.",
+      "bark": "You called it in.",
+      "report": "The missing laptop was reported the same hour.",
+      "voice_line": "You called the help desk and told them the laptop was gone."
+    },
+    {
+      "id": "thu-laptop-lock",
+      "label": "Try to lock it from your phone, and tell no one",
+      "outcome": "quiet",
+      "score": 40,
+      "verb": "decided",
+      "flag": "quiet",
+      "ok": false,
+      "debrief": "A remote lock you hope went through is not a report.",
+      "bark": "You tried to lock it yourself.",
+      "report": "You tried a remote lock and did not report the loss.",
+      "voice_line": "You tried to lock it from your phone and did not call.",
+      "fallout": {
+        "when": "friday",
+        "text": "The lock never reached it. No one else knows it is gone."
+      }
+    }
+  ],
+  "beat": "laptop",
+  "next": "voice",
+  "flagKey": "thuLaptop",
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{REPORT_CHANNEL}}"
+  ],
+  "knowledge_check_pool": "kc/thursday",
+  "draft_note": "Report is the right outcome even if a remote lock is also started."
+}

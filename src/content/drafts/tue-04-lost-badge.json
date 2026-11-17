@@ -1,0 +1,104 @@
+{
+  "id": "TUE-04-badge",
+  "version": "1.0.0-draft",
+  "day": "tuesday",
+  "location": "Lobby_Gates",
+  "trigger": "Found_Badge",
+  "roles": [
+    "all"
+  ],
+  "skill": "physical-access",
+  "controls": {
+    "CIS_v8.1": [
+      "14.1"
+    ],
+    "NIST_800-53r5": [
+      "PE-2",
+      "PE-3"
+    ],
+    "NIST_800-171r2": [
+      "3.10.1"
+    ],
+    "CMMC_L2": [
+      "PE.L2-3.10.1"
+    ],
+    "HIPAA": [
+      "164.310(a)(1)"
+    ],
+    "CSF_2.0": [
+      "PR.AA-06",
+      "PR.AT-01"
+    ]
+  },
+  "variants": [
+    {
+      "caller": "Contractor badge",
+      "pressure": "rushed",
+      "tell": "use"
+    }
+  ],
+  "prompt": {
+    "who": "Contractor badge",
+    "role": "On the lobby bench",
+    "text": "A contractor badge is on the bench by the gates. The photo is face down. The gates are in their night schedule."
+  },
+  "choices": [
+    {
+      "id": "tue-badge-use",
+      "label": "Use it to get back upstairs",
+      "outcome": "used",
+      "score": 0,
+      "verb": "decided",
+      "flag": "use",
+      "ok": false,
+      "debrief": "A found badge is not yours, even for one floor.",
+      "bark": "You used the badge.",
+      "report": "You badged through on someone else's card.",
+      "voice_line": "You used a badge you found. The gates will show the wrong person.",
+      "fallout": {
+        "when": "wednesday",
+        "text": "The contractor reports the badge lost. The log shows it was used after they left the building."
+      }
+    },
+    {
+      "id": "tue-badge-desk",
+      "label": "Take it to the security desk",
+      "outcome": "returned",
+      "score": 100,
+      "verb": "reported",
+      "flag": "desk",
+      "ok": true,
+      "debrief": "Security can kill the badge. The bench cannot.",
+      "bark": "You took it to security.",
+      "report": "The found badge went to the security desk.",
+      "voice_line": "You took the found badge to the security desk."
+    },
+    {
+      "id": "tue-badge-leave",
+      "label": "Leave it where it is",
+      "outcome": "left",
+      "score": 40,
+      "verb": "decided",
+      "flag": "leave",
+      "ok": false,
+      "debrief": "The next person through the lobby can pick it up.",
+      "bark": "You left it.",
+      "report": "The badge is still on the bench.",
+      "voice_line": "You left the badge on the bench.",
+      "fallout": {
+        "when": "tuesday-night",
+        "text": "A visitor picks it up and walks in behind a tenant."
+      }
+    }
+  ],
+  "beat": "badge",
+  "next": "down",
+  "flagKey": "tueBadge",
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{REPORT_CHANNEL}}"
+  ],
+  "knowledge_check_pool": "kc/tuesday",
+  "draft_note": "Control IDs reviewed by Claude: training controls as on Monday, plus PR.AA-06 for physical access where it applies."
+}

@@ -1,0 +1,104 @@
+{
+  "id": "WED-01-link",
+  "version": "1.0.0-draft",
+  "day": "wednesday",
+  "location": "Desk_Player",
+  "trigger": "Share_Dialog",
+  "roles": [
+    "all"
+  ],
+  "skill": "data-sharing",
+  "controls": {
+    "CIS_v8.1": [
+      "3.3",
+      "14.4"
+    ],
+    "NIST_800-53r5": [
+      "AC-3",
+      "AC-16"
+    ],
+    "NIST_800-171r2": [
+      "3.1.3"
+    ],
+    "CMMC_L2": [
+      "AC.L2-3.1.3"
+    ],
+    "HIPAA": [
+      "164.312(a)(1)"
+    ],
+    "CSF_2.0": [
+      "PR.AA-05"
+    ]
+  },
+  "variants": [
+    {
+      "caller": "Share window",
+      "pressure": "rushed",
+      "tell": "anyone"
+    }
+  ],
+  "prompt": {
+    "who": "Share window",
+    "role": "Drawings folder",
+    "text": "A client needs the drawings tonight. The share window is set to anyone with the link. The send button is already highlighted."
+  },
+  "choices": [
+    {
+      "id": "wed-link-anyone",
+      "label": "Send the anyone-link",
+      "outcome": "open",
+      "score": 0,
+      "verb": "decided",
+      "flag": "anyone",
+      "ok": false,
+      "debrief": "Anyone who is forwarded that link can open the drawings.",
+      "bark": "You sent the open link.",
+      "report": "The drawings went out on a link with no names on it.",
+      "voice_line": "You sent a link that works for anyone who receives it.",
+      "fallout": {
+        "when": "thursday",
+        "text": "The link shows up in a thread you are not on. The drawings have been downloaded twice."
+      }
+    },
+    {
+      "id": "wed-link-names",
+      "label": "Add the client's work addresses, then send",
+      "outcome": "named",
+      "score": 100,
+      "verb": "decided",
+      "flag": "names",
+      "ok": true,
+      "debrief": "Named people can be removed. An open link cannot.",
+      "bark": "You named the recipients.",
+      "report": "The drawings were shared with named work addresses only.",
+      "voice_line": "You sent it only to the client's work addresses."
+    },
+    {
+      "id": "wed-link-personal",
+      "label": "Send it to the client's personal mail instead",
+      "outcome": "personal",
+      "score": 0,
+      "verb": "decided",
+      "flag": "personal",
+      "ok": false,
+      "debrief": "A personal mailbox is outside the company, and outside theirs.",
+      "bark": "You sent it to personal mail.",
+      "report": "The drawings went to a personal address.",
+      "voice_line": "You sent the drawings to a personal mailbox.",
+      "fallout": {
+        "when": "friday",
+        "text": "That personal mailbox is compromised. The drawings are in a dump with the rest of it."
+      }
+    }
+  ],
+  "beat": "link",
+  "next": "classify",
+  "flagKey": "wedLink",
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{REPORT_CHANNEL}}"
+  ],
+  "knowledge_check_pool": "kc/wednesday",
+  "draft_note": "Right choice is named access, not a looser channel."
+}

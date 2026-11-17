@@ -1,0 +1,103 @@
+{
+  "id": "WED-02-classify",
+  "version": "1.0.0-draft",
+  "day": "wednesday",
+  "location": "Desk_Player",
+  "trigger": "Export_Sheet",
+  "roles": [
+    "all"
+  ],
+  "skill": "data-classification",
+  "controls": {
+    "CIS_v8.1": [
+      "3.7",
+      "14.4"
+    ],
+    "NIST_800-53r5": [
+      "AC-16"
+    ],
+    "NIST_800-171r2": [
+      "3.1.3"
+    ],
+    "CMMC_L2": [
+      "AC.L2-3.1.3"
+    ],
+    "HIPAA": [
+      "164.308(a)(4)(ii)(B)"
+    ],
+    "CSF_2.0": [
+      "PR.AT-01"
+    ]
+  },
+  "variants": [
+    {
+      "caller": "Spreadsheet",
+      "pressure": "rushed",
+      "tell": "all"
+    }
+  ],
+  "prompt": {
+    "who": "Spreadsheet",
+    "role": "Customer list",
+    "text": "Someone asks you to drop the full customer list into a slide for a meeting that is not about those customers. The sheet is marked internal."
+  },
+  "choices": [
+    {
+      "id": "wed-class-all",
+      "label": "Paste the whole list",
+      "outcome": "exposed",
+      "score": 0,
+      "verb": "decided",
+      "flag": "all",
+      "ok": false,
+      "debrief": "The meeting did not need the names, the numbers, or the notes.",
+      "bark": "You pasted the list.",
+      "report": "A full customer list went into a slide.",
+      "voice_line": "You pasted the whole list into a deck that did not need it.",
+      "fallout": {
+        "when": "thursday",
+        "text": "The deck is forwarded to a partner. The customer list goes with it."
+      }
+    },
+    {
+      "id": "wed-class-ask",
+      "label": "Ask the data owner what the meeting is allowed to see",
+      "outcome": "checked",
+      "score": 100,
+      "verb": "reported",
+      "flag": "ask",
+      "ok": true,
+      "debrief": "The mark on the sheet is an instruction, not a suggestion.",
+      "bark": "You asked the owner.",
+      "report": "The list stayed put until the owner answered.",
+      "voice_line": "You asked the owner of the list before you copied it."
+    },
+    {
+      "id": "wed-class-count",
+      "label": "Paste the count, not the names",
+      "outcome": "reduced",
+      "score": 40,
+      "verb": "decided",
+      "flag": "count",
+      "ok": false,
+      "debrief": "A count is safer than the list, and you still decided alone.",
+      "bark": "You pasted only the count.",
+      "report": "Names stayed out. The owner was not asked.",
+      "voice_line": "You pasted a count instead of the names, without asking.",
+      "fallout": {
+        "when": "thursday",
+        "text": "The count is quoted back at you by someone who was not in the meeting."
+      }
+    }
+  ],
+  "beat": "classify",
+  "next": "ai",
+  "flagKey": "wedClassify",
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{REPORT_CHANNEL}}"
+  ],
+  "knowledge_check_pool": "kc/wednesday",
+  "draft_note": "Control IDs reviewed by Claude: training controls as on Monday, plus PR.AA-06 for physical access where it applies."
+}
