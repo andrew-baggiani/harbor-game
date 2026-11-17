@@ -367,6 +367,52 @@ function showLed(root: THREE.Object3D, which: "off" | "red" | "green") {
   if (green) green.visible = which === "green";
 }
 
+/** Framed art, the directory, the whiteboard and two stickies: swapped onto the existing
+ *  label materials by name, so the models don't need re-exporting. Images are pre-cropped to
+ *  each frame's shape (see public/assets/textures/art). */
+const ART: Record<string, string> = {
+  "label_art_0.png": "lobby_art_0.webp",
+  "label_art_1.png": "lobby_art_1.webp",
+  "label_art_2.png": "lobby_art_2.webp",
+  "label_directory.png": "directory.webp",
+  "label_whiteboard.png": "whiteboard.webp",
+  "label_sticky_green.png": "sticky_a.webp",
+  "label_sticky_pink.png": "sticky_b.webp",
+};
+const artCache = new Map<string, THREE.Texture>();
+const artLoader = new THREE.TextureLoader();
+function artTexture(file: string) {
+  let tex = artCache.get(file);
+  if (!tex) {
+    tex = artLoader.load(`/assets/textures/art/${file}`);
+    tex.flipY = false;
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 4;
+    artCache.set(file, tex);
+  }
+  return tex;
+}
+function applyArt(root: THREE.Object3D) {
+  root.traverse((obj) => {
+    const mesh = obj as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    for (const m of materials as THREE.MeshStandardMaterial[]) {
+      const key = Object.keys(ART).find((k) => m.name?.endsWith(k));
+      if (!key) continue;
+      const tex = artTexture(ART[key]);
+      if (m.map) {
+        tex.wrapS = m.map.wrapS;
+        tex.wrapT = m.map.wrapT;
+        tex.channel = m.map.channel;
+      }
+      m.map = tex;
+      if (m.emissiveMap) m.emissiveMap = tex;
+      m.needsUpdate = true;
+    }
+  });
+}
+
 export function HarborWorld() {
   const block = useGLTFOnce(`${MODEL_BASE}harbor_block.glb`);
   const office = useGLTFOnce(`${MODEL_BASE}harbor_office_f14.glb`);
@@ -399,6 +445,7 @@ export function HarborWorld() {
   const scenes = useMemo(() => {
     const loaded = [block, office, props, car, lobbyDetail, floorDetail, cab, shaft, security, beats];
     for (const gltf of loaded) prepare(gltf.scene);
+    for (const gltf of [lobbyDetail, floorDetail, lobbyBaked, f14Baked]) applyArt(gltf.scene);
     // Desk monitor: register it for the desk zoom and show this shift's inbox on it,
     // the same picture the clickable inbox opens with, so the hand-off is invisible.
     const deskScreen = office.scene.getObjectByName("Monitor_Player_Screen");

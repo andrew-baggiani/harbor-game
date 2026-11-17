@@ -1,0 +1,105 @@
+{
+  "id": "FRI-01-insider",
+  "version": "1.0.0-draft",
+  "day": "friday",
+  "location": "Floor14_Aisle",
+  "trigger": "Coworker_Screen",
+  "roles": [
+    "all"
+  ],
+  "skill": "insider-risk",
+  "controls": {
+    "CIS_v8.1": [
+      "14.6"
+    ],
+    "NIST_800-53r5": [
+      "AT-2(2)",
+      "IR-6"
+    ],
+    "NIST_800-171r2": [
+      "3.2.2",
+      "3.6.2"
+    ],
+    "CMMC_L2": [
+      "AT.L2-3.2.2",
+      "IR.L2-3.6.2"
+    ],
+    "HIPAA": [
+      "164.308(a)(1)(ii)(D)"
+    ],
+    "CSF_2.0": [
+      "DE.CM-01"
+    ]
+  },
+  "variants": [
+    {
+      "caller": "Coworker",
+      "pressure": "rushed",
+      "tell": "ignore"
+    }
+  ],
+  "prompt": {
+    "who": "Coworker",
+    "role": "Last day, still logged in",
+    "text": "It is their last day. The screen is a file share they do not work in. A copy is running to a small drive, and they close the laptop when you walk up."
+  },
+  "choices": [
+    {
+      "id": "fri-insider-ignore",
+      "label": "Let it go. It is their last day.",
+      "outcome": "ignored",
+      "score": 0,
+      "verb": "decided",
+      "flag": "ignore",
+      "ok": false,
+      "debrief": "Last day is the reason to look, not the reason to look away.",
+      "bark": "You let it go.",
+      "report": "A copy off a share they do not work in was ignored.",
+      "voice_line": "You saw a copy running and let it finish.",
+      "fallout": {
+        "when": "friday-night",
+        "text": "The drive leaves with them. The share shows the copy completed after you walked past."
+      }
+    },
+    {
+      "id": "fri-insider-report",
+      "label": "Tell security what you saw, including the closed laptop",
+      "outcome": "reported",
+      "score": 100,
+      "verb": "reported",
+      "flag": "report",
+      "ok": true,
+      "debrief": "You do not have to accuse them. You do have to say what the screen was doing.",
+      "bark": "You told security.",
+      "report": "Security was told about the copy and the closed laptop.",
+      "voice_line": "You told security what you saw. You did not have to decide why."
+    },
+    {
+      "id": "fri-insider-ask",
+      "label": "Ask them to stop, and leave it there",
+      "outcome": "asked",
+      "score": 40,
+      "verb": "decided",
+      "flag": "ask",
+      "ok": false,
+      "debrief": "Asking ends the moment you saw. It does not end the copy.",
+      "bark": "You asked them to stop.",
+      "report": "You asked them to stop and did not report it.",
+      "voice_line": "You asked them to stop, and no one else was told.",
+      "fallout": {
+        "when": "friday-night",
+        "text": "The copy finishes after you leave the aisle."
+      }
+    }
+  ],
+  "beat": "insider",
+  "next": "report",
+  "flagKey": "friInsider",
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{REPORT_CHANNEL}}"
+  ],
+  "knowledge_check_pool": "kc/friday",
+  "draft_note": "Pairs with the insider-risk module. Reporting is the right end, not a confrontation."
+}

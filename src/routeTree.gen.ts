@@ -19,9 +19,11 @@ import { Route as NightRouteImport } from './routes/night'
 import { Route as PathRouteImport } from './routes/path'
 import { Route as PlayRouteImport } from './routes/play'
 import { Route as PortalRouteImport } from './routes/portal'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RecordRouteImport } from './routes/record'
 import { Route as ResultRouteImport } from './routes/result'
 import { Route as ReviewRouteImport } from './routes/review'
+import { Route as SampleRecordRouteImport } from './routes/sample-record'
 import { Route as ShiftRouteImport } from './routes/shift'
 import { Route as ApiActivityRouteImport } from './routes/api/activity'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
@@ -91,6 +93,11 @@ const PortalRoute = PortalRouteImport.update({
   path: '/portal',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RecordRoute = RecordRouteImport.update({
   id: '/record',
   path: '/record',
@@ -104,6 +111,11 @@ const ResultRoute = ResultRouteImport.update({
 const ReviewRoute = ReviewRouteImport.update({
   id: '/review',
   path: '/review',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SampleRecordRoute = SampleRecordRouteImport.update({
+  id: '/sample-record',
+  path: '/sample-record',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShiftRoute = ShiftRouteImport.update({
@@ -208,9 +220,11 @@ export interface FileRoutesByFullPath {
   '/path': typeof PathRouteWithChildren
   '/play': typeof PlayRoute
   '/portal': typeof PortalRoute
+  '/privacy': typeof PrivacyRoute
   '/record': typeof RecordRoute
   '/result': typeof ResultRoute
   '/review': typeof ReviewRoute
+  '/sample-record': typeof SampleRecordRoute
   '/shift': typeof ShiftRoute
   '/api/activity': typeof ApiActivityRoute
   '/api/chat': typeof ApiChatRoute
@@ -239,9 +253,11 @@ export interface FileRoutesByTo {
   '/night': typeof NightRoute
   '/play': typeof PlayRoute
   '/portal': typeof PortalRoute
+  '/privacy': typeof PrivacyRoute
   '/record': typeof RecordRoute
   '/result': typeof ResultRoute
   '/review': typeof ReviewRoute
+  '/sample-record': typeof SampleRecordRoute
   '/shift': typeof ShiftRoute
   '/api/activity': typeof ApiActivityRoute
   '/api/chat': typeof ApiChatRoute
@@ -273,9 +289,11 @@ export interface FileRoutesById {
   '/path': typeof PathRouteWithChildren
   '/play': typeof PlayRoute
   '/portal': typeof PortalRoute
+  '/privacy': typeof PrivacyRoute
   '/record': typeof RecordRoute
   '/result': typeof ResultRoute
   '/review': typeof ReviewRoute
+  '/sample-record': typeof SampleRecordRoute
   '/shift': typeof ShiftRoute
   '/api/activity': typeof ApiActivityRoute
   '/api/chat': typeof ApiChatRoute
@@ -308,9 +326,11 @@ export interface FileRouteTypes {
     | '/path'
     | '/play'
     | '/portal'
+    | '/privacy'
     | '/record'
     | '/result'
     | '/review'
+    | '/sample-record'
     | '/shift'
     | '/api/activity'
     | '/api/chat'
@@ -339,9 +359,11 @@ export interface FileRouteTypes {
     | '/night'
     | '/play'
     | '/portal'
+    | '/privacy'
     | '/record'
     | '/result'
     | '/review'
+    | '/sample-record'
     | '/shift'
     | '/api/activity'
     | '/api/chat'
@@ -372,9 +394,11 @@ export interface FileRouteTypes {
     | '/path'
     | '/play'
     | '/portal'
+    | '/privacy'
     | '/record'
     | '/result'
     | '/review'
+    | '/sample-record'
     | '/shift'
     | '/api/activity'
     | '/api/chat'
@@ -406,9 +430,11 @@ export interface RootRouteChildren {
   PathRoute: typeof PathRouteWithChildren
   PlayRoute: typeof PlayRoute
   PortalRoute: typeof PortalRoute
+  PrivacyRoute: typeof PrivacyRoute
   RecordRoute: typeof RecordRoute
   ResultRoute: typeof ResultRoute
   ReviewRoute: typeof ReviewRoute
+  SampleRecordRoute: typeof SampleRecordRoute
   ShiftRoute: typeof ShiftRoute
   ApiActivityRoute: typeof ApiActivityRoute
   ApiChatRoute: typeof ApiChatRoute
@@ -497,6 +523,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortalRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/record': {
       id: '/record'
       path: '/record'
@@ -516,6 +549,13 @@ declare module '@tanstack/react-router' {
       path: '/review'
       fullPath: '/review'
       preLoaderRoute: typeof ReviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sample-record': {
+      id: '/sample-record'
+      path: '/sample-record'
+      fullPath: '/sample-record'
+      preLoaderRoute: typeof SampleRecordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shift': {
@@ -683,9 +723,11 @@ const rootRouteChildren: RootRouteChildren = {
   PathRoute: PathRouteWithChildren,
   PlayRoute: PlayRoute,
   PortalRoute: PortalRoute,
+  PrivacyRoute: PrivacyRoute,
   RecordRoute: RecordRoute,
   ResultRoute: ResultRoute,
   ReviewRoute: ReviewRoute,
+  SampleRecordRoute: SampleRecordRoute,
   ShiftRoute: ShiftRoute,
   ApiActivityRoute: ApiActivityRoute,
   ApiChatRoute: ApiChatRoute,

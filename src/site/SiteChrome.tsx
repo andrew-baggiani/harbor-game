@@ -14,7 +14,7 @@ export function SiteNav() {
   return (
     <div
       className={`sticky top-0 z-30 transition-colors duration-300 ${
-        scrolled ? "border-b border-site-rule bg-site-ink/85 backdrop-blur-md" : "border-b border-transparent"
+        scrolled ? "border-b border-white/[0.06] bg-site-ink/75 backdrop-blur-xl" : "border-b border-transparent"
       }`}
     >
       <header className="mx-auto flex max-w-[1240px] items-center justify-between gap-6 px-6 py-4 md:px-10 md:py-5">
@@ -24,11 +24,10 @@ export function SiteNav() {
         <nav aria-label="Primary" className="flex items-center gap-4 whitespace-nowrap text-[15px] text-site-mist sm:gap-7">
           <a href="/#night" className="hidden hover:text-site-paper lg:inline">How it works</a>
           <a href="/#msps" className="hidden hover:text-site-paper md:inline">For MSPs</a>
-          <a href="/play" className="hidden hover:text-site-paper lg:inline">Partner login</a>
           <a href="/login" className="hover:text-site-paper">Sign in</a>
           <a
             href={CONTACT}
-            className="rounded-md border border-site-violet px-3 py-2 font-semibold sm:px-4 text-site-paper transition-colors hover:bg-site-violet"
+            className="rounded-xl bg-site-violet px-3.5 py-2 font-semibold text-site-paper shadow-[0_8px_30px_-8px_rgba(139,44,245,.7)] transition hover:bg-site-violet-hi sm:px-4"
           >
             Request access
           </a>
@@ -40,15 +39,16 @@ export function SiteNav() {
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-site-rule">
+    <footer className="border-t border-white/[0.06]">
       <div className="mx-auto flex max-w-[1240px] flex-col items-start gap-4 px-6 py-8 pb-24 text-sm text-site-dim sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:pb-8 md:px-10">
         <img src="/brand/dry-run-cyber-icon-white.svg" alt="" className="h-6 w-6 opacity-60" />
         <span>© {new Date().getFullYear()} Dry Run Cyber</span>
         <a href="mailto:hello@dryruncyber.com" className="hover:text-site-paper">hello@dryruncyber.com</a>
-        <span className="flex gap-6">
+        <span className="flex flex-wrap gap-x-6 gap-y-2">
           <a href="/coverage" className="hover:text-site-paper">Control coverage</a>
-          <a href="/login" className="hover:text-site-paper">Sign in</a>
-          <a href="/play" className="hover:text-site-paper">Partner login</a>
+          <a href="/sample-record" className="hover:text-site-paper">Sample record</a>
+          <a href="/privacy" className="hover:text-site-paper">Privacy</a>
+          <a href="/login" className="hover:text-site-paper">Partner sign in</a>
         </span>
       </div>
     </footer>

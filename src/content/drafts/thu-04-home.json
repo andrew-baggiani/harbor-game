@@ -1,0 +1,105 @@
+{
+  "id": "THU-04-home",
+  "version": "1.0.0-draft",
+  "day": "thursday",
+  "location": "Home",
+  "trigger": "Kitchen_Table",
+  "roles": [
+    "all"
+  ],
+  "skill": "remote-work",
+  "controls": {
+    "CIS_v8.1": [
+      "14.8"
+    ],
+    "NIST_800-53r5": [
+      "AC-17"
+    ],
+    "NIST_800-171r2": [
+      "3.1.12",
+      "3.10.1"
+    ],
+    "CMMC_L2": [
+      "AC.L2-3.1.12",
+      "PE.L2-3.10.1"
+    ],
+    "HIPAA": [
+      "164.310(b)",
+      "164.310(c)"
+    ],
+    "CSF_2.0": [
+      "PR.AA-03"
+    ]
+  },
+  "variants": [
+    {
+      "caller": "Work laptop",
+      "pressure": "rushed",
+      "tell": "let"
+    }
+  ],
+  "prompt": {
+    "who": "Work laptop",
+    "role": "Open on the kitchen table",
+    "text": "You step out to take a parcel. The work laptop is unlocked. Someone in the house sits down and says they only need it for a minute."
+  },
+  "choices": [
+    {
+      "id": "thu-home-let",
+      "label": "Let them use it",
+      "outcome": "used",
+      "score": 0,
+      "verb": "decided",
+      "flag": "let",
+      "ok": false,
+      "debrief": "A minute on a work laptop is still a work session.",
+      "bark": "You let them use it.",
+      "report": "Someone else used the unlocked work laptop.",
+      "voice_line": "You let someone else onto the work laptop.",
+      "fallout": {
+        "when": "friday",
+        "text": "A personal upload sits in the work history from the hour you were at the door."
+      }
+    },
+    {
+      "id": "thu-home-lock",
+      "label": "Lock it and take it with you",
+      "outcome": "locked",
+      "score": 100,
+      "verb": "decided",
+      "flag": "lock",
+      "ok": true,
+      "debrief": "Locked and in your hand is the whole control.",
+      "bark": "You locked it and took it.",
+      "report": "The laptop was locked before you left the room.",
+      "voice_line": "You locked the laptop and took it with you."
+    },
+    {
+      "id": "thu-home-watch",
+      "label": "Stay in the doorway and let them finish",
+      "outcome": "watched",
+      "score": 40,
+      "verb": "decided",
+      "flag": "watch",
+      "ok": false,
+      "debrief": "Watching is not the same as it being your session.",
+      "bark": "You watched from the door.",
+      "report": "Someone else worked on the laptop while you watched.",
+      "voice_line": "You watched someone else use the work laptop.",
+      "fallout": {
+        "when": "friday",
+        "text": "They saved a copy of a work file onto a personal stick while you were watching the parcel, not the screen."
+      }
+    }
+  ],
+  "beat": "home",
+  "next": "down",
+  "flagKey": "thuHome",
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{REPORT_CHANNEL}}"
+  ],
+  "knowledge_check_pool": "kc/thursday",
+  "draft_note": "Home beat is physical custody of a remote machine, not a wifi question."
+}

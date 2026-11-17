@@ -1,0 +1,107 @@
+{
+  "id": "FRI-02-report",
+  "version": "1.0.0-draft",
+  "day": "friday",
+  "location": "Desk_Player",
+  "trigger": "Odd_Mail",
+  "roles": [
+    "all"
+  ],
+  "skill": "incident-reporting",
+  "controls": {
+    "CIS_v8.1": [
+      "14.6",
+      "17.3"
+    ],
+    "NIST_800-53r5": [
+      "IR-4",
+      "IR-6"
+    ],
+    "NIST_800-171r2": [
+      "3.6.1",
+      "3.6.2"
+    ],
+    "CMMC_L2": [
+      "IR.L2-3.6.1",
+      "IR.L2-3.6.2"
+    ],
+    "HIPAA": [
+      "164.308(a)(6)(ii)"
+    ],
+    "CSF_2.0": [
+      "RS.MA-01",
+      "RS.MA-02"
+    ]
+  },
+  "variants": [
+    {
+      "caller": "Mailbox",
+      "pressure": "rushed",
+      "tell": "delete"
+    }
+  ],
+  "prompt": {
+    "who": "Mailbox",
+    "role": "A thread you were copied on by mistake",
+    "text": "You are copied on a thread that is not yours. It has customer account numbers, and one reply is from an address outside the company."
+  },
+  "choices": [
+    {
+      "id": "fri-report-delete",
+      "label": "Delete it so it is not on you",
+      "outcome": "deleted",
+      "score": 0,
+      "verb": "decided",
+      "flag": "delete",
+      "ok": false,
+      "debrief": "Deleting your copy does not pull it back from the outside address.",
+      "bark": "You deleted it.",
+      "report": "The thread was deleted from your mailbox only.",
+      "voice_line": "You deleted the thread instead of reporting it.",
+      "fallout": {
+        "when": "monday",
+        "text": "The outside address still has the numbers. No one else knew."
+      }
+    },
+    {
+      "id": "fri-report-channel",
+      "label": "Report it on the channel the company posted",
+      "outcome": "reported",
+      "score": 100,
+      "verb": "reported",
+      "flag": "channel",
+      "ok": true,
+      "debrief": "The posted channel is how the right people see it the same hour.",
+      "bark": "You reported it.",
+      "report": "The misdirected thread was reported the same hour.",
+      "voice_line": "You reported it on the channel the company posted."
+    },
+    {
+      "id": "fri-report-forward",
+      "label": "Forward it to your manager and stop",
+      "outcome": "side",
+      "score": 40,
+      "verb": "decided",
+      "flag": "forward",
+      "ok": false,
+      "debrief": "Your manager may be the right person, and the posted channel is the one that is watched.",
+      "bark": "You forwarded it and stopped.",
+      "report": "It went to one manager, not to the reporting channel.",
+      "voice_line": "You forwarded it to your manager and did not use the reporting channel.",
+      "fallout": {
+        "when": "monday",
+        "text": "The manager was out. The thread sat unread all weekend."
+      }
+    }
+  ],
+  "beat": "report",
+  "next": "hour",
+  "flagKey": "friReport",
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{REPORT_CHANNEL}}"
+  ],
+  "knowledge_check_pool": "kc/friday",
+  "draft_note": "Forwarding to a manager is the partial credit. The watched channel is the full one."
+}

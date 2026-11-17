@@ -1,0 +1,107 @@
+{
+  "id": "FRI-03-hour",
+  "version": "1.0.0-draft",
+  "day": "friday",
+  "location": "Desk_Player",
+  "trigger": "Ransom_Note",
+  "roles": [
+    "all"
+  ],
+  "skill": "incident-response",
+  "controls": {
+    "CIS_v8.1": [
+      "14.6",
+      "17.3"
+    ],
+    "NIST_800-53r5": [
+      "IR-4",
+      "IR-6"
+    ],
+    "NIST_800-171r2": [
+      "3.6.1",
+      "3.6.2"
+    ],
+    "CMMC_L2": [
+      "IR.L2-3.6.1",
+      "IR.L2-3.6.2"
+    ],
+    "HIPAA": [
+      "164.308(a)(6)(ii)"
+    ],
+    "CSF_2.0": [
+      "RS.MA-01",
+      "RS.MA-02"
+    ]
+  },
+  "variants": [
+    {
+      "caller": "Screen",
+      "pressure": "rushed",
+      "tell": "pay"
+    }
+  ],
+  "prompt": {
+    "who": "Screen",
+    "role": "A note on the file share",
+    "text": "The file share opens onto a note. It says the files are locked, and a payment before midnight will unlock them. A timer is running."
+  },
+  "choices": [
+    {
+      "id": "fri-hour-pay",
+      "label": "Pay it from the department card",
+      "outcome": "paid",
+      "score": 0,
+      "verb": "decided",
+      "flag": "pay",
+      "ok": false,
+      "debrief": "Paying does not give the files back, and it tells them the card works.",
+      "bark": "You paid.",
+      "report": "A ransom was paid from a department card.",
+      "voice_line": "You paid the note from a department card.",
+      "fallout": {
+        "when": "friday-night",
+        "text": "The note comes back, with a higher number, and the files stay locked."
+      }
+    },
+    {
+      "id": "fri-hour-call",
+      "label": "Unplug the network cable and call the incident number",
+      "outcome": "contained",
+      "score": 100,
+      "verb": "reported",
+      "flag": "call",
+      "ok": true,
+      "debrief": "Unplug stops the spread. The call starts the people who do this for a living.",
+      "bark": "You unplugged and called.",
+      "report": "The machine was pulled off the network and the incident number was called.",
+      "voice_line": "You unplugged the machine and called the incident number."
+    },
+    {
+      "id": "fri-hour-wipe",
+      "label": "Wipe the machine yourself so it spreads no further",
+      "outcome": "wiped",
+      "score": 0,
+      "verb": "decided",
+      "flag": "wipe",
+      "ok": false,
+      "debrief": "A wipe removes the evidence the responders needed from the first hour.",
+      "bark": "You wiped it.",
+      "report": "The machine was wiped before anyone was called.",
+      "voice_line": "You wiped the machine before you called anyone.",
+      "fallout": {
+        "when": "monday",
+        "text": "The other machines are still locked. There is nothing left on yours to say how it started."
+      }
+    }
+  ],
+  "beat": "hour",
+  "next": "down",
+  "flagKey": "friHour",
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{REPORT_CHANNEL}}"
+  ],
+  "knowledge_check_pool": "kc/friday",
+  "draft_note": "First hour is contain and call. Paying and wiping are both wrong, for different reasons."
+}
