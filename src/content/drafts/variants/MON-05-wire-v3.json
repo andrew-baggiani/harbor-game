@@ -1,0 +1,88 @@
+{
+  "id": "MON-05-wire-v3",
+  "version": "1.0.0-draft",
+  "day": "monday",
+  "location": "Elevator_F14",
+  "trigger": "maya",
+  "roles": [
+    "all"
+  ],
+  "skill": "payment-fraud",
+  "controls": {
+    "CIS_v8.1": [
+      "14.2"
+    ],
+    "NIST_800-53r5": [
+      "AT-2(3)"
+    ],
+    "NIST_800-171r2": [
+      "3.2.1"
+    ],
+    "CMMC_L2": [
+      "AT.L2-3.2.1"
+    ],
+    "HIPAA": [],
+    "CSF_2.0": [
+      "PR.AT-01"
+    ]
+  },
+  "variants": [
+    {
+      "caller": "Payroll",
+      "pressure": "before_the_run",
+      "tell": "new_account_in_mail"
+    }
+  ],
+  "prompt": {
+    "who": "Payroll",
+    "role": "a coworker, in mail",
+    "text": "Can you switch my pay to the new account before Friday's run? I'm locked out of the form. Don't call. I'm on the floor."
+  },
+  "choices": [
+    {
+      "id": "wire-send",
+      "label": "Update the account",
+      "outcome": "payment_fraud",
+      "score": 0,
+      "verb": "decided",
+      "flag": "send",
+      "ok": false,
+      "debrief": "debrief/MON-05-v3-a",
+      "bark": "The account changed. Nobody checked the form payroll already has.",
+      "report": "You changed a pay account from an email."
+    },
+    {
+      "id": "wire-call",
+      "label": "Use the payroll form",
+      "outcome": "verified",
+      "score": 100,
+      "verb": "reported",
+      "flag": "call",
+      "ok": true,
+      "debrief": "debrief/MON-05-v3-b",
+      "bark": "You left it. Payroll has a form. This mail is not it.",
+      "report": "You refused the pay change and pointed them at the payroll form."
+    },
+    {
+      "id": "wire-refuse",
+      "label": "I don't change pay",
+      "outcome": "refused",
+      "score": 70,
+      "verb": "decided",
+      "flag": "refuse",
+      "ok": true,
+      "debrief": "debrief/MON-05-v3-c",
+      "bark": "You didn't change it. They can call payroll themselves.",
+      "report": "You refused to change the pay account."
+    }
+  ],
+  "beat": "maya",
+  "next": "cleandesk",
+  "flagKey": "wire",
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{REPORT_CHANNEL}}"
+  ],
+  "knowledge_check_pool": "kc/payment"
+}
