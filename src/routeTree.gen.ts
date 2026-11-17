@@ -38,6 +38,7 @@ import { Route as ApiOrgRouteImport } from './routes/api/org'
 import { Route as ApiPartnerRouteImport } from './routes/api/partner'
 import { Route as DrillsIndexRouteImport } from './routes/drills.index'
 import { Route as DrillsDrillIdRouteImport } from './routes/drills.$drillId'
+import { Route as LabCastRouteImport } from './routes/lab.cast'
 import { Route as LabMailRouteImport } from './routes/lab.mail'
 import { Route as LessonLessonIdRouteImport } from './routes/lesson.$lessonId'
 import { Route as PathIndexRouteImport } from './routes/path.index'
@@ -193,6 +194,11 @@ const DrillsDrillIdRoute = DrillsDrillIdRouteImport.update({
   path: '/$drillId',
   getParentRoute: () => DrillsRoute,
 } as any)
+const LabCastRoute = LabCastRouteImport.update({
+  id: '/lab/cast',
+  path: '/lab/cast',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LabMailRoute = LabMailRouteImport.update({
   id: '/lab/mail',
   path: '/lab/mail',
@@ -267,6 +273,7 @@ export interface FileRoutesByFullPath {
   '/api/org': typeof ApiOrgRoute
   '/api/partner': typeof ApiPartnerRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
+  '/lab/cast': typeof LabCastRoute
   '/lab/mail': typeof LabMailRoute
   '/lesson/$lessonId': typeof LessonLessonIdRoute
   '/path/$moduleId': typeof PathModuleIdRoute
@@ -305,6 +312,7 @@ export interface FileRoutesByTo {
   '/api/org': typeof ApiOrgRoute
   '/api/partner': typeof ApiPartnerRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
+  '/lab/cast': typeof LabCastRoute
   '/lab/mail': typeof LabMailRoute
   '/lesson/$lessonId': typeof LessonLessonIdRoute
   '/path/$moduleId': typeof PathModuleIdRoute
@@ -346,6 +354,7 @@ export interface FileRoutesById {
   '/api/org': typeof ApiOrgRoute
   '/api/partner': typeof ApiPartnerRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
+  '/lab/cast': typeof LabCastRoute
   '/lab/mail': typeof LabMailRoute
   '/lesson/$lessonId': typeof LessonLessonIdRoute
   '/path/$moduleId': typeof PathModuleIdRoute
@@ -388,6 +397,7 @@ export interface FileRouteTypes {
     | '/api/org'
     | '/api/partner'
     | '/drills/$drillId'
+    | '/lab/cast'
     | '/lab/mail'
     | '/lesson/$lessonId'
     | '/path/$moduleId'
@@ -426,6 +436,7 @@ export interface FileRouteTypes {
     | '/api/org'
     | '/api/partner'
     | '/drills/$drillId'
+    | '/lab/cast'
     | '/lab/mail'
     | '/lesson/$lessonId'
     | '/path/$moduleId'
@@ -466,6 +477,7 @@ export interface FileRouteTypes {
     | '/api/org'
     | '/api/partner'
     | '/drills/$drillId'
+    | '/lab/cast'
     | '/lab/mail'
     | '/lesson/$lessonId'
     | '/path/$moduleId'
@@ -506,6 +518,7 @@ export interface RootRouteChildren {
   ApiMeRoute: typeof ApiMeRoute
   ApiOrgRoute: typeof ApiOrgRoute
   ApiPartnerRoute: typeof ApiPartnerRoute
+  LabCastRoute: typeof LabCastRoute
   LabMailRoute: typeof LabMailRoute
   LessonLessonIdRoute: typeof LessonLessonIdRoute
   WeekShiftIdRoute: typeof WeekShiftIdRoute
@@ -721,6 +734,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DrillsDrillIdRouteImport
       parentRoute: typeof DrillsRoute
     }
+    '/lab/cast': {
+      id: '/lab/cast'
+      path: '/lab/cast'
+      fullPath: '/lab/cast'
+      preLoaderRoute: typeof LabCastRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lab/mail': {
       id: '/lab/mail'
       path: '/lab/mail'
@@ -839,6 +859,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMeRoute: ApiMeRoute,
   ApiOrgRoute: ApiOrgRoute,
   ApiPartnerRoute: ApiPartnerRoute,
+  LabCastRoute: LabCastRoute,
   LabMailRoute: LabMailRoute,
   LessonLessonIdRoute: LessonLessonIdRoute,
   WeekShiftIdRoute: WeekShiftIdRoute,

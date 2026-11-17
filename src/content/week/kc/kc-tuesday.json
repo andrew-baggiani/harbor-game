@@ -1,0 +1,134 @@
+[
+  {
+    "id": "kc-tue-3",
+    "skill": "payment-fraud",
+    "prompt": "You left the invoice for morning. A coworker pays it overnight.",
+    "choices": [
+      {
+        "id": "safe",
+        "label": "Waiting meant nobody could pay it.",
+        "correct": false
+      },
+      {
+        "id": "still",
+        "label": "The request was still in the box.",
+        "correct": true
+      },
+      {
+        "id": "call",
+        "label": "Morning is the same as calling.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-tue-4",
+    "skill": "payment-fraud",
+    "prompt": "The vendor name matches. The address gained one letter.",
+    "choices": [
+      {
+        "id": "name",
+        "label": "The name is the part that matters.",
+        "correct": false
+      },
+      {
+        "id": "addr",
+        "label": "The address is the part that matters.",
+        "correct": true
+      },
+      {
+        "id": "pay",
+        "label": "Pay, then call to confirm.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-tue-5",
+    "skill": "access-control",
+    "prompt": "He watched the upload and repeated the folder path.",
+    "choices": [
+      {
+        "id": "fine",
+        "label": "Watching is not access.",
+        "correct": false
+      },
+      {
+        "id": "path",
+        "label": "He left with the path.",
+        "correct": true
+      },
+      {
+        "id": "desk",
+        "label": "The service desk already knows.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-tue-6",
+    "skill": "access-control",
+    "prompt": "The session is still open under your name after he sits down.",
+    "choices": [
+      {
+        "id": "his",
+        "label": "The work will be filed as his.",
+        "correct": false
+      },
+      {
+        "id": "yours",
+        "label": "The work will be filed as yours.",
+        "correct": true
+      },
+      {
+        "id": "none",
+        "label": "An open session files as nobody.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-tue-7",
+    "skill": "shadow-it",
+    "prompt": "The free site shows a link with no names on it.",
+    "choices": [
+      {
+        "id": "one",
+        "label": "Only your coworker can open it.",
+        "correct": false
+      },
+      {
+        "id": "any",
+        "label": "Anyone who gets the link can.",
+        "correct": true
+      },
+      {
+        "id": "ten",
+        "label": "It closes when the share is back.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-tue-8",
+    "skill": "physical-access",
+    "prompt": "The log shows the found badge used after it was reported lost.",
+    "choices": [
+      {
+        "id": "ok",
+        "label": "A found badge is still a badge.",
+        "correct": false
+      },
+      {
+        "id": "who",
+        "label": "The log will name the wrong person.",
+        "correct": true
+      },
+      {
+        "id": "night",
+        "label": "Night gates do not keep a log.",
+        "correct": false
+      }
+    ]
+  }
+]

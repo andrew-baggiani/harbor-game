@@ -1,0 +1,134 @@
+[
+  {
+    "id": "kc-thu-3",
+    "skill": "remote-access",
+    "prompt": "You left the cafe. The mailbox is still signed in somewhere else.",
+    "choices": [
+      {
+        "id": "once",
+        "label": "One reply cannot be copied.",
+        "correct": false
+      },
+      {
+        "id": "copy",
+        "label": "The sign-in left with the network.",
+        "correct": true
+      },
+      {
+        "id": "work",
+        "label": "The work network was the one you joined.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-thu-4",
+    "skill": "remote-access",
+    "prompt": "Two names: the cafe you were told, and the same name with a small change.",
+    "choices": [
+      {
+        "id": "strong",
+        "label": "Join the stronger signal.",
+        "correct": false
+      },
+      {
+        "id": "told",
+        "label": "Use only the name you were given.",
+        "correct": true
+      },
+      {
+        "id": "open",
+        "label": "The open one is the guest one.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-thu-5",
+    "skill": "asset-loss",
+    "prompt": "The lock spinner fails. The laptop is offline.",
+    "choices": [
+      {
+        "id": "locked",
+        "label": "A failed lock still locked it.",
+        "correct": false
+      },
+      {
+        "id": "call",
+        "label": "Call it in. The lock did not land.",
+        "correct": true
+      },
+      {
+        "id": "wait",
+        "label": "Wait until it is online again.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-thu-6",
+    "skill": "asset-loss",
+    "prompt": "It checked in from a network that is not the cafe. You had not called.",
+    "choices": [
+      {
+        "id": "fine",
+        "label": "A check-in means it is safe.",
+        "correct": false
+      },
+      {
+        "id": "late",
+        "label": "Someone else had it, and nobody knew.",
+        "correct": true
+      },
+      {
+        "id": "buy",
+        "label": "Buy a new one and move on.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-thu-7",
+    "skill": "vishing",
+    "prompt": "They told you not to call back, then confirmed by text from that same number.",
+    "choices": [
+      {
+        "id": "yes",
+        "label": "Two channels mean it is them.",
+        "correct": false
+      },
+      {
+        "id": "one",
+        "label": "It is still the one number.",
+        "correct": true
+      },
+      {
+        "id": "meet",
+        "label": "A meeting is why you skip the call.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-thu-8",
+    "skill": "remote-work",
+    "prompt": "You watched from the doorway. The history has two new sites.",
+    "choices": [
+      {
+        "id": "saw",
+        "label": "Watching is the same as locking it.",
+        "correct": false
+      },
+      {
+        "id": "min",
+        "label": "A minute was enough.",
+        "correct": true
+      },
+      {
+        "id": "home",
+        "label": "Home is a trusted network.",
+        "correct": false
+      }
+    ]
+  }
+]

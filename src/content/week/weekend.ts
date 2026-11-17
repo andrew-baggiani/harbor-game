@@ -1,14 +1,18 @@
 import { beat, q } from "@/content/week/make";
 import type { ShiftDef } from "@/content/week/types";
+import type { CheckItem } from "@/game/scenarios";
+import kcSat from "@/content/week/kc/kc-saturday.json";
+import sortExtra from "@/content/week/kc/sunday-extra.json";
 
 const PERSONAL = {
-  "CIS_v8.1": ["14.2", "14.3"],
+  "CIS_v8.1": ["14.2"],
   "NIST_800-53r5": ["AT-2", "AT-2(3)"],
   "NIST_800-171r2": ["3.2.1"],
   CMMC_L2: ["AT.L2-3.2.1"],
-  HIPAA: ["164.308(a)(5)(ii)(D)"],
   "CSF_2.0": ["PR.AT-01"],
 };
+/** Password management (HIPAA D) only where the beat is about passwords. */
+const PASSWORDS = { ...PERSONAL, "CIS_v8.1": ["14.2", "14.3"], HIPAA: ["164.308(a)(5)(ii)(D)"] };
 
 /**
  * Saturday: home, off the clock. Attackers don't keep office hours, and personal accounts are
@@ -32,7 +36,7 @@ export const SATURDAY: ShiftDef = {
       text: "Your parcel is held. Pay a $1.99 redelivery fee within 2 hours or it goes back. A short link follows. You are expecting a parcel.",
       set: "home",
       spot: "counter",
-      prop: { kind: "phone", text: "Parcel held · pay $1.99 · tap link", textB: "Card details · enter number" },
+      prop: { kind: "phone", a: "week/sat-delivery-a.webp", b: "week/sat-delivery-b.webp" },
       objective: "Your phone buzzed on the counter.",
       choices: [
         {
@@ -67,13 +71,13 @@ export const SATURDAY: ShiftDef = {
       id: "SAT-02-reuse",
       day: "saturday",
       skill: "authentication",
-      controls: PERSONAL,
+      controls: PASSWORDS,
       who: "Email",
       role: "A streaming service",
       text: "Your account was in a data breach. Reset your password. It's the same password you use for work, plus a different number on the end.",
       set: "home",
       spot: "table",
-      prop: { kind: "laptop", text: "Your password was exposed in a breach" },
+      prop: { kind: "laptop", a: "week/sat-breach-a.webp", b: "week/sat-breach-b.webp" },
       objective: "The laptop on the table has a breach notice open.",
       choices: [
         {
@@ -82,7 +86,10 @@ export const SATURDAY: ShiftDef = {
           score: 0,
           debrief: "Attackers try the leaked password with every ending. That's the first thing they guess.",
           report: "A breached password was reused with a small change.",
-          fallout: [{ at: 50, who: "Phone", text: "A work sign-in prompt you didn't start. From another state." }],
+          fallout: [
+            { at: 0, who: "Screen", text: "Same password, new number on the end.", flip: true },
+            { at: 50, who: "Phone", text: "A work sign-in prompt you didn't start. From another state." },
+          ],
         },
         {
           id: "sat-reuse-manager",
@@ -111,7 +118,7 @@ export const SATURDAY: ShiftDef = {
       text: "First week done. You took a photo at your desk. Your badge is on the lanyard in the shot, and the whiteboard behind you has the guest Wi-Fi password.",
       set: "home",
       spot: "couch",
-      prop: { kind: "phone", text: "New post · First week done!", textB: "Posted · 212 views" },
+      prop: { kind: "phone", a: "week/sat-post-a.webp", b: "week/sat-post-b.webp" },
       objective: "On the couch. You're about to post a photo.",
       choices: [
         {
@@ -152,7 +159,7 @@ export const SATURDAY: ShiftDef = {
       text: "You work from home some days. The router still has the admin password from the sticker on the bottom, and its app says an update is waiting.",
       set: "home",
       spot: "shelf",
-      prop: { kind: "paper", text: "admin / admin1234", textB: "Firmware 2019" },
+      prop: { kind: "paper", a: "week/sat-router-a.webp", b: "week/sat-router-b.webp" },
       objective: "The router by the TV is blinking.",
       choices: [
         {
@@ -161,7 +168,7 @@ export const SATURDAY: ShiftDef = {
           score: 0,
           debrief: "Default passwords are published per model. An old router is a door into the laptop you work on.",
           report: "The home router kept its default password and old firmware.",
-          fallout: [{ at: 60, who: "Router app", text: "A device you don't own joined your network." }],
+          fallout: [{ at: 30, who: "Router app", text: "A device you don't own joined your network.", flip: true }],
         },
         {
           id: "sat-router-fix",
@@ -181,6 +188,7 @@ export const SATURDAY: ShiftDef = {
     }),
   ],
   check: [
+    ...(kcSat as CheckItem[]),
     q("kc-sat-1", "smishing", "A text says a parcel is held and asks for a small fee by link. What's the safe move?", "Check the order in the store's own app or site.", "Pay quickly, it's only a small fee.", "Reply to ask which parcel."),
     q("kc-sat-2", "authentication", "A site you use was breached. Your work password is similar. What do you change?", "Every account that shares or resembles it, with unique passwords and MFA.", "Only the breached site.", "Nothing, if the site already reset it."),
     q("kc-sat-3", "oversharing", "What makes a desk photo risky to post?", "A readable badge, screens, or passwords in the frame.", "Posting it on a weekday.", "Posting it without a filter."),
@@ -192,7 +200,7 @@ export const SATURDAY: ShiftDef = {
 /** Sunday: a ninety-second sort of real-looking messages across the whole week. No 3D, no fallout. */
 export type SortItem = { id: string; from: string; subject: string; body: string; risky: boolean; why: string };
 
-export const SUNDAY_SORT: SortItem[] = [
+const SUNDAY_BASE: SortItem[] = [
   { id: "s1", from: "IT Service Desk <it-help@harbor-co-support.com>", subject: "Mailbox full: verify now", body: "Your mailbox will be closed in 2 hours. Sign in to keep it.", risky: true, why: "Lookalike domain and a deadline. The real desk is harborandco.com." },
   { id: "s2", from: "Payroll <payroll@harborandco.com>", subject: "Pay stubs posted", body: "This week's stubs are in the HR portal as usual. No action needed.", risky: false, why: "Right domain, no link, no ask." },
   { id: "s3", from: "CEO (personal)", subject: "Quick favor", body: "In a meeting. Can you grab four gift cards and text me the codes?", risky: true, why: "Gift cards plus can't-talk is the classic. Verify on a known number." },
@@ -210,3 +218,5 @@ export const SUNDAY_SORT: SortItem[] = [
   { id: "s15", from: "Help desk <helpdesk@harborandco.com>", subject: "Your ticket #4471 is resolved", body: "The printer on 14 is fixed. Reply if it's not.", risky: false, why: "Matches a ticket you opened, real domain." },
   { id: "s16", from: "Finance lead", subject: "Voicemail transcript", body: "Release the wire before 5. Don't call back, I'm boarding.", risky: true, why: "Don't-call-back is the tell. Call the number you have." },
 ];
+
+export const SUNDAY_SORT: SortItem[] = [...SUNDAY_BASE, ...(sortExtra as SortItem[])];

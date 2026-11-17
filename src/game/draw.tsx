@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, type Ref } from "react";
+import { CastActor } from "@/game/cast";
 import { useFrame, useThree } from "@react-three/fiber";
 import { RoundedBox, useTexture } from "@react-three/drei";
 import { HDRLoader } from "three/examples/jsm/loaders/HDRLoader.js";
@@ -963,7 +964,9 @@ export function People() {
         <CourierBadge />
       </group>
       {/* Receptionist stands behind the desk (desk front at z -7.0, chair at -8.9), facing the entrance. */}
-      <group position={[-4.4, 0, -8.35]}><Human gait="idle" tint="#2f6a4a" hair="#e0c07a" scale={0.92} phase={0.8} /></group>
+      <group position={[-4.4, 0, -8.35]}>
+        <CastActor slot="night-desk" fallback={<Human gait="idle" tint="#2f6a4a" hair="#e0c07a" scale={0.92} phase={0.8} />} />
+      </group>
       <group position={[3.35, OFFICE_Y, -14.55]} rotation={[0, Math.PI, 0]}><Human gait="idle" tint="#6e2438" hair="#2a160e" scale={0.86} phase={2.2} /></group>
       <Walker origin={-40} span={16} z={2.6} speed={1.05} tint="#4e6a38" hair="#14110e" phase={0.3} scale={1.08} />
       <Walker origin={-6} span={8} z={3.1} speed={0.7} tint="#8a6230" hair="#d9d4cc" phase={1.7} scale={0.9} />

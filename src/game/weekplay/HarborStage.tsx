@@ -58,11 +58,11 @@ export function NightStage({ children, fog = false, warm = false }: { children: 
 const IDLE: Prop = { kind: "screen", text: "Harbor & Co. · Floor 14 · Signed in · No new tasks" };
 
 /** Puts a beat's screen art on a real monitor mesh in the tower, once the model has loaded. */
-export function MonitorArt({ name, prop, flipped }: { name: string; prop: Prop | null; flipped: boolean }) {
+export function MonitorArt({ name, prop, flipped, idle }: { name: string; prop: Prop | null; flipped: boolean; idle?: string }) {
   const scene = useThree((s) => s.scene);
   const applied = useRef("");
   useFrame(() => {
-    const p = prop ?? IDLE;
+    const p = prop ?? (idle ? { kind: "screen" as const, a: idle } : IDLE);
     const file = flipped ? (p.b ?? p.a) : p.a;
     const key = `${name}|${file ?? ""}|${flipped ? p.textB ?? p.text : p.text}`;
     if (applied.current === key) return;

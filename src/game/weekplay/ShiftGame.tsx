@@ -5,10 +5,12 @@ import type { CheckItem } from "@/game/scenarios";
 import type { FalloutStep, ShiftDef, WeekBeat, WeekChoice } from "@/content/week/types";
 import { checkLearner, logDecision, logShiftComplete, newShiftRun } from "@/game/telemetry";
 import { saveWeek } from "@/game/weekplay/progress";
-import { BeatProp, CastFigure, Room, Walker, approach, player } from "@/game/weekplay/Scene";
+import { BeatProp, CastFigure, Decor, Room, Walker, approach, player } from "@/game/weekplay/Scene";
 import { HarborStage, MonitorArt, NightStage } from "@/game/weekplay/HarborStage";
 import { BakedRoom, setRoomBounds } from "@/game/weekplay/BakedRoom";
 import { SETS } from "@/game/weekplay/sets";
+import { falloutLine, promptLine } from "@/content/week/voices";
+import { sayLine, sayLineNext, unlockAudio } from "@/game/audio";
 
 type Phase = "intro" | "play" | "panel" | "wrap" | "debrief" | "check" | "result";
 type Bark = { id: number; who: string; text: string; bad: boolean };
@@ -89,6 +91,9 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
     if (phase !== "play" || !near) return;
     if (beat.prop?.reveal) setFlipped((f) => ({ ...f, [beat.scenario.id]: true }));
     player.keys.clear();
+    unlockAudio();
+    const line = promptLine(beat);
+    sayLine(line.id, line.text, line.kind, line.who);
     setPhase("panel");
   }, [beat, near, phase]);
 
@@ -107,14 +112,16 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
     const steps: FalloutStep[] = beat.timeline?.[choice.id] ?? [];
     if (choice.ok) pushBark(beat.scenario.prompt.who, choice.debrief, false);
     else if (!steps.length) pushBark(beat.scenario.prompt.who, choice.debrief, true);
-    for (const step of steps) {
+    steps.forEach((step, i) => {
       timers.current.push(
         window.setTimeout(() => {
           if (step.flip) setFlipped((f) => ({ ...f, [id]: true }));
           pushBark(step.who, step.text, true);
+          const line = falloutLine(choice.id, i, step.who, step.text, beat);
+          if (line) sayLineNext(line.id, line.text, line.kind, line.who);
         }, step.at * PACE),
       );
-    }
+    });
     const nextIndex = index + 1;
     if (nextIndex >= shift.beats.length) {
       setIndex(nextIndex);
@@ -180,18 +187,19 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
             <Room set={set} />
           </>
         )}
+        <Decor set={set} />
         {Object.entries(set.spots)
           .filter(([, sp]) => sp.monitor)
           .map(([key, sp]) => {
             const shown = shownProps.find(({ b }) => b.spot === key);
             const prop = shown && shown.b.prop?.kind === "screen" ? shown.b.prop : null;
-            return <MonitorArt key={key} name={sp.monitor!} prop={prop} flipped={!!(shown && flipped[shown.b.scenario.id])} />;
+            return <MonitorArt key={key} name={sp.monitor!} prop={prop} idle={set.idle} flipped={!!(shown && flipped[shown.b.scenario.id])} />;
           })}
         {shownProps.map(({ b, i }) => (
           <BeatProp key={b.scenario.id} beat={b} set={set} flipped={!!flipped[b.scenario.id]} live={phase === "play" && i === index} />
         ))}
         {castBeat && castSpot && (
-          <CastFigure slot={castBeat.cast!} x={castSpot.fx ?? castSpot.x + 0.9} z={castSpot.fz ?? castSpot.z + 1.1} y={set.harbor?.y ?? 0} />
+          <CastFigure slot={castBeat.cast!} x={castSpot.fx ?? castSpot.x + 0.9} z={castSpot.fz ?? castSpot.z + 1.1} y={set.harbor?.y ?? 0} talking={phase === "panel"} />
         )}
         <Walker set={set} target={spot ? { ...approach(spot), lx: spot.x, ly: spot.py, lz: spot.z } : null} onNear={setNear} />
       </Canvas>

@@ -1,0 +1,222 @@
+[
+  {
+    "id": "kc-adm-6",
+    "skill": "privileged-mfa",
+    "prompt": "You denied the prompts. The password is still the one they tried.",
+    "choices": [
+      {
+        "id": "done",
+        "label": "Deny was the whole fix.",
+        "correct": false
+      },
+      {
+        "id": "reset",
+        "label": "Reset it, or they try at 3am.",
+        "correct": true
+      },
+      {
+        "id": "approve",
+        "label": "Approve one so the buzzing ends.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-adm-7",
+    "skill": "privileged-mfa",
+    "prompt": "After a suspected admin compromise, sessions are still open. Resetting the password alone.",
+    "choices": [
+      {
+        "id": "enough",
+        "label": "A new password closes the sessions.",
+        "correct": false
+      },
+      {
+        "id": "revoke",
+        "label": "Also revoke the sessions.",
+        "correct": true
+      },
+      {
+        "id": "wait",
+        "label": "Wait for them to time out.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-adm-8",
+    "skill": "least-privilege",
+    "prompt": "The vendor says remove full admin in an hour. A reminder is set.",
+    "choices": [
+      {
+        "id": "ok",
+        "label": "An hour cannot do lasting harm.",
+        "correct": false
+      },
+      {
+        "id": "back",
+        "label": "An hour can leave a door behind.",
+        "correct": true
+      },
+      {
+        "id": "share",
+        "label": "Sharing your login is safer.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-adm-9",
+    "skill": "least-privilege",
+    "prompt": "They will not say which permission the setup needs.",
+    "choices": [
+      {
+        "id": "ga",
+        "label": "Grant full admin until they do.",
+        "correct": false
+      },
+      {
+        "id": "ask",
+        "label": "No list, no access.",
+        "correct": true
+      },
+      {
+        "id": "you",
+        "label": "Use your account so you can watch.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-adm-10",
+    "skill": "separate-admin",
+    "prompt": "The fix is done. The lunch link is sitting in the admin session.",
+    "choices": [
+      {
+        "id": "open",
+        "label": "Open it. Lunch is not a risk.",
+        "correct": false
+      },
+      {
+        "id": "out",
+        "label": "Sign out, then open it as yourself.",
+        "correct": true
+      },
+      {
+        "id": "stay",
+        "label": "Leave admin up for the rest of the night.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-adm-11",
+    "skill": "separate-admin",
+    "prompt": "Why keep mail off the admin account?",
+    "choices": [
+      {
+        "id": "slow",
+        "label": "Mail is too slow on it.",
+        "correct": false
+      },
+      {
+        "id": "page",
+        "label": "One bad page would run as admin.",
+        "correct": true
+      },
+      {
+        "id": "rule",
+        "label": "The rule is only for contractors.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-adm-12",
+    "skill": "change-control",
+    "prompt": "The one-liner has a lot of votes. You have not read it.",
+    "choices": [
+      {
+        "id": "votes",
+        "label": "Votes mean it is safe to paste.",
+        "correct": false
+      },
+      {
+        "id": "read",
+        "label": "Read it before it runs anywhere.",
+        "correct": true
+      },
+      {
+        "id": "user",
+        "label": "Run it as a normal user first.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-adm-13",
+    "skill": "change-control",
+    "prompt": "You read the script. It does more than the fix.",
+    "choices": [
+      {
+        "id": "run",
+        "label": "Run it. The extra part may help.",
+        "correct": false
+      },
+      {
+        "id": "stop",
+        "label": "Stop. Use the vendor's own fix.",
+        "correct": true
+      },
+      {
+        "id": "prod",
+        "label": "Run it on production only.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-adm-14",
+    "skill": "privileged-mfa",
+    "prompt": "A new admin account appeared that nobody on the team made.",
+    "choices": [
+      {
+        "id": "later",
+        "label": "Check it in the morning.",
+        "correct": false
+      },
+      {
+        "id": "now",
+        "label": "Treat it as the incident. Now.",
+        "correct": true
+      },
+      {
+        "id": "vendor",
+        "label": "Ask the vendor if it is theirs.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-adm-15",
+    "skill": "least-privilege",
+    "prompt": "Access that ends on its own is better than a reminder to remove it because",
+    "choices": [
+      {
+        "id": "slow",
+        "label": "Reminders are slower to click.",
+        "correct": false
+      },
+      {
+        "id": "miss",
+        "label": "Reminders get missed.",
+        "correct": true
+      },
+      {
+        "id": "log",
+        "label": "A reminder writes a better log.",
+        "correct": false
+      }
+    ]
+  }
+]

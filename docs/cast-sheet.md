@@ -129,3 +129,59 @@ The narrator is already cast. The barista does not need a unique body. The cafe 
 | 7 Fake service desk, voice | Mon phone |
 | 8 Finance lead, voice | Thu call, both reads |
 | 9 Real desk, voice | Thu laptop report, Fri incident |
+
+# Cast additions
+
+Same rules as the main sheet. Ordinary people. Nothing about a face, a voice, or a build tells you who is lying.
+
+The six bodies and three voices already cast stay as they are. This adds one body and three voices.
+
+## Admin peer
+
+New body. Do not reuse the desk coworker. That person is on the floor, asking about invoices. This one lives in the server room.
+
+Appears: ADM-02, the vendor request. On screen and voice. One line.
+
+Age about 30 to 50. Average build. Fleece or a plain shirt, badge on a reel, practical shoes. Leans on the rack because the room is small. Tired, competent, passing on a vendor's deadline. Not a boss. Not eager.
+
+What to read: a peer who believes the hour will be enough. Friendly pressure. Not a con.
+
+## Saturday, at home
+
+No new body. No existing body either.
+
+The four Saturday beats are the phone, the laptop, the phone again, and the router. The player is alone. Do not put the Thursday housemate in the kitchen. That person already has a beat, and Saturday is not that beat.
+
+If the room feels empty, that is correct. The fridge and the prints do the living.
+
+## Voices, no body
+
+These three must not share an actor with each other, with the Thursday finance lead, or with the real help desk.
+
+### Fake finance chief
+
+HLP-01 only. The airport password reset.
+
+Voice about 45 to 60. Clipped. A little loud, like a bad line in a terminal. Rank without charm. Short sentences. Not the walking, pressed read of the Thursday finance lead. Not the casual text of the owner.
+
+What to read: important, late, and used to being helped. Still an ordinary person, not a villain.
+
+### Fake auditor
+
+HLP-03 only. The desk phone.
+
+Voice about 30 to 50. Polite. Unhurried. Sounds like someone with a form, not someone in trouble. No badge-and-siren energy.
+
+What to read: reasonable. The paperwork is coming. It isn't.
+
+### Fake owner
+
+FIN-02 only. A text, read aloud as a text. Not performed as a live call.
+
+Voice about 40 to 55. Casual. Few words. The kind of note you would normally believe. A different actor from the airport caller. If it sounds like the finance chief, the player learns one voice and stops listening.
+
+What to read: familiar, brief, and slightly above you. Not angry. Not slick.
+
+## Do not build
+
+A barista. A second security guard. A face for any of the three voices above. The real desk voice already covers the incident line and the laptop report. Use it again if the freight vendor or the staff member on payday needs a human and you are short an actor. Those two lines are ordinary and confused, not attacks.

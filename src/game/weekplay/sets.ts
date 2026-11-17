@@ -38,6 +38,10 @@ export type RoomSet = {
   harbor?: { y: number };
   /** A modeled, baked room GLB in /assets/models (the cafe, the home). Coordinates are that file's. */
   baked?: string;
+  /** Posters and signs hung in this room for this set. face: radians about Y, 0 = facing +Z. */
+  decor?: { file: string; x: number; y: number; z: number; w: number; h: number; face: number }[];
+  /** What the player's desk monitor shows when no beat is using it. */
+  idle?: string;
 };
 
 const desk = (x: number, z: number, color = "#3b3f47"): Piece[] => [
@@ -117,6 +121,8 @@ export const SETS: Record<SetKind, RoomSet> = {
   },
   helpdesk: {
     name: "Service desk · Floor 14",
+    idle: "week/decor/desk-queue-screen.webp",
+    decor: [{ file: "week/decor/desk-verify-poster.webp", x: -9.97, y: 52.15, z: -2.6, w: 0.6, h: 0.9, face: Math.PI / 2 }],
     harbor: { y: 50.6 },
     w: 20,
     d: 16,
@@ -133,6 +139,10 @@ export const SETS: Record<SetKind, RoomSet> = {
   },
   server: {
     name: "IT room · Floor 14",
+    decor: [
+      { file: "week/decor/srv-door-sign.webp", x: -2.3, y: 51.95, z: -14.285, w: 0.3, h: 0.3, face: 0 },
+      { file: "week/decor/srv-rack-labels.webp", x: -0.86, y: 52.0, z: -15.0, w: 1.2, h: 0.6, face: Math.PI / 2 },
+    ],
     harbor: { y: 50.6 },
     w: 20,
     d: 16,

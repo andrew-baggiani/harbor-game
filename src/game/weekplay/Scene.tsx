@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import type { CastSlot, Prop, WeekBeat } from "@/content/week/types";
 import { Figure } from "@/game/draw";
+import { CastActor } from "@/game/cast";
 import { blocked } from "@/game/layout";
 import { roomBlocked } from "@/game/weekplay/BakedRoom";
 import { blockedIn, type RoomSet, type Spot } from "@/game/weekplay/sets";
@@ -175,7 +176,7 @@ const PROP_SIZE: Record<Prop["kind"], [number, number]> = {
   laptop: [0.5, 0.32],
   phone: [0.17, 0.36],
   badge: [0.2, 0.2],
-  paper: [0.42, 0.3],
+  paper: [0.3, 0.3],
   drive: [0.08, 0.04],
 };
 
@@ -235,7 +236,7 @@ export function BeatProp({ beat, set, flipped, live }: { beat: WeekBeat; set: Ro
 }
 
 /** Greybox stand-in for a cast slot. Turns to face the player. */
-export function CastFigure({ slot, x, z, y = 0 }: { slot: CastSlot; x: number; z: number; y?: number }) {
+export function CastFigure({ slot, x, z, y = 0, talking = false }: { slot: CastSlot; x: number; z: number; y?: number; talking?: boolean }) {
   const ref = useRef<THREE.Group>(null);
   const look = CAST_LOOK[slot];
   useFrame((_, dt) => {
@@ -247,7 +248,7 @@ export function CastFigure({ slot, x, z, y = 0 }: { slot: CastSlot; x: number; z
   });
   return (
     <group ref={ref} position={[x, y, z]} userData={{ cast: slot }}>
-      <Figure color={look.color} accent={look.accent} />
+      <CastActor slot={slot} talking={talking} fallback={<Figure color={look.color} accent={look.accent} />} />
     </group>
   );
 }
@@ -299,4 +300,19 @@ export function Walker({ set, target, onNear }: { set: RoomSet; target: { x: num
     }
   });
   return null;
+}
+
+/** Posters and signs for a set, hung on the tower's walls. */
+export function Decor({ set }: { set: RoomSet }) {
+  if (!set.decor?.length) return null;
+  return (
+    <group>
+      {set.decor.map((d) => (
+        <mesh key={d.file} position={[d.x, d.y, d.z]} rotation={[0, d.face, 0]}>
+          <planeGeometry args={[d.w, d.h]} />
+          <meshStandardMaterial map={loadTexture(d.file)} roughness={0.8} polygonOffset polygonOffsetFactor={-2} />
+        </mesh>
+      ))}
+    </group>
+  );
 }

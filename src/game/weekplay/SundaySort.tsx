@@ -7,7 +7,7 @@ const SECONDS = 90;
 
 /** Sunday: sort sixteen messages into safe or report before the clock runs out. Arrow keys work too. */
 export function SundaySort({ onExit }: { onExit: () => void }) {
-  const deck = useMemo(() => [...SUNDAY_SORT].sort(() => Math.random() - 0.5), []);
+  const deck = useMemo(() => [...SUNDAY_SORT].sort(() => Math.random() - 0.5).slice(0, 16), []);
   const [phase, setPhase] = useState<"intro" | "play" | "done">("intro");
   const [at, setAt] = useState(0);
   const [left, setLeft] = useState(SECONDS);

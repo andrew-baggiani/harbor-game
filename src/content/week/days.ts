@@ -16,6 +16,10 @@ import kcTue from "@/content/drafts/kc-tuesday.json";
 import kcWed from "@/content/drafts/kc-wednesday.json";
 import kcThu from "@/content/drafts/kc-thursday.json";
 import kcFri from "@/content/drafts/kc-friday.json";
+import kcTue2 from "@/content/week/kc/kc-tuesday.json";
+import kcWed2 from "@/content/week/kc/kc-wednesday.json";
+import kcThu2 from "@/content/week/kc/kc-thursday.json";
+import kcFri2 from "@/content/week/kc/kc-friday.json";
 import type { CheckItem } from "@/game/scenarios";
 import type { ShiftDef, WeekScenario } from "@/content/week/types";
 
@@ -107,7 +111,7 @@ export const TUESDAY: ShiftDef = {
       },
     },
   ],
-  check: kcTue as CheckItem[],
+  check: [...kcTue, ...kcTue2] as CheckItem[],
 };
 
 export const WEDNESDAY: ShiftDef = {
@@ -142,11 +146,11 @@ export const WEDNESDAY: ShiftDef = {
       set: "floor",
       spot: "paper",
       cast: "desk-coworker",
-      prop: { kind: "paper", text: "INTERNAL · Customer list · 4,212 rows" },
+      prop: { kind: "paper", a: "week/wed-sheet-a.webp", b: "week/wed-sheet-b.webp", text: "INTERNAL · Customer list" },
       objective: "Same desk. A slide needs the customer list, apparently.",
       timeline: {
         "wed-class-all": [
-          { at: 20, who: "Slide", text: "The slide is rows of names." },
+          { at: 20, who: "Slide", text: "The slide is rows of names.", flip: true },
           { at: 50, who: "Mail", text: "The deck went to a partner thread you never opened." },
           { at: 80, who: "Coworker", text: "They just read one name back. They shouldn't have it." },
         ],
@@ -175,7 +179,7 @@ export const WEDNESDAY: ShiftDef = {
       },
     },
   ],
-  check: kcWed as CheckItem[],
+  check: [...kcWed, ...kcWed2] as CheckItem[],
 };
 
 export const THURSDAY: ShiftDef = {
@@ -250,11 +254,11 @@ export const THURSDAY: ShiftDef = {
       set: "home",
       spot: "table",
       cast: "at-home",
-      prop: { kind: "laptop", text: "Unlocked · Harbor" },
+      prop: { kind: "laptop", a: "week/thu-home-laptop-a.webp", b: "week/thu-home-laptop-b.webp", text: "Unlocked · Harbor" },
       objective: "Home. The work laptop is open on the kitchen table.",
       timeline: {
         "thu-home-let": [
-          { at: 20, who: "Laptop", text: "A work folder. Then a personal upload." },
+          { at: 20, who: "Laptop", text: "A work folder. Then a personal upload.", flip: true },
           { at: 50, who: "Laptop", text: "A stick goes in the side while you get the parcel." },
           { at: 80, who: "Laptop", text: "History shows a file leaving to somewhere that isn't the company share." },
         ],
@@ -262,7 +266,7 @@ export const THURSDAY: ShiftDef = {
       },
     },
   ],
-  check: kcThu as CheckItem[],
+  check: [...kcThu, ...kcThu2] as CheckItem[],
 };
 
 export const FRIDAY: ShiftDef = {
@@ -278,11 +282,11 @@ export const FRIDAY: ShiftDef = {
       set: "floor",
       spot: "aisle",
       cast: "last-day",
-      prop: { kind: "laptop", text: "Copying 2,418 files…" },
+      prop: { kind: "laptop", a: "week/fri-aisle-laptop-a.webp", b: "week/fri-aisle-laptop-b.webp", text: "Copying files" },
       objective: "Someone in the aisle is closing a laptop fast.",
       timeline: {
         "fri-insider-ignore": [
-          { at: 0, who: "Aisle", text: "The lid is shut." },
+          { at: 0, who: "Aisle", text: "The lid is shut.", flip: true },
           { at: 70, who: "Aisle", text: "The drive is in their bag. The share shows the copy finished." },
         ],
         "fri-insider-ask": [
@@ -330,5 +334,5 @@ export const FRIDAY: ShiftDef = {
       },
     },
   ],
-  check: kcFri as CheckItem[],
+  check: [...kcFri, ...kcFri2] as CheckItem[],
 };
