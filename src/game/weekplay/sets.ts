@@ -3,8 +3,23 @@ import type { SetKind } from "@/content/week/types";
 /** A greybox piece of furniture: drawn as a box and used for collision. y is the bottom. */
 export type Piece = { x: number; z: number; w: number; d: number; h: number; color?: string; y?: number; glow?: string; solid?: boolean };
 
-/** Where a beat happens: the prop sits at (x, py, z); a speaking figure stands at (fx, fz). */
-export type Spot = { x: number; z: number; py: number; fx?: number; fz?: number; label: string };
+/**
+ * Where a beat happens: the prop sits at (x, py, z) facing `face` (radians about Y, 0 = facing +Z).
+ * A speaking figure stands at (fx, fz). The player interacts from (ax, az), where the gold ring sits.
+ * `monitor` puts the screen art on the real desk monitor mesh of that name instead of a floating prop.
+ */
+export type Spot = {
+  x: number;
+  z: number;
+  py: number;
+  fx?: number;
+  fz?: number;
+  ax?: number;
+  az?: number;
+  face?: number;
+  monitor?: string;
+  label: string;
+};
 
 export type RoomSet = {
   w: number;
@@ -19,6 +34,10 @@ export type RoomSet = {
   pieces: Piece[];
   spots: Record<string, Spot>;
   name: string;
+  /** Use Monday's modeled and baked Harbor Tower instead of a greybox room. y is the floor height. */
+  harbor?: { y: number };
+  /** A modeled, baked room GLB in /assets/models (the cafe, the home). Coordinates are that file's. */
+  baked?: string;
 };
 
 const desk = (x: number, z: number, color = "#3b3f47"): Piece[] => [
@@ -29,134 +48,105 @@ const desk = (x: number, z: number, color = "#3b3f47"): Piece[] => [
 export const SETS: Record<SetKind, RoomSet> = {
   floor: {
     name: "Floor 14",
-    w: 18,
-    d: 12,
+    harbor: { y: 50.6 },
+    w: 20,
+    d: 16,
     h: 3,
     floor: "#2a2d33",
     wall: "#3a3e46",
     light: "#d9e4f2",
-    windows: "n",
-    spawn: { x: 6.5, z: 4.5, yaw: Math.PI * 0.25 },
-    pieces: [
-      ...desk(-5, 1.6),
-      ...desk(-3, 1.6),
-      ...desk(-1, 1.6),
-      ...desk(-5, -2.4),
-      ...desk(-3, -2.4),
-      ...desk(-1, -2.4),
-      ...desk(4, -2.4),
-      ...desk(6, -2.4),
-      { x: 8.2, z: 4.8, w: 1.2, d: 1.6, h: 2.6, color: "#4a4e57" },
-      { x: 2.4, z: 4.9, w: 2.2, d: 0.6, h: 1.0, color: "#565049" },
-      { x: 2.6, z: -0.4, w: 0.6, d: 0.6, h: 0.93, color: "#4a4d55" },
-    ],
+    spawn: { x: 1.5, z: -14.2, yaw: Math.PI },
+    pieces: [],
     spots: {
-      desk: { x: -3, z: 1.4, py: 0.98, fx: -2.1, fz: 2.6, label: "Your desk" },
-      nextdesk: { x: -1, z: 1.4, py: 0.98, fx: 0, fz: 2.6, label: "Next desk" },
-      aisle: { x: 2.6, z: -0.4, py: 0.95, fx: 2.6, fz: -1.2, label: "The aisle" },
+      desk: { x: -5.8, z: -1.57, py: 51.54, ax: -5.8, az: -2.75, fx: -4.6, fz: -2.9, monitor: "Monitor_Player_Screen", label: "Your desk" },
+      nextdesk: { x: -4.7, z: -5.75, py: 51.45, ax: -4.7, az: -5.0, fx: -5.6, fz: -5.0, face: Math.PI, label: "Next desk" },
+      aisle: { x: -3.95, z: -8.0, py: 51.45, ax: -2.9, az: -8.0, fx: -2.6, fz: -8.9, face: Math.PI / 2, label: "The aisle" },
+      phone: { x: -6.3, z: -1.9, py: 51.45, ax: -6.3, az: -2.75, face: Math.PI, label: "Your phone" },
+      paper: { x: -5.25, z: -1.8, py: 51.43, ax: -5.3, az: -2.75, fx: -4.4, fz: -2.9, face: Math.PI, label: "Your desk" },
+      podeast: { x: 4.1, z: -5.75, py: 51.45, ax: 4.1, az: -5.0, fx: 3.2, fz: -4.9, face: Math.PI, label: "East pod" },
     },
   },
   lobby: {
     name: "Lobby",
-    w: 14,
-    d: 10,
+    harbor: { y: 0 },
+    w: 20,
+    d: 16,
     h: 4,
     floor: "#34322e",
     wall: "#46423c",
     light: "#f2e2c8",
-    windows: "s",
-    spawn: { x: -4.5, z: -3, yaw: -Math.PI * 0.75 },
-    pieces: [
-      { x: 2.5, z: 2.2, w: 2.2, d: 0.5, h: 0.45, color: "#5a4c3e" },
-      { x: -3.5, z: 1.5, w: 2.4, d: 0.8, h: 1.05, color: "#2f3138" },
-      { x: 0, z: -2.5, w: 0.3, d: 1.4, h: 1.0, color: "#22242a", glow: "#2f6b4f" },
-      { x: 1.6, z: -2.5, w: 0.3, d: 1.4, h: 1.0, color: "#22242a", glow: "#2f6b4f" },
-      { x: 5.8, z: -3.5, w: 1.6, d: 1.6, h: 3.4, color: "#55595f" },
-    ],
+    spawn: { x: 1.2, z: -13.6, yaw: Math.PI },
+    pieces: [],
     spots: {
-      bench: { x: 2.5, z: 2.2, py: 0.47, fx: -3.5, fz: 0.6, label: "Lobby bench" },
+      bench: { x: 6.45, z: -6.95, py: 0.52, ax: 5.85, az: -6.3, fx: -4.4, fz: -8.7, label: "Lobby sofa" },
     },
   },
   cafe: {
-    name: "Cafe",
+    name: "Tidewater cafe",
+    baked: "harbor_cafe_baked.glb",
     w: 14,
     d: 10,
-    h: 3.2,
+    h: 3.3,
     floor: "#3b2f27",
     wall: "#4b3d33",
     light: "#ffd2a0",
-    windows: "w",
-    spawn: { x: 4.5, z: 3.5, yaw: Math.PI * 0.2 },
-    pieces: [
-      { x: -2, z: -1, w: 1.0, d: 1.0, h: 0.74, color: "#6a5240" },
-      { x: -2, z: 2.2, w: 1.0, d: 1.0, h: 0.74, color: "#6a5240" },
-      { x: 1.5, z: 2.2, w: 1.0, d: 1.0, h: 0.74, color: "#6a5240" },
-      { x: 1.2, z: -2.6, w: 0.5, d: 0.5, h: 0.46, color: "#2d2520" },
-      { x: 4.6, z: -3.2, w: 3.2, d: 0.9, h: 1.05, color: "#2b2522", glow: "#5a3c26" },
-    ],
+    spawn: { x: 2.4, z: 3.6, yaw: 1.32 },
+    pieces: [],
     spots: {
-      table: { x: -2, z: -1, py: 0.76, label: "Your table" },
-      chair: { x: 1.2, z: -2.6, py: 0.48, label: "The chair" },
+      table: { x: -5.45, z: 1.75, py: 0.75, ax: -4.4, az: 0.9, label: "Your table" },
+      chair: { x: -4.75, z: 2.25, py: 0.46, ax: -3.9, az: 2.7, label: "The chair" },
     },
   },
   home: {
     name: "Home",
+    baked: "harbor_home_baked.glb",
     w: 12,
     d: 10,
     h: 2.7,
     floor: "#4a3f35",
     wall: "#5a544c",
     light: "#ffd9b0",
-    windows: "e",
-    spawn: { x: -4.2, z: 3.6, yaw: -Math.PI * 0.2 },
-    pieces: [
-      { x: 0, z: 0, w: 1.8, d: 1.0, h: 0.76, color: "#6f5a45" },
-      { x: -3.6, z: -3.6, w: 3.0, d: 0.7, h: 0.92, color: "#3e3a35" },
-      { x: 3.2, z: 2.4, w: 2.4, d: 0.9, h: 0.45, color: "#3c4654" },
-      { x: 4.6, z: -3.6, w: 1.4, d: 0.5, h: 0.8, color: "#2e2b28" },
-    ],
+    spawn: { x: -3.1, z: 3.9, yaw: -0.11 },
+    pieces: [],
     spots: {
-      table: { x: 0, z: 0, py: 0.78, fx: 1.4, fz: 0.6, label: "Kitchen table" },
-      counter: { x: -3.6, z: -3.5, py: 0.94, label: "Counter" },
-      couch: { x: 3.2, z: 2.4, py: 0.47, label: "Couch" },
-      shelf: { x: 4.6, z: -3.6, py: 0.82, label: "Router" },
+      table: { x: -2.5, z: -1.5, py: 0.76, ax: -3.9, az: -1.5, fx: -1.2, fz: -0.6, label: "Kitchen table" },
+      counter: { x: -4.0, z: -4.62, py: 0.92, ax: -4.0, az: -3.7, label: "Counter" },
+      couch: { x: 1.5, z: 1.0, py: 0.5, ax: 2.3, az: -0.2, label: "Couch" },
+      shelf: { x: 5.75, z: 0.22, py: 0.6, ax: 4.9, az: 0.22, label: "Router" },
     },
   },
   helpdesk: {
-    name: "Service desk",
-    w: 14,
-    d: 10,
+    name: "Service desk · Floor 14",
+    harbor: { y: 50.6 },
+    w: 20,
+    d: 16,
     h: 3,
     floor: "#262a30",
     wall: "#353a42",
     light: "#cfe0f2",
-    windows: "n",
-    spawn: { x: 4.5, z: 3.5, yaw: Math.PI * 0.25 },
-    pieces: [...desk(-2, -1.6), ...desk(0, -1.6), ...desk(2, -1.6), { x: -5.5, z: 3.5, w: 1.6, d: 1.0, h: 1.9, color: "#3a3f48" }],
+    spawn: { x: 1.5, z: -14.2, yaw: Math.PI },
+    pieces: [],
     spots: {
-      console: { x: -2, z: -1.8, py: 0.98, label: "Your console" },
-      phone: { x: 2, z: -1.8, py: 0.76, label: "Desk phone" },
+      console: { x: -5.8, z: -1.57, py: 51.54, ax: -5.8, az: -2.75, monitor: "Monitor_Player_Screen", label: "Your console" },
+      phone: { x: -6.3, z: -1.9, py: 51.46, ax: -6.3, az: -2.75, face: Math.PI, label: "Desk phone" },
     },
   },
   server: {
-    name: "Server room",
-    w: 14,
-    d: 10,
+    name: "IT room · Floor 14",
+    harbor: { y: 50.6 },
+    w: 20,
+    d: 16,
     h: 3,
     floor: "#1f2328",
     wall: "#2b3036",
     light: "#b9d4ff",
-    spawn: { x: 5, z: 3.5, yaw: Math.PI * 0.25 },
-    pieces: [
-      ...[-4.5, -3.5, -2.5, -1.5, -0.5].map((x) => ({ x, z: -3.6, w: 0.9, d: 1.1, h: 2.1, color: "#16191e", glow: "#1f7a52" })),
-      ...desk(0.5, 1.6, "#33373e"),
-      ...desk(-3.5, 1.6, "#33373e"),
-      { x: 3, z: -3.6, w: 0.9, d: 1.1, h: 2.1, color: "#16191e", glow: "#8a3a2a" },
-    ],
+    spawn: { x: 1.5, z: -14.2, yaw: Math.PI },
+    pieces: [],
     spots: {
-      console: { x: 0.5, z: 1.4, py: 0.98, label: "Admin console" },
-      desk: { x: -3.5, z: 1.4, py: 0.98, fx: -2.6, fz: 2.6, label: "Your coworker's desk" },
-      rack: { x: 3, z: -2.9, py: 1.1, label: "The rack" },
+      console: { x: -5.8, z: -1.57, py: 51.54, ax: -5.8, az: -2.75, monitor: "Monitor_Player_Screen", label: "Admin console" },
+      desk: { x: 4.1, z: -5.75, py: 51.45, ax: 4.1, az: -5.0, fx: 3.2, fz: -4.9, face: Math.PI, label: "Your coworker's desk" },
+      phone: { x: -6.3, z: -1.9, py: 51.45, ax: -6.3, az: -2.75, face: Math.PI, label: "Your phone" },
+      rack: { x: -2.3, z: -14.0, py: 51.2, ax: -2.3, az: -13.2, face: 0, label: "IT room door" },
     },
   },
 };

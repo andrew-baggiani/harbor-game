@@ -9,8 +9,10 @@ Tuesday to Sunday, the three role tracks, and the monthly reminder. Monday stays
 | Shift definitions (beats, rooms, props, fallout timelines) | `src/content/week/days.ts`, `weekend.ts`, `tracks.ts` |
 | Monthly reminders | `src/content/week/reminders.ts` |
 | Registry, choice lookup for the server, names for the portal | `src/content/week/index.ts` |
-| Greybox rooms and their spots | `src/game/weekplay/sets.ts` |
-| 3D scene: room, props, cast stand-ins, first-person walker | `src/game/weekplay/Scene.tsx` |
+| Rooms and their spots (where each beat happens) | `src/game/weekplay/sets.ts` |
+| Monday's tower (floor 14, lobby) with Monday's lights and post stack | `src/game/weekplay/HarborStage.tsx` |
+| The cafe and the home: modeled, Cycles-baked GLBs | `src/game/weekplay/BakedRoom.tsx`, built by `build_rooms.py` |
+| Props, cast stand-ins, first-person walker | `src/game/weekplay/Scene.tsx` |
 | Flow: intro, beats, fallout, debrief, knowledge check, result | `src/game/weekplay/ShiftGame.tsx` |
 | Sunday's 90-second sort | `src/game/weekplay/SundaySort.tsx` |
 | Routes | `/week`, `/week/<id>`, `/reminder` |
@@ -29,7 +31,11 @@ Every speaking figure is a `CastFigure` with a `slot` (`desk-coworker`, `contrac
 2. In `Scene.tsx`, have `CastFigure` load `/assets/models/cast/<slot>.glb` when it exists, and fall back to the greybox `Figure` when it doesn't.
 3. Voice-only roles (`caller`) never get a body.
 
-Rooms swap the same way: each `SetKind` can later load a GLB room and keep the spot coordinates in `sets.ts`.
+## Rooms
+
+- **Floor 14 and the lobby** (Tuesday, Wednesday, Friday, all three role tracks) are Monday's own models, rendered by Monday's `HarborWorld`, so the detail and baked lighting are identical. Screen beats at the player's desk paint onto the real `Monitor_Player_Screen` mesh. The Admins track uses the IT closet door on floor 14.
+- **The cafe and the home** (Thursday, Saturday) are new rooms built in Blender with the same pipeline as Monday (`/home/claude/harbor/build_rooms.py cafe|home`): textured materials, real furniture, Cycles-baked lightmaps (`harbor_cafe_baked.glb` + `harbor_cafe_lm.jpg`, same for home). Decor placeholders (menu board, fridge, router label, street views) come from `labels_rooms.py` and get replaced by Grok's decor pack.
+- The old greybox room in `Scene.tsx` is only a fallback now.
 
 ## Records
 

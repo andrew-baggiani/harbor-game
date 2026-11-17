@@ -3,7 +3,9 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import type { CastSlot, Prop, WeekBeat } from "@/content/week/types";
 import { Figure } from "@/game/draw";
-import { blockedIn, type RoomSet } from "@/game/weekplay/sets";
+import { blocked } from "@/game/layout";
+import { roomBlocked } from "@/game/weekplay/BakedRoom";
+import { blockedIn, type RoomSet, type Spot } from "@/game/weekplay/sets";
 
 /** Mutable per-frame player state, shared with the HUD. */
 export const player = { x: 0, z: 0, yaw: 0, pitch: -0.08, moveX: 0, moveZ: 0, keys: new Set<string>(), near: false };
@@ -177,7 +179,12 @@ const PROP_SIZE: Record<Prop["kind"], [number, number]> = {
   drive: [0.08, 0.04],
 };
 
-/** One beat's prop, standing at its spot, with a pulsing ring when it's the live beat. */
+/** Where the player stands to use a spot, and where the gold ring goes. */
+export function approach(spot: Spot) {
+  return { x: spot.ax ?? spot.x, z: spot.az ?? spot.z + 0.9 };
+}
+
+/** One beat's prop at its spot, with a pulsing ring where the player stands when it's the live beat. */
 export function BeatProp({ beat, set, flipped, live }: { beat: WeekBeat; set: RoomSet; flipped: boolean; live: boolean }) {
   const spot = set.spots[beat.spot];
   const ring = useRef<THREE.Mesh>(null);
@@ -190,31 +197,36 @@ export function BeatProp({ beat, set, flipped, live }: { beat: WeekBeat; set: Ro
   if (!spot) return null;
   const kind = beat.prop?.kind ?? "screen";
   const [pw, ph] = PROP_SIZE[kind];
+  const onMonitor = !!spot.monitor && kind === "screen";
+  const floor = set.harbor?.y ?? 0;
+  const at = approach(spot);
+  const flat = kind === "paper" || kind === "badge";
   return (
-    <group position={[spot.x, 0, spot.z]}>
-      {beat.prop && (
-        <group position={[0, spot.py + ph / 2 + (kind === "laptop" ? 0.02 : 0), 0]} rotation={[kind === "paper" || kind === "badge" ? -0.5 : -0.08, 0, 0]}>
-          <mesh>
-            <boxGeometry args={[pw + 0.03, ph + 0.03, 0.025]} />
-            <meshStandardMaterial color="#101216" roughness={0.4} />
-          </mesh>
-          <mesh position={[0, 0, 0.0135]}>
-            <planeGeometry args={[pw, ph]} />
-            <meshBasicMaterial map={tex ?? undefined} color={tex ? "#ffffff" : "#1a2230"} toneMapped={false} />
-          </mesh>
-          {flipped && <pointLight position={[0, 0, 0.4]} intensity={1.2} distance={2.5} color="#ff6a5a" />}
-          {!flipped && live && <pointLight position={[0, 0, 0.4]} intensity={0.9} distance={2.5} color="#9cc4ff" />}
+    <group>
+      {beat.prop && !onMonitor && (
+        <group position={[spot.x, spot.py, spot.z]} rotation={[0, spot.face ?? Math.atan2(at.x - spot.x, at.z - spot.z), 0]}>
+          <group position={[0, flat ? 0.01 : ph / 2 + 0.02, 0]} rotation={[flat ? -Math.PI / 2 + 0.35 : -0.12, 0, 0]}>
+            <mesh castShadow>
+              <boxGeometry args={[pw + 0.02, ph + 0.02, kind === "paper" ? 0.003 : 0.012]} />
+              <meshStandardMaterial color={kind === "paper" ? "#e9e4d8" : "#0e1014"} roughness={kind === "paper" ? 0.9 : 0.35} metalness={kind === "paper" ? 0 : 0.4} />
+            </mesh>
+            <mesh position={[0, 0, kind === "paper" ? 0.002 : 0.0065]}>
+              <planeGeometry args={[pw, ph]} />
+              <meshBasicMaterial map={tex ?? undefined} color={tex ? "#ffffff" : "#1a2230"} toneMapped={false} />
+            </mesh>
+            {kind === "laptop" && (
+              <mesh position={[0, -ph / 2 - 0.01, 0.16]} rotation={[Math.PI / 2 - 0.12, 0, 0]}>
+                <boxGeometry args={[pw + 0.02, 0.3, 0.014]} />
+                <meshStandardMaterial color="#1c1f25" roughness={0.4} metalness={0.5} />
+              </mesh>
+            )}
+          </group>
+          {/* No lights here on purpose: adding or removing a light recompiles every material in the tower. */}
         </group>
       )}
-      {kind === "laptop" && (
-        <mesh position={[0, spot.py + 0.01, 0.14]}>
-          <boxGeometry args={[0.52, 0.02, 0.32]} />
-          <meshStandardMaterial color="#202329" />
-        </mesh>
-      )}
       {live && (
-        <mesh ref={ring} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0.9]}>
-          <ringGeometry args={[0.42, 0.5, 40]} />
+        <mesh ref={ring} rotation={[-Math.PI / 2, 0, 0]} position={[at.x, floor + 0.02, at.z]}>
+          <ringGeometry args={[0.32, 0.38, 48]} />
           <meshBasicMaterial color="#c4a574" transparent opacity={0.85} toneMapped={false} />
         </mesh>
       )}
@@ -223,7 +235,7 @@ export function BeatProp({ beat, set, flipped, live }: { beat: WeekBeat; set: Ro
 }
 
 /** Greybox stand-in for a cast slot. Turns to face the player. */
-export function CastFigure({ slot, x, z }: { slot: CastSlot; x: number; z: number }) {
+export function CastFigure({ slot, x, z, y = 0 }: { slot: CastSlot; x: number; z: number; y?: number }) {
   const ref = useRef<THREE.Group>(null);
   const look = CAST_LOOK[slot];
   useFrame((_, dt) => {
@@ -234,14 +246,14 @@ export function CastFigure({ slot, x, z }: { slot: CastSlot; x: number; z: numbe
     ref.current.rotation.y += diff * Math.min(1, dt * 3);
   });
   return (
-    <group ref={ref} position={[x, 0, z]} userData={{ cast: slot }}>
+    <group ref={ref} position={[x, y, z]} userData={{ cast: slot }}>
       <Figure color={look.color} accent={look.accent} />
     </group>
   );
 }
 
 /** First-person walker. W forward, S back, A strafe left, D strafe right, drag to look. */
-export function Walker({ set, target, onNear }: { set: RoomSet; target: { x: number; z: number } | null; onNear: (near: boolean) => void }) {
+export function Walker({ set, target, onNear }: { set: RoomSet; target: { x: number; z: number; lx?: number; ly?: number; lz?: number } | null; onNear: (near: boolean) => void }) {
   const { camera } = useThree();
   const lastNear = useRef(false);
   useEffect(() => {
@@ -271,12 +283,15 @@ export function Walker({ set, target, onNear }: { set: RoomSet; target: { x: num
     // Camera looks down -Z at yaw 0. Forward is (-sin, -cos); right is (cos, -sin).
     const dx = (-sin * fwd + cos * side) * speed * dt;
     const dz = (-cos * fwd - sin * side) * speed * dt;
-    if (!blockedIn(set, player.x + dx, player.z)) player.x += dx;
-    if (!blockedIn(set, player.x, player.z + dz)) player.z += dz;
+    const floor = set.harbor?.y ?? 0;
+    const hit = (x: number, z: number) =>
+      set.harbor ? blocked(x, z, floor, 0.26) : set.baked ? roomBlocked(x, z, floor, 0.26) : blockedIn(set, x, z);
+    if (!hit(player.x + dx, player.z)) player.x += dx;
+    if (!hit(player.x, player.z + dz)) player.z += dz;
     const bob = len > 0.1 ? Math.sin(performance.now() / 140) * 0.025 : 0;
-    camera.position.set(player.x, 1.62 + bob, player.z);
+    camera.position.set(player.x, floor + 1.62 + bob, player.z);
     camera.rotation.set(player.pitch, player.yaw, 0);
-    const near = !!target && Math.hypot(player.x - target.x, player.z - target.z) < 1.9;
+    const near = !!target && Math.hypot(player.x - target.x, player.z - target.z) < 1.2;
     if (near !== lastNear.current) {
       lastNear.current = near;
       player.near = near;

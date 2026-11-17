@@ -1,11 +1,13 @@
 import { Canvas } from "@react-three/fiber";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { CheckItem } from "@/game/scenarios";
 import type { FalloutStep, ShiftDef, WeekBeat, WeekChoice } from "@/content/week/types";
 import { checkLearner, logDecision, logShiftComplete, newShiftRun } from "@/game/telemetry";
 import { saveWeek } from "@/game/weekplay/progress";
-import { BeatProp, CastFigure, Room, Walker, player } from "@/game/weekplay/Scene";
+import { BeatProp, CastFigure, Room, Walker, approach, player } from "@/game/weekplay/Scene";
+import { HarborStage, MonitorArt, NightStage } from "@/game/weekplay/HarborStage";
+import { BakedRoom, setRoomBounds } from "@/game/weekplay/BakedRoom";
 import { SETS } from "@/game/weekplay/sets";
 
 type Phase = "intro" | "play" | "panel" | "wrap" | "debrief" | "check" | "result";
@@ -48,6 +50,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
 
   const placePlayer = useCallback((kind: typeof roomSet) => {
     const s = SETS[kind];
+    setRoomBounds({ x0: -s.w / 2, x1: s.w / 2, z0: -s.d / 2, z1: s.d / 2 });
     player.x = s.spawn.x;
     player.z = s.spawn.z;
     player.yaw = s.spawn.yaw;
@@ -154,7 +157,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
         className="h-full w-full"
         dpr={[1, 1.75]}
         shadows
-        camera={{ fov: 62, near: 0.05, far: 60 }}
+        camera={{ fov: 62, near: 0.05, far: 500 }}
         gl={{ antialias: true, powerPreference: "high-performance" }}
         onCreated={({ gl }) => {
           gl.outputColorSpace = THREE.SRGBColorSpace;
@@ -163,15 +166,34 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           gl.setClearColor("#07090e");
         }}
       >
-        <fog attach="fog" args={["#0c1016", 9, 26]} />
-        <Room set={set} />
+        {set.harbor ? (
+          <HarborStage />
+        ) : set.baked ? (
+          <NightStage warm>
+            <Suspense fallback={null}>
+              <BakedRoom key={set.baked} file={set.baked} />
+            </Suspense>
+          </NightStage>
+        ) : (
+          <>
+            <fog attach="fog" args={["#0c1016", 9, 26]} />
+            <Room set={set} />
+          </>
+        )}
+        {Object.entries(set.spots)
+          .filter(([, sp]) => sp.monitor)
+          .map(([key, sp]) => {
+            const shown = shownProps.find(({ b }) => b.spot === key);
+            const prop = shown && shown.b.prop?.kind === "screen" ? shown.b.prop : null;
+            return <MonitorArt key={key} name={sp.monitor!} prop={prop} flipped={!!(shown && flipped[shown.b.scenario.id])} />;
+          })}
         {shownProps.map(({ b, i }) => (
           <BeatProp key={b.scenario.id} beat={b} set={set} flipped={!!flipped[b.scenario.id]} live={phase === "play" && i === index} />
         ))}
         {castBeat && castSpot && (
-          <CastFigure slot={castBeat.cast!} x={castSpot.fx ?? castSpot.x + 0.9} z={castSpot.fz ?? castSpot.z + 1.1} />
+          <CastFigure slot={castBeat.cast!} x={castSpot.fx ?? castSpot.x + 0.9} z={castSpot.fz ?? castSpot.z + 1.1} y={set.harbor?.y ?? 0} />
         )}
-        <Walker set={set} target={spot ? { x: spot.x, z: spot.z } : null} onNear={setNear} />
+        <Walker set={set} target={spot ? { ...approach(spot), lx: spot.x, ly: spot.py, lz: spot.z } : null} onNear={setNear} />
       </Canvas>
 
       <LookLayer active={phase === "play"} />

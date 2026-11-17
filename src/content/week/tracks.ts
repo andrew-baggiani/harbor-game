@@ -38,7 +38,7 @@ export const ADMIN_TRACK: ShiftDef = {
       role: "Authenticator",
       text: "Eleven sign-in prompts in four minutes for your global admin account. You aren't signing in. The twelfth says: approve to stop these notifications.",
       set: "server",
-      spot: "console",
+      spot: "phone",
       prop: { kind: "phone", text: "Approve sign-in? · Admin account · 12th request", textB: "Approved" },
       objective: "Your phone won't stop buzzing on the console.",
       choices: [
@@ -251,7 +251,7 @@ export const FINANCE_TRACK: ShiftDef = {
       role: "From the owner's name",
       text: "Need you to pick up five $200 gift cards for client thank-yous. In meetings all day, just scratch and text me the codes. I'll reimburse.",
       set: "floor",
-      spot: "desk",
+      spot: "phone",
       voiceOnly: true,
       cast: "caller",
       prop: { kind: "phone", text: "Owner: need 5 gift cards, text me the codes" },

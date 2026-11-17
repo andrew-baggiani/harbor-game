@@ -93,7 +93,7 @@ export const TUESDAY: ShiftDef = {
       spot: "bench",
       cast: "night-desk",
       prop: { kind: "badge", a: T + "tue-contractor-badge-a.webp", b: T + "tue-contractor-badge-b.webp" },
-      objective: "Lobby. There's a badge on the bench.",
+      objective: "Lobby. There's a badge on the sofa by the windows.",
       timeline: {
         "tue-badge-use": [
           { at: 0, who: "Gate", text: "The gate opens.", flip: true },
@@ -140,7 +140,7 @@ export const WEDNESDAY: ShiftDef = {
     {
       scenario: live(wedClass),
       set: "floor",
-      spot: "desk",
+      spot: "paper",
       cast: "desk-coworker",
       prop: { kind: "paper", text: "INTERNAL · Customer list · 4,212 rows" },
       objective: "Same desk. A slide needs the customer list, apparently.",
