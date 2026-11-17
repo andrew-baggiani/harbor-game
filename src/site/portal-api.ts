@@ -21,8 +21,22 @@ export type OrgDetail = {
   org: { id: string; name: string; domain: string | null; partnerId: string | null; leaderboardEnabled: boolean };
   learners: Learner[];
   campaign: { id: string; name: string; shifts: string[]; dueAt: number | null } | null;
+  scenarios: { id: string; good: number; total: number }[];
 };
-export type PartnerOrg = { id: string; name: string; domain: string | null; learners: number; completed: number; completion: number };
+export type PartnerOrg = {
+  id: string;
+  name: string;
+  domain: string | null;
+  learners: number;
+  completed: number;
+  inProgress: number;
+  notStarted: number;
+  completion: number;
+  avgScore: number | null;
+  lastActive: number | null;
+  dueAt: number | null;
+};
+export type Activity = { id: string; kind: string; scenarioId: string | null; good: boolean | null; ts: number; orgId: string; orgName: string; who: string };
 export type LeaderRow = { rank?: number; name: string; score: number; complete: boolean; you: boolean };
 export type Board = { enabled: boolean; isAdmin: boolean; rows: LeaderRow[] };
 

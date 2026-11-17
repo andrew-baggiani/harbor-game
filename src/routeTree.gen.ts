@@ -23,6 +23,7 @@ import { Route as RecordRouteImport } from './routes/record'
 import { Route as ResultRouteImport } from './routes/result'
 import { Route as ReviewRouteImport } from './routes/review'
 import { Route as ShiftRouteImport } from './routes/shift'
+import { Route as ApiActivityRouteImport } from './routes/api/activity'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiEventsRouteImport } from './routes/api/events'
 import { Route as ApiExportRouteImport } from './routes/api/export'
@@ -108,6 +109,11 @@ const ReviewRoute = ReviewRouteImport.update({
 const ShiftRoute = ShiftRouteImport.update({
   id: '/shift',
   path: '/shift',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiActivityRoute = ApiActivityRouteImport.update({
+  id: '/api/activity',
+  path: '/api/activity',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiChatRoute = ApiChatRouteImport.update({
@@ -206,6 +212,7 @@ export interface FileRoutesByFullPath {
   '/result': typeof ResultRoute
   '/review': typeof ReviewRoute
   '/shift': typeof ShiftRoute
+  '/api/activity': typeof ApiActivityRoute
   '/api/chat': typeof ApiChatRoute
   '/api/events': typeof ApiEventsRoute
   '/api/export': typeof ApiExportRoute
@@ -236,6 +243,7 @@ export interface FileRoutesByTo {
   '/result': typeof ResultRoute
   '/review': typeof ReviewRoute
   '/shift': typeof ShiftRoute
+  '/api/activity': typeof ApiActivityRoute
   '/api/chat': typeof ApiChatRoute
   '/api/events': typeof ApiEventsRoute
   '/api/export': typeof ApiExportRoute
@@ -269,6 +277,7 @@ export interface FileRoutesById {
   '/result': typeof ResultRoute
   '/review': typeof ReviewRoute
   '/shift': typeof ShiftRoute
+  '/api/activity': typeof ApiActivityRoute
   '/api/chat': typeof ApiChatRoute
   '/api/events': typeof ApiEventsRoute
   '/api/export': typeof ApiExportRoute
@@ -303,6 +312,7 @@ export interface FileRouteTypes {
     | '/result'
     | '/review'
     | '/shift'
+    | '/api/activity'
     | '/api/chat'
     | '/api/events'
     | '/api/export'
@@ -333,6 +343,7 @@ export interface FileRouteTypes {
     | '/result'
     | '/review'
     | '/shift'
+    | '/api/activity'
     | '/api/chat'
     | '/api/events'
     | '/api/export'
@@ -365,6 +376,7 @@ export interface FileRouteTypes {
     | '/result'
     | '/review'
     | '/shift'
+    | '/api/activity'
     | '/api/chat'
     | '/api/events'
     | '/api/export'
@@ -398,6 +410,7 @@ export interface RootRouteChildren {
   ResultRoute: typeof ResultRoute
   ReviewRoute: typeof ReviewRoute
   ShiftRoute: typeof ShiftRoute
+  ApiActivityRoute: typeof ApiActivityRoute
   ApiChatRoute: typeof ApiChatRoute
   ApiEventsRoute: typeof ApiEventsRoute
   ApiExportRoute: typeof ApiExportRoute
@@ -510,6 +523,13 @@ declare module '@tanstack/react-router' {
       path: '/shift'
       fullPath: '/shift'
       preLoaderRoute: typeof ShiftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/activity': {
+      id: '/api/activity'
+      path: '/api/activity'
+      fullPath: '/api/activity'
+      preLoaderRoute: typeof ApiActivityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/chat': {
@@ -667,6 +687,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResultRoute: ResultRoute,
   ReviewRoute: ReviewRoute,
   ShiftRoute: ShiftRoute,
+  ApiActivityRoute: ApiActivityRoute,
   ApiChatRoute: ApiChatRoute,
   ApiEventsRoute: ApiEventsRoute,
   ApiExportRoute: ApiExportRoute,
