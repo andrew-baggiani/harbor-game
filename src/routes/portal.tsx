@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { SiteFooter, SiteNav, SkipLink } from "@/site/SiteChrome";
-import { api, type Board, type Me, type Membership, type OrgDetail, type PartnerOrg } from "@/site/portal-api";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { api, type Me, type Membership, type PartnerOrg } from "@/site/portal-api";
+import { PartnerHome, type PartnerSection } from "@/portal/Partner";
+import { OrgView, type OrgTab } from "@/portal/Org";
+import { LearnerHome, Setup } from "@/portal/Learner";
+import { Avatar, Building, Home, MiniRing, Out, Play, Shield, ToastHost, Menu, btn, Users, Trophy, Calendar, Gear } from "@/portal/ui";
 
 export const Route = createFileRoute("/portal")({
   head: () => ({
@@ -15,580 +18,354 @@ export const Route = createFileRoute("/portal")({
   component: PortalPage,
 });
 
-type View = { kind: "partner"; id: string } | { kind: "org"; id: string; via?: string } | { kind: "learner"; id: string } | { kind: "setup" };
+/* ------------------------------------------------------------------ where we are (kept in the URL so Back works) */
 
-function viewsFor(ms: Membership[]): { label: string; view: View }[] {
-  const out: { label: string; view: View }[] = [];
-  for (const m of ms) {
-    if (m.role === "partner_admin" && m.partnerId) out.push({ label: m.partnerName ?? "Partner", view: { kind: "partner", id: m.partnerId } });
-    if (m.role === "org_admin" && m.orgId) out.push({ label: m.orgName ?? "Organization", view: { kind: "org", id: m.orgId } });
-  }
-  for (const m of ms) {
-    if (m.role === "learner" && m.orgId && !out.some((o) => o.view.kind === "org" && o.view.id === m.orgId))
-      out.push({ label: m.orgName ?? "My team", view: { kind: "learner", id: m.orgId } });
-  }
-  return out;
+export type View =
+  | { kind: "partner"; id: string; section: PartnerSection }
+  | { kind: "org"; id: string; tab: OrgTab }
+  | { kind: "learner"; id: string }
+  | { kind: "setup" };
+
+function parse(search: string): View | null {
+  const q = new URLSearchParams(search);
+  if (q.get("p")) return { kind: "partner", id: q.get("p") as string, section: (q.get("s") as PartnerSection) || "overview" };
+  if (q.get("o")) return { kind: "org", id: q.get("o") as string, tab: (q.get("t") as OrgTab) || "people" };
+  if (q.get("l")) return { kind: "learner", id: q.get("l") as string };
+  return null;
 }
+function serialize(v: View): string {
+  if (v.kind === "partner") return `?p=${encodeURIComponent(v.id)}${v.section !== "overview" ? `&s=${v.section}` : ""}`;
+  if (v.kind === "org") return `?o=${encodeURIComponent(v.id)}${v.tab !== "people" ? `&t=${v.tab}` : ""}`;
+  if (v.kind === "learner") return `?l=${encodeURIComponent(v.id)}`;
+  return "";
+}
+
+function defaultView(ms: Membership[]): View {
+  const p = ms.find((m) => m.role === "partner_admin" && m.partnerId);
+  if (p) return { kind: "partner", id: p.partnerId as string, section: "overview" };
+  const o = ms.find((m) => m.role === "org_admin" && m.orgId);
+  if (o) return { kind: "org", id: o.orgId as string, tab: "people" };
+  const l = ms.find((m) => m.role === "learner" && m.orgId);
+  if (l) return { kind: "learner", id: l.orgId as string };
+  return { kind: "setup" };
+}
+
+/* ------------------------------------------------------------------ page */
 
 function PortalPage() {
   const [me, setMe] = useState<Me | null>(null);
-  const [view, setView] = useState<View | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [view, setViewState] = useState<View | null>(null);
+  const [drawer, setDrawer] = useState(false);
+  const [orgs, setOrgs] = useState<PartnerOrg[] | null>(null);
 
-  const load = useCallback(async (pick?: View) => {
-    try {
-      const m = await api<Me>("/api/me");
+  const go = useCallback((v: View, replace = false) => {
+    setViewState(v);
+    setDrawer(false);
+    const url = `/portal${serialize(v)}`;
+    if (replace) window.history.replaceState(null, "", url);
+    else window.history.pushState(null, "", url);
+    window.scrollTo({ top: 0 });
+  }, []);
+
+  const load = useCallback(
+    async (pick?: View) => {
+      const m = await api<Me>("/api/me").catch(() => ({ user: null }) as Me);
       setMe(m);
       if (!m.user) return;
-      const vs = viewsFor(m.memberships ?? []);
-      setView(pick ?? vs[0]?.view ?? { kind: "setup" });
-    } catch (err) {
-      setError((err as Error).message);
-    }
-  }, []);
+      go(pick ?? parse(window.location.search) ?? defaultView(m.memberships ?? []), true);
+    },
+    [go],
+  );
   useEffect(() => {
     void load();
+    const onPop = () => {
+      const v = parse(window.location.search);
+      if (v) setViewState(v);
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
   }, [load]);
-
   useEffect(() => {
     if (me && !me.user) window.location.replace("/login?next=/portal");
   }, [me]);
 
-  const views = me?.memberships ? viewsFor(me.memberships) : [];
+  const ms = me?.memberships ?? [];
+  const partners = ms.filter((m) => m.role === "partner_admin" && m.partnerId);
+  // Partner context: the partner being viewed, or the partner that owns the org being viewed.
+  const [orgPartner, setOrgPartner] = useState<string | null>(null);
+  const partnerId = view?.kind === "partner" ? view.id : view?.kind === "org" ? orgPartner : null;
+  const partner = partners.find((p) => p.partnerId === partnerId) ?? null;
 
-  return (
-    <div className="site flex min-h-dvh flex-col overflow-x-clip">
-      <SkipLink />
-      <SiteNav />
-      <main id="main" className="mx-auto w-full max-w-[1240px] flex-1 px-6 pb-24 pt-8 md:px-10 lg:pt-12">
-        {error ? <p className="text-site-alarm">{error}</p> : null}
-        {!me?.user || !view ? (
-          <p className="text-site-mist" role="status">
-            Loading…
-          </p>
-        ) : (
-          <>
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-site-rule pb-5">
-              <div className="min-w-0">
-                <p className="text-[13px] font-semibold tracking-[0.18em] text-site-mint uppercase">Portal</p>
-                <p className="mt-1 truncate text-sm text-site-dim">{me.user.email}</p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                {views.length > 1
-                  ? views.map((v) => (
-                      <button
-                        key={`${v.view.kind}-${"id" in v.view ? v.view.id : ""}`}
-                        type="button"
-                        onClick={() => setView(v.view)}
-                        className={`rounded-md border px-3 py-2 text-sm ${
-                          view.kind === v.view.kind && "id" in view && "id" in v.view && view.id === v.view.id
-                            ? "border-site-violet text-site-paper"
-                            : "border-site-rule text-site-mist hover:text-site-paper"
-                        }`}
-                      >
-                        {v.label}
-                      </button>
-                    ))
-                  : null}
-                <button
-                  type="button"
-                  className="rounded-md px-3 py-2 text-sm text-site-mist underline hover:text-site-paper"
-                  onClick={async () => {
-                    await api("/api/auth/signout", {});
-                    window.location.href = "/login";
-                  }}
-                >
-                  Sign out
-                </button>
-              </div>
-            </div>
-            {view.kind === "setup" ? <Setup onDone={(v) => load(v)} /> : null}
-            {view.kind === "partner" ? (
-              <PartnerView partnerId={view.id} name={views.find((v) => v.view.kind === "partner" && "id" in v.view && v.view.id === view.id)?.label ?? "Partner"} onOpen={(id) => setView({ kind: "org", id, via: view.id })} />
-            ) : null}
-            {view.kind === "org" ? <OrgView orgId={view.id} onBack={view.via ? () => setView({ kind: "partner", id: view.via as string }) : undefined} /> : null}
-            {view.kind === "learner" ? <LearnerView orgId={view.id} membership={me.memberships?.find((m) => m.role === "learner" && m.orgId === view.id)} /> : null}
-          </>
-        )}
-      </main>
-      <SiteFooter />
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ shared bits */
-
-function H1({ children }: { children: ReactNode }) {
-  return (
-    <h1 className="display text-3xl font-extrabold leading-tight sm:text-4xl" style={{ fontStretch: "118%" }}>
-      {children}
-    </h1>
-  );
-}
-
-function Card({ title, children, className = "" }: { title: string; children: ReactNode; className?: string }) {
-  return (
-    <section className={`rounded-lg border border-site-rule bg-site-ink-2 p-5 md:p-6 ${className}`}>
-      <h2 className="text-sm font-semibold tracking-[0.12em] text-site-mist uppercase">{title}</h2>
-      <div className="mt-4">{children}</div>
-    </section>
-  );
-}
-
-const input = "w-full rounded-md border border-site-rule bg-site-ink px-3 py-2.5 text-site-paper placeholder:text-site-dim focus:border-site-violet";
-const primary = "rounded-md bg-site-violet px-4 py-2.5 font-semibold text-site-paper transition-colors hover:bg-site-violet-hi disabled:opacity-60";
-const ghost = "rounded-md border border-site-rule px-4 py-2.5 text-site-mist hover:text-site-paper";
-
-function Note({ text, tone = "ok" }: { text: string | null; tone?: "ok" | "err" }) {
-  if (!text) return null;
-  return (
-    <p className={`mt-3 text-sm ${tone === "err" ? "text-site-alarm" : "text-site-mint"}`} role={tone === "err" ? "alert" : "status"}>
-      {text}
-    </p>
-  );
-}
-
-function useBoard(orgId: string) {
-  const [board, setBoard] = useState<Board | null>(null);
-  useEffect(() => {
-    let stop = false;
-    let timer = 0;
-    const tick = async () => {
-      try {
-        const b = await api<Board>(`/api/leaderboard?org=${encodeURIComponent(orgId)}`);
-        if (!stop) setBoard(b);
-      } catch {
-        /* keep last */
-      }
-      if (!stop) timer = window.setTimeout(tick, 15_000);
-    };
-    void tick();
-    return () => {
-      stop = true;
-      window.clearTimeout(timer);
-    };
-  }, [orgId]);
-  return board;
-}
-
-function BoardList({ board }: { board: Board | null }) {
-  if (!board) return <p className="text-sm text-site-dim">Loading…</p>;
-  if (!board.enabled) return <p className="text-sm text-site-dim">The leaderboard is turned off for this organization.</p>;
-  if (!board.rows.length) return <p className="text-sm text-site-dim">No scores yet. Scores appear here as people finish decisions.</p>;
-  return (
-    <ol className="divide-y divide-site-rule">
-      {board.rows.slice(0, 20).map((r) => (
-        <li key={`${r.rank}-${r.name}`} className={`flex items-center justify-between gap-3 py-2.5 ${r.you ? "text-site-paper" : "text-site-mist"}`}>
-          <span className="flex min-w-0 items-center gap-3">
-            <span className="w-6 shrink-0 text-right font-semibold tabular-nums text-site-dim">{r.rank}</span>
-            <span className="truncate">{r.name}</span>
-            {r.you ? <span className="rounded bg-site-violet/20 px-1.5 py-0.5 text-[11px] font-semibold text-site-violet-hi">You</span> : null}
-          </span>
-          <span className="font-semibold tabular-nums">{r.score}</span>
-        </li>
-      ))}
-    </ol>
-  );
-}
-
-const fmtDate = (ms: number | null) => (ms ? new Date(ms).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "—");
-
-/* ------------------------------------------------------------------ first run */
-
-function Setup({ onDone }: { onDone: (v: View) => void }) {
-  const [kind, setKind] = useState<"org" | "partner">("org");
-  const [name, setName] = useState("");
-  const [domain, setDomain] = useState("");
-  const [err, setErr] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  async function submit(e: FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    setErr(null);
-    try {
-      if (kind === "org") {
-        const o = await api<{ id: string }>("/api/org", { action: "create", name, domain });
-        onDone({ kind: "org", id: o.id });
-      } else {
-        const p = await api<{ id: string }>("/api/partner", { action: "create", name });
-        onDone({ kind: "partner", id: p.id });
-      }
-    } catch (error) {
-      setErr((error as Error).message);
-      setBusy(false);
-    }
-  }
-  return (
-    <div className="mt-8 max-w-xl">
-      <H1>Set up your workspace</H1>
-      <p className="mt-3 leading-relaxed text-site-mist">You aren't part of an organization yet. If your admin invited you, open the link in their email instead.</p>
-      <form onSubmit={submit} className="mt-8 space-y-5">
-        <fieldset className="grid gap-2 sm:grid-cols-2">
-          <legend className="mb-2 text-sm font-semibold">I'm setting this up for</legend>
-          {(
-            [
-              ["org", "My company", "Train your own team."],
-              ["partner", "My MSP's clients", "Manage several client organizations."],
-            ] as const
-          ).map(([k, label, hint]) => (
-            <label key={k} className={`cursor-pointer rounded-md border p-3 ${kind === k ? "border-site-violet" : "border-site-rule"}`}>
-              <input type="radio" name="kind" className="sr-only" checked={kind === k} onChange={() => setKind(k)} />
-              <span className="block font-semibold">{label}</span>
-              <span className="block text-sm text-site-dim">{hint}</span>
-            </label>
-          ))}
-        </fieldset>
-        <div>
-          <label htmlFor="name" className="block text-sm font-semibold">
-            {kind === "org" ? "Organization name" : "MSP name"}
-          </label>
-          <input id="name" required maxLength={120} value={name} onChange={(e) => setName(e.target.value)} className={`mt-2 ${input}`} />
-        </div>
-        {kind === "org" ? (
-          <div>
-            <label htmlFor="domain" className="block text-sm font-semibold">
-              Email domain <span className="font-normal text-site-dim">(optional)</span>
-            </label>
-            <input id="domain" placeholder="company.com" value={domain} onChange={(e) => setDomain(e.target.value)} className={`mt-2 ${input}`} />
-          </div>
-        ) : null}
-        <button type="submit" disabled={busy} className={primary}>
-          {busy ? "Creating…" : "Create"}
-        </button>
-        <Note text={err} tone="err" />
-      </form>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ partner admin */
-
-function PartnerView({ partnerId, name, onOpen }: { partnerId: string; name: string; onOpen: (orgId: string) => void }) {
-  const [orgs, setOrgs] = useState<PartnerOrg[] | null>(null);
-  const [newName, setNewName] = useState("");
-  const [err, setErr] = useState<string | null>(null);
-  const load = useCallback(() => {
+  const reloadOrgs = useCallback(() => {
+    if (!partnerId || !partner) return setOrgs(null);
     api<{ orgs: PartnerOrg[] }>(`/api/partner?partner=${encodeURIComponent(partnerId)}`)
       .then((d) => setOrgs(d.orgs))
-      .catch((e) => setErr((e as Error).message));
-  }, [partnerId]);
-  useEffect(load, [load]);
-  async function add(e: FormEvent) {
-    e.preventDefault();
-    setErr(null);
-    try {
-      await api("/api/partner", { action: "createOrg", partnerId, name: newName });
-      setNewName("");
-      load();
-    } catch (error) {
-      setErr((error as Error).message);
-    }
-  }
-  return (
-    <div className="mt-8">
-      <H1>{name}</H1>
-      <p className="mt-2 text-site-mist">Your client organizations and how far along they are on Monday.</p>
-      <div className="mt-8 grid items-start gap-6 lg:grid-cols-[1fr_minmax(0,360px)]">
-        <Card title="Client organizations">
-          {!orgs ? (
-            <p className="text-sm text-site-dim">Loading…</p>
-          ) : orgs.length === 0 ? (
-            <p className="text-sm text-site-dim">No clients yet. Add your first one.</p>
-          ) : (
-            <ul className="divide-y divide-site-rule">
-              {orgs.map((o) => (
-                <li key={o.id}>
-                  <button type="button" onClick={() => onOpen(o.id)} className="grid w-full grid-cols-[1fr_auto] items-center gap-4 py-3 text-left hover:text-site-paper">
-                    <span className="min-w-0">
-                      <span className="block truncate font-semibold">{o.name}</span>
-                      <span className="block text-sm text-site-dim">
-                        {o.completed} of {o.learners} learners finished Monday
-                      </span>
-                    </span>
-                    <span className="flex items-center gap-3">
-                      <span className="hidden h-1.5 w-28 overflow-hidden rounded-full bg-site-rule sm:block">
-                        <span className="block h-full bg-site-mint" style={{ width: `${o.completion}%` }} />
-                      </span>
-                      <span className="w-12 text-right font-semibold tabular-nums">{o.completion}%</span>
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
-        <Card title="Add a client">
-          <form onSubmit={add} className="space-y-3">
-            <label htmlFor="client" className="sr-only">
-              Client name
-            </label>
-            <input id="client" required placeholder="Client name" value={newName} onChange={(e) => setNewName(e.target.value)} className={input} />
-            <button type="submit" className={primary}>
-              Add client
-            </button>
-            <Note text={err} tone="err" />
-          </form>
-        </Card>
+      .catch(() => setOrgs([]));
+  }, [partnerId, partner]);
+  useEffect(() => {
+    reloadOrgs();
+    if (!partnerId) return;
+    const t = window.setInterval(reloadOrgs, 20_000);
+    return () => window.clearInterval(t);
+  }, [reloadOrgs, partnerId]);
+
+  if (!me?.user || !view) {
+    return (
+      <div className="portal grid min-h-dvh place-items-center">
+        <div className="flex items-center gap-3 text-site-mist" role="status">
+          <span className="live-dot" aria-hidden="true" /> Opening your portal…
+        </div>
       </div>
+    );
+  }
+
+  const orgAdminOf = ms.filter((m) => m.role === "org_admin" && m.orgId);
+  const learnerOf = ms.filter((m) => m.role === "learner" && m.orgId && !orgAdminOf.some((o) => o.orgId === m.orgId));
+
+  const nav = (
+    <SideNav
+      email={me.user.email}
+      view={view}
+      go={go}
+      partners={partners}
+      partner={partner}
+      orgs={orgs}
+      orgAdminOf={orgAdminOf}
+      learnerOf={learnerOf}
+    />
+  );
+
+  return (
+    <ToastHost>
+      <div className="portal min-h-dvh lg:grid lg:grid-cols-[272px_1fr]">
+        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[70] focus:rounded-lg focus:bg-site-violet focus:px-3 focus:py-2">
+          Skip to content
+        </a>
+        <aside className="hidden border-r border-white/[0.06] bg-[#0d1016] lg:block">
+          <div className="sticky top-0 h-dvh">{nav}</div>
+        </aside>
+
+        {/* phone / tablet bar */}
+        <div className="sticky top-0 z-40 flex items-center justify-between border-b border-white/[0.06] bg-[#0d1016]/90 px-4 py-3 backdrop-blur-md lg:hidden">
+          <a href="/" aria-label="Dry Run Cyber home">
+            <img src="/brand/logo-horizontal.svg" alt="Dry Run Cyber" className="h-8 w-auto" />
+          </a>
+          <button type="button" className={btn.ghost + " !px-3 !py-2"} onClick={() => setDrawer(true)} aria-label="Open menu" aria-expanded={drawer}>
+            <Menu />
+          </button>
+        </div>
+        {drawer ? (
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <button type="button" aria-label="Close menu" className="sheet-scrim absolute inset-0 bg-black/60" onClick={() => setDrawer(false)} />
+            <div className="sheet absolute inset-y-0 left-0 w-[86%] max-w-[320px] border-r border-white/10 bg-[#0d1016]">{nav}</div>
+          </div>
+        ) : null}
+
+        <main id="main" className="min-w-0 px-4 pb-28 pt-6 sm:px-6 lg:px-10 lg:pb-16 lg:pt-10">
+          <div className="mx-auto max-w-[1180px]">
+            {view.kind === "setup" ? <Setup onDone={(v) => load(v)} /> : null}
+            {view.kind === "partner" && partner ? (
+              <PartnerHome
+                partnerId={view.id}
+                name={partner.partnerName ?? "Your MSP"}
+                section={view.section}
+                orgs={orgs}
+                reload={reloadOrgs}
+                openOrg={(id, tab = "people") => go({ kind: "org", id, tab })}
+                goSection={(s) => go({ kind: "partner", id: view.id, section: s })}
+              />
+            ) : null}
+            {view.kind === "partner" && !partner ? <NoAccess /> : null}
+            {view.kind === "org" ? (
+              <OrgView
+                key={view.id}
+                orgId={view.id}
+                tab={view.tab}
+                setTab={(t) => go({ kind: "org", id: view.id, tab: t }, true)}
+                onPartner={(pid) => setOrgPartner(pid && partners.some((p) => p.partnerId === pid) ? pid : null)}
+                backTo={partner ? { label: partner.partnerName ?? "All clients", go: () => go({ kind: "partner", id: partner.partnerId as string, section: "clients" }) } : null}
+                onChanged={reloadOrgs}
+              />
+            ) : null}
+            {view.kind === "learner" ? <LearnerHome orgId={view.id} membership={ms.find((m) => m.role === "learner" && m.orgId === view.id)} /> : null}
+          </div>
+        </main>
+      </div>
+    </ToastHost>
+  );
+}
+
+function NoAccess() {
+  return (
+    <div className="panel max-w-lg">
+      <h1 className="text-xl font-bold">This workspace isn't yours</h1>
+      <p className="mt-2 text-site-mist">You don't have access to it. Pick one of your workspaces from the menu.</p>
     </div>
   );
 }
 
-/* ------------------------------------------------------------------ org admin */
+/* ------------------------------------------------------------------ sidebar */
 
-function OrgView({ orgId, onBack }: { orgId: string; onBack?: () => void }) {
-  const [detail, setDetail] = useState<OrgDetail | null>(null);
-  const [err, setErr] = useState<string | null>(null);
-  const board = useBoard(orgId);
-  const load = useCallback(() => {
-    api<OrgDetail>(`/api/org?org=${encodeURIComponent(orgId)}`)
-      .then(setDetail)
-      .catch((e) => setErr((e as Error).message));
-  }, [orgId]);
-  useEffect(() => {
-    load();
-    const id = window.setInterval(load, 15_000);
-    return () => window.clearInterval(id);
-  }, [load]);
-
-  if (err && !detail) return <p className="mt-8 text-site-alarm">{err}</p>;
-  if (!detail) return <p className="mt-8 text-site-mist">Loading…</p>;
-  const learners = detail.learners.filter((l) => l.role === "learner");
-  const done = learners.filter((l) => l.monday === "Complete").length;
+function SideNav({
+  email,
+  view,
+  go,
+  partners,
+  partner,
+  orgs,
+  orgAdminOf,
+  learnerOf,
+}: {
+  email: string;
+  view: View;
+  go: (v: View) => void;
+  partners: Membership[];
+  partner: Membership | null;
+  orgs: PartnerOrg[] | null;
+  orgAdminOf: Membership[];
+  learnerOf: Membership[];
+}) {
+  const [q, setQ] = useState("");
+  const shown = useMemo(() => (orgs ?? []).filter((o) => o.name.toLowerCase().includes(q.trim().toLowerCase())), [orgs, q]);
+  const directOrg = view.kind === "org" && !partner ? orgAdminOf.find((o) => o.orgId === view.id) : null;
 
   return (
-    <div className="mt-8">
-      {onBack ? (
-        <button type="button" onClick={onBack} className="mb-4 text-sm text-site-mist underline hover:text-site-paper">
-          ← All clients
-        </button>
-      ) : null}
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="min-w-0">
-          <H1>{detail.org.name}</H1>
-          <p className="mt-2 text-site-mist">
-            {learners.length} learner{learners.length === 1 ? "" : "s"} · {done} finished Monday
-            {detail.campaign?.dueAt ? ` · due ${fmtDate(detail.campaign.dueAt)}` : ""}
-          </p>
-        </div>
-        <a href={`/api/export?org=${encodeURIComponent(orgId)}`} className={ghost}>
-          Export decisions (CSV)
+    <div className="flex h-full flex-col">
+      <div className="px-5 pb-4 pt-6">
+        <a href="/" aria-label="Dry Run Cyber home" className="inline-block">
+          <img src="/brand/logo-horizontal.svg" alt="Dry Run Cyber" className="h-9 w-auto" />
         </a>
       </div>
 
-      <div className="mt-8 grid items-start gap-6 lg:grid-cols-[1fr_minmax(0,360px)]">
-        <div className="min-w-0 space-y-6">
-          <Card title="Learners">
-            {learners.length === 0 ? (
-              <p className="text-sm text-site-dim">No learners yet. Invite your team on the right.</p>
-            ) : (
-              <div className="-mx-5 overflow-x-auto md:-mx-6">
-                <table className="w-full min-w-0 text-left text-sm">
-                  <thead className="text-site-dim">
-                    <tr className="border-b border-site-rule">
-                      <th scope="col" className="px-5 py-2 font-normal md:px-6">Learner</th>
-                      <th scope="col" className="py-2 font-normal">Monday</th>
-                      <th scope="col" className="py-2 pr-5 text-right font-normal sm:pr-0">Score</th>
-                      <th scope="col" className="hidden px-5 py-2 text-right font-normal sm:table-cell md:px-6">Last active</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-site-rule">
-                    {learners.map((l) => (
-                      <tr key={l.userId}>
-                        <td className="max-w-[9rem] px-5 py-3 sm:max-w-[16rem] md:px-6">
-                          <span className="block truncate text-site-paper">{l.email}</span>
-                          {l.displayName ? <span className="block truncate text-site-dim">{l.displayName}</span> : null}
-                        </td>
-                        <td className="py-3">
-                          <Status value={l.monday} />
-                        </td>
-                        <td className="py-3 pr-5 text-right font-semibold tabular-nums sm:pr-0">{l.score}</td>
-                        <td className="hidden px-5 py-3 text-right text-site-dim tabular-nums sm:table-cell md:px-6">{fmtDate(l.lastActive)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+      <nav aria-label="Portal" className="flex-1 overflow-y-auto px-3 pb-4">
+        {partner ? (
+          <>
+            <WorkspaceCard name={partner.partnerName ?? "Your MSP"} kind="Partner workspace" />
+            <NavItem icon={<Home />} label="Overview" current={view.kind === "partner" && view.section === "overview"} onClick={() => go({ kind: "partner", id: partner.partnerId as string, section: "overview" })} />
+            <NavItem icon={<Building />} label="Clients" badge={orgs ? String(orgs.length) : undefined} current={view.kind === "partner" && view.section === "clients"} onClick={() => go({ kind: "partner", id: partner.partnerId as string, section: "clients" })} />
+            <NavItem icon={<Shield />} label="Evidence" current={view.kind === "partner" && view.section === "evidence"} onClick={() => go({ kind: "partner", id: partner.partnerId as string, section: "evidence" })} />
+
+            <div className="mt-6 px-2">
+              <div className="flex items-center justify-between">
+                <h2 className="text-[13px] font-semibold text-site-dim">Your clients</h2>
               </div>
-            )}
-          </Card>
-          <Card title="Leaderboard">
-            <BoardList board={board} />
-            <p className="mt-4 text-xs leading-relaxed text-site-dim">
-              Good decision +100, missed 0, +50 for finishing the shift. Best run counts. Learners without a display name show as “Teammate N”.
-            </p>
-          </Card>
-        </div>
-        <div className="space-y-6">
-          <Invite orgId={orgId} onDone={load} />
-          <Campaign orgId={orgId} dueAt={detail.campaign?.dueAt ?? null} hasCampaign={!!detail.campaign} onDone={load} />
-          <Card title="Settings">
-            <label className="flex cursor-pointer items-center justify-between gap-4">
-              <span>
-                <span className="block font-semibold">Show the leaderboard</span>
-                <span className="block text-sm text-site-dim">Learners see their team's ranking.</span>
-              </span>
-              <input
-                type="checkbox"
-                className="h-5 w-5 accent-[#8b2cf5]"
-                checked={detail.org.leaderboardEnabled}
-                onChange={async (e) => {
-                  await api("/api/org", { action: "settings", orgId, leaderboardEnabled: e.target.checked });
-                  load();
-                }}
-              />
-            </label>
-          </Card>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Status({ value }: { value: string }) {
-  const tone = value === "Complete" ? "text-site-mint" : value === "In progress" ? "text-site-violet-hi" : "text-site-dim";
-  return <span className={tone}>{value}</span>;
-}
-
-function Invite({ orgId, onDone }: { orgId: string; onDone: () => void }) {
-  const [emails, setEmails] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
-  const [err, setErr] = useState<string | null>(null);
-  const [devLinks, setDevLinks] = useState<Record<string, string> | null>(null);
-  async function submit(e: FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    setErr(null);
-    setMsg(null);
-    try {
-      const out = await api<{ invited: string[]; already: string[]; devLinks?: Record<string, string> }>("/api/org", { action: "invite", orgId, emails });
-      setMsg(
-        `Invited ${out.invited.length}.` + (out.already.length ? ` ${out.already.length} already on the team.` : ""),
-      );
-      setDevLinks(out.devLinks ?? null);
-      setEmails("");
-      onDone();
-    } catch (error) {
-      setErr((error as Error).message);
-    }
-    setBusy(false);
-  }
-  return (
-    <Card title="Invite learners">
-      <form onSubmit={submit} className="space-y-3">
-        <label htmlFor="emails" className="block text-sm text-site-mist">
-          Paste emails, one per line or comma separated, or load a CSV.
-        </label>
-        <textarea id="emails" rows={4} value={emails} onChange={(e) => setEmails(e.target.value)} className={input} placeholder={"alex@company.com\nsam@company.com"} />
-        <div className="flex flex-wrap items-center gap-3">
-          <button type="submit" disabled={busy || !emails.trim()} className={primary}>
-            {busy ? "Sending…" : "Send invites"}
-          </button>
-          <label className={`${ghost} cursor-pointer text-sm`}>
-            Load CSV
-            <input
-              type="file"
-              accept=".csv,text/csv,text/plain"
-              className="sr-only"
-              onChange={async (e) => {
-                const f = e.target.files?.[0];
-                if (f) setEmails((await f.text()).slice(0, 200_000));
-                e.target.value = "";
-              }}
-            />
-          </label>
-        </div>
-        <Note text={msg} />
-        <Note text={err} tone="err" />
-        {devLinks ? (
-          <ul className="space-y-1 text-xs text-site-dim">
-            <li>Local only, no email provider set:</li>
-            {Object.entries(devLinks).map(([email, link]) => (
-              <li key={email} className="truncate">
-                <a href={link} className="text-site-mint underline">
-                  {email}
-                </a>
-              </li>
-            ))}
-          </ul>
+              {orgs && orgs.length > 5 ? (
+                <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a client" aria-label="Find a client" className="mt-2 w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm placeholder:text-site-dim" />
+              ) : null}
+            </div>
+            <ul className="mt-2 space-y-0.5">
+              {shown.map((o) => (
+                <li key={o.id}>
+                  <button
+                    type="button"
+                    aria-current={view.kind === "org" && view.id === o.id ? "page" : undefined}
+                    onClick={() => go({ kind: "org", id: o.id, tab: "people" })}
+                    className="nav-item flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-[14.5px] text-site-mist transition hover:bg-white/[0.05] hover:text-site-paper"
+                  >
+                    <MiniRing value={o.completion} size={28} />
+                    <span className="min-w-0 flex-1 truncate">{o.name}</span>
+                    {o.inProgress > 0 ? <span className="live-dot !h-1.5 !w-1.5" title="Someone is playing now" /> : null}
+                  </button>
+                </li>
+              ))}
+              {orgs && !orgs.length ? <li className="px-3 py-2 text-sm text-site-dim">No clients yet.</li> : null}
+            </ul>
+          </>
         ) : null}
-      </form>
-    </Card>
-  );
-}
 
-function Campaign({ orgId, dueAt, hasCampaign, onDone }: { orgId: string; dueAt: number | null; hasCampaign: boolean; onDone: () => void }) {
-  const [date, setDate] = useState(dueAt ? new Date(dueAt).toISOString().slice(0, 10) : "");
-  const [msg, setMsg] = useState<string | null>(null);
-  useEffect(() => setDate(dueAt ? new Date(dueAt).toISOString().slice(0, 10) : ""), [dueAt]);
-  return (
-    <Card title="Assignment">
-      <form
-        className="space-y-3"
-        onSubmit={async (e) => {
-          e.preventDefault();
-          await api("/api/org", { action: "campaign", orgId, dueAt: date ? `${date}T23:59:00` : null });
-          setMsg(hasCampaign ? "Saved." : "Monday assigned to every learner.");
-          onDone();
-        }}
-      >
-        <p className="font-semibold">Monday: First night</p>
-        <p className="text-sm text-site-dim">About 20 minutes, nine decisions. The other days aren't out yet.</p>
-        <label htmlFor="due" className="block text-sm text-site-mist">
-          Due date <span className="text-site-dim">(optional)</span>
-        </label>
-        <input id="due" type="date" value={date} onChange={(e) => setDate(e.target.value)} className={`${input} [color-scheme:dark]`} />
-        <button type="submit" className={primary}>
-          {hasCampaign ? "Save" : "Assign Monday"}
-        </button>
-        <Note text={msg} />
-      </form>
-    </Card>
-  );
-}
+        {!partner && (directOrg || (view.kind === "org" && orgAdminOf.length)) ? (
+          <>
+            <WorkspaceCard name={directOrg?.orgName ?? "Your organization"} kind="Organization" />
+            {(
+              [
+                ["people", "People", <Users key="i" />],
+                ["leaderboard", "Leaderboard", <Trophy key="i" />],
+                ["plan", "Training plan", <Calendar key="i" />],
+                ["settings", "Settings", <Gear key="i" />],
+              ] as const
+            ).map(([t, label, icon]) => (
+              <NavItem key={t} icon={icon} label={label} current={view.kind === "org" && view.tab === t} onClick={() => view.kind === "org" && go({ kind: "org", id: view.id, tab: t })} />
+            ))}
+          </>
+        ) : null}
 
-/* ------------------------------------------------------------------ learner */
+        {view.kind === "learner" ? <WorkspaceCard name={learnerOf.find((l) => l.orgId === view.id)?.orgName ?? "Your team"} kind="Your training" /> : null}
 
-function LearnerView({ orgId, membership }: { orgId: string; membership?: Membership }) {
-  const board = useBoard(orgId);
-  const [name, setName] = useState(membership?.displayName ?? "");
-  const [msg, setMsg] = useState<string | null>(null);
-  return (
-    <div className="mt-8">
-      <H1>{membership?.orgName ?? "Your team"}</H1>
-      <div className="mt-8 grid items-start gap-6 lg:grid-cols-[1fr_minmax(0,360px)]">
-        <Card title="Leaderboard">
-          <BoardList board={board} />
-        </Card>
-        <div className="space-y-6">
-          <Card title="Your shift">
-            <p className="font-semibold">Monday: First night</p>
-            <p className="mt-1 text-sm text-site-dim">About 20 minutes. Your decisions are recorded for your organization.</p>
-            <a href="/play" className={`${primary} mt-4 inline-block`}>
-              Start Monday
-            </a>
-          </Card>
-          <Card title="Display name">
-            <form
-              className="space-y-3"
-              onSubmit={async (e) => {
-                e.preventDefault();
-                await api("/api/org", { action: "displayName", orgId, displayName: name });
-                setMsg(name.trim() ? "Saved." : "You'll show as “Teammate N”.");
-              }}
-            >
-              <label htmlFor="dn" className="block text-sm text-site-mist">
-                How you appear on the leaderboard. Leave blank to stay anonymous.
-              </label>
-              <input id="dn" maxLength={40} value={name} onChange={(e) => setName(e.target.value)} className={input} />
-              <button type="submit" className={primary}>
-                Save
-              </button>
-              <Note text={msg} />
-            </form>
-          </Card>
+        {/* other places this person belongs */}
+        {partners.length + orgAdminOf.length + learnerOf.length > 1 ? (
+          <div className="mt-6">
+            <h2 className="px-5 text-[13px] font-semibold text-site-dim">Switch workspace</h2>
+            <ul className="mt-2 space-y-0.5">
+              {partners.map((p) => (
+                <li key={p.partnerId}>
+                  <NavItem small icon={<Avatar name={p.partnerName ?? "P"} size={22} />} label={p.partnerName ?? "Partner"} current={false} onClick={() => go({ kind: "partner", id: p.partnerId as string, section: "overview" })} />
+                </li>
+              ))}
+              {orgAdminOf.map((o) => (
+                <li key={o.orgId}>
+                  <NavItem small icon={<Avatar name={o.orgName ?? "O"} size={22} />} label={o.orgName ?? "Organization"} current={false} onClick={() => go({ kind: "org", id: o.orgId as string, tab: "people" })} />
+                </li>
+              ))}
+              {learnerOf.map((o) => (
+                <li key={o.orgId}>
+                  <NavItem small icon={<Avatar name={o.orgName ?? "T"} size={22} />} label={`${o.orgName ?? "Team"} (training)`} current={false} onClick={() => go({ kind: "learner", id: o.orgId as string })} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+      </nav>
+
+      <div className="border-t border-white/[0.06] p-3">
+        <a href="/play" className="nav-item mb-1 flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14.5px] text-site-mist transition hover:bg-white/[0.05] hover:text-site-paper">
+          <Play size={16} /> Play Monday
+        </a>
+        <div className="flex items-center gap-3 rounded-xl px-3 py-2">
+          <Avatar name={email} size={32} />
+          <span className="min-w-0 flex-1 truncate text-sm text-site-mist" title={email}>
+            {email}
+          </span>
+          <button
+            type="button"
+            className={btn.quiet + " !px-2"}
+            aria-label="Sign out"
+            title="Sign out"
+            onClick={async () => {
+              await api("/api/auth/signout", {});
+              window.location.href = "/login";
+            }}
+          >
+            <Out size={17} />
+          </button>
         </div>
       </div>
     </div>
+  );
+}
+
+function WorkspaceCard({ name, kind }: { name: string; kind: string }) {
+  return (
+    <div className="mb-4 flex items-center gap-3 rounded-2xl border border-white/[0.07] bg-gradient-to-br from-site-violet/15 to-transparent px-3 py-3">
+      <Avatar name={name} size={38} />
+      <div className="min-w-0">
+        <div className="truncate font-bold">{name}</div>
+        <div className="text-[12.5px] text-site-dim">{kind}</div>
+      </div>
+    </div>
+  );
+}
+
+function NavItem({ icon, label, current, onClick, badge, small }: { icon: ReactNode; label: string; current: boolean; onClick: () => void; badge?: string; small?: boolean }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-current={current ? "page" : undefined}
+      className={`nav-item flex w-full items-center gap-3 rounded-xl px-3 text-left text-site-mist transition hover:bg-white/[0.05] hover:text-site-paper ${small ? "py-2 text-[14px]" : "py-2.5 text-[15px] font-semibold"}`}
+    >
+      <span className="grid w-5 place-items-center">{icon}</span>
+      <span className="min-w-0 flex-1 truncate">{label}</span>
+      {badge ? <span className="num rounded-full bg-white/[0.06] px-2 py-0.5 text-[12px] text-site-mist">{badge}</span> : null}
+    </button>
   );
 }

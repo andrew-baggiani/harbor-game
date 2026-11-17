@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { guard, requireAccess } from "@/server/auth";
-import { addLearners, createMagicLink, createOrg, normEmail, orgDetail, setCampaign, setDisplayName, setLeaderboardEnabled } from "@/server/db";
+import { addLearners, assertOrgAdmin, createMagicLink, createOrg, normEmail, orgDetail, setCampaign, setDisplayName, setLeaderboardEnabled } from "@/server/db";
 import { sendMagicLink } from "@/server/email";
 import { bad, isLocal, json, readJson } from "@/server/http";
 
 type Body = {
-  action?: "create" | "invite" | "campaign" | "settings" | "displayName";
+  action?: "create" | "invite" | "remind" | "campaign" | "settings" | "displayName";
   orgId?: string;
   name?: string;
   domain?: string;
@@ -59,6 +59,35 @@ export const Route = createFileRoute("/api/org")({
               if (sent.provider === "log" && isLocal(request)) devLinks[u.email] = link;
             }
             return json({ invited: added.map((u) => u.email), already, provider, ...(Object.keys(devLinks).length ? { devLinks } : {}) });
+          }
+          if (body.action === "remind") {
+            // Fresh sign-in links for learners already on the team (at most one per person every 15 minutes).
+            const org = await assertOrgAdmin(db, access, body.orgId);
+            const wanted = new Set((body.emails ?? "").split(/[\s,;]+/).map((e) => normEmail(e)).filter(Boolean) as string[]);
+            const { results: team } = await db
+              .prepare("SELECT u.id, u.email FROM memberships m JOIN users u ON u.id = m.user_id WHERE m.org_id = ? AND m.role = 'learner'")
+              .bind(body.orgId)
+              .all<{ id: string; email: string }>();
+            const origin = new URL(request.url).origin;
+            const reminded: string[] = [];
+            const skipped: string[] = [];
+            const devLinks: Record<string, string> = {};
+            for (const u of team.filter((t) => wanted.has(t.email)).slice(0, 200)) {
+              const recent = await db
+                .prepare("SELECT COUNT(*) AS n FROM magic_links WHERE user_id = ? AND expires_at > ?")
+                .bind(u.id, Date.now())
+                .first<{ n: number }>();
+              if ((recent?.n ?? 0) > 0) {
+                skipped.push(u.email);
+                continue;
+              }
+              const token = await createMagicLink(db, u.id, "/play");
+              const link = `${origin}/api/auth/verify?token=${encodeURIComponent(token)}`;
+              const sent = await sendMagicLink(ctx.env, u.email, link, "invite", org.name);
+              if (sent.provider === "log" && isLocal(request)) devLinks[u.email] = link;
+              reminded.push(u.email);
+            }
+            return json({ reminded, skipped, ...(Object.keys(devLinks).length ? { devLinks } : {}) });
           }
           if (body.action === "campaign") {
             const dueAt = body.dueAt ? Date.parse(body.dueAt) : null;

@@ -179,22 +179,95 @@ export async function partnerOverview(db: D1Database, a: Access, partnerId: stri
     .prepare("SELECT id, name, domain, created_at FROM orgs WHERE partner_id = ? ORDER BY name")
     .bind(partnerId)
     .all<{ id: string; name: string; domain: string | null; created_at: number }>();
-  const { results: counts } = await db
+  const { results: people } = await db
     .prepare(
-      `SELECT o.id AS org_id,
-              (SELECT COUNT(*) FROM memberships m WHERE m.org_id = o.id AND m.role = 'learner') AS learners,
-              (SELECT COUNT(DISTINCT e.user_id) FROM events e WHERE e.org_id = o.id AND e.kind = 'shift_complete') AS completed
-         FROM orgs o WHERE o.partner_id = ?`,
+      `SELECT m.org_id, m.user_id FROM memberships m JOIN orgs o ON o.id = m.org_id
+        WHERE o.partner_id = ? AND m.role = 'learner'`,
     )
     .bind(partnerId)
-    .all<{ org_id: string; learners: number; completed: number }>();
-  const byOrg = new Map(counts.map((c) => [c.org_id, c]));
+    .all<{ org_id: string; user_id: string }>();
+  const { results: events } = await db
+    .prepare(
+      `SELECT e.org_id, e.user_id, e.run_id, e.kind, e.points, e.ts FROM events e JOIN orgs o ON o.id = e.org_id
+        WHERE o.partner_id = ?`,
+    )
+    .bind(partnerId)
+    .all<EventLite & { org_id: string }>();
+  const { results: due } = await db
+    .prepare(
+      `SELECT c.org_id, MAX(c.due_at) AS due_at FROM campaigns c JOIN orgs o ON o.id = c.org_id
+        WHERE o.partner_id = ? GROUP BY c.org_id`,
+    )
+    .bind(partnerId)
+    .all<{ org_id: string; due_at: number | null }>();
+  const dueBy = new Map(due.map((d) => [d.org_id, d.due_at]));
   return orgs.map((o) => {
-    const c = byOrg.get(o.id);
-    const learners = c?.learners ?? 0;
-    const completed = c?.completed ?? 0;
-    return { ...o, learners, completed, completion: learners ? Math.round((completed / learners) * 100) : 0 };
+    const learnerIds = people.filter((p) => p.org_id === o.id).map((p) => p.user_id);
+    const best = scoreRuns(events.filter((e) => e.org_id === o.id));
+    let completed = 0;
+    let inProgress = 0;
+    let scoreSum = 0;
+    let scored = 0;
+    let lastActive = 0;
+    for (const id of learnerIds) {
+      const b = best.get(id);
+      if (!b) continue;
+      if (b.status === "Complete") completed++;
+      else inProgress++;
+      scoreSum += b.score;
+      scored++;
+      lastActive = Math.max(lastActive, b.last);
+    }
+    const learners = learnerIds.length;
+    return {
+      ...o,
+      learners,
+      completed,
+      inProgress,
+      notStarted: learners - completed - inProgress,
+      completion: learners ? Math.round((completed / learners) * 100) : 0,
+      avgScore: scored ? Math.round(scoreSum / scored) : null,
+      lastActive: lastActive || null,
+      dueAt: dueBy.get(o.id) ?? null,
+    };
   });
+}
+
+/** Recent decisions and finished shifts, newest first, for a partner (all clients) or one org. */
+export async function activity(db: D1Database, a: Access, scope: { partnerId?: string | null; orgId?: string | null }) {
+  let where: string;
+  let bind: string;
+  if (scope.partnerId) {
+    assertPartnerAdmin(a, scope.partnerId);
+    where = "o.partner_id = ?";
+    bind = scope.partnerId;
+  } else if (scope.orgId) {
+    await assertOrgAdmin(db, a, scope.orgId);
+    where = "e.org_id = ?";
+    bind = scope.orgId;
+  } else throw new Forbidden("Scope required");
+  const { results } = await db
+    .prepare(
+      `SELECT e.id, e.kind, e.scenario_id, e.good, e.ts, o.id AS org_id, o.name AS org_name, u.email, m.display_name
+         FROM events e
+         JOIN orgs o ON o.id = e.org_id
+         JOIN users u ON u.id = e.user_id
+         LEFT JOIN memberships m ON m.user_id = e.user_id AND m.org_id = e.org_id AND m.role = 'learner'
+        WHERE ${where}
+        ORDER BY e.ts DESC LIMIT 14`,
+    )
+    .bind(bind)
+    .all<{ id: string; kind: string; scenario_id: string | null; good: number | null; ts: number; org_id: string; org_name: string; email: string; display_name: string | null }>();
+  return results.map((r) => ({
+    id: r.id,
+    kind: r.kind,
+    scenarioId: r.scenario_id,
+    good: r.good === null ? null : !!r.good,
+    ts: r.ts,
+    orgId: r.org_id,
+    orgName: r.org_name,
+    who: r.display_name?.trim() || r.email,
+  }));
 }
 
 /* ------------------------------------------------------------------ learners, campaigns, settings */
@@ -235,6 +308,13 @@ export async function orgDetail(db: D1Database, a: Access, orgId: string) {
     .bind(orgId)
     .all<EventLite>();
   const best = scoreRuns(events);
+  const { results: perScenario } = await db
+    .prepare(
+      `SELECT scenario_id, SUM(good) AS good, COUNT(*) AS total FROM events
+        WHERE org_id = ? AND kind = 'decision' AND scenario_id IS NOT NULL GROUP BY scenario_id`,
+    )
+    .bind(orgId)
+    .all<{ scenario_id: string; good: number; total: number }>();
   const campaign = await db
     .prepare("SELECT id, name, shifts, due_at FROM campaigns WHERE org_id = ? ORDER BY created_at DESC LIMIT 1")
     .bind(orgId)
@@ -255,6 +335,7 @@ export async function orgDetail(db: D1Database, a: Access, orgId: string) {
     org: { id: org.id, name: org.name, domain: org.domain, partnerId: org.partner_id, leaderboardEnabled: !!org.leaderboard_enabled },
     learners,
     campaign: campaign ? { id: campaign.id, name: campaign.name, shifts: JSON.parse(campaign.shifts) as string[], dueAt: campaign.due_at } : null,
+    scenarios: perScenario.map((r) => ({ id: r.scenario_id, good: r.good, total: r.total })),
   };
 }
 

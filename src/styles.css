@@ -202,3 +202,85 @@ html:has(.site) { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) {
   .lock-in::before, .lock-in::after { animation: none; }
 }
+
+/* ================================================================== portal */
+.portal {
+  font-family: var(--font-site);
+  background: var(--color-site-ink);
+  color: var(--color-site-paper);
+  -webkit-font-smoothing: antialiased;
+}
+.portal .num { font-variant-numeric: tabular-nums; font-stretch: 112%; letter-spacing: -0.02em; }
+.portal .display { font-family: var(--font-site); letter-spacing: -0.015em; }
+.portal :focus-visible { outline: 2px solid var(--color-site-violet-hi); outline-offset: 2px; border-radius: 10px; }
+
+.panel {
+  position: relative;
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)), #141822;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07), 0 24px 60px -36px rgba(0, 0, 0, 0.8);
+  padding: 22px;
+}
+@media (min-width: 768px) { .panel { padding: 26px; } }
+
+/* The hero band: aurora light over a faint floor grid, the way the lobby reads at night. */
+.aurora {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  background:
+    radial-gradient(60% 90% at 88% 10%, rgba(25, 245, 165, 0.16), transparent 60%),
+    radial-gradient(55% 80% at 70% 100%, rgba(139, 44, 245, 0.32), transparent 65%),
+    radial-gradient(40% 60% at 5% 0%, rgba(164, 92, 255, 0.18), transparent 60%),
+    #121522;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 40px 80px -40px rgba(139, 44, 245, 0.45);
+}
+.aurora::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(80% 90% at 75% 60%, #000 20%, transparent 75%);
+  pointer-events: none;
+}
+.aurora::after {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: conic-gradient(from 0deg at 70% 50%, transparent 0deg, rgba(164, 92, 255, 0.12) 40deg, transparent 90deg, rgba(25, 245, 165, 0.08) 200deg, transparent 260deg);
+  animation: aurora-spin 28s linear infinite;
+  pointer-events: none;
+}
+.aurora > * { position: relative; z-index: 1; }
+@keyframes aurora-spin { to { transform: rotate(360deg); } }
+
+.live-dot { position: relative; width: 8px; height: 8px; border-radius: 999px; background: var(--color-site-mint); box-shadow: 0 0 12px var(--color-site-mint); }
+.live-dot::after { content: ""; position: absolute; inset: -4px; border-radius: 999px; border: 2px solid var(--color-site-mint); animation: live-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite; }
+@keyframes live-ping { 0% { transform: scale(0.6); opacity: 0.9; } 100% { transform: scale(1.8); opacity: 0; } }
+
+.lift { transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s; }
+.lift:hover { transform: translateY(-3px); box-shadow: inset 0 0 0 1px rgba(164, 92, 255, 0.45), 0 30px 60px -30px rgba(139, 44, 245, 0.55); }
+
+.sheet { animation: sheet-in 0.32s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.sheet-scrim { animation: fade-in 0.25s ease-out; }
+@media (min-width: 640px) { .sheet { animation-name: sheet-in-side; } }
+@keyframes sheet-in { from { transform: translateY(40px); opacity: 0; } }
+@keyframes sheet-in-side { from { transform: translateX(40px); opacity: 0; } }
+@keyframes fade-in { from { opacity: 0; } }
+.toast { animation: sheet-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+.feed-in { animation: feed-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); }
+@keyframes feed-in { from { opacity: 0; transform: translateY(-6px); background: rgba(25, 245, 165, 0.08); } }
+
+.podium-bar { background: linear-gradient(180deg, rgba(164, 92, 255, 0.45), rgba(139, 44, 245, 0.08)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2); }
+.podium-bar.gold { background: linear-gradient(180deg, rgba(25, 245, 165, 0.45), rgba(25, 245, 165, 0.06)); }
+
+.nav-item[aria-current="page"] { background: rgba(139, 44, 245, 0.16); color: var(--color-site-paper); box-shadow: inset 2px 0 0 var(--color-site-violet-hi); }
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora::after, .live-dot::after, .sheet, .sheet-scrim, .toast, .feed-in { animation: none; }
+  .lift, .lift:hover { transition: none; transform: none; }
+}
