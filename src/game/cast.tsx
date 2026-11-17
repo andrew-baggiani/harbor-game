@@ -10,7 +10,7 @@ import { useGLTFOnce } from "@/game/models";
  * A slot without a file keeps its greybox stand-in. Add a line here when the next character lands.
  */
 const FILES: Partial<Record<CastSlot, string>> = {
-  "night-desk": "/assets/models/cast/june.glb",
+  // "night-desk": "/assets/models/cast/june.glb",  // off until she meets the bar (see chat 2026-11-17)
 };
 
 export function hasCast(slot: CastSlot) {
