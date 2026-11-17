@@ -4,7 +4,9 @@ Paste everything below the line into Grok. Attach `docs/scenes-tue-fri.md`, `doc
 
 ---
 
-Dry Run Cyber now has a playable Tuesday through Sunday, three role tracks (Admins, Finance, Help desk) and twelve monthly reminders. They run on greybox rooms and stand-in figures until Andrew's MetaHumans land. I need art, voice lines, more questions, and a fact check. Return one zip with the folders below. Keep file names exactly as given.
+Dry Run Cyber now has a playable Tuesday through Sunday, three role tracks (Admins, Finance, Help desk) and twelve monthly reminders. Claude is building the 3D for all of it in Blender, the same way Monday was built: modeled rooms, real props, Cycles-baked lighting. Floor 14 and the lobby are reused from Monday. New rooms are a cafe, a home (kitchen and living room), and a server room with a service desk on floor 14. Andrew is making the characters.
+
+You are not doing any 3D. Everything you make here is 2D or text: images that go onto screens, phones, papers, posters and signs inside those rooms, plus voice lines, questions and a fact check. Return one zip with the folders below. Keep file names exactly as given.
 
 Rules that apply to everything:
 
@@ -42,6 +44,24 @@ Screens and phones the game currently draws from text. Make A and B for each:
 
 Also fix one: `wed-share-dialog-a.webp` shows "Only people at Harbor" selected, but the beat starts with the share window already set to "Anyone with the link". Redo A with that option selected and the send button lit.
 
+## 1b. Set dressing for the new rooms (folder `decor/`)
+
+These go onto walls, boards and shelves so the new rooms are as lived-in as floor 14. Same painterly-photo style as `f14-print-quay.webp`. No real brands, no logos, no readable personal names. Night lighting in mind: nothing neon-bright.
+
+| File | Size | What |
+|---|---|---|
+| `cafe-menu-board.webp` | 2048×1024 | Chalkboard menu behind the counter. Coffee, tea, pastries, prices. Fictional cafe name: Tidewater |
+| `cafe-specials.webp` | 1024×1536 | A-frame chalkboard: today's specials, and "Free Wi-Fi: Tidewater_Guest, ask for the password" |
+| `cafe-print-1.webp`, `cafe-print-2.webp` | 1024×1536 | Framed harbor photos for the cafe wall |
+| `cafe-wifi-card.webp` | 1024×640 | Table tent: network name and password for the real cafe Wi-Fi |
+| `home-print-1.webp`, `home-print-2.webp` | 1536×1024 | Framed prints for the living room |
+| `home-fridge.webp` | 1024×1536 | A fridge door: a calendar, a takeout menu, a school drawing, magnets. No names |
+| `home-router-sticker.webp` | 1024×640 | Close-up of a router label: model, default admin login, Wi-Fi name. Fictional brand |
+| `srv-rack-labels.webp` | 2048×1024 | A sheet of rack and patch-panel labels (CORE-SW-01, FW-01, BACKUP-NAS…) |
+| `srv-door-sign.webp` | 1024×1024 | "IT Room · Authorized staff only · Badge required" |
+| `desk-queue-screen.webp` | 1600×900 | Service desk queue dashboard: open tickets, priorities, wait times |
+| `desk-verify-poster.webp` | 1024×1536 | Poster on the service desk wall: "Verify before you reset. Call back on the directory number." |
+
 ## 2. Voice lines (file `voice/voice-sheet-week.csv`)
 
 Same columns as `docs/voice-sheet.csv`: `day,beat_id,speaker_role,line,delivery_note,max_seconds`. One row per prompt and one per fallout line that has a speaker (not "Screen", "Phone", "Mail"). Source text is in `src/content/week/weekend.ts`, `src/content/week/tracks.ts`, and the `timeline` entries in `src/content/week/days.ts`. Keep each line under 12 seconds. Reuse Monday voices where the cast sheet says to. The fake finance lead (THU-03), the fake CFO caller (HLP-01), the fake auditor (HLP-03) and the fake owner (FIN-02) must all sound different from each other and from the real help desk.
@@ -71,4 +91,4 @@ Read `src/content/week/tracks.ts` and `src/content/week/reminders.ts`. For each 
 
 `src/content/week/weekend.ts` has `SUNDAY_SORT` with sixteen items. Write sixteen more in the same shape (`id`, `from`, `subject`, `body`, `risky`, `why`). Mix of safe and risky, about half each. Ids `s17` to `s32`.
 
-Do not send code. Content only. Claude wires it in.
+Do not send code or 3D. Content only. Claude models the rooms and wires it in.
