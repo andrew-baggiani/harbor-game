@@ -12,7 +12,7 @@ export const Route = createFileRoute("/coverage")({
       {
         name: "description",
         content:
-          "Which NIST, CIS, CMMC, HIPAA and NIST CSF controls the Dry Run Cyber Monday shift and lessons map to, and where the gaps are.",
+          "Which NIST, CIS, CMMC, HIPAA and NIST CSF controls the Dry Run Cyber Monday shift and lessons map to, which gaps are open, and what closes them.",
       },
       { name: "theme-color", content: "#101319" },
     ],
@@ -42,6 +42,16 @@ const BEAT_NAME: Record<string, string> = {
   "MON-07-signin": "The push",
   "MON-08-misdirect": "The send",
   "MON-09-cleandesk": "The desk",
+};
+
+/** Why each gap is open, and what closes it. Role-based controls need separate tracks, not more shifts. */
+const PLANNED: Record<string, string> = {
+  "AT-3": "Planned: role-based tracks for admins, finance and help desk.",
+  "3.2.2": "Planned: role-based tracks for admins, finance and help desk.",
+  "AT.L2-3.2.2": "Planned: role-based tracks for admins, finance and help desk.",
+  "CIS-14.9": "Planned: role-based tracks for admins, finance and help desk.",
+  "PR.AT-02": "Planned: role-based tracks for admins, finance and help desk.",
+  "164.308(a)(5)(ii)(A)": "Planned: short monthly reminders between shifts.",
 };
 
 const ORDER: Framework[] = ["NIST53", "NIST171", "CMMC", "HIPAA", "CIS", "CSF"];
@@ -84,6 +94,10 @@ function CoveragePage() {
             <p className="mt-6 max-w-[38rem] text-lg leading-relaxed text-site-mist">
               Every awareness and training control we track, and what in Dry Run Cyber supports it: a decision in the Monday shift, a lesson, or a
               drill. This shows what the training maps to. It does not certify your clients against any framework.
+            </p>
+            <p className="mt-4 max-w-[38rem] leading-relaxed text-site-dim">
+              The open gaps are role-based training (extra depth for admins, finance and the help desk) and monthly security reminders. Both are
+              planned as their own tracks, separate from the week of shifts.
             </p>
           </div>
           <dl className="panel grid grid-cols-3 gap-4 !py-5 text-center">
@@ -164,7 +178,10 @@ function ControlRow({ row }: { row: CoverageRow }) {
       <p className="leading-relaxed text-site-mist">{row.control.title}</p>
       <div className="text-[15px]">
         {row.gap ? (
-          <p className="text-site-alarm">Gap. Nothing maps here yet.</p>
+          <p>
+            <span className="font-semibold text-site-alarm">Not covered yet.</span>{" "}
+            <span className="text-site-mist">{PLANNED[row.control.id] ?? "Nothing maps here yet."}</span>
+          </p>
         ) : sources.length === 0 ? (
           <p className="text-site-dim">Met by how the program is run: cadence, records and roles.</p>
         ) : (

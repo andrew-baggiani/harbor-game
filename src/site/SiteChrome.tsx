@@ -44,8 +44,10 @@ export function SiteFooter() {
         <img src="/brand/dry-run-cyber-icon-white.svg" alt="" className="h-6 w-6 opacity-60" />
         <span>© {new Date().getFullYear()} Dry Run Cyber</span>
         <a href="mailto:hello@dryruncyber.com" className="hover:text-site-paper">hello@dryruncyber.com</a>
-        <span className="flex gap-6">
+        <span className="flex flex-wrap gap-x-6 gap-y-2">
           <a href="/coverage" className="hover:text-site-paper">Control coverage</a>
+          <a href="/sample-record" className="hover:text-site-paper">Sample record</a>
+          <a href="/privacy" className="hover:text-site-paper">Privacy</a>
           <a href="/login" className="hover:text-site-paper">Partner sign in</a>
         </span>
       </div>

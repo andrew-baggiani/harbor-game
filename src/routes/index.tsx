@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { BRAND } from "@/site/brand";
 import { ChatWidget } from "@/site/ChatWidget";
 import { CONTACT, SiteFooter, SiteNav, SkipLink } from "@/site/SiteChrome";
 import { WEEK } from "@/game/week";
@@ -10,7 +9,7 @@ import { Arrow, Avatar, Check, Gauge, LiveDot, Lock, MiniRing, Pill, btn } from 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: `${BRAND.product}: first-person security awareness training for MSPs` },
+      { title: "Dry Run Cyber: rehearse the attack before it's real" },
       {
         name: "description",
         content:
@@ -18,7 +17,7 @@ export const Route = createFileRoute("/")({
       },
       { name: "theme-color", content: "#101319" },
       { property: "og:title", content: "Dry Run Cyber: rehearse the attack before it's real" },
-      { property: "og:description", content: "Security awareness training people play, not watch. One night shift, nine decisions, every one mapped to compliance controls." },
+      { property: "og:description", content: "First-person security awareness training for MSPs. One night shift, nine decisions, every one mapped to compliance controls." },
       { property: "og:image", content: "https://dryruncyber.com/og.jpg" },
       { property: "og:url", content: "https://dryruncyber.com/" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -33,13 +32,17 @@ export const Route = createFileRoute("/")({
 
 
 function Landing() {
+  const phone = usePhone();
   return (
     <div className="site min-h-dvh overflow-x-clip">
       <SkipLink />
       <SiteNav />
       <main id="main">
-        <Hero />
+        <Hero phone={phone} />
         <TryOne />
+        <section aria-label="The game" className="px-6 pb-16 sm:hidden">
+          <HeroFigure active={phone === true} />
+        </section>
         <Night />
         <Later />
         <Evidence />
@@ -54,18 +57,22 @@ function Landing() {
 
 /* ---------------------------------------------------------------- hero: the game, first person */
 
-function Hero() {
-  const [Scene, setScene] = useState<typeof import("@/site/RehearsalScene").RehearsalScene | null>(null);
+function usePhone() {
+  const [phone, setPhone] = useState<boolean | null>(null);
   useEffect(() => {
-    let live = true;
-    void import("@/site/RehearsalScene").then((m) => live && setScene(() => m.RehearsalScene));
-    return () => {
-      live = false;
-    };
+    const mq = window.matchMedia("(max-width: 639px)");
+    const on = () => setPhone(mq.matches);
+    on();
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
   }, []);
+  return phone;
+}
+
+function Hero({ phone }: { phone: boolean | null }) {
   return (
     <section aria-labelledby="hero-title" className="hero-glow relative">
-      <div className="relative mx-auto max-w-[1240px] px-6 pb-24 pt-8 md:px-10 lg:pb-32 lg:pt-14">
+      <div className="relative mx-auto max-w-[1240px] px-6 pb-16 pt-8 sm:pb-24 md:px-10 lg:pb-32 lg:pt-14">
       <div className="grid items-end gap-8 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
         <div>
           <p className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] py-1.5 pl-2 pr-4 text-[14px] font-semibold text-site-paper backdrop-blur">
@@ -98,21 +105,45 @@ function Hero() {
           </ul>
         </div>
       </div>
-      <figure className="mt-14 lg:mt-20">
-        <div
-          className="brackets lock-in"
-          style={{ "--arm": "clamp(28px, 5vw, 56px)", "--stroke": "clamp(5px, 1vw, 9px)", "--inset": "clamp(-24px, -2.5vw, -12px)" } as React.CSSProperties}
-        >
-          <div className="aspect-square overflow-hidden rounded-[22px] bg-site-ink-2 ring-1 ring-site-violet/40 shadow-[0_40px_120px_-30px_rgba(139,44,245,0.55)] sm:aspect-[16/10] lg:aspect-[21/9]">
-            {Scene ? <Scene className="h-full w-full" /> : null}
-          </div>
-        </div>
-        <figcaption className="mt-8 text-sm text-site-dim">
-          A playable sketch of the Monday shift. When a prompt appears, press E or Q, or tap it.
-        </figcaption>
-      </figure>
+      <div className="hidden sm:block">
+        <HeroFigure active={phone === false} />
+      </div>
       </div>
     </section>
+  );
+}
+
+/** The playable first-person sketch. A still holds the frame until three.js is ready, and only the
+ *  copy for the current screen size mounts the scene, so phones never start WebGL above the fold. */
+function HeroFigure({ active }: { active: boolean }) {
+  const [Scene, setScene] = useState<typeof import("@/site/RehearsalScene").RehearsalScene | null>(null);
+  useEffect(() => {
+    if (!active) return;
+    let live = true;
+    void import("@/site/RehearsalScene").then((m) => live && setScene(() => m.RehearsalScene));
+    return () => {
+      live = false;
+    };
+  }, [active]);
+  return (
+    <figure className="mt-14 lg:mt-20">
+      <div
+        className="brackets lock-in"
+        style={{ "--arm": "clamp(28px, 5vw, 56px)", "--stroke": "clamp(5px, 1vw, 9px)", "--inset": "clamp(-24px, -2.5vw, -12px)" } as React.CSSProperties}
+      >
+        <div className="relative aspect-[4/3] overflow-hidden rounded-[22px] bg-site-ink-2 ring-1 ring-site-violet/40 shadow-[0_40px_120px_-30px_rgba(139,44,245,0.55)] sm:aspect-[16/10] lg:aspect-[21/9]">
+          <img src="/brand/hero-still.webp" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" />
+          {Scene ? (
+            <div className="absolute inset-0">
+              <Scene className="h-full w-full" />
+            </div>
+          ) : null}
+        </div>
+      </div>
+      <figcaption className="mt-8 min-h-5 text-sm text-site-dim">
+        {Scene ? "A playable sketch of the Monday shift. When a prompt appears, press E or Q, or tap it." : "A sketch of the Monday shift, in first person."}
+      </figcaption>
+    </figure>
   );
 }
 
@@ -123,25 +154,25 @@ type Pick = null | "report" | "click" | "reply";
 const OUTCOME: Record<Exclude<Pick, null>, { good: boolean; title: string; body: string }> = {
   report: {
     good: true,
-    title: "Good catch.",
-    body: "Reporting it lets IT pull the same email out of everyone else's inbox before someone else clicks.",
+    title: "Good call.",
+    body: "Elena is in the board meeting and never sent it. A call to a number you already trust is the one check an email can't fake.",
   },
   click: {
     good: false,
-    title: "That's the click they wanted.",
-    body: "The sign-in page was a copy, and the password you'd type goes straight to them. Here it cost nothing. That's the point.",
+    title: "That money is gone.",
+    body: "The new account belongs to the attacker, and a cleared wire is hard to pull back. Here it cost nothing. That's the point.",
   },
   reply: {
     good: false,
-    title: "Your reply went to them, not IT.",
-    body: "Now they know the address is live and someone answers. The next email will be better.",
+    title: "Your reply went to them.",
+    body: "The address is one word off your company's. They'll gladly confirm it's real, and now they know you're ready to pay.",
   },
 };
 
 const FLAGS = [
-  { id: "from", text: "The sender's domain isn't yours: hollisgrant-support.com." },
-  { id: "clock", text: "A deadline two hours away, so you don't stop to check." },
-  { id: "link", text: "The button goes to the same lookalike domain, not your real sign-in page." },
+  { id: "from", text: "The sender's domain is hollisgrant-co.com, not hollisgrant.com." },
+  { id: "clock", text: "Pay today, and a reason you can't call to check." },
+  { id: "acct", text: "New bank details arriving by email. That's the whole fraud." },
 ];
 
 function TryOne() {
@@ -151,12 +182,12 @@ function TryOne() {
   const flagged = pick !== null;
 
   return (
-    <section aria-labelledby="try-title" className="border-t border-site-rule">
+    <section aria-labelledby="try-title" className="border-t border-white/[0.06]">
       <div className="mx-auto grid max-w-[1240px] items-center gap-14 px-6 py-24 md:px-10 lg:grid-cols-[1fr_minmax(0,500px)] lg:gap-16 lg:py-32 xl:gap-24">
       <div>
         <h2 id="try-title" className="display text-[38px] lg:text-[52px]">Try one decision.</h2>
         <p className="mt-6 max-w-[30rem] text-lg leading-relaxed text-site-mist">
-          In the game this lands on your desk monitor halfway through the shift, with a phone ringing behind you. Here it's just the email. What do you do?
+          In the game this lands on your desk while finance is waiting on you and the clock says 4:52. Here it's just the email. What do you do?
         </p>
       </div>
       <div className="relative">
@@ -168,26 +199,10 @@ function TryOne() {
           style={{ "--arm": "clamp(28px, 6vw, 44px)", "--stroke": "clamp(5px, 1.2vw, 8px)", "--inset": "clamp(-22px, -3vw, -12px)", "--c": out ? (out.good ? "var(--color-site-mint)" : "var(--color-site-alarm)") : "var(--color-site-violet)" } as React.CSSProperties}
         >
           <article aria-label="Practice email" className="panel !p-0 overflow-hidden text-[15px]">
-            <div className="border-b border-site-rule px-5 py-4">
-              <p className="font-semibold">Action required: your mailbox locks at 5:00 PM</p>
+            <div className="border-b border-white/[0.06] px-5 py-4">
+              <p className="font-semibold">Supplier bank change: please pay today</p>
               <p className="mt-1.5 text-site-mist">
-                IT Service Desk{" "}
-                <span className="flag brackets inline-block" data-on={flagged}>
-                  &lt;servicedesk@hollisgrant-support.com&gt;
-                </span>
-              </p>
-              <p className="mt-0.5 text-site-dim">To: you@hollisgrant.com</p>
-            </div>
-            <div className="space-y-3 px-5 py-5 leading-relaxed text-site-mist">
-              <p>We detected unusual sign-in activity on your account.</p>
-              <p>
-                To keep access, verify your account{" "}
-                <span className="flag brackets inline-block font-semibold text-site-paper" data-on={flagged}>
-                  within 2 hours
-                </span>
-                . Unverified accounts are locked automatically.
-              </p>
-              <p className="pt-1">
+                Elena Park, CFO{" "}
                 <span className="flag brackets inline-block" data-on={flagged}>
                   <button
                     type="button"
@@ -195,22 +210,42 @@ function TryOne() {
                     onMouseLeave={() => setPeek(false)}
                     onFocus={() => setPeek(true)}
                     onBlur={() => setPeek(false)}
-                    onClick={() => setPick((p) => p ?? "click")}
-                    className="inline-block rounded bg-[#2b62d9] px-4 py-2 font-semibold text-white"
+                    className="text-left text-site-mist underline decoration-dotted decoration-white/25 underline-offset-4"
                   >
-                    Verify account
+                    &lt;elena.park@hollisgrant-co.com&gt;
                   </button>
                 </span>
               </p>
-              <p className="pt-1 text-site-dim">IT Service Desk</p>
+              <p className="mt-0.5 text-site-dim">To: you@hollisgrant.com</p>
             </div>
-            <div className="flex h-9 items-center border-t border-site-rule px-5 text-[13px] text-site-dim">
+            <div className="space-y-3 px-5 py-5 leading-relaxed text-site-mist">
+              <p>Quick one before I walk into the board meeting. Northgate Freight moved banks.</p>
+              <p>
+                Please update their details and release{" "}
+                <span className="flag brackets inline-block font-semibold text-site-paper" data-on={flagged}>
+                  today's $48,200 payment
+                </span>{" "}
+                to the account below.{" "}
+                <span className="flag brackets inline-block" data-on={flagged}>
+                  I'm in meetings all afternoon, so don't call
+                </span>
+                . Just reply when it's done.
+              </p>
+              <div className="flag brackets block" data-on={flagged}>
+                <div className="rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-[14px]">
+                  <p className="text-site-dim">New account</p>
+                  <p className="num mt-0.5 font-semibold text-site-paper">Northgate Freight · account ending 7731</p>
+                </div>
+              </div>
+              <p className="pt-1 text-site-dim">Elena</p>
+            </div>
+            <div className="flex min-h-9 items-center border-t border-white/[0.06] px-5 py-2 text-[13px] text-site-dim">
               {peek || flagged ? (
                 <span>
-                  Link goes to <span className="text-site-alarm">https://hollisgrant-support.com/verify</span>
+                  Replies go to <span className="text-site-alarm">hollisgrant-co.com</span>, not your company's domain.
                 </span>
               ) : (
-                <span>Check where a button goes before you click it.</span>
+                <span>Check who a reply actually goes to before you send one.</span>
               )}
             </div>
           </article>
@@ -218,10 +253,10 @@ function TryOne() {
 
         <div className="mt-10 min-h-[164px]" aria-live="polite">
           {!out ? (
-            <div role="group" aria-label="What do you do?" className="grid gap-2.5 sm:max-w-[22rem]">
-              <DemoButton onClick={() => setPick("report")}>Report it as phishing</DemoButton>
-              <DemoButton onClick={() => setPick("click")}>Click Verify account</DemoButton>
-              <DemoButton onClick={() => setPick("reply")}>Reply and ask if it's real</DemoButton>
+            <div role="group" aria-label="What do you do?" className="grid gap-2.5 sm:max-w-[24rem]">
+              <DemoButton onClick={() => setPick("report")}>Call Elena on the number you already have</DemoButton>
+              <DemoButton onClick={() => setPick("click")}>Update the details and pay</DemoButton>
+              <DemoButton onClick={() => setPick("reply")}>Reply to check it's really her</DemoButton>
             </div>
           ) : (
             <div>
@@ -363,9 +398,20 @@ function Evidence() {
             The record shows what each person actually did, when, and which requirement it covers. It reads like an audit artifact, not a
             completion certificate.
           </p>
-          <a href="/coverage" className={`${btn.ghost} mt-8`}>
-            See the full control coverage <Arrow size={16} />
-          </a>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <a href="/sample-record" className={btn.primary}>
+              See a sample record <Arrow size={16} />
+            </a>
+            <a href="/coverage" className={btn.ghost}>
+              Control coverage
+            </a>
+          </div>
+          <p className="mt-6 max-w-[30rem] text-[15px] leading-relaxed text-site-dim">
+            Records hold work email, choices and scores, nothing else, and only the client's admins and their MSP can see them.{" "}
+            <a href="/privacy" className="text-site-paper underline decoration-white/25 underline-offset-4">
+              Privacy
+            </a>
+          </p>
         </div>
         <figure>
           <div className="brackets panel !p-6 sm:!p-8" style={{ "--arm": "30px", "--stroke": "6px", "--inset": "-14px" } as React.CSSProperties}>
@@ -408,23 +454,27 @@ function ForMsps() {
       <div className="mx-auto max-w-[1240px] px-6 py-24 md:px-10 lg:py-32">
         <h2 id="msps-title" className="display max-w-[18ch] text-[38px] lg:text-[52px]">Built for MSPs to resell.</h2>
         <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <Point title="Monday ships today">
+            About twenty minutes, nine decisions, and a record for every person that you can hand an auditor.
+          </Point>
           <Point title="Training clients finish">
             A short night shift people want to see the end of, instead of a video they leave running in another tab.
           </Point>
           <Point title="Proof for the audit">
-            Records map each decision to NIST, CIS, HIPAA and CMMC controls, so the report answers the question auditors actually ask.
+            Each decision maps to NIST, CIS, HIPAA and CMMC controls, so the report answers the question auditors actually ask.
           </Point>
-          <Point title="A program, not a module">
-            One shift a day, Monday to Friday. A full week of required training, delivered as a story.
-          </Point>
-          <Point title="Your brand on it">
-            A partner portal for every client you manage today. Per-client branding is next, so it ships as part of your stack.
+          <Point title="A portal for every client">
+            Readiness across all your clients, one-click reminders, and evidence exports in one place.
           </Point>
         </div>
 
         <PortalPreview />
 
-        <h3 className="mt-24 text-2xl font-bold" style={{ fontStretch: "118%" }}>The week</h3>
+        <h3 className="mt-24 text-2xl font-bold" style={{ fontStretch: "118%" }}>Where it's going</h3>
+        <p className="mt-3 max-w-[40rem] text-lg leading-relaxed text-site-mist">
+          Monday is the first night of a full week: one shift a day, each mapped to its own block of required training. Role-based tracks for admins and
+          finance, and per-client branding, come after.
+        </p>
         <ol className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
           {WEEK.map((s) => (
             <li key={s.day} className={`panel !p-5 ${s.status === "open" ? "ring-1 ring-site-violet/50" : "opacity-85"}`}>

@@ -307,3 +307,10 @@ html:has(.site) { scroll-behavior: smooth; }
 }
 .later-glow { background: radial-gradient(60% 80% at 80% 50%, rgba(255, 90, 95, 0.08), transparent 70%), #12151d; }
 .site .num { font-variant-numeric: tabular-nums; font-stretch: 112%; }
+
+@media print {
+  .no-print, .site [aria-label="Ask a question"] { display: none !important; }
+  .site { background: #fff !important; color: #111 !important; }
+  .site .record { background: #fff !important; box-shadow: none !important; border: 1px solid #ccc; }
+  .site .record * { color: #111 !important; border-color: #ddd !important; }
+}

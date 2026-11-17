@@ -34,7 +34,7 @@ export function Shell({ children }: { children: ReactNode }) {
   const into = next ? Math.min(100, Math.round(((xp - current.min) / span) * 100)) : 100;
   useHydratedProgress();
 
-  if (pathname === "/" || pathname === "/coverage" || pathname === "/login" || pathname === "/portal") return <>{children}</>;
+  if (pathname === "/" || pathname === "/coverage" || pathname === "/login" || pathname === "/portal" || pathname === "/sample-record" || pathname === "/privacy") return <>{children}</>;
   if (pathname === "/play") {
     return <div className="h-dvh w-full overflow-hidden bg-[#07090e] text-fg">{children}</div>;
   }
