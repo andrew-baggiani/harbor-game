@@ -1,0 +1,134 @@
+[
+  {
+    "id": "kc-wed-link-1",
+    "skill": "data-sharing",
+    "prompt": "The share window says anyone with the link. The client needs the drawings tonight.",
+    "choices": [
+      {
+        "id": "any",
+        "label": "Send the anyone-link.",
+        "correct": false
+      },
+      {
+        "id": "names",
+        "label": "Add their work addresses, then send.",
+        "correct": true
+      },
+      {
+        "id": "personal",
+        "label": "Send it to a personal mailbox.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-wed-link-2",
+    "skill": "data-sharing",
+    "prompt": "You sent a link with no names on it. Someone forwards it.",
+    "choices": [
+      {
+        "id": "first",
+        "label": "Only the first person can open it.",
+        "correct": false
+      },
+      {
+        "id": "any",
+        "label": "Anyone who receives it can open it.",
+        "correct": true
+      },
+      {
+        "id": "close",
+        "label": "It expires when you close the laptop.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-wed-class-1",
+    "skill": "data-classification",
+    "prompt": "A meeting that is not about customers wants the full list in a slide. The sheet says internal.",
+    "choices": [
+      {
+        "id": "all",
+        "label": "Paste the whole list.",
+        "correct": false
+      },
+      {
+        "id": "ask",
+        "label": "Ask the owner what they may see.",
+        "correct": true
+      },
+      {
+        "id": "count",
+        "label": "Paste the count, not the names.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-wed-class-2",
+    "skill": "data-classification",
+    "prompt": "You are not sure the slide is allowed to hold those names.",
+    "choices": [
+      {
+        "id": "fine",
+        "label": "An internal meeting makes it fine.",
+        "correct": false
+      },
+      {
+        "id": "mark",
+        "label": "The mark on the sheet is the rule. Ask.",
+        "correct": true
+      },
+      {
+        "id": "header",
+        "label": "Drop the header and paste the rows.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-wed-ai-1",
+    "skill": "data-handling",
+    "prompt": "A personal writing tool will clean up a complaint. The account number is in the paragraph.",
+    "choices": [
+      {
+        "id": "paste",
+        "label": "Paste it. The tool is only for writing.",
+        "correct": false
+      },
+      {
+        "id": "strip",
+        "label": "Take the name out, then paste the rest.",
+        "correct": false
+      },
+      {
+        "id": "mail",
+        "label": "Rewrite it in company mail.",
+        "correct": true
+      }
+    ]
+  },
+  {
+    "id": "kc-wed-ai-2",
+    "skill": "data-handling",
+    "prompt": "That writing tool is signed in with your personal account.",
+    "choices": [
+      {
+        "id": "delete",
+        "label": "Personal is fine if you delete it after.",
+        "correct": false
+      },
+      {
+        "id": "stay",
+        "label": "A customer complaint does not belong there.",
+        "correct": true
+      },
+      {
+        "id": "private",
+        "label": "It is safe if the tool says private.",
+        "correct": false
+      }
+    ]
+  }
+]

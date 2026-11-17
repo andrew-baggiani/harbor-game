@@ -1,0 +1,134 @@
+[
+  {
+    "id": "kc-fri-insider-1",
+    "skill": "insider-risk",
+    "prompt": "It is their last day. A copy is running from a share they do not work in. They close the laptop.",
+    "choices": [
+      {
+        "id": "go",
+        "label": "Let it go. It is their last day.",
+        "correct": false
+      },
+      {
+        "id": "tell",
+        "label": "Tell security what you saw.",
+        "correct": true
+      },
+      {
+        "id": "ask",
+        "label": "Ask them to stop, and leave it.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-fri-insider-2",
+    "skill": "insider-risk",
+    "prompt": "You do not know why they were copying the files.",
+    "choices": [
+      {
+        "id": "sure",
+        "label": "Be sure of the reason before you speak.",
+        "correct": false
+      },
+      {
+        "id": "saw",
+        "label": "Report what the screen did, not why.",
+        "correct": true
+      },
+      {
+        "id": "same",
+        "label": "Asking them is the same as a report.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-fri-report-1",
+    "skill": "incident-reporting",
+    "prompt": "You were copied on a thread with account numbers. One reply is from outside the company.",
+    "choices": [
+      {
+        "id": "del",
+        "label": "Delete it so it is not on you.",
+        "correct": false
+      },
+      {
+        "id": "chan",
+        "label": "Report it on the posted channel.",
+        "correct": true
+      },
+      {
+        "id": "mgr",
+        "label": "Forward it to your manager and stop.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-fri-report-2",
+    "skill": "incident-reporting",
+    "prompt": "Your manager may be out when you forward the thread.",
+    "choices": [
+      {
+        "id": "sent",
+        "label": "A forward still counts if you sent it.",
+        "correct": false
+      },
+      {
+        "id": "watch",
+        "label": "The posted channel is the one watched.",
+        "correct": true
+      },
+      {
+        "id": "mon",
+        "label": "Wait until Monday and mention it.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-fri-hour-1",
+    "skill": "incident-response",
+    "prompt": "The file share opens on a note. The files are locked. It says pay before midnight.",
+    "choices": [
+      {
+        "id": "pay",
+        "label": "Pay it from the department card.",
+        "correct": false
+      },
+      {
+        "id": "call",
+        "label": "Unplug, and call the incident number.",
+        "correct": true
+      },
+      {
+        "id": "wipe",
+        "label": "Wipe the machine so it cannot spread.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-fri-hour-2",
+    "skill": "incident-response",
+    "prompt": "Wiping the machine would clear the locked files.",
+    "choices": [
+      {
+        "id": "need",
+        "label": "It also clears what responders need.",
+        "correct": true
+      },
+      {
+        "id": "fast",
+        "label": "A clean machine is the fastest fix.",
+        "correct": false
+      },
+      {
+        "id": "both",
+        "label": "Pay first, then wipe it.",
+        "correct": false
+      }
+    ]
+  }
+]
