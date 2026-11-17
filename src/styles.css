@@ -328,3 +328,12 @@ html:has(.site) { scroll-behavior: smooth; }
 .steps > li::before { counter-increment: step; content: counter(step); position: absolute; left: 0; top: 0.1em; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 9px; background: rgba(139, 44, 245, 0.18); color: var(--color-site-violet-hi); font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; }
 .toc-link[aria-current="true"] { color: var(--color-site-paper); }
 .toc-link[aria-current="true"]::before { background: var(--color-site-violet-hi); box-shadow: 0 0 10px var(--color-site-violet-hi); }
+
+/* Policy builder: print only the document */
+@media print {
+  body[data-print] .no-print { display: none !important; }
+  body[data-print] .site { background: #fff !important; }
+  body[data-print] main { padding: 0 !important; max-width: none !important; }
+  body[data-print] .print-doc { max-height: none !important; overflow: visible !important; box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; background: #fff !important; }
+  body[data-print] [aria-label="Ask a question"] { display: none !important; }
+}
