@@ -148,32 +148,32 @@ function prepare(root: THREE.Object3D) {
           spot.decay = 2;
         }
       } else if (lamp.startsWith("Lobby_Light")) {
-  // Front-left hangs over reception, front-right and back-right over the directory.
-  // The other back-row lights sit on the gate bank, which is already in the lightmap.
-  const reception = lamp === "Lobby_Light_0";
-  const directory = lamp === "Lobby_Light_2" || lamp === "Lobby_Light_5";
-  if (reception) {
-    light.color.set("#ffe3bf");
-    light.intensity = 22;
-    if (point.isPointLight) point.distance = 8;
-  } else if (directory) {
-    light.color.set("#f0d7b4");
-    light.intensity = 14;
-    if (point.isPointLight) point.distance = 9;
-  } else if (lamp === "Lobby_Light_1") {
-    light.color.set("#efe6d8");
-    light.intensity = 8;
-    if (point.isPointLight) point.distance = 11;
-  } else {
-    light.color.set("#c9d4e4");
-    light.intensity = 4.5;
-    if (point.isPointLight) point.distance = 10;
-  }
-  if (point.isPointLight) point.decay = 2;
-} else if (lamp.startsWith("F14_")) {
-  light.color.set("#e7eef8");
-  light.intensity = 12;
-  if (point.isPointLight) point.distance = 16;
+        // Front-left hangs over reception, front-right and back-right over the directory.
+        // The other back-row lights sit on the gate bank, which is already in the lightmap.
+        const reception = lamp === "Lobby_Light_0";
+        const directory = lamp === "Lobby_Light_2" || lamp === "Lobby_Light_5";
+        if (reception) {
+          light.color.set("#ffe3bf");
+          light.intensity = 22;
+          if (point.isPointLight) point.distance = 8;
+        } else if (directory) {
+          light.color.set("#f0d7b4");
+          light.intensity = 14;
+          if (point.isPointLight) point.distance = 9;
+        } else if (lamp === "Lobby_Light_1") {
+          light.color.set("#efe6d8");
+          light.intensity = 8;
+          if (point.isPointLight) point.distance = 11;
+        } else {
+          light.color.set("#c9d4e4");
+          light.intensity = 4.5;
+          if (point.isPointLight) point.distance = 10;
+        }
+        if (point.isPointLight) point.decay = 2;
+      } else if (lamp.startsWith("F14_")) {
+        light.color.set("#e7eef8");
+        light.intensity = 12;
+        if (point.isPointLight) point.distance = 16;
       } else if (lamp === "Elevator_Cab_Light") {
         light.color.set("#f1f4ff");
         light.intensity = 2.5;
@@ -198,7 +198,7 @@ function prepare(root: THREE.Object3D) {
         physical.opacity = 0.25;
         physical.roughness = Math.min(physical.roughness, 0.12);
         physical.metalness = Math.min(physical.metalness, 0.08);
-                physical.depthWrite = false;
+        physical.depthWrite = false;
       }
     }
     const pendant = mesh.name.endsWith("Pendant_Light") ? mesh.name : (mesh.parent?.name ?? "");
