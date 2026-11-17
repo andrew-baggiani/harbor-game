@@ -314,3 +314,17 @@ html:has(.site) { scroll-behavior: smooth; }
   .site .record { background: #fff !important; box-shadow: none !important; border: 1px solid #ccc; }
   .site .record * { color: #111 !important; border-color: #ddd !important; }
 }
+/* Long-form guide body */
+.prose-guide { font-size: 18px; line-height: 1.7; color: rgba(250, 250, 252, 0.86); }
+.prose-guide > p + p, .prose-guide > p + ul, .prose-guide > ul + p, .prose-guide > p + ol { margin-top: 1.1em; }
+.prose-guide > ul { list-style: none; padding: 0; }
+.prose-guide > ul > li { position: relative; padding-left: 1.4em; margin-top: 0.55em; }
+.prose-guide > ul > li::before { content: ""; position: absolute; left: 0.2em; top: 0.72em; width: 6px; height: 6px; border-radius: 99px; background: var(--color-site-violet-hi); }
+.prose-guide strong { color: var(--color-site-paper); font-weight: 650; }
+.prose-guide a:not([class]) { color: var(--color-site-paper); text-decoration: underline; text-decoration-color: rgba(164, 92, 255, 0.6); text-underline-offset: 4px; }
+.prose-guide a:not([class]):hover { text-decoration-color: var(--color-site-violet-hi); }
+.prose-guide code { font-size: 0.9em; background: rgba(255, 255, 255, 0.06); padding: 0.1em 0.35em; border-radius: 6px; }
+.steps { counter-reset: step; }
+.steps > li::before { counter-increment: step; content: counter(step); position: absolute; left: 0; top: 0.1em; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 9px; background: rgba(139, 44, 245, 0.18); color: var(--color-site-violet-hi); font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; }
+.toc-link[aria-current="true"] { color: var(--color-site-paper); }
+.toc-link[aria-current="true"]::before { background: var(--color-site-violet-hi); box-shadow: 0 0 10px var(--color-site-violet-hi); }

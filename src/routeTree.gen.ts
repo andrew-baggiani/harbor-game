@@ -25,6 +25,8 @@ import { Route as ResultRouteImport } from './routes/result'
 import { Route as ReviewRouteImport } from './routes/review'
 import { Route as SampleRecordRouteImport } from './routes/sample-record'
 import { Route as ShiftRouteImport } from './routes/shift'
+import { Route as AiSecurityIndexRouteImport } from './routes/ai-security/index'
+import { Route as AiSecurityPolicyBuilderRouteImport } from './routes/ai-security/policy-builder'
 import { Route as ApiActivityRouteImport } from './routes/api/activity'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiEventsRouteImport } from './routes/api/events'
@@ -121,6 +123,16 @@ const SampleRecordRoute = SampleRecordRouteImport.update({
 const ShiftRoute = ShiftRouteImport.update({
   id: '/shift',
   path: '/shift',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiSecurityIndexRoute = AiSecurityIndexRouteImport.update({
+  id: '/ai-security/',
+  path: '/ai-security/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiSecurityPolicyBuilderRoute = AiSecurityPolicyBuilderRouteImport.update({
+  id: '/ai-security/policy-builder',
+  path: '/ai-security/policy-builder',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiActivityRoute = ApiActivityRouteImport.update({
@@ -226,6 +238,7 @@ export interface FileRoutesByFullPath {
   '/review': typeof ReviewRoute
   '/sample-record': typeof SampleRecordRoute
   '/shift': typeof ShiftRoute
+  '/ai-security/policy-builder': typeof AiSecurityPolicyBuilderRoute
   '/api/activity': typeof ApiActivityRoute
   '/api/chat': typeof ApiChatRoute
   '/api/events': typeof ApiEventsRoute
@@ -238,6 +251,7 @@ export interface FileRoutesByFullPath {
   '/lab/mail': typeof LabMailRoute
   '/lesson/$lessonId': typeof LessonLessonIdRoute
   '/path/$moduleId': typeof PathModuleIdRoute
+  '/ai-security/': typeof AiSecurityIndexRoute
   '/drills/': typeof DrillsIndexRoute
   '/path/': typeof PathIndexRoute
   '/api/auth/request': typeof ApiAuthRequestRoute
@@ -259,6 +273,7 @@ export interface FileRoutesByTo {
   '/review': typeof ReviewRoute
   '/sample-record': typeof SampleRecordRoute
   '/shift': typeof ShiftRoute
+  '/ai-security/policy-builder': typeof AiSecurityPolicyBuilderRoute
   '/api/activity': typeof ApiActivityRoute
   '/api/chat': typeof ApiChatRoute
   '/api/events': typeof ApiEventsRoute
@@ -271,6 +286,7 @@ export interface FileRoutesByTo {
   '/lab/mail': typeof LabMailRoute
   '/lesson/$lessonId': typeof LessonLessonIdRoute
   '/path/$moduleId': typeof PathModuleIdRoute
+  '/ai-security': typeof AiSecurityIndexRoute
   '/drills': typeof DrillsIndexRoute
   '/path': typeof PathIndexRoute
   '/api/auth/request': typeof ApiAuthRequestRoute
@@ -295,6 +311,7 @@ export interface FileRoutesById {
   '/review': typeof ReviewRoute
   '/sample-record': typeof SampleRecordRoute
   '/shift': typeof ShiftRoute
+  '/ai-security/policy-builder': typeof AiSecurityPolicyBuilderRoute
   '/api/activity': typeof ApiActivityRoute
   '/api/chat': typeof ApiChatRoute
   '/api/events': typeof ApiEventsRoute
@@ -307,6 +324,7 @@ export interface FileRoutesById {
   '/lab/mail': typeof LabMailRoute
   '/lesson/$lessonId': typeof LessonLessonIdRoute
   '/path/$moduleId': typeof PathModuleIdRoute
+  '/ai-security/': typeof AiSecurityIndexRoute
   '/drills/': typeof DrillsIndexRoute
   '/path/': typeof PathIndexRoute
   '/api/auth/request': typeof ApiAuthRequestRoute
@@ -332,6 +350,7 @@ export interface FileRouteTypes {
     | '/review'
     | '/sample-record'
     | '/shift'
+    | '/ai-security/policy-builder'
     | '/api/activity'
     | '/api/chat'
     | '/api/events'
@@ -344,6 +363,7 @@ export interface FileRouteTypes {
     | '/lab/mail'
     | '/lesson/$lessonId'
     | '/path/$moduleId'
+    | '/ai-security/'
     | '/drills/'
     | '/path/'
     | '/api/auth/request'
@@ -365,6 +385,7 @@ export interface FileRouteTypes {
     | '/review'
     | '/sample-record'
     | '/shift'
+    | '/ai-security/policy-builder'
     | '/api/activity'
     | '/api/chat'
     | '/api/events'
@@ -377,6 +398,7 @@ export interface FileRouteTypes {
     | '/lab/mail'
     | '/lesson/$lessonId'
     | '/path/$moduleId'
+    | '/ai-security'
     | '/drills'
     | '/path'
     | '/api/auth/request'
@@ -400,6 +422,7 @@ export interface FileRouteTypes {
     | '/review'
     | '/sample-record'
     | '/shift'
+    | '/ai-security/policy-builder'
     | '/api/activity'
     | '/api/chat'
     | '/api/events'
@@ -412,6 +435,7 @@ export interface FileRouteTypes {
     | '/lab/mail'
     | '/lesson/$lessonId'
     | '/path/$moduleId'
+    | '/ai-security/'
     | '/drills/'
     | '/path/'
     | '/api/auth/request'
@@ -436,6 +460,7 @@ export interface RootRouteChildren {
   ReviewRoute: typeof ReviewRoute
   SampleRecordRoute: typeof SampleRecordRoute
   ShiftRoute: typeof ShiftRoute
+  AiSecurityPolicyBuilderRoute: typeof AiSecurityPolicyBuilderRoute
   ApiActivityRoute: typeof ApiActivityRoute
   ApiChatRoute: typeof ApiChatRoute
   ApiEventsRoute: typeof ApiEventsRoute
@@ -446,6 +471,7 @@ export interface RootRouteChildren {
   ApiPartnerRoute: typeof ApiPartnerRoute
   LabMailRoute: typeof LabMailRoute
   LessonLessonIdRoute: typeof LessonLessonIdRoute
+  AiSecurityIndexRoute: typeof AiSecurityIndexRoute
   ApiAuthRequestRoute: typeof ApiAuthRequestRoute
   ApiAuthSignoutRoute: typeof ApiAuthSignoutRoute
   ApiAuthVerifyRoute: typeof ApiAuthVerifyRoute
@@ -563,6 +589,20 @@ declare module '@tanstack/react-router' {
       path: '/shift'
       fullPath: '/shift'
       preLoaderRoute: typeof ShiftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-security/': {
+      id: '/ai-security/'
+      path: '/ai-security'
+      fullPath: '/ai-security/'
+      preLoaderRoute: typeof AiSecurityIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-security/policy-builder': {
+      id: '/ai-security/policy-builder'
+      path: '/ai-security/policy-builder'
+      fullPath: '/ai-security/policy-builder'
+      preLoaderRoute: typeof AiSecurityPolicyBuilderRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/activity': {
@@ -729,6 +769,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReviewRoute: ReviewRoute,
   SampleRecordRoute: SampleRecordRoute,
   ShiftRoute: ShiftRoute,
+  AiSecurityPolicyBuilderRoute: AiSecurityPolicyBuilderRoute,
   ApiActivityRoute: ApiActivityRoute,
   ApiChatRoute: ApiChatRoute,
   ApiEventsRoute: ApiEventsRoute,
@@ -739,6 +780,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPartnerRoute: ApiPartnerRoute,
   LabMailRoute: LabMailRoute,
   LessonLessonIdRoute: LessonLessonIdRoute,
+  AiSecurityIndexRoute: AiSecurityIndexRoute,
   ApiAuthRequestRoute: ApiAuthRequestRoute,
   ApiAuthSignoutRoute: ApiAuthSignoutRoute,
   ApiAuthVerifyRoute: ApiAuthVerifyRoute,

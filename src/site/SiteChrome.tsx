@@ -24,6 +24,7 @@ export function SiteNav() {
         <nav aria-label="Primary" className="flex items-center gap-4 whitespace-nowrap text-[15px] text-site-mist sm:gap-7">
           <a href="/#night" className="hidden hover:text-site-paper lg:inline">How it works</a>
           <a href="/#msps" className="hidden hover:text-site-paper md:inline">For MSPs</a>
+          <a href="/ai-security" className="hidden hover:text-site-paper md:inline">AI security guide</a>
           <a href="/login" className="hover:text-site-paper">Sign in</a>
           <a
             href={CONTACT}
@@ -45,6 +46,7 @@ export function SiteFooter() {
         <span>© {new Date().getFullYear()} Dry Run Cyber</span>
         <a href="mailto:hello@dryruncyber.com" className="hover:text-site-paper">hello@dryruncyber.com</a>
         <span className="flex flex-wrap gap-x-6 gap-y-2">
+          <a href="/ai-security" className="hover:text-site-paper">AI security guide</a>
           <a href="/coverage" className="hover:text-site-paper">Control coverage</a>
           <a href="/sample-record" className="hover:text-site-paper">Sample record</a>
           <a href="/privacy" className="hover:text-site-paper">Privacy</a>
