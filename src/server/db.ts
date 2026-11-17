@@ -3,6 +3,7 @@
 import type { D1Database } from "@/server/env";
 import { newId, newToken, sha256 } from "@/server/crypto";
 import { choiceOf } from "@/game/scenarios";
+import { SHIFT_IDS, weekChoiceOf } from "@/content/week";
 
 const now = () => Date.now();
 const MAGIC_TTL = 15 * 60 * 1000;
@@ -10,6 +11,9 @@ const SESSION_TTL = 30 * 24 * 60 * 60 * 1000;
 
 export const POINTS = { good: 100, missed: 0, complete: 50 } as const;
 export const SHIFTS = ["monday"] as const;
+export const TRACKS = ["track-admin", "track-finance", "track-helpdesk"] as const;
+export type TrackId = (typeof TRACKS)[number];
+const NOT_TRACK = "shifts NOT LIKE '%track-%'";
 
 export type User = { id: string; email: string; name: string | null };
 export type Role = "partner_admin" | "org_admin" | "learner";
@@ -189,7 +193,7 @@ export async function partnerOverview(db: D1Database, a: Access, partnerId: stri
   const { results: events } = await db
     .prepare(
       `SELECT e.org_id, e.user_id, e.run_id, e.kind, e.points, e.ts FROM events e JOIN orgs o ON o.id = e.org_id
-        WHERE o.partner_id = ?`,
+        WHERE o.partner_id = ? AND e.shift = 'monday'`,
     )
     .bind(partnerId)
     .all<EventLite & { org_id: string }>();
@@ -303,11 +307,30 @@ export async function orgDetail(db: D1Database, a: Access, orgId: string) {
     )
     .bind(orgId)
     .all<{ user_id: string; email: string; display_name: string | null; role: Role; created_at: number }>();
-  const { results: events } = await db
-    .prepare("SELECT user_id, run_id, kind, points, ts FROM events WHERE org_id = ?")
+  const { results: allEvents } = await db
+    .prepare("SELECT user_id, run_id, kind, points, ts, shift FROM events WHERE org_id = ?")
     .bind(orgId)
-    .all<EventLite>();
-  const best = scoreRuns(events);
+    .all<EventLite & { shift: string }>();
+  const best = scoreRuns(allEvents.filter((e) => e.shift === "monday"));
+  const week = new Map<string, Record<string, "Complete" | "In progress">>();
+  for (const e of allEvents) {
+    if (e.shift === "monday" || e.shift === "reminder") continue;
+    const rec = week.get(e.user_id) ?? {};
+    if (e.kind === "shift_complete") rec[e.shift] = "Complete";
+    else rec[e.shift] ??= "In progress";
+    week.set(e.user_id, rec);
+  }
+  const lastReminder = new Map<string, number>();
+  for (const e of allEvents) if (e.shift === "reminder") lastReminder.set(e.user_id, Math.max(lastReminder.get(e.user_id) ?? 0, e.ts));
+  const { results: trackRows } = await db
+    .prepare(
+      `SELECT a.user_id, c.shifts FROM assignments a JOIN campaigns c ON c.id = a.campaign_id
+        WHERE a.org_id = ? AND c.shifts LIKE '%track-%'`,
+    )
+    .bind(orgId)
+    .all<{ user_id: string; shifts: string }>();
+  const tracksBy = new Map<string, string[]>();
+  for (const r of trackRows) tracksBy.set(r.user_id, [...(tracksBy.get(r.user_id) ?? []), ...(JSON.parse(r.shifts) as string[])]);
   const { results: perScenario } = await db
     .prepare(
       `SELECT scenario_id, SUM(good) AS good, COUNT(*) AS total FROM events
@@ -316,7 +339,7 @@ export async function orgDetail(db: D1Database, a: Access, orgId: string) {
     .bind(orgId)
     .all<{ scenario_id: string; good: number; total: number }>();
   const campaign = await db
-    .prepare("SELECT id, name, shifts, due_at FROM campaigns WHERE org_id = ? ORDER BY created_at DESC LIMIT 1")
+    .prepare(`SELECT id, name, shifts, due_at FROM campaigns WHERE org_id = ? AND ${NOT_TRACK} ORDER BY created_at DESC LIMIT 1`)
     .bind(orgId)
     .first<{ id: string; name: string; shifts: string; due_at: number | null }>();
   const learners = people.map((p) => {
@@ -329,6 +352,9 @@ export async function orgDetail(db: D1Database, a: Access, orgId: string) {
       monday: b?.status ?? "Not started",
       score: b?.score ?? 0,
       lastActive: b?.last ?? null,
+      week: week.get(p.user_id) ?? {},
+      tracks: tracksBy.get(p.user_id) ?? [],
+      lastReminder: lastReminder.get(p.user_id) ?? null,
     };
   });
   return {
@@ -357,7 +383,7 @@ export async function addLearners(db: D1Database, a: Access, orgId: string, emai
       .run();
     added.push(user);
   }
-  const campaign = await db.prepare("SELECT id FROM campaigns WHERE org_id = ? ORDER BY created_at DESC LIMIT 1").bind(orgId).first<{ id: string }>();
+  const campaign = await db.prepare(`SELECT id FROM campaigns WHERE org_id = ? AND ${NOT_TRACK} ORDER BY created_at DESC LIMIT 1`).bind(orgId).first<{ id: string }>();
   if (campaign) {
     for (const u of added) {
       await db
@@ -372,7 +398,7 @@ export async function addLearners(db: D1Database, a: Access, orgId: string, emai
 /** One campaign per org for now: Monday, with an optional due date. Assigns every current learner. */
 export async function setCampaign(db: D1Database, a: Access, orgId: string, dueAt: number | null) {
   await assertOrgAdmin(db, a, orgId);
-  let campaign = await db.prepare("SELECT id FROM campaigns WHERE org_id = ? ORDER BY created_at DESC LIMIT 1").bind(orgId).first<{ id: string }>();
+  let campaign = await db.prepare(`SELECT id FROM campaigns WHERE org_id = ? AND ${NOT_TRACK} ORDER BY created_at DESC LIMIT 1`).bind(orgId).first<{ id: string }>();
   if (campaign) {
     await db.prepare("UPDATE campaigns SET due_at = ? WHERE id = ? AND org_id = ?").bind(dueAt, campaign.id, orgId).run();
   } else {
@@ -390,6 +416,41 @@ export async function setCampaign(db: D1Database, a: Access, orgId: string, dueA
       .run();
   }
   return campaign;
+}
+
+const TRACK_NAME: Record<TrackId, string> = {
+  "track-admin": "Track: Admins",
+  "track-finance": "Track: Finance",
+  "track-helpdesk": "Track: Help desk",
+};
+
+/** Assign or remove a role track for one learner. Each track is its own campaign, so records stay separate. */
+export async function setTrack(db: D1Database, a: Access, orgId: string, userId: string, track: TrackId, on: boolean) {
+  await assertOrgAdmin(db, a, orgId);
+  if (!TRACKS.includes(track)) throw new Forbidden("Unknown track");
+  const member = await db.prepare("SELECT id FROM memberships WHERE org_id = ? AND user_id = ? AND role = 'learner'").bind(orgId, userId).first();
+  if (!member) throw new Forbidden("Not a learner in this org");
+  let campaign = await db
+    .prepare("SELECT id FROM campaigns WHERE org_id = ? AND shifts = ? LIMIT 1")
+    .bind(orgId, JSON.stringify([track]))
+    .first<{ id: string }>();
+  if (!campaign) {
+    if (!on) return { ok: true };
+    campaign = { id: newId("c_") };
+    await db
+      .prepare("INSERT INTO campaigns (id, org_id, name, shifts, due_at, created_at) VALUES (?, ?, ?, ?, NULL, ?)")
+      .bind(campaign.id, orgId, TRACK_NAME[track], JSON.stringify([track]), now())
+      .run();
+  }
+  if (on) {
+    await db
+      .prepare("INSERT OR IGNORE INTO assignments (id, org_id, campaign_id, user_id, created_at) VALUES (?, ?, ?, ?, ?)")
+      .bind(newId("as_"), orgId, campaign.id, userId, now())
+      .run();
+  } else {
+    await db.prepare("DELETE FROM assignments WHERE campaign_id = ? AND user_id = ? AND org_id = ?").bind(campaign.id, userId, orgId).run();
+  }
+  return { ok: true };
 }
 
 export async function setLeaderboardEnabled(db: D1Database, a: Access, orgId: string, enabled: boolean) {
@@ -443,7 +504,7 @@ export async function exportEvents(db: D1Database, a: Access, orgId: string) {
 
 /* ------------------------------------------------------------------ the decision log */
 
-export type EventInput = { runId: string; choiceId?: string; complete?: boolean };
+export type EventInput = { runId: string; choiceId?: string; complete?: boolean; shift?: string };
 
 /** Scored on the server from the scenario content: the client only says which choice it made. */
 export async function recordEvent(db: D1Database, a: Access, input: EventInput) {
@@ -454,26 +515,29 @@ export async function recordEvent(db: D1Database, a: Access, input: EventInput) 
   const actor = { objectType: "Agent", account: { homePage: "https://dryruncyber.com", name: a.user.id } };
 
   if (input.complete) {
+    const shift = input.shift ?? "monday";
+    if (!(SHIFT_IDS as readonly string[]).includes(shift) || shift === "reminder") throw new Forbidden("Unknown shift");
     const statement = {
       actor,
       verb: { id: "http://adlnet.gov/expapi/verbs/completed", display: { "en-US": "completed" } },
-      object: { id: "https://dryruncyber.com/xapi/shift/monday", definition: { name: { "en-US": "Monday: First night" } } },
+      object: { id: `https://dryruncyber.com/xapi/shift/${shift}`, definition: { name: { "en-US": shift } } },
       result: { completion: true, score: { raw: POINTS.complete } },
       timestamp: new Date(ts).toISOString(),
     };
     const res = await db
       .prepare(
         `INSERT OR IGNORE INTO events (id, org_id, user_id, run_id, shift, kind, points, xapi, ts)
-         VALUES (?, ?, ?, ?, 'monday', 'shift_complete', ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, 'shift_complete', ?, ?, ?)`,
       )
-      .bind(newId("e_"), orgId, a.user.id, input.runId, POINTS.complete, JSON.stringify(statement), ts)
+      .bind(newId("e_"), orgId, a.user.id, input.runId, shift, POINTS.complete, JSON.stringify(statement), ts)
       .run();
     return { orgId, points: POINTS.complete, recorded: !!res.meta?.changes };
   }
 
-  const found = input.choiceId ? choiceOf(input.choiceId) : null;
+  const found = input.choiceId ? (choiceOf(input.choiceId) ?? weekChoiceOf(input.choiceId)) : null;
   if (!found) throw new Forbidden("Unknown choice");
   const { scenario, choice } = found;
+  const shift = String((scenario as { day?: string }).day ?? "monday");
   const good = !!choice.ok;
   const points = good ? POINTS.good : POINTS.missed;
   const controls = (scenario as unknown as { controls?: Record<string, string[]> }).controls ?? {};
@@ -488,9 +552,9 @@ export async function recordEvent(db: D1Database, a: Access, input: EventInput) 
   const res = await db
     .prepare(
       `INSERT OR IGNORE INTO events (id, org_id, user_id, run_id, shift, kind, scenario_id, choice_id, good, points, controls, xapi, ts)
-       VALUES (?, ?, ?, ?, 'monday', 'decision', ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, 'decision', ?, ?, ?, ?, ?, ?, ?)`,
     )
-    .bind(newId("e_"), orgId, a.user.id, input.runId, scenario.id, choice.id, good ? 1 : 0, points, JSON.stringify(controls), JSON.stringify(statement), ts)
+    .bind(newId("e_"), orgId, a.user.id, input.runId, shift, scenario.id, choice.id, good ? 1 : 0, points, JSON.stringify(controls), JSON.stringify(statement), ts)
     .run();
   return { orgId, points, recorded: !!res.meta?.changes };
 }

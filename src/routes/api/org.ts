@@ -1,11 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { guard, requireAccess } from "@/server/auth";
-import { addLearners, assertOrgAdmin, createMagicLink, createOrg, normEmail, orgDetail, setCampaign, setDisplayName, setLeaderboardEnabled } from "@/server/db";
+import { addLearners, assertOrgAdmin, createMagicLink, createOrg, normEmail, orgDetail, setCampaign, setDisplayName, setLeaderboardEnabled, setTrack, type TrackId } from "@/server/db";
 import { sendMagicLink } from "@/server/email";
 import { bad, isLocal, json, readJson } from "@/server/http";
 
 type Body = {
-  action?: "create" | "invite" | "remind" | "campaign" | "settings" | "displayName";
+  action?: "create" | "invite" | "remind" | "campaign" | "settings" | "displayName" | "track";
+  userId?: string;
+  track?: string;
+  on?: boolean;
+  next?: string;
   orgId?: string;
   name?: string;
   domain?: string;
@@ -52,7 +56,7 @@ export const Route = createFileRoute("/api/org")({
             const devLinks: Record<string, string> = {};
             let provider = "log";
             for (const u of added) {
-              const token = await createMagicLink(db, u.id, "/play");
+              const token = await createMagicLink(db, u.id, body.next && /^\/(reminder|week\/[a-z-]+)$/.test(body.next) ? body.next : "/play");
               const link = `${origin}/api/auth/verify?token=${encodeURIComponent(token)}`;
               const sent = await sendMagicLink(ctx.env, u.email, link, "invite", org?.name);
               provider = sent.provider;
@@ -60,6 +64,11 @@ export const Route = createFileRoute("/api/org")({
             }
             return json({ invited: added.map((u) => u.email), already, provider, ...(Object.keys(devLinks).length ? { devLinks } : {}) });
           }
+          if (body.action === "track") {
+            if (!body.orgId || !body.userId || !body.track) return bad("orgId, userId and track required");
+            return json(await setTrack(db, access, body.orgId, body.userId, body.track as TrackId, !!body.on));
+          }
+
           if (body.action === "remind") {
             // Fresh sign-in links for learners already on the team (at most one per person every 15 minutes).
             const org = await assertOrgAdmin(db, access, body.orgId);
@@ -81,7 +90,7 @@ export const Route = createFileRoute("/api/org")({
                 skipped.push(u.email);
                 continue;
               }
-              const token = await createMagicLink(db, u.id, "/play");
+              const token = await createMagicLink(db, u.id, body.next && /^\/(reminder|week\/[a-z-]+)$/.test(body.next) ? body.next : "/play");
               const link = `${origin}/api/auth/verify?token=${encodeURIComponent(token)}`;
               const sent = await sendMagicLink(ctx.env, u.email, link, "invite", org.name);
               if (sent.provider === "log" && isLocal(request)) devLinks[u.email] = link;

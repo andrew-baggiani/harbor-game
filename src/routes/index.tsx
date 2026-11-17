@@ -4,7 +4,7 @@ import { ChatWidget } from "@/site/ChatWidget";
 import { CONTACT, SiteFooter, SiteNav, SkipLink } from "@/site/SiteChrome";
 import { WEEK } from "@/game/week";
 import phishing from "@/content/scenarios/mon-02-phishing.json";
-import { Arrow, Avatar, Check, Gauge, LiveDot, Lock, MiniRing, Pill, btn } from "@/portal/ui";
+import { Arrow, Avatar, Check, Gauge, LiveDot, MiniRing, Pill, btn } from "@/portal/ui";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -470,30 +470,28 @@ function ForMsps() {
 
         <PortalPreview />
 
-        <h3 className="mt-24 text-2xl font-bold" style={{ fontStretch: "118%" }}>Where it's going</h3>
+        <h3 className="mt-24 text-2xl font-bold" style={{ fontStretch: "118%" }}>The whole week</h3>
         <p className="mt-3 max-w-[40rem] text-lg leading-relaxed text-site-mist">
-          Monday is the first night of a full week: one shift a day, each mapped to its own block of required training. Role-based tracks for admins and
-          finance, and per-client branding, come after.
+          Five night shifts, two short weekend games, and role tracks for admins, finance and the help desk. A one-minute reminder each month keeps it
+          warm in between.
         </p>
-        <ol className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
+        <ol className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
           {WEEK.map((s) => (
-            <li key={s.day} className={`panel !p-5 ${s.status === "open" ? "ring-1 ring-site-violet/50" : "opacity-85"}`}>
-              <div className="flex items-center justify-between gap-2">
-                <span className={`text-sm font-bold ${s.status === "open" ? "text-site-mint" : "text-site-dim"}`}>{s.day}</span>
-                {s.status === "open" ? (
-                  <Pill tone="mint" dot>
-                    Live
-                  </Pill>
-                ) : (
-                  <Pill tone="dim">
-                    <Lock size={12} /> Soon
-                  </Pill>
-                )}
-              </div>
-              <p className="mt-3 text-lg font-bold" style={{ fontStretch: "112%" }}>{s.title}</p>
-              <p className="mt-1.5 text-[14px] leading-relaxed text-site-dim">{s.topics.replaceAll(" · ", ", ")}.</p>
+            <li key={s.day}>
+              <a href={s.href} className="panel lift block h-full !p-5">
+                <span className="text-sm font-bold text-site-mint">{s.day}</span>
+                <p className="mt-3 text-lg font-bold" style={{ fontStretch: "112%" }}>{s.title}</p>
+                <p className="mt-1.5 text-[14px] leading-relaxed text-site-dim">{s.topics.replaceAll(" · ", ", ")}.</p>
+              </a>
             </li>
           ))}
+          <li>
+            <a href="/week" className="panel lift block h-full !p-5 ring-1 ring-site-violet/50">
+              <span className="text-sm font-bold text-site-violet">Role tracks</span>
+              <p className="mt-3 text-lg font-bold" style={{ fontStretch: "112%" }}>Admins, finance, help desk</p>
+              <p className="mt-1.5 text-[14px] leading-relaxed text-site-dim">Extra depth for the people attackers target first. Assigned per person in the portal.</p>
+            </a>
+          </li>
         </ol>
       </div>
     </section>
