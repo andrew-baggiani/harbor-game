@@ -14,20 +14,31 @@ import { Route as CardRouteImport } from './routes/card'
 import { Route as CoverageRouteImport } from './routes/coverage'
 import { Route as DrillsRouteImport } from './routes/drills'
 import { Route as GlossaryRouteImport } from './routes/glossary'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as NightRouteImport } from './routes/night'
 import { Route as PathRouteImport } from './routes/path'
 import { Route as PlayRouteImport } from './routes/play'
+import { Route as PortalRouteImport } from './routes/portal'
 import { Route as RecordRouteImport } from './routes/record'
 import { Route as ResultRouteImport } from './routes/result'
 import { Route as ReviewRouteImport } from './routes/review'
 import { Route as ShiftRouteImport } from './routes/shift'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as ApiEventsRouteImport } from './routes/api/events'
+import { Route as ApiExportRouteImport } from './routes/api/export'
+import { Route as ApiLeaderboardRouteImport } from './routes/api/leaderboard'
+import { Route as ApiMeRouteImport } from './routes/api/me'
+import { Route as ApiOrgRouteImport } from './routes/api/org'
+import { Route as ApiPartnerRouteImport } from './routes/api/partner'
 import { Route as DrillsIndexRouteImport } from './routes/drills.index'
 import { Route as DrillsDrillIdRouteImport } from './routes/drills.$drillId'
 import { Route as LabMailRouteImport } from './routes/lab.mail'
 import { Route as LessonLessonIdRouteImport } from './routes/lesson.$lessonId'
 import { Route as PathIndexRouteImport } from './routes/path.index'
 import { Route as PathModuleIdRouteImport } from './routes/path.$moduleId'
+import { Route as ApiAuthRequestRouteImport } from './routes/api/auth.request'
+import { Route as ApiAuthSignoutRouteImport } from './routes/api/auth.signout'
+import { Route as ApiAuthVerifyRouteImport } from './routes/api/auth.verify'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -54,6 +65,11 @@ const GlossaryRoute = GlossaryRouteImport.update({
   path: '/glossary',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NightRoute = NightRouteImport.update({
   id: '/night',
   path: '/night',
@@ -67,6 +83,11 @@ const PathRoute = PathRouteImport.update({
 const PlayRoute = PlayRouteImport.update({
   id: '/play',
   path: '/play',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalRoute = PortalRouteImport.update({
+  id: '/portal',
+  path: '/portal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecordRoute = RecordRouteImport.update({
@@ -92,6 +113,36 @@ const ShiftRoute = ShiftRouteImport.update({
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEventsRoute = ApiEventsRouteImport.update({
+  id: '/api/events',
+  path: '/api/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiExportRoute = ApiExportRouteImport.update({
+  id: '/api/export',
+  path: '/api/export',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLeaderboardRoute = ApiLeaderboardRouteImport.update({
+  id: '/api/leaderboard',
+  path: '/api/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMeRoute = ApiMeRouteImport.update({
+  id: '/api/me',
+  path: '/api/me',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiOrgRoute = ApiOrgRouteImport.update({
+  id: '/api/org',
+  path: '/api/org',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPartnerRoute = ApiPartnerRouteImport.update({
+  id: '/api/partner',
+  path: '/api/partner',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DrillsIndexRoute = DrillsIndexRouteImport.update({
@@ -124,6 +175,21 @@ const PathModuleIdRoute = PathModuleIdRouteImport.update({
   path: '/$moduleId',
   getParentRoute: () => PathRoute,
 } as any)
+const ApiAuthRequestRoute = ApiAuthRequestRouteImport.update({
+  id: '/api/auth/request',
+  path: '/api/auth/request',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSignoutRoute = ApiAuthSignoutRouteImport.update({
+  id: '/api/auth/signout',
+  path: '/api/auth/signout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthVerifyRoute = ApiAuthVerifyRouteImport.update({
+  id: '/api/auth/verify',
+  path: '/api/auth/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -131,39 +197,61 @@ export interface FileRoutesByFullPath {
   '/coverage': typeof CoverageRoute
   '/drills': typeof DrillsRouteWithChildren
   '/glossary': typeof GlossaryRoute
+  '/login': typeof LoginRoute
   '/night': typeof NightRoute
   '/path': typeof PathRouteWithChildren
   '/play': typeof PlayRoute
+  '/portal': typeof PortalRoute
   '/record': typeof RecordRoute
   '/result': typeof ResultRoute
   '/review': typeof ReviewRoute
   '/shift': typeof ShiftRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/events': typeof ApiEventsRoute
+  '/api/export': typeof ApiExportRoute
+  '/api/leaderboard': typeof ApiLeaderboardRoute
+  '/api/me': typeof ApiMeRoute
+  '/api/org': typeof ApiOrgRoute
+  '/api/partner': typeof ApiPartnerRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
   '/lab/mail': typeof LabMailRoute
   '/lesson/$lessonId': typeof LessonLessonIdRoute
   '/path/$moduleId': typeof PathModuleIdRoute
   '/drills/': typeof DrillsIndexRoute
   '/path/': typeof PathIndexRoute
+  '/api/auth/request': typeof ApiAuthRequestRoute
+  '/api/auth/signout': typeof ApiAuthSignoutRoute
+  '/api/auth/verify': typeof ApiAuthVerifyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/card': typeof CardRoute
   '/coverage': typeof CoverageRoute
   '/glossary': typeof GlossaryRoute
+  '/login': typeof LoginRoute
   '/night': typeof NightRoute
   '/play': typeof PlayRoute
+  '/portal': typeof PortalRoute
   '/record': typeof RecordRoute
   '/result': typeof ResultRoute
   '/review': typeof ReviewRoute
   '/shift': typeof ShiftRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/events': typeof ApiEventsRoute
+  '/api/export': typeof ApiExportRoute
+  '/api/leaderboard': typeof ApiLeaderboardRoute
+  '/api/me': typeof ApiMeRoute
+  '/api/org': typeof ApiOrgRoute
+  '/api/partner': typeof ApiPartnerRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
   '/lab/mail': typeof LabMailRoute
   '/lesson/$lessonId': typeof LessonLessonIdRoute
   '/path/$moduleId': typeof PathModuleIdRoute
   '/drills': typeof DrillsIndexRoute
   '/path': typeof PathIndexRoute
+  '/api/auth/request': typeof ApiAuthRequestRoute
+  '/api/auth/signout': typeof ApiAuthSignoutRoute
+  '/api/auth/verify': typeof ApiAuthVerifyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -172,20 +260,31 @@ export interface FileRoutesById {
   '/coverage': typeof CoverageRoute
   '/drills': typeof DrillsRouteWithChildren
   '/glossary': typeof GlossaryRoute
+  '/login': typeof LoginRoute
   '/night': typeof NightRoute
   '/path': typeof PathRouteWithChildren
   '/play': typeof PlayRoute
+  '/portal': typeof PortalRoute
   '/record': typeof RecordRoute
   '/result': typeof ResultRoute
   '/review': typeof ReviewRoute
   '/shift': typeof ShiftRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/events': typeof ApiEventsRoute
+  '/api/export': typeof ApiExportRoute
+  '/api/leaderboard': typeof ApiLeaderboardRoute
+  '/api/me': typeof ApiMeRoute
+  '/api/org': typeof ApiOrgRoute
+  '/api/partner': typeof ApiPartnerRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
   '/lab/mail': typeof LabMailRoute
   '/lesson/$lessonId': typeof LessonLessonIdRoute
   '/path/$moduleId': typeof PathModuleIdRoute
   '/drills/': typeof DrillsIndexRoute
   '/path/': typeof PathIndexRoute
+  '/api/auth/request': typeof ApiAuthRequestRoute
+  '/api/auth/signout': typeof ApiAuthSignoutRoute
+  '/api/auth/verify': typeof ApiAuthVerifyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -195,39 +294,61 @@ export interface FileRouteTypes {
     | '/coverage'
     | '/drills'
     | '/glossary'
+    | '/login'
     | '/night'
     | '/path'
     | '/play'
+    | '/portal'
     | '/record'
     | '/result'
     | '/review'
     | '/shift'
     | '/api/chat'
+    | '/api/events'
+    | '/api/export'
+    | '/api/leaderboard'
+    | '/api/me'
+    | '/api/org'
+    | '/api/partner'
     | '/drills/$drillId'
     | '/lab/mail'
     | '/lesson/$lessonId'
     | '/path/$moduleId'
     | '/drills/'
     | '/path/'
+    | '/api/auth/request'
+    | '/api/auth/signout'
+    | '/api/auth/verify'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/card'
     | '/coverage'
     | '/glossary'
+    | '/login'
     | '/night'
     | '/play'
+    | '/portal'
     | '/record'
     | '/result'
     | '/review'
     | '/shift'
     | '/api/chat'
+    | '/api/events'
+    | '/api/export'
+    | '/api/leaderboard'
+    | '/api/me'
+    | '/api/org'
+    | '/api/partner'
     | '/drills/$drillId'
     | '/lab/mail'
     | '/lesson/$lessonId'
     | '/path/$moduleId'
     | '/drills'
     | '/path'
+    | '/api/auth/request'
+    | '/api/auth/signout'
+    | '/api/auth/verify'
   id:
     | '__root__'
     | '/'
@@ -235,20 +356,31 @@ export interface FileRouteTypes {
     | '/coverage'
     | '/drills'
     | '/glossary'
+    | '/login'
     | '/night'
     | '/path'
     | '/play'
+    | '/portal'
     | '/record'
     | '/result'
     | '/review'
     | '/shift'
     | '/api/chat'
+    | '/api/events'
+    | '/api/export'
+    | '/api/leaderboard'
+    | '/api/me'
+    | '/api/org'
+    | '/api/partner'
     | '/drills/$drillId'
     | '/lab/mail'
     | '/lesson/$lessonId'
     | '/path/$moduleId'
     | '/drills/'
     | '/path/'
+    | '/api/auth/request'
+    | '/api/auth/signout'
+    | '/api/auth/verify'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -257,16 +389,27 @@ export interface RootRouteChildren {
   CoverageRoute: typeof CoverageRoute
   DrillsRoute: typeof DrillsRouteWithChildren
   GlossaryRoute: typeof GlossaryRoute
+  LoginRoute: typeof LoginRoute
   NightRoute: typeof NightRoute
   PathRoute: typeof PathRouteWithChildren
   PlayRoute: typeof PlayRoute
+  PortalRoute: typeof PortalRoute
   RecordRoute: typeof RecordRoute
   ResultRoute: typeof ResultRoute
   ReviewRoute: typeof ReviewRoute
   ShiftRoute: typeof ShiftRoute
   ApiChatRoute: typeof ApiChatRoute
+  ApiEventsRoute: typeof ApiEventsRoute
+  ApiExportRoute: typeof ApiExportRoute
+  ApiLeaderboardRoute: typeof ApiLeaderboardRoute
+  ApiMeRoute: typeof ApiMeRoute
+  ApiOrgRoute: typeof ApiOrgRoute
+  ApiPartnerRoute: typeof ApiPartnerRoute
   LabMailRoute: typeof LabMailRoute
   LessonLessonIdRoute: typeof LessonLessonIdRoute
+  ApiAuthRequestRoute: typeof ApiAuthRequestRoute
+  ApiAuthSignoutRoute: typeof ApiAuthSignoutRoute
+  ApiAuthVerifyRoute: typeof ApiAuthVerifyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -306,6 +449,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GlossaryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/night': {
       id: '/night'
       path: '/night'
@@ -325,6 +475,13 @@ declare module '@tanstack/react-router' {
       path: '/play'
       fullPath: '/play'
       preLoaderRoute: typeof PlayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal': {
+      id: '/portal'
+      path: '/portal'
+      fullPath: '/portal'
+      preLoaderRoute: typeof PortalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/record': {
@@ -360,6 +517,48 @@ declare module '@tanstack/react-router' {
       path: '/api/chat'
       fullPath: '/api/chat'
       preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/events': {
+      id: '/api/events'
+      path: '/api/events'
+      fullPath: '/api/events'
+      preLoaderRoute: typeof ApiEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/export': {
+      id: '/api/export'
+      path: '/api/export'
+      fullPath: '/api/export'
+      preLoaderRoute: typeof ApiExportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/leaderboard': {
+      id: '/api/leaderboard'
+      path: '/api/leaderboard'
+      fullPath: '/api/leaderboard'
+      preLoaderRoute: typeof ApiLeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/me': {
+      id: '/api/me'
+      path: '/api/me'
+      fullPath: '/api/me'
+      preLoaderRoute: typeof ApiMeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/org': {
+      id: '/api/org'
+      path: '/api/org'
+      fullPath: '/api/org'
+      preLoaderRoute: typeof ApiOrgRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/partner': {
+      id: '/api/partner'
+      path: '/api/partner'
+      fullPath: '/api/partner'
+      preLoaderRoute: typeof ApiPartnerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/drills/': {
@@ -404,6 +603,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PathModuleIdRouteImport
       parentRoute: typeof PathRoute
     }
+    '/api/auth/request': {
+      id: '/api/auth/request'
+      path: '/api/auth/request'
+      fullPath: '/api/auth/request'
+      preLoaderRoute: typeof ApiAuthRequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/signout': {
+      id: '/api/auth/signout'
+      path: '/api/auth/signout'
+      fullPath: '/api/auth/signout'
+      preLoaderRoute: typeof ApiAuthSignoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/verify': {
+      id: '/api/auth/verify'
+      path: '/api/auth/verify'
+      fullPath: '/api/auth/verify'
+      preLoaderRoute: typeof ApiAuthVerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -438,16 +658,27 @@ const rootRouteChildren: RootRouteChildren = {
   CoverageRoute: CoverageRoute,
   DrillsRoute: DrillsRouteWithChildren,
   GlossaryRoute: GlossaryRoute,
+  LoginRoute: LoginRoute,
   NightRoute: NightRoute,
   PathRoute: PathRouteWithChildren,
   PlayRoute: PlayRoute,
+  PortalRoute: PortalRoute,
   RecordRoute: RecordRoute,
   ResultRoute: ResultRoute,
   ReviewRoute: ReviewRoute,
   ShiftRoute: ShiftRoute,
   ApiChatRoute: ApiChatRoute,
+  ApiEventsRoute: ApiEventsRoute,
+  ApiExportRoute: ApiExportRoute,
+  ApiLeaderboardRoute: ApiLeaderboardRoute,
+  ApiMeRoute: ApiMeRoute,
+  ApiOrgRoute: ApiOrgRoute,
+  ApiPartnerRoute: ApiPartnerRoute,
   LabMailRoute: LabMailRoute,
   LessonLessonIdRoute: LessonLessonIdRoute,
+  ApiAuthRequestRoute: ApiAuthRequestRoute,
+  ApiAuthSignoutRoute: ApiAuthSignoutRoute,
+  ApiAuthVerifyRoute: ApiAuthVerifyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

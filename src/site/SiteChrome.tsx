@@ -19,15 +19,16 @@ export function SiteNav() {
     >
       <header className="mx-auto flex max-w-[1240px] items-center justify-between gap-6 px-6 py-4 md:px-10 md:py-5">
         <a href="/" aria-label="Dry Run Cyber home" className="shrink-0">
-          <img src="/brand/logo-horizontal.svg" alt="Dry Run Cyber" className="h-10 w-auto md:h-12" />
+          <img src="/brand/logo-horizontal.svg" alt="Dry Run Cyber" className="h-9 w-auto sm:h-10 md:h-12" />
         </a>
-        <nav aria-label="Primary" className="flex items-center gap-7 text-[15px] text-site-mist">
+        <nav aria-label="Primary" className="flex items-center gap-4 whitespace-nowrap text-[15px] text-site-mist sm:gap-7">
           <a href="/#night" className="hidden hover:text-site-paper lg:inline">How it works</a>
           <a href="/#msps" className="hidden hover:text-site-paper md:inline">For MSPs</a>
-          <a href="/play" className="hidden hover:text-site-paper sm:inline">Partner login</a>
+          <a href="/play" className="hidden hover:text-site-paper lg:inline">Partner login</a>
+          <a href="/login" className="hover:text-site-paper">Sign in</a>
           <a
             href={CONTACT}
-            className="rounded-md border border-site-violet px-4 py-2 font-semibold text-site-paper transition-colors hover:bg-site-violet"
+            className="rounded-md border border-site-violet px-3 py-2 font-semibold sm:px-4 text-site-paper transition-colors hover:bg-site-violet"
           >
             Request access
           </a>
@@ -46,6 +47,7 @@ export function SiteFooter() {
         <a href="mailto:hello@dryruncyber.com" className="hover:text-site-paper">hello@dryruncyber.com</a>
         <span className="flex gap-6">
           <a href="/coverage" className="hover:text-site-paper">Control coverage</a>
+          <a href="/login" className="hover:text-site-paper">Sign in</a>
           <a href="/play" className="hover:text-site-paper">Partner login</a>
         </span>
       </div>

@@ -18,6 +18,8 @@ import { exportRecord, gradeKnowledge } from "@/game/records";
 import { markerNow } from "@/game/sim";
 import { keys, useHarbor, world, fleet } from "@/game/state";
 import { ShareButton } from "@/components/share-button";
+import { OrgBoard } from "@/game/OrgBoard";
+import { checkLearner } from "@/game/telemetry";
 
 function LoadBar() {
   const { active, progress } = useProgress();
@@ -385,6 +387,9 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
     if (!report) setChecked(false);
   }, [report]);
   useEffect(() => {
+    void checkLearner();
+  }, []);
+  useEffect(() => {
     world.choice = 0;
     setPick(0);
   }, [talk]);
@@ -583,7 +588,7 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
       {report && !checked ? <KnowledgeGate onPassed={() => setChecked(true)} /> : null}
       {report && checked ? (
         <div className="absolute inset-0 flex items-end justify-start bg-[#07090e]/55 p-4 md:items-center md:p-10">
-          <div className="w-full max-w-lg border border-white/10 bg-[#0c0d0f]/95 p-6 md:p-8">
+          <div className="w-full max-h-[calc(100dvh-2rem)] max-w-lg overflow-y-auto border border-white/10 bg-[#0c0d0f]/95 p-6 md:p-8">
             <p className="text-[10px] tracking-[0.24em] text-[#c4a574]">MONDAY CLOSED</p>
             <h2 className="mt-2 font-display text-5xl text-[#f4f0e6]">{scored.title}</h2>
             <p className="mt-2 font-display text-4xl tabular-nums text-[#f4f0e6]">{scored.score}</p>
@@ -615,6 +620,7 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
                 </ul>
               </div>
             )}
+            <OrgBoard />
             <div className="mt-6 flex flex-wrap gap-3">
               <ShareButton
                 label="Share the night"
