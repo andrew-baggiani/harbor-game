@@ -1,4 +1,5 @@
 import { useFrame, useThree } from "@react-three/fiber";
+import { Beam } from "@/game/Beam";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import type { CastSlot, Prop, WeekBeat } from "@/content/week/types";
@@ -185,16 +186,10 @@ export function approach(spot: Spot) {
   return { x: spot.ax ?? spot.x, z: spot.az ?? spot.z + 0.9 };
 }
 
-/** One beat's prop at its spot, with a pulsing ring where the player stands when it's the live beat. */
+/** One beat's prop at its spot, with a column of light where the player stands when it's the live beat. */
 export function BeatProp({ beat, set, flipped, live }: { beat: WeekBeat; set: RoomSet; flipped: boolean; live: boolean }) {
   const spot = set.spots[beat.spot];
-  const ring = useRef<THREE.Mesh>(null);
   const tex = beat.prop ? propTexture(beat.prop, flipped) : null;
-  useFrame(({ clock }) => {
-    if (!ring.current) return;
-    const s = 1 + Math.sin(clock.elapsedTime * 3) * 0.08;
-    ring.current.scale.set(s, s, 1);
-  });
   if (!spot) return null;
   const kind = beat.prop?.kind ?? "screen";
   const [pw, ph] = PROP_SIZE[kind];
@@ -226,10 +221,9 @@ export function BeatProp({ beat, set, flipped, live }: { beat: WeekBeat; set: Ro
         </group>
       )}
       {live && (
-        <mesh ref={ring} rotation={[-Math.PI / 2, 0, 0]} position={[at.x, floor + 0.02, at.z]}>
-          <ringGeometry args={[0.32, 0.38, 48]} />
-          <meshBasicMaterial color="#c4a574" transparent opacity={0.85} toneMapped={false} />
-        </mesh>
+        <group position={[at.x, floor, at.z]}>
+          <Beam height={2.5} radius={0.42} />
+        </group>
       )}
     </group>
   );

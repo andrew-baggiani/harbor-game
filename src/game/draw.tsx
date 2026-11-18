@@ -6,6 +6,7 @@ import { HDRLoader } from "three/examples/jsm/loaders/HDRLoader.js";
 import * as THREE from "three";
 import { BLOCKS, DOOR, OFFICE_Y, SKYLINE, TOWER, type Block } from "@/game/layout";
 import { markerNow, step, trafficCars } from "@/game/sim";
+import { Beam } from "@/game/Beam";
 import { facadeMaterial, sidewalkMaterial } from "@/game/shade";
 import { useHarbor, world, fleet } from "@/game/state";
 import { HarborDetail } from "@/game/detail";
@@ -989,8 +990,7 @@ function Walker({ origin, span, z, speed, tint, hair, phase, scale }: { origin: 
 
 export function Marker() {
   const group = useRef<THREE.Group>(null);
-  const glow = useRef<THREE.Mesh>(null);
-  useFrame(({ clock }) => {
+  useFrame(() => {
     const spot = markerNow();
     const g = group.current;
     if (!g) return;
@@ -1000,23 +1000,9 @@ export function Marker() {
     }
     g.visible = true;
     g.position.set(spot.x, spot.y, spot.z);
-    if (glow.current) {
-      const s = 1 + Math.sin(clock.elapsedTime * 2.4) * 0.08;
-      glow.current.scale.set(s, 1, s);
-    }
   });
-  return (
-    <group ref={group}>
-      <mesh position={[0, 6, 0]}>
-        <cylinderGeometry args={[0.08, 0.015, 12, 8, 1, true]} />
-        <meshBasicMaterial color="#e7c48a" transparent opacity={0.55} depthWrite={false} blending={THREE.AdditiveBlending} side={THREE.DoubleSide} toneMapped={false} />
-      </mesh>
-      <mesh ref={glow} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.06, 0]}>
-        <ringGeometry args={[0.55, 0.72, 40]} />
-        <meshBasicMaterial color="#e7c48a" transparent opacity={0.9} depthWrite={false} side={THREE.DoubleSide} />
-      </mesh>
-    </group>
-  );
+  // 3.4 m clears every Monday ceiling; the trail and the HUD pointer do the long-range finding.
+  return <Beam ref={group} height={3.4} radius={0.7} />;
 }
 
 const trailDummy = new THREE.Object3D();
