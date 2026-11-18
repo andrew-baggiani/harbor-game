@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ChatWidget } from "@/site/ChatWidget";
 import { CONTACT, SiteFooter, SiteNav, SkipLink } from "@/site/SiteChrome";
-import { WEEK } from "@/game/week";
+import { AI_ENTRY, WEEK } from "@/game/week";
 import phishing from "@/content/scenarios/mon-02-phishing.json";
 import { Arrow, Avatar, Check, Gauge, LiveDot, MiniRing, Pill, btn } from "@/portal/ui";
 
@@ -455,7 +455,7 @@ function ForMsps() {
         <h2 id="msps-title" className="display max-w-[18ch] text-[38px] lg:text-[52px]">Built for MSPs to resell.</h2>
         <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2">
           <Point title="The whole week ships today">
-            Five night shifts, two weekend games and three role tracks, with a record for every person that you can hand an auditor.
+            Five night shifts, two weekend games, an AI shift and three role tracks, with a record for every person that you can hand an auditor.
           </Point>
           <Point title="Training clients finish">
             A short night shift people want to see the end of, instead of a video they leave running in another tab.
@@ -472,8 +472,8 @@ function ForMsps() {
 
         <h3 className="display mt-16 text-[30px] sm:mt-24 lg:text-[40px]">The whole week</h3>
         <p className="mt-3 max-w-[40rem] text-lg leading-relaxed text-site-mist">
-          Five night shifts, two short weekend games, and role tracks for admins, finance and the help desk. A one-minute reminder each month keeps it
-          warm in between.
+          Five night shifts, two short weekend games, an AI shift for everyone, and role tracks for admins, finance and the help desk. A one-minute
+          reminder each month keeps it warm in between.
         </p>
         <ol className="mt-6 -mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-3 [scrollbar-width:none] md:mx-0 md:overflow-visible md:px-0 md:pb-0 md:grid md:grid-cols-2 xl:grid-cols-4">
           {WEEK.map((s) => (
@@ -490,6 +490,15 @@ function ForMsps() {
               <span className="text-sm font-bold text-site-violet">Role tracks</span>
               <p className="mt-3 text-lg font-bold" style={{ fontStretch: "112%" }}>Admins, finance, help desk</p>
               <p className="mt-1.5 text-[14px] leading-relaxed text-site-dim">Extra depth for the people attackers target first. Assigned per person in the portal.</p>
+            </a>
+          </li>
+          <li className="w-[72%] shrink-0 snap-start md:w-auto">
+            <a href={AI_ENTRY.href} className="panel lift block h-full !p-5 ring-1 ring-site-mint/50">
+              <span className="text-sm font-bold text-site-mint">{AI_ENTRY.day}</span>
+              <p className="mt-3 text-lg font-bold" style={{ fontStretch: "112%" }}>{AI_ENTRY.title}</p>
+              <p className="mt-1.5 text-[14px] leading-relaxed text-site-dim">
+                Using AI at work without leaking data, trusting an answer it made up, or handing an app your mailbox. Plus the deepfakes.
+              </p>
             </a>
           </li>
         </ol>

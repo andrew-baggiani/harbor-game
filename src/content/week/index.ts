@@ -1,3 +1,4 @@
+import { AI_SHIFT } from "@/content/week/ai";
 import { FRIDAY, THURSDAY, TUESDAY, WEDNESDAY } from "@/content/week/days";
 import { reminderScenarios } from "@/content/week/reminders";
 import { TRACKS } from "@/content/week/tracks";
@@ -5,7 +6,7 @@ import type { ShiftDef, WeekChoice, WeekScenario } from "@/content/week/types";
 import { SATURDAY } from "@/content/week/weekend";
 
 /** Every playable shift after Monday, in the order the week runs. Sunday is a 2D sort, not a ShiftDef. */
-export const SHIFTS: ShiftDef[] = [TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, ...TRACKS];
+export const SHIFTS: ShiftDef[] = [TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, AI_SHIFT, ...TRACKS];
 
 /** Shift ids the server accepts on a completion event. */
 export const SHIFT_IDS = ["monday", ...SHIFTS.map((s) => s.id), "sunday", "reminder"] as const;
