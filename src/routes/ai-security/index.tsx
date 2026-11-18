@@ -181,11 +181,8 @@ function WhyNow() {
           connector is a new path for data and a new set of credentials.
         </li>
         <li>
-          <strong>Regulators and insurers have started asking.</strong> In the EU, the AI Act's staff AI-literacy duty has applied since February 2025, and
-          supervision and enforcement started on August 2, 2026.
-          <Cite ids="eu-art4" /> There's no standalone fine, but missing training is treated as an aggravating factor when something else goes wrong.
-          <Cite ids="eu-fine" /> US healthcare clients face a simpler test: if patient data goes into an AI tool without a business associate agreement,
-          that's a HIPAA problem regardless of how careful the user was.
+          <strong>Regulated data has no AI exception.</strong> If patient data goes into an AI tool without a business associate agreement, that's a
+          HIPAA problem regardless of how careful the user was.
         </li>
       </ul>
       <Callout tone="note" title="The opportunity">
@@ -913,12 +910,11 @@ function People() {
       title="Train the people"
       lede="Every control above fails open if someone pastes the customer list into a personal chatbot on their phone. Training is the layer that travels with the person."
     >
-      <p>AI changes security awareness training in two directions at once:</p>
+      <p>AI changes security awareness training in three directions at once:</p>
       <ul>
         <li>
           <strong>Using AI safely:</strong> what data goes where, which account to use, why a confident answer can still be wrong, and what to report.
-          This is also what the EU's AI-literacy rule asks for, and training must fit the systems each person actually uses.
-          <Cite ids="eu-art4" />
+          Training has to fit the tools each person actually uses, not AI in the abstract.
         </li>
         <li>
           <strong>Recognizing AI-powered attacks:</strong> phishing with perfect grammar, cloned voices asking for wire transfers, deepfake video calls,
@@ -926,23 +922,33 @@ function People() {
           arriving within hours.
           <Cite ids="outage-lure" />
         </li>
+        <li>
+          <strong>Trusting AI that acts:</strong> assistants read email and documents that can carry hidden instructions. In 2025 researchers showed a
+          single crafted email could get Microsoft 365 Copilot to leak data, since patched.
+          <Cite ids="echoleak" /> Add-ons and notetakers ask for mailbox access, and AI drafts state invented facts with total confidence. Fake job
+          candidates use deepfake video to get hired into remote IT roles for the access.
+          <Cite ids="fbi-deepfake-hire" />
+        </li>
       </ul>
       <p>
-        Slide decks and once-a-year videos don't change behavior under pressure, and pressure is exactly what these attacks create. People need to
-        practice the decision: the urgent request, the convincing voice, the “just this once” paste, in a setting where getting it wrong costs nothing.
+        Most awareness training covers the second list and stops: spot the AI-written phish. Almost none covers the first or the third, and those are
+        what your clients' people run into every day now. Slide decks don't change behavior under pressure either. People need to practice the decision:
+        the urgent request, the convincing voice, the “just this once” paste, the permission screen, in a setting where getting it wrong costs nothing.
       </p>
       <div className="aurora my-10 px-6 py-8 sm:px-9">
         <p className="text-sm font-semibold text-site-mint">From the people who wrote this guide</p>
         <p className="mt-2 text-2xl font-extrabold leading-snug" style={{ fontStretch: "112%" }}>
-          Dry Run Cyber is security awareness training people play.
+          Train them on AI the way they'll meet it: at their desk, tonight.
         </p>
         <p className="mt-3 max-w-[36rem] leading-relaxed text-site-mist">
-          One first-person night shift with real-world attacks, built from lures circulating now, with every decision recorded against NIST, CIS, HIPAA and
-          CMMC controls. It's built for MSPs to resell, with a partner portal across all your clients.
+          Dry Run Cyber's AI shift puts each person in front of it: Copilot surfacing a salary file, an email that gives the assistant orders, an AI
+          draft with an invented refund policy, a notetaker that wants their mailbox, a fake AI extension, a coworker's homemade automation and a
+          deepfake job candidate. Every decision is recorded against NIST, CIS, HIPAA and CMMC controls, alongside a full week of security awareness
+          shifts, built for MSPs to resell.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
-          <a href="/#night" className={btn.primary}>
-            See a shift <Arrow size={16} />
+          <a href="/week/ai" className={btn.primary}>
+            See the AI shift <Arrow size={16} />
           </a>
           <a href="/sample-record" className={btn.ghost}>
             See a sample record
@@ -987,7 +993,7 @@ function Rollout() {
         items={[
           { id: "r3-block", text: "Move DLP and shadow-AI rules from monitor to warn or block for regulated data and unapproved tools." },
           { id: "r3-agents", text: "Inventory agents and connectors; remove or approve each one with an owner." },
-          { id: "r3-train", text: "Run training on safe AI use and AI-driven social engineering, and keep the completion records." },
+          { id: "r3-train", text: "Train everyone on safe AI use, AI that acts and AI-driven social engineering (the Dry Run Cyber AI shift covers all three), and keep the records." },
           { id: "r3-review", text: "Book a quarterly review: new tools, new features, policy changes." },
         ]}
       />

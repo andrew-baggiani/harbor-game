@@ -1,9 +1,7 @@
 import type { Source } from "@/site/guide/ui";
 
-// Every factual platform claim in the guide links to one of these. Checked November 17, 2026.
+// Every factual platform claim in the guide links to one of these. Checked November 18, 2026.
 export const SOURCES: Source[] = [
-  { id: "eu-art4", title: "The EU AI Act's AI literacy requirement: key considerations", url: "https://www.traverssmith.com/knowledge/knowledge-container/the-eu-ai-acts-ai-literacy-requirement-key-considerations/", publisher: "Travers Smith" },
-  { id: "eu-fine", title: "The EU's quiet training mandate now faces enforcement", url: "https://mitratech.com/resource-hub/blog/eu-quiet-training-mandate-enforcement-grc/", publisher: "Mitratech" },
   { id: "ms-ai-role", title: "Configure privileged roles to manage AI", url: "https://microsoft.github.io/zerotrustassessment/docs/workshop-guidance/AI/AI_149", publisher: "Microsoft Zero Trust Assessment" },
   { id: "ms-gdap-tasks", title: "GDAP role guidance: least-privileged roles by task", url: "https://learn.microsoft.com/en-in/partner-center/gdap-least-privileged-roles-by-task", publisher: "Microsoft Learn" },
   { id: "gdap-basics", title: "What is GDAP and what does it mean for you", url: "https://cloudcockpit.com/blog/what-is-gdap-and-what-does-it-mean-for-you", publisher: "CloudCockpit" },
@@ -51,4 +49,6 @@ export const SOURCES: Source[] = [
   { id: "zen-inline", title: "Zenity brings inline prevention to Microsoft Foundry and Copilot Studio", url: "https://zenity.io/blog/product/zenity-brings-inline-prevention-to-microsoft-foundry-and-copilot-studio", publisher: "Zenity" },
   { id: "owasp", title: "OWASP Top 10 for LLM Applications 2025", url: "https://www.aigl.blog/owasp-top-10-for-llm-applications-2025", publisher: "AI Governance Library" },
   { id: "outage-lure", title: "Attackers exploit the Microsoft 365 outage with fake held-messages lures", url: "https://www.mimecast.com/blog/attackers-exploit-the-microsoft-365-outage-with-fake-held-messages-lures/", publisher: "Mimecast" },
+  { id: "echoleak", title: "EchoLeak: the first real-world zero-click prompt injection exploit in a production LLM system", url: "https://arxiv.org/abs/2509.10540v1", publisher: "arXiv (George Washington University)" },
+  { id: "fbi-deepfake-hire", title: "FBI: beware deepfakes in remote job interviews", url: "https://www.infosecurity-magazine.com/news/fbi-beware-deepfakes-remote-jobs", publisher: "Infosecurity Magazine" },
 ];

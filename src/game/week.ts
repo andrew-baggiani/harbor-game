@@ -13,6 +13,15 @@ export const WEEK: Shift[] = [
   { day: "Sunday", title: "The sort", topics: "Ninety seconds · sixteen messages · safe or not", status: "open", href: "/week/sunday" },
 ];
 
+/** The AI shift: everyone plays it, on top of the week. */
+export const AI_ENTRY = {
+  id: "ai",
+  day: "AI at work",
+  title: "The assistant",
+  topics: "Copilot oversharing · hidden instructions in email · invented answers · AI notetakers · fake AI extensions · DIY automations · deepfake candidates",
+  href: "/week/ai",
+};
+
 /** Role-based tracks, assigned per person in the portal. */
 export const TRACK_LIST = [
   { id: "track-admin", day: "Admins", title: "The keys", topics: "MFA storms on admin accounts · vendor admin requests · separate admin accounts · scripts from the internet", href: "/week/track-admin" },

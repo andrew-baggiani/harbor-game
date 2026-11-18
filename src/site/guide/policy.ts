@@ -353,7 +353,7 @@ export function buildPolicy(i: PolicyInput): Block[] {
   if (has("defense")) ind.push("Controlled unclassified information (CUI) and export-controlled data are not used with any AI tool unless IT confirms the tool is authorized for that data.");
   if (has("finance")) ind.push("Full card numbers, bank account numbers and authentication data never go into AI tools. Customer financial records follow the Confidential rules.");
   if (has("legal")) ind.push("Privileged and confidential client matter information is used only in approved tools whose terms protect confidentiality, and never in a way that could waive privilege.");
-  if (has("eu")) ind.push("Under Article 4 of the EU AI Act, staff who use AI systems get AI-literacy training suited to their role and the tools they use, and completion is recorded.");
+  if (has("eu")) ind.push("For staff in the EU, the company takes measures to support AI literacy under Article 4 of the EU AI Act: training suited to each person's role and the AI tools they use, with completion recorded.");
   if (ind.length) b.push({ t: "h", text: `${n++}. Industry requirements` }, { t: "ul", items: ind });
 
   b.push(

@@ -34,7 +34,7 @@ export const Route = createFileRoute("/ai-security/policy-builder")({
       {
         name: "description",
         content:
-          "Build a branded AI acceptable use policy in minutes: 26-tool catalog with per-tool data limits, HIPAA BAA checks, high-risk uses, HIPAA, CMMC and EU AI Act clauses, plus a one-page staff summary. Word, PDF or Markdown. Free, no sign-up.",
+          "Build a branded AI acceptable use policy in minutes: 26-tool catalog with per-tool data limits, HIPAA BAA checks, high-risk uses, HIPAA, CMMC and EU clauses, plus a one-page staff summary. Word, PDF or Markdown. Free, no sign-up.",
       },
       { name: "theme-color", content: "#101319" },
       { property: "og:title", content: "Free AI usage policy builder for MSPs" },
@@ -542,6 +542,7 @@ function NextSteps() {
     "Have legal, HR or compliance review it.",
     "Configure each tool's admin settings to match (see the guide's platform playbooks).",
     "Collect signed acknowledgments, and hand out the staff one-pager.",
+    "Train everyone on it: the AI shift puts the policy's rules in front of each person as decisions, and keeps the record.",
   ];
   return (
     <div className="no-print panel !p-5">
@@ -556,9 +557,14 @@ function NextSteps() {
           </li>
         ))}
       </ol>
-      <a href="/ai-security#platforms" className={`${btn.ghost} mt-4 !py-2 text-sm`}>
-        Open the platform playbooks
-      </a>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <a href="/week/ai" className={`${btn.primary} !py-2 text-sm`}>
+          See the AI shift
+        </a>
+        <a href="/ai-security#platforms" className={`${btn.ghost} !py-2 text-sm`}>
+          Open the platform playbooks
+        </a>
+      </div>
     </div>
   );
 }

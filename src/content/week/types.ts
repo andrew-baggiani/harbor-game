@@ -47,7 +47,7 @@ export type WeekBeat = {
   timeline?: Record<string, FalloutStep[]>;
 };
 
-export type ShiftKind = "day" | "weekend" | "track";
+export type ShiftKind = "day" | "weekend" | "track" | "ai";
 export type Track = "admin" | "finance" | "helpdesk";
 
 export type ShiftDef = {
@@ -59,7 +59,7 @@ export type ShiftDef = {
   topics: string;
   intro: string;
   track?: Track;
-  /** Who should take it, in plain words. Tracks only. */
+  /** Who should take it, in plain words. Tracks and the AI shift. */
   audience?: string;
   beats: WeekBeat[];
   check: CheckItem[];

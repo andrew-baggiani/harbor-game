@@ -265,7 +265,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
 
       {phase === "wrap" && (
         <Overlay>
-          <h2 className="font-display text-3xl">That's {shift.kind === "track" ? "the track" : `${shift.day}`}.</h2>
+          <h2 className="font-display text-3xl">That's {shift.kind === "track" ? "the track" : shift.kind === "ai" ? "the AI shift" : `${shift.day}`}.</h2>
           <p className="mt-3 text-[#d8d2c4]">Some of tonight is still playing out. Give it a few seconds, or see how it went.</p>
           <button type="button" onClick={() => setPhase("debrief")} className="mt-6 rounded-full bg-[#c4a574] px-6 py-3 font-game tracking-[0.12em] text-[#14110c]">
             SEE HOW IT WENT
