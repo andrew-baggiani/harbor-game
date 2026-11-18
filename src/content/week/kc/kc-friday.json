@@ -1,0 +1,134 @@
+[
+  {
+    "id": "kc-fri-3",
+    "skill": "insider-risk",
+    "prompt": "They said they stopped. The share still shows the copy finished.",
+    "choices": [
+      {
+        "id": "word",
+        "label": "Their word closes it.",
+        "correct": false
+      },
+      {
+        "id": "share",
+        "label": "The share is the record, not the promise.",
+        "correct": true
+      },
+      {
+        "id": "last",
+        "label": "A last day means you let it go.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-fri-4",
+    "skill": "insider-risk",
+    "prompt": "You do not know if the drive was theirs to take.",
+    "choices": [
+      {
+        "id": "sure",
+        "label": "Be sure before you tell anyone.",
+        "correct": false
+      },
+      {
+        "id": "saw",
+        "label": "Tell what you saw. Not why.",
+        "correct": true
+      },
+      {
+        "id": "ask",
+        "label": "Asking them is the report.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-fri-5",
+    "skill": "incident-reporting",
+    "prompt": "You deleted your copy. The outside address is still on the thread.",
+    "choices": [
+      {
+        "id": "gone",
+        "label": "Deleting your copy pulls it back.",
+        "correct": false
+      },
+      {
+        "id": "theirs",
+        "label": "Their copy is still out.",
+        "correct": true
+      },
+      {
+        "id": "mgr",
+        "label": "Your manager sees a delete.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-fri-6",
+    "skill": "incident-reporting",
+    "prompt": "The forward got an out-of-office until Monday.",
+    "choices": [
+      {
+        "id": "wait",
+        "label": "Monday is soon enough.",
+        "correct": false
+      },
+      {
+        "id": "channel",
+        "label": "The watched channel was the one to use.",
+        "correct": true
+      },
+      {
+        "id": "sent",
+        "label": "Sending it means it was reported.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-fri-7",
+    "skill": "incident-response",
+    "prompt": "You paid. The timer reset, higher. The files are still locked.",
+    "choices": [
+      {
+        "id": "pay",
+        "label": "The next payment will be the last.",
+        "correct": false
+      },
+      {
+        "id": "stop",
+        "label": "Paying fed the note. Call it in.",
+        "correct": true
+      },
+      {
+        "id": "card",
+        "label": "A department card can be reversed tonight.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-fri-8",
+    "skill": "incident-response",
+    "prompt": "You wiped your machine. The others are still locked.",
+    "choices": [
+      {
+        "id": "clean",
+        "label": "A clean machine stops the spread.",
+        "correct": false
+      },
+      {
+        "id": "lost",
+        "label": "You erased how it started.",
+        "correct": true
+      },
+      {
+        "id": "first",
+        "label": "Wipe first, then call.",
+        "correct": false
+      }
+    ]
+  }
+]

@@ -1,0 +1,222 @@
+[
+  {
+    "id": "kc-hlp-6",
+    "skill": "identity-verification",
+    "prompt": "They know the desk's name and they are angry. Does that verify them?",
+    "choices": [
+      {
+        "id": "yes",
+        "label": "Anger means they are really locked out.",
+        "correct": false
+      },
+      {
+        "id": "no",
+        "label": "Rank and hurry are the script.",
+        "correct": true
+      },
+      {
+        "id": "id",
+        "label": "An employee number they recite is enough.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-hlp-7",
+    "skill": "identity-verification",
+    "prompt": "The directory callback reaches the real person, at home, asleep.",
+    "choices": [
+      {
+        "id": "reset",
+        "label": "Reset it anyway. The caller is waiting.",
+        "correct": false
+      },
+      {
+        "id": "stop",
+        "label": "Do not reset. The caller was not them.",
+        "correct": true
+      },
+      {
+        "id": "temp",
+        "label": "Read a temp password to the caller.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-hlp-8",
+    "skill": "mfa-reenrollment",
+    "prompt": "The ticket came from the work account. The phone is supposedly dead.",
+    "choices": [
+      {
+        "id": "clear",
+        "label": "Clear the methods. The account asked.",
+        "correct": false
+      },
+      {
+        "id": "live",
+        "label": "See the person, or their manager, first.",
+        "correct": true
+      },
+      {
+        "id": "chat",
+        "label": "Send a pass back into the same chat.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-hlp-9",
+    "skill": "mfa-reenrollment",
+    "prompt": "A temporary pass sent into the chat that asked for it goes to",
+    "choices": [
+      {
+        "id": "them",
+        "label": "The person who owns the account.",
+        "correct": false
+      },
+      {
+        "id": "who",
+        "label": "Whoever is in the chat right now.",
+        "correct": true
+      },
+      {
+        "id": "mgr",
+        "label": "The manager, automatically.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-hlp-10",
+    "skill": "disclosure",
+    "prompt": "They will email the audit paperwork after you answer.",
+    "choices": [
+      {
+        "id": "after",
+        "label": "Answer, then wait for the paper.",
+        "correct": false
+      },
+      {
+        "id": "first",
+        "label": "The paper comes first, through your manager.",
+        "correct": true
+      },
+      {
+        "id": "list",
+        "label": "Read the list, hold back the tool.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-hlp-11",
+    "skill": "disclosure",
+    "prompt": "They name a real audit firm. You have not heard of an audit this month.",
+    "choices": [
+      {
+        "id": "name",
+        "label": "A real firm name is enough.",
+        "correct": false
+      },
+      {
+        "id": "route",
+        "label": "Route it. You do not confirm audits.",
+        "correct": true
+      },
+      {
+        "id": "tool",
+        "label": "Tell them the tool. Hold the names.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-hlp-12",
+    "skill": "identity-verification",
+    "prompt": "Which number do you call back?",
+    "choices": [
+      {
+        "id": "sig",
+        "label": "The one in their email signature.",
+        "correct": false
+      },
+      {
+        "id": "dir",
+        "label": "The one already in the directory.",
+        "correct": true
+      },
+      {
+        "id": "this",
+        "label": "The one they are calling from.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-hlp-13",
+    "skill": "mfa-reenrollment",
+    "prompt": "Live video of an ID card, with no manager and no callback.",
+    "choices": [
+      {
+        "id": "best",
+        "label": "The card is the strongest check.",
+        "correct": false
+      },
+      {
+        "id": "weak",
+        "label": "A card on a call is still a maybe.",
+        "correct": true
+      },
+      {
+        "id": "skip",
+        "label": "Skip video. The chat was enough.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-hlp-14",
+    "skill": "disclosure",
+    "prompt": "What should you not give an unexpected caller?",
+    "choices": [
+      {
+        "id": "hours",
+        "label": "The hours the desk is open.",
+        "correct": false
+      },
+      {
+        "id": "admins",
+        "label": "Who the admins are, and the remote tool.",
+        "correct": true
+      },
+      {
+        "id": "ticket",
+        "label": "A ticket number for their request.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-hlp-15",
+    "skill": "identity-verification",
+    "prompt": "A temp password was already read out. The callback now fails.",
+    "choices": [
+      {
+        "id": "fine",
+        "label": "They have it. The night is over.",
+        "correct": false
+      },
+      {
+        "id": "incident",
+        "label": "Reset again, revoke the session, call it in.",
+        "correct": true
+      },
+      {
+        "id": "wait",
+        "label": "Wait to see if they write back.",
+        "correct": false
+      }
+    ]
+  }
+]

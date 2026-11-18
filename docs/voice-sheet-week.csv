@@ -1,0 +1,54 @@
+day,beat_id,speaker_role,line,delivery_note,max_seconds
+saturday,SAT-01,"text, unknown","Your parcel is held. Pay a one ninety-nine fee in two hours, or it goes back.",read as a text. Flat. Not a person you know.,8
+saturday,SAT-02,"streaming service, email","Your account was in a breach. Reset the password. It matches your work one, plus a new number.",read as mail. Neutral.,8
+saturday,SAT-03,narrator,First week done. The badge is in the photo. The board behind you has the guest password.,"the player is about to post. Observing, not scolding.",8
+saturday,SAT-04,narrator,The router still has the password from the sticker. The app says an update is waiting.,reading the sticker and the app. Plain.,7
+track-admin,ADM-01,narrator,"Eleven prompts in four minutes, on the admin account. You are not signing in. The twelfth says approve, to make them stop.","the phone, not a person. Even.",10
+track-admin,ADM-02,"vendor, email",To finish tonight we need full admin. Just an hour. Our engineer is waiting on the call.,"ordinary vendor. Helpful, not slick. Not the finance voice.",8
+track-admin,ADM-02-peer,admin peer,They say they only need it for an hour. The engineer is on the line.,"on screen. A coworker, tired, passing it on. Not pushing hard.",7
+track-admin,ADM-03,narrator,You're signed in as admin to fix a mailbox. A lunch link just arrived. This is the only session open.,console. Plain.,9
+track-admin,ADM-04,narrator,Same error. The top reply says run this as admin. It downloads a script from a site you don't know.,reading a forum. No excitement.,9
+track-finance,FIN-01,"staff mailbox, email",I switched banks. Please update my pay before this run. Email is easiest. I'm on site all day.,sounds like a coworker. Not sinister. Not the owner voice.,8
+track-finance,FIN-02,"fake owner, text",Need five gift cards for client thank-yous. Text me the codes. I'll reimburse. In meetings all day.,"casual text. Different actor from the finance lead, the auditor, and the airport caller.",8
+track-finance,FIN-03,desk coworker,I changed the freight vendor's bank. The approver is out. Can you approve it so tomorrow's batch goes?,same desk coworker as Tuesday. Believes it.,8
+track-helpdesk,HLP-01,fake finance chief,I'm at the airport. Locked out. The board deck is in there. We board in ten minutes. Reset it and read me the temp password.,"clipped, rank, a little loud. Not the Thursday finance lead. Not the owner text. Not the auditor.",11
+track-helpdesk,HLP-02,chat ticket,"New phone. The old one is dead. Please clear my sign-in methods. Sent from my work account, so you know it's me.",read the ticket. Neutral.,10
+track-helpdesk,HLP-03,fake auditor,"Quick one for the annual review. Who has admin rights, and which remote tool do you use? I'll send the paperwork after.","polite, unhurried. A different actor from the other three fakes and from the real desk.",10
+saturday,SAT-01-pay,narrator,A charge for four hundred and eighty. Then another.,the bank notice. Flat. No panic.,4
+saturday,SAT-04-leave,narrator,A device you don't own joined the network.,the router app. Plain.,4
+tuesday,TUE-01-pay,desk coworker,The payment left.,twenty seconds on. Quieter.,3
+tuesday,TUE-01-pay-2,next desk,The real vendor is on the phone. Their invoice is unpaid.,from the next chair. Surprised.,5
+tuesday,TUE-01-pay-3,desk coworker,That money isn't coming back tonight.,almost to themselves.,3
+tuesday,TUE-01-wait,desk coworker,Someone else just got the same email. They paid it.,not accusing.,5
+tuesday,TUE-02-share,narrator,The laptop wakes under your name.,aisle.,3
+tuesday,TUE-02-share-2,contractor,Just a minute. I'll be quick.,does not get up.,3
+tuesday,TUE-02-share-3,narrator,A folder you never opened finishes uploading.,the laptop.,4
+tuesday,TUE-02-share-4,narrator,The session is still yours. He's still in it.,the laptop.,4
+tuesday,TUE-02-watch,narrator,He reads the folder path back. Correctly.,you hear it.,4
+tuesday,TUE-02-watch-2,desk coworker,He asked me for that same path.,later. Confused.,4
+tuesday,TUE-03-send,desk coworker,It went.,thirty seconds. They think it's fine.,3
+wednesday,WED-01,desk coworker,Client has it.,"good news, to them.",3
+wednesday,WED-02,desk coworker,They just read one name back. They shouldn't have it.,genuine surprise.,5
+wednesday,WED-02-count,narrator,Someone who wasn't in the meeting quotes the number.,hallway.,4
+thursday,THU-03,fake finance lead,Perfect. Thank you.,still the pressed voice. Short.,3
+thursday,THU-03-real,finance lead,I've been in the meeting the whole time.,same actor as the real callback. Flat. Not the fake read.,4
+thursday,THU-03-text,fake finance lead,"Yes, it's me. Please hurry.","the same fake, now a text. Still not the real one.",3
+thursday,THU-03-real-2,finance lead,That wasn't me.,known number. Short.,3
+thursday,THU-04,narrator,A work folder. Then a personal upload.,the laptop on the table.,4
+thursday,THU-04-2,narrator,A stick goes in the side while you get the parcel.,you are turned away.,5
+thursday,THU-04-3,narrator,A file left for somewhere that isn't the company share.,history.,5
+thursday,THU-04-watch,narrator,You looked away for one minute. Two new sites.,the laptop.,4
+friday,FRI-01,narrator,The lid is shut.,aisle.,3
+friday,FRI-01-2,narrator,The drive is in the bag. The copy finished.,end of the aisle. No accusation.,4
+friday,FRI-01-ask,last day,I stopped. Promise.,quiet. Coat on.,3
+friday,FRI-03,real desk,Other machines are still locked. Yours has nothing left to show how it started.,if they wiped first. Checklist calm.,7
+track-admin,ADM-01,narrator,Approved.,one word. Then stop.,3
+track-admin,ADM-01-2,narrator,A new admin account. Nobody here made it.,the console.,4
+track-admin,ADM-01-3,narrator,A forwarding rule on every mailbox.,the console. Flat.,3
+track-admin,ADM-01-deny,narrator,Three twelve in the morning. Prompt thirteen.,"the phone, later.",4
+track-admin,ADM-02,narrator,Role assigned.,short.,3
+track-admin,ADM-02-2,narrator,A new app can read mail. Nobody approved it.,a minute later.,4
+track-admin,ADM-04,narrator,Outbound traffic to a host nobody recognizes.,the rack. No address.,4
+track-finance,FIN-01,staff member,Payday. My pay didn't come in.,"a real person, confused. Not the mailbox that asked.",3
+track-finance,FIN-03,freight vendor,We never got paid. That isn't our account.,"on the known number, later. Ordinary.",4
+track-helpdesk,HLP-01,narrator,Forty messages left the mailbox in a minute.,the console.,4

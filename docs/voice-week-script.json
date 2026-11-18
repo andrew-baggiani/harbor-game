@@ -1,0 +1,472 @@
+[
+ {
+  "id": "wk-TUE-01-invoice",
+  "text": "A vendor email says their bank account changed last night. The invoice is due today. The address is one letter off the vendor you pay every month.",
+  "kind": "woman",
+  "who": "Accounts payable",
+  "shift": "tuesday",
+  "cast": "desk-coworker",
+  "voice": "Tasha (Monday's Maya)",
+  "voice_id": "az2Mp58wQOuqO5SHlCwL"
+ },
+ {
+  "id": "wk-tue-invoice-pay-1",
+  "text": "The payment left.",
+  "kind": "narrator",
+  "who": "Accounts",
+  "shift": "tuesday",
+  "cast": "Accounts",
+  "voice": "Tasha (Monday's Maya)",
+  "voice_id": "az2Mp58wQOuqO5SHlCwL"
+ },
+ {
+  "id": "wk-tue-invoice-pay-2",
+  "text": "The real vendor is on the phone. Their invoice is unpaid.",
+  "kind": "narrator",
+  "who": "Next desk",
+  "shift": "tuesday",
+  "cast": "Next desk",
+  "voice": "Will, coworker",
+  "voice_id": "bIHbv24MWmeRgasZH58o"
+ },
+ {
+  "id": "wk-tue-invoice-pay-3",
+  "text": "That money isn't coming back tonight.",
+  "kind": "narrator",
+  "who": "Accounts",
+  "shift": "tuesday",
+  "cast": "Accounts",
+  "voice": "Tasha (Monday's Maya)",
+  "voice_id": "az2Mp58wQOuqO5SHlCwL"
+ },
+ {
+  "id": "wk-tue-invoice-wait-0",
+  "text": "Someone else just got the same email. They paid it.",
+  "kind": "narrator",
+  "who": "Accounts",
+  "shift": "tuesday",
+  "cast": "Accounts",
+  "voice": "Tasha (Monday's Maya)",
+  "voice_id": "az2Mp58wQOuqO5SHlCwL"
+ },
+ {
+  "id": "wk-TUE-02-contractor",
+  "text": "He says his login expired at noon and the job has to go out tonight. He asks to borrow yours, just to upload one folder.",
+  "kind": "man",
+  "who": "Contractor",
+  "shift": "tuesday",
+  "cast": "contractor",
+  "voice": "Chris, down-to-earth",
+  "voice_id": "iP95p4xoKVk53GoZ742B"
+ },
+ {
+  "id": "wk-tue-access-share-1",
+  "text": "Just a minute. I'll be quick.",
+  "kind": "man",
+  "who": "Contractor",
+  "shift": "tuesday",
+  "cast": "contractor",
+  "voice": "Chris, down-to-earth",
+  "voice_id": "iP95p4xoKVk53GoZ742B"
+ },
+ {
+  "id": "wk-tue-access-watch-0",
+  "text": "He reads the folder path back to you. Correctly.",
+  "kind": "man",
+  "who": "Contractor",
+  "shift": "tuesday",
+  "cast": "contractor",
+  "voice": "Chris, down-to-earth",
+  "voice_id": "iP95p4xoKVk53GoZ742B"
+ },
+ {
+  "id": "wk-tue-access-watch-1",
+  "text": "He asked me for that same path.",
+  "kind": "narrator",
+  "who": "Other desk",
+  "shift": "tuesday",
+  "cast": "Other desk",
+  "voice": "Will, coworker",
+  "voice_id": "bIHbv24MWmeRgasZH58o"
+ },
+ {
+  "id": "wk-TUE-03-shadow",
+  "text": "A coworker sends a link to a free transfer site. The company share is down, they say, and the client file has to move in the next ten minutes.",
+  "kind": "woman",
+  "who": "Coworker",
+  "shift": "tuesday",
+  "cast": "desk-coworker",
+  "voice": "Tasha (Monday's Maya)",
+  "voice_id": "az2Mp58wQOuqO5SHlCwL"
+ },
+ {
+  "id": "wk-tue-shadow-send-1",
+  "text": "It went.",
+  "kind": "woman",
+  "who": "Coworker",
+  "shift": "tuesday",
+  "cast": "desk-coworker",
+  "voice": "Tasha (Monday's Maya)",
+  "voice_id": "az2Mp58wQOuqO5SHlCwL"
+ },
+ {
+  "id": "wk-TUE-04-badge",
+  "text": "A contractor badge is on the bench by the gates. The photo is face down. The gates are in their night schedule.",
+  "kind": "woman",
+  "who": "Contractor badge",
+  "shift": "tuesday",
+  "cast": "night-desk",
+  "voice": "Diane (June Park)",
+  "voice_id": "u91OxrFDaRINovYRRue2"
+ },
+ {
+  "id": "wk-tue-badge-use-1",
+  "text": "The guard looks at the log. Then at you.",
+  "kind": "narrator",
+  "who": "Security",
+  "shift": "tuesday",
+  "cast": "Security",
+  "voice": "Diane (June Park)",
+  "voice_id": "u91OxrFDaRINovYRRue2"
+ },
+ {
+  "id": "wk-tue-badge-use-2",
+  "text": "That badge was reported lost an hour ago. The log shows a use after that.",
+  "kind": "narrator",
+  "who": "Security",
+  "shift": "tuesday",
+  "cast": "Security",
+  "voice": "Diane (June Park)",
+  "voice_id": "u91OxrFDaRINovYRRue2"
+ },
+ {
+  "id": "wk-WED-01-link",
+  "text": "A client needs the drawings tonight. The share window is set to anyone with the link. The send button is already highlighted.",
+  "kind": "woman",
+  "who": "Share window",
+  "shift": "wednesday",
+  "cast": "desk-coworker",
+  "voice": "Tasha (Monday's Maya)",
+  "voice_id": "az2Mp58wQOuqO5SHlCwL"
+ },
+ {
+  "id": "wk-wed-link-anyone-1",
+  "text": "Client has it.",
+  "kind": "narrator",
+  "who": "Coworker",
+  "shift": "wednesday",
+  "cast": "Coworker",
+  "voice": "Tasha (Monday's Maya)",
+  "voice_id": "az2Mp58wQOuqO5SHlCwL"
+ },
+ {
+  "id": "wk-WED-02-classify",
+  "text": "Someone asks you to drop the full customer list into a slide for a meeting that is not about those customers. The sheet is marked internal.",
+  "kind": "woman",
+  "who": "Spreadsheet",
+  "shift": "wednesday",
+  "cast": "desk-coworker",
+  "voice": "Tasha (Monday's Maya)",
+  "voice_id": "az2Mp58wQOuqO5SHlCwL"
+ },
+ {
+  "id": "wk-wed-class-all-2",
+  "text": "They just read one name back. They shouldn't have it.",
+  "kind": "narrator",
+  "who": "Coworker",
+  "shift": "wednesday",
+  "cast": "Coworker",
+  "voice": "Tasha (Monday's Maya)",
+  "voice_id": "az2Mp58wQOuqO5SHlCwL"
+ },
+ {
+  "id": "wk-WED-03-ai",
+  "text": "A personal writing tool is open. The box says it will clean up your paragraph. The paragraph is a customer complaint, with the account number in it.",
+  "kind": "narrator",
+  "who": "Browser tab",
+  "shift": "wednesday",
+  "cast": "narrator",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "wk-THU-01-wifi",
+  "text": "The cafe network has no password. Mail is already trying to sync. A window offers to join.",
+  "kind": "narrator",
+  "who": "Laptop",
+  "shift": "thursday",
+  "cast": "narrator",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "wk-THU-02-laptop",
+  "text": "You set the bag down for a minute. When you turn around it is gone. The laptop was asleep, not shut down.",
+  "kind": "narrator",
+  "who": "Laptop bag",
+  "shift": "thursday",
+  "cast": "narrator",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "wk-THU-03-voice",
+  "text": "The voice is right. The hurry is right. They want a payment released before the bank closes, and they tell you not to call back because they are walking into a board meeting.",
+  "kind": "man",
+  "who": "Phone",
+  "shift": "thursday",
+  "cast": "caller",
+  "voice": "Eric, the fake finance lead",
+  "voice_id": "cjVigY5qzO86Huf0OWal"
+ },
+ {
+  "id": "wk-thu-voice-send-1",
+  "text": "Perfect. Thank you.",
+  "kind": "narrator",
+  "who": "Voice",
+  "shift": "thursday",
+  "cast": "Voice",
+  "voice": "Eric, the fake finance lead",
+  "voice_id": "cjVigY5qzO86Huf0OWal"
+ },
+ {
+  "id": "wk-thu-voice-send-3",
+  "text": "On the known number: I've been in the meeting the whole time.",
+  "kind": "narrator",
+  "who": "Finance lead",
+  "shift": "thursday",
+  "cast": "Finance lead",
+  "voice": "Roger, the real finance lead",
+  "voice_id": "CwhRBWXzGAHq8TQ4Fs17"
+ },
+ {
+  "id": "wk-thu-voice-text-2",
+  "text": "On the known number: that wasn't me.",
+  "kind": "narrator",
+  "who": "Finance lead",
+  "shift": "thursday",
+  "cast": "Finance lead",
+  "voice": "Roger, the real finance lead",
+  "voice_id": "CwhRBWXzGAHq8TQ4Fs17"
+ },
+ {
+  "id": "wk-THU-04-home",
+  "text": "You step out to take a parcel. The work laptop is unlocked. Someone in the house sits down and says they only need it for a minute.",
+  "kind": "woman",
+  "who": "Work laptop",
+  "shift": "thursday",
+  "cast": "at-home",
+  "voice": "Hope, natural",
+  "voice_id": "OYTbf65OHHFELVut7v2H"
+ },
+ {
+  "id": "wk-FRI-01-insider",
+  "text": "It is their last day. The screen is a file share they do not work in. A copy is running to a small drive, and they close the laptop when you walk up.",
+  "kind": "man",
+  "who": "Coworker",
+  "shift": "friday",
+  "cast": "last-day",
+  "voice": "Erick, young and relaxed",
+  "voice_id": "l2Kn8NZcpRXSD33FvmEi"
+ },
+ {
+  "id": "wk-fri-insider-ask-0",
+  "text": "I stopped. Promise.",
+  "kind": "man",
+  "who": "Coworker",
+  "shift": "friday",
+  "cast": "last-day",
+  "voice": "Erick, young and relaxed",
+  "voice_id": "l2Kn8NZcpRXSD33FvmEi"
+ },
+ {
+  "id": "wk-FRI-02-report",
+  "text": "You are copied on a thread that is not yours. It has customer account numbers, and one reply is from an address outside the company.",
+  "kind": "narrator",
+  "who": "Mailbox",
+  "shift": "friday",
+  "cast": "narrator",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "wk-FRI-03-hour",
+  "text": "The file share opens onto a note. It says the files are locked, and a payment before midnight will unlock them. A timer is running.",
+  "kind": "narrator",
+  "who": "Screen",
+  "shift": "friday",
+  "cast": "narrator",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "wk-fri-hour-wipe-2",
+  "text": "Other machines are still locked. Yours has nothing left to show how it started.",
+  "kind": "narrator",
+  "who": "Incident desk",
+  "shift": "friday",
+  "cast": "Incident desk",
+  "voice": "Sami, real incident desk",
+  "voice_id": "O4cGUVdAocn0z4EpQ9yF"
+ },
+ {
+  "id": "wk-SAT-01-delivery",
+  "text": "Your parcel is held. Pay a $1.99 redelivery fee within 2 hours or it goes back. A short link follows. You are expecting a parcel.",
+  "kind": "narrator",
+  "who": "Text message",
+  "shift": "saturday",
+  "cast": "narrator",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "wk-SAT-02-reuse",
+  "text": "Your account was in a data breach. Reset your password. It's the same password you use for work, plus a different number on the end.",
+  "kind": "narrator",
+  "who": "Email",
+  "shift": "saturday",
+  "cast": "narrator",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "wk-SAT-03-post",
+  "text": "First week done. You took a photo at your desk. Your badge is on the lanyard in the shot, and the whiteboard behind you has the guest Wi-Fi password.",
+  "kind": "narrator",
+  "who": "Your phone",
+  "shift": "saturday",
+  "cast": "narrator",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "wk-SAT-04-router",
+  "text": "You work from home some days. The router still has the admin password from the sticker on the bottom, and its app says an update is waiting.",
+  "kind": "narrator",
+  "who": "Router sticker",
+  "shift": "saturday",
+  "cast": "narrator",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "wk-ADM-01-pushstorm",
+  "text": "Eleven sign-in prompts in four minutes for your global admin account. You aren't signing in. The twelfth says: approve to stop these notifications.",
+  "kind": "narrator",
+  "who": "Your phone",
+  "shift": "track-admin",
+  "cast": "narrator",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "wk-ADM-02-vendor",
+  "text": "To finish setup tonight we need Global Administrator on your tenant. Just for an hour, then remove it. Our engineer is waiting on a call.",
+  "kind": "man",
+  "who": "Vendor onboarding",
+  "shift": "track-admin",
+  "cast": "admin-peer",
+  "voice": "Boyd, tired peer",
+  "voice_id": "gfRt6Z3Z8aTbpLfexQ7N"
+ },
+ {
+  "id": "wk-ADM-03-daily",
+  "text": "You're signed in with your admin account to fix a mailbox. A coworker messages a link to the lunch order form. Your admin session is the only one open.",
+  "kind": "narrator",
+  "who": "Your browser",
+  "shift": "track-admin",
+  "cast": "narrator",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "wk-ADM-04-script",
+  "text": "Same error you have. 'Run this one-liner as admin, fixed it for me.' It downloads and runs a script from a site you don't know.",
+  "kind": "narrator",
+  "who": "A forum answer",
+  "shift": "track-admin",
+  "cast": "narrator",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "wk-FIN-01-payroll",
+  "text": "Hi, I switched banks. Please update my direct deposit before this payroll runs. New details attached. I'm on site all day so email is easiest.",
+  "kind": "narrator",
+  "who": "Email",
+  "shift": "track-finance",
+  "cast": "narrator",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "wk-fin-payroll-update-1",
+  "text": "Payday. My pay didn't come in?",
+  "kind": "narrator",
+  "who": "Staff member",
+  "shift": "track-finance",
+  "cast": "Staff member",
+  "voice": "Jessica B., staff member",
+  "voice_id": "g6xIsTj2HwM6VR4iXFCw"
+ },
+ {
+  "id": "wk-FIN-02-giftcards",
+  "text": "Need you to pick up five $200 gift cards for client thank-yous. In meetings all day, just scratch and text me the codes. I'll reimburse.",
+  "kind": "man",
+  "who": "Text",
+  "shift": "track-finance",
+  "cast": "caller",
+  "voice": "Alexandra, the fake owner",
+  "voice_id": "kdmDKE6EkgrWrrykO9Qt"
+ },
+ {
+  "id": "wk-FIN-03-vendormaster",
+  "text": "I changed the bank on our freight vendor earlier. The approver's out. Can you just approve it under your login so tomorrow's batch goes?",
+  "kind": "woman",
+  "who": "Accounts coworker",
+  "shift": "track-finance",
+  "cast": "desk-coworker",
+  "voice": "Tasha (Monday's Maya)",
+  "voice_id": "az2Mp58wQOuqO5SHlCwL"
+ },
+ {
+  "id": "wk-fin-master-approve-1",
+  "text": "We never got paid. That's not our account.",
+  "kind": "narrator",
+  "who": "Freight vendor",
+  "shift": "track-finance",
+  "cast": "Freight vendor",
+  "voice": "Greg, vendor",
+  "voice_id": "GlLKN8gKPpScsRIImeN1"
+ },
+ {
+  "id": "wk-HLP-01-reset",
+  "text": "I'm at the airport, locked out, my board deck is in there and we board in ten minutes. Just reset it and read me the temp password. I know who I am.",
+  "kind": "man",
+  "who": "Caller",
+  "shift": "track-helpdesk",
+  "cast": "caller",
+  "voice": "David, the fake CFO",
+  "voice_id": "UyxbZcMvz2Bnex0kFYXU"
+ },
+ {
+  "id": "wk-HLP-02-mfa",
+  "text": "New phone, old one's dead. Please remove my MFA so I can set it up on the new phone. Sent from my work account so you know it's me.",
+  "kind": "narrator",
+  "who": "Chat ticket",
+  "shift": "track-helpdesk",
+  "cast": "narrator",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "wk-HLP-03-admins",
+  "text": "Quick one for the annual review. Can you list who has admin rights, and which remote tool you use? I'll send the paperwork after.",
+  "kind": "man",
+  "who": "Caller",
+  "shift": "track-helpdesk",
+  "cast": "caller",
+  "voice": "Jack, the fake auditor",
+  "voice_id": "7EzWGsX10sAS4c9m9cPf"
+ }
+]

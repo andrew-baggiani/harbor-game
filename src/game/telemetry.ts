@@ -1,7 +1,8 @@
 // Sends the learner's scored choices to the org's decision log. Only runs for signed-in learners;
 // anonymous play never leaves the browser. The server scores the choice from scenario content.
 let learner: Promise<boolean> | null = null;
-let runId = newRun();
+// Made on first use: Workers forbid random values at module scope during server render.
+let runId = "";
 
 function newRun() {
   const bytes = new Uint8Array(12);
@@ -28,7 +29,7 @@ function send(body: Record<string, unknown>) {
       keepalive: true,
       credentials: "same-origin",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ runId, ...body }),
+      body: JSON.stringify({ runId: (runId ||= newRun()), ...body }),
     }).catch(() => {});
   });
 }
@@ -37,8 +38,8 @@ export function logDecision(choiceId: string) {
   send({ choiceId });
 }
 
-export function logShiftComplete() {
-  send({ complete: true });
+export function logShiftComplete(shift = "monday") {
+  send({ complete: true, shift });
 }
 
 /** A replay is a new run: its score stands on its own and the best run counts. */

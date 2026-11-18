@@ -1,0 +1,134 @@
+[
+  {
+    "id": "kc-wed-3",
+    "skill": "data-sharing",
+    "prompt": "You sent the open link. A later download is from an address not on the job.",
+    "choices": [
+      {
+        "id": "client",
+        "label": "That has to be the client.",
+        "correct": false
+      },
+      {
+        "id": "open",
+        "label": "An open link cannot tell you who.",
+        "correct": true
+      },
+      {
+        "id": "expire",
+        "label": "It expired when you closed the lid.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-wed-4",
+    "skill": "data-sharing",
+    "prompt": "A personal mailbox got the drawings. That mailbox forwarded them.",
+    "choices": [
+      {
+        "id": "you",
+        "label": "Only you can forward your mail.",
+        "correct": false
+      },
+      {
+        "id": "out",
+        "label": "You do not control the next forward.",
+        "correct": true
+      },
+      {
+        "id": "work",
+        "label": "A personal box is still work.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-wed-5",
+    "skill": "data-classification",
+    "prompt": "The count, not the names, is on a slide. Someone outside the meeting quotes it.",
+    "choices": [
+      {
+        "id": "safe",
+        "label": "A count is not the list.",
+        "correct": false
+      },
+      {
+        "id": "out",
+        "label": "The number still left the room.",
+        "correct": true
+      },
+      {
+        "id": "ask",
+        "label": "Quoting it means they were allowed.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-wed-6",
+    "skill": "data-classification",
+    "prompt": "The sheet says internal. The meeting is also internal.",
+    "choices": [
+      {
+        "id": "same",
+        "label": "Internal covers every internal room.",
+        "correct": false
+      },
+      {
+        "id": "mark",
+        "label": "The mark says who may see the rows.",
+        "correct": true
+      },
+      {
+        "id": "slide",
+        "label": "A slide is not a copy.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-wed-7",
+    "skill": "data-handling",
+    "prompt": "You closed the writing tab. The complaint is still in the tool.",
+    "choices": [
+      {
+        "id": "gone",
+        "label": "Closing the tab deletes it.",
+        "correct": false
+      },
+      {
+        "id": "hist",
+        "label": "The history kept it.",
+        "correct": true
+      },
+      {
+        "id": "num",
+        "label": "It is fine if the number was removed.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-wed-8",
+    "skill": "data-handling",
+    "prompt": "The name is gone. The paragraph still describes one account.",
+    "choices": [
+      {
+        "id": "clean",
+        "label": "No name means it is safe to paste.",
+        "correct": false
+      },
+      {
+        "id": "still",
+        "label": "One account can still be recognized.",
+        "correct": true
+      },
+      {
+        "id": "tool",
+        "label": "A tool that says private is enough.",
+        "correct": false
+      }
+    ]
+  }
+]

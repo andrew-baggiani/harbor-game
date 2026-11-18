@@ -4,7 +4,7 @@ import { ChatWidget } from "@/site/ChatWidget";
 import { CONTACT, SiteFooter, SiteNav, SkipLink } from "@/site/SiteChrome";
 import { WEEK } from "@/game/week";
 import phishing from "@/content/scenarios/mon-02-phishing.json";
-import { Arrow, Avatar, Check, Gauge, LiveDot, Lock, MiniRing, Pill, btn } from "@/portal/ui";
+import { Arrow, Avatar, Check, Gauge, LiveDot, MiniRing, Pill, btn } from "@/portal/ui";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/")({
       },
       { name: "theme-color", content: "#101319" },
       { property: "og:title", content: "Dry Run Cyber: rehearse the attack before it's real" },
-      { property: "og:description", content: "First-person security awareness training for MSPs. One night shift, nine decisions, every one mapped to compliance controls." },
+      { property: "og:description", content: "First-person security awareness training for MSPs. A week of night shifts, role tracks and monthly reminders, every decision mapped to compliance controls." },
       { property: "og:image", content: "https://dryruncyber.com/og.jpg" },
       { property: "og:url", content: "https://dryruncyber.com/" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -85,14 +85,14 @@ function Hero({ phone }: { phone: boolean | null }) {
         </div>
         <div>
           <p className="max-w-[32rem] text-lg leading-relaxed text-site-mist">
-            A game your clients' employees actually play, not a video they mute in another tab. One night shift, nine real-world attacks, and
+            A game your clients' employees actually play, not a video they mute in another tab. A week of night shifts built on real attacks, and
             every decision recorded against the controls your clients are audited on.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
-            <a href={CONTACT} className={`${btn.primary} !px-6 !py-3.5 text-base`}>
+            <a href={CONTACT} className={`${btn.primary} w-full justify-center !px-6 !py-3.5 text-base sm:w-auto`}>
               Request partner access <Arrow size={17} />
             </a>
-            <a href="#night" className={`${btn.ghost} !px-6 !py-3.5 text-base`}>
+            <a href="#night" className={`${btn.ghost} w-full justify-center !px-6 !py-3.5 text-base sm:w-auto`}>
               See what's in a shift
             </a>
           </div>
@@ -183,7 +183,7 @@ function TryOne() {
 
   return (
     <section aria-labelledby="try-title" className="border-t border-white/[0.06]">
-      <div className="mx-auto grid max-w-[1240px] items-center gap-14 px-6 py-24 md:px-10 lg:grid-cols-[1fr_minmax(0,500px)] lg:gap-16 lg:py-32 xl:gap-24">
+      <div className="mx-auto grid max-w-[1240px] items-center gap-14 px-6 py-14 sm:py-24 md:px-10 lg:grid-cols-[1fr_minmax(0,500px)] lg:gap-16 lg:py-32 xl:gap-24">
       <div>
         <h2 id="try-title" className="display text-[38px] lg:text-[52px]">Try one decision.</h2>
         <p className="mt-6 max-w-[30rem] text-lg leading-relaxed text-site-mist">
@@ -320,16 +320,16 @@ const BEATS = [
 function Night() {
   return (
     <section id="night" aria-labelledby="night-title" className="border-t border-site-rule">
-      <div className="mx-auto grid max-w-[1240px] gap-14 px-6 py-24 md:px-10 lg:grid-cols-[380px_1fr] lg:gap-20 lg:py-32">
+      <div className="mx-auto grid max-w-[1240px] gap-14 px-6 py-14 sm:py-24 md:px-10 lg:grid-cols-[380px_1fr] lg:gap-20 lg:py-32">
         <div className="lg:sticky lg:top-28 lg:self-start">
-          <h2 id="night-title" className="display text-[38px] lg:text-[52px]">One shift. Nine decisions.</h2>
+          <h2 id="night-title" className="display text-[38px] lg:text-[52px]">Monday night. Nine decisions.</h2>
           <p className="mt-6 max-w-[26rem] text-lg leading-relaxed text-site-mist">
             No slides and no quiz at the end. People walk the floor, open the apps, take the calls, and decide. About twenty minutes a night.
           </p>
         </div>
-        <ol className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <ol className="-mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-3 [scrollbar-width:none] sm:mx-0 sm:overflow-visible sm:px-0 sm:pb-0 sm:grid sm:grid-cols-2 xl:grid-cols-3" aria-label="Monday's nine decisions">
           {BEATS.map(([t, d], i) => (
-            <li key={t} className="panel lift !p-5">
+            <li key={t} className="panel lift w-[78%] shrink-0 snap-start !p-5 sm:w-auto">
               <span className="num inline-grid h-8 w-8 place-items-center rounded-lg bg-site-violet/15 text-[13px] font-bold text-site-violet-hi">{i + 1}</span>
               <p className="mt-4 text-xl font-bold" style={{ fontStretch: "118%" }}>{t}</p>
               <p className="mt-1.5 leading-relaxed text-site-mist">{d}</p>
@@ -352,14 +352,14 @@ const LATER = [
 function Later() {
   return (
     <section aria-labelledby="later-title" className="later-glow relative">
-      <div className="mx-auto max-w-[1240px] px-6 py-24 md:px-10 lg:py-32">
+      <div className="mx-auto max-w-[1240px] px-6 py-14 sm:py-24 md:px-10 lg:py-32">
         <h2 id="later-title" className="display max-w-[16ch] text-[38px] lg:text-[52px]">Mistakes don't end the scene. They come back.</h2>
         <p className="mt-6 max-w-[36rem] text-lg leading-relaxed text-site-mist">
           Nobody gets a red X and a lecture. The night carries on, and what you did shows up later, the way it would at work.
         </p>
-        <div className="mt-14 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="mt-10 -mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-3 [scrollbar-width:none] lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0 lg:mt-14 lg:grid lg:grid-cols-3 lg:gap-4">
           {LATER.map((r) => (
-            <div key={r.now} className="panel flex flex-col">
+            <div key={r.now} className="panel flex w-[85%] shrink-0 snap-start flex-col sm:w-[60%] lg:w-auto">
               <p className="text-lg font-semibold leading-snug">{r.now}</p>
               <div className="my-5 flex items-center gap-3">
                 <Pill tone="alarm" dot>
@@ -390,7 +390,7 @@ const FRAMEWORK: Record<string, string> = {
 function Evidence() {
   const controls = Object.entries((phishing as { controls: Record<string, string[]> }).controls);
   return (
-    <section aria-labelledby="evidence-title" className="mx-auto max-w-[1240px] px-6 py-24 md:px-10 lg:py-32">
+    <section aria-labelledby="evidence-title" className="mx-auto max-w-[1240px] px-6 py-14 sm:py-24 md:px-10 lg:py-32">
       <div className="grid gap-14 lg:grid-cols-[1fr_minmax(0,620px)] lg:gap-20">
         <div>
           <h2 id="evidence-title" className="display text-[38px] lg:text-[52px]">Every decision is evidence.</h2>
@@ -451,11 +451,11 @@ function Evidence() {
 function ForMsps() {
   return (
     <section id="msps" aria-labelledby="msps-title" className="border-t border-site-rule">
-      <div className="mx-auto max-w-[1240px] px-6 py-24 md:px-10 lg:py-32">
+      <div className="mx-auto max-w-[1240px] px-6 py-14 sm:py-24 md:px-10 lg:py-32">
         <h2 id="msps-title" className="display max-w-[18ch] text-[38px] lg:text-[52px]">Built for MSPs to resell.</h2>
         <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Point title="Monday ships today">
-            About twenty minutes, nine decisions, and a record for every person that you can hand an auditor.
+          <Point title="The whole week ships today">
+            Five night shifts, two weekend games and three role tracks, with a record for every person that you can hand an auditor.
           </Point>
           <Point title="Training clients finish">
             A short night shift people want to see the end of, instead of a video they leave running in another tab.
@@ -470,30 +470,28 @@ function ForMsps() {
 
         <PortalPreview />
 
-        <h3 className="mt-24 text-2xl font-bold" style={{ fontStretch: "118%" }}>Where it's going</h3>
+        <h3 className="display mt-16 text-[30px] sm:mt-24 lg:text-[40px]">The whole week</h3>
         <p className="mt-3 max-w-[40rem] text-lg leading-relaxed text-site-mist">
-          Monday is the first night of a full week: one shift a day, each mapped to its own block of required training. Role-based tracks for admins and
-          finance, and per-client branding, come after.
+          Five night shifts, two short weekend games, and role tracks for admins, finance and the help desk. A one-minute reminder each month keeps it
+          warm in between.
         </p>
-        <ol className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
+        <ol className="mt-6 -mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-3 [scrollbar-width:none] md:mx-0 md:overflow-visible md:px-0 md:pb-0 md:grid md:grid-cols-2 xl:grid-cols-4">
           {WEEK.map((s) => (
-            <li key={s.day} className={`panel !p-5 ${s.status === "open" ? "ring-1 ring-site-violet/50" : "opacity-85"}`}>
-              <div className="flex items-center justify-between gap-2">
-                <span className={`text-sm font-bold ${s.status === "open" ? "text-site-mint" : "text-site-dim"}`}>{s.day}</span>
-                {s.status === "open" ? (
-                  <Pill tone="mint" dot>
-                    Live
-                  </Pill>
-                ) : (
-                  <Pill tone="dim">
-                    <Lock size={12} /> Soon
-                  </Pill>
-                )}
-              </div>
-              <p className="mt-3 text-lg font-bold" style={{ fontStretch: "112%" }}>{s.title}</p>
-              <p className="mt-1.5 text-[14px] leading-relaxed text-site-dim">{s.topics.replaceAll(" · ", ", ")}.</p>
+            <li key={s.day} className="w-[72%] shrink-0 snap-start md:w-auto">
+              <a href={s.href} className="panel lift block h-full !p-5">
+                <span className="text-sm font-bold text-site-mint">{s.day}</span>
+                <p className="mt-3 text-lg font-bold" style={{ fontStretch: "112%" }}>{s.title}</p>
+                <p className="mt-1.5 text-[14px] leading-relaxed text-site-dim">{s.topics.replaceAll(" · ", ", ")}.</p>
+              </a>
             </li>
           ))}
+          <li className="w-[72%] shrink-0 snap-start md:w-auto">
+            <a href="/week" className="panel lift block h-full !p-5 ring-1 ring-site-violet/50">
+              <span className="text-sm font-bold text-site-violet">Role tracks</span>
+              <p className="mt-3 text-lg font-bold" style={{ fontStretch: "112%" }}>Admins, finance, help desk</p>
+              <p className="mt-1.5 text-[14px] leading-relaxed text-site-dim">Extra depth for the people attackers target first. Assigned per person in the portal.</p>
+            </a>
+          </li>
         </ol>
       </div>
     </section>
@@ -522,7 +520,7 @@ function Close() {
       <div className="aurora mx-auto max-w-[980px] px-6 py-16 text-center sm:px-12 sm:py-20">
         <h2 id="close-title" className="display mx-auto max-w-[12ch] text-[38px] lg:text-[64px]">Run it before it runs you.</h2>
         <p className="mx-auto mt-6 max-w-[34rem] text-lg leading-relaxed text-site-mist">
-          Monday is ready now. Tell us about your clients and we'll set you up with partner access.
+          The whole week is ready now. Tell us about your clients and we'll set you up with partner access.
         </p>
         <div className="mt-10 flex flex-wrap justify-center gap-3">
           <a href={CONTACT} className={`${btn.primary} !px-7 !py-4 text-base`}>

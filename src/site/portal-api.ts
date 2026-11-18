@@ -16,6 +16,9 @@ export type Learner = {
   monday: "Not started" | "In progress" | "Complete";
   score: number;
   lastActive: number | null;
+  week?: Record<string, "Complete" | "In progress">;
+  tracks?: string[];
+  lastReminder?: number | null;
 };
 export type OrgDetail = {
   org: { id: string; name: string; domain: string | null; partnerId: string | null; leaderboardEnabled: boolean };

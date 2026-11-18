@@ -1,5 +1,6 @@
 // Building blocks for the portal: readiness gauge, avatars, chips, sheet, toasts, switches.
 import { createContext, useCallback, useContext, useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { weekScenarioName } from "@/content/week";
 
 /* ------------------------------------------------------------------ formatting */
 
@@ -41,7 +42,7 @@ export const SCENARIOS: { id: string; name: string }[] = [
   { id: "MON-08-misdirect", name: "Misdirected email" },
   { id: "MON-09-cleandesk", name: "Clean desk at close" },
 ];
-export const scenarioName = (id: string | null) => SCENARIOS.find((s) => s.id === id)?.name ?? "a decision";
+export const scenarioName = (id: string | null) => SCENARIOS.find((s) => s.id === id)?.name ?? weekScenarioName(id) ?? "a decision";
 
 /* ------------------------------------------------------------------ readiness gauge */
 

@@ -21,6 +21,7 @@ import { Route as PlayRouteImport } from './routes/play'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RecordRouteImport } from './routes/record'
+import { Route as ReminderRouteImport } from './routes/reminder'
 import { Route as ResultRouteImport } from './routes/result'
 import { Route as ReviewRouteImport } from './routes/review'
 import { Route as SampleRecordRouteImport } from './routes/sample-record'
@@ -37,10 +38,13 @@ import { Route as ApiOrgRouteImport } from './routes/api/org'
 import { Route as ApiPartnerRouteImport } from './routes/api/partner'
 import { Route as DrillsIndexRouteImport } from './routes/drills.index'
 import { Route as DrillsDrillIdRouteImport } from './routes/drills.$drillId'
+import { Route as LabCastRouteImport } from './routes/lab.cast'
 import { Route as LabMailRouteImport } from './routes/lab.mail'
 import { Route as LessonLessonIdRouteImport } from './routes/lesson.$lessonId'
 import { Route as PathIndexRouteImport } from './routes/path.index'
 import { Route as PathModuleIdRouteImport } from './routes/path.$moduleId'
+import { Route as WeekIndexRouteImport } from './routes/week.index'
+import { Route as WeekShiftIdRouteImport } from './routes/week.$shiftId'
 import { Route as ApiAuthRequestRouteImport } from './routes/api/auth.request'
 import { Route as ApiAuthSignoutRouteImport } from './routes/api/auth.signout'
 import { Route as ApiAuthVerifyRouteImport } from './routes/api/auth.verify'
@@ -103,6 +107,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const RecordRoute = RecordRouteImport.update({
   id: '/record',
   path: '/record',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReminderRoute = ReminderRouteImport.update({
+  id: '/reminder',
+  path: '/reminder',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResultRoute = ResultRouteImport.update({
@@ -185,6 +194,11 @@ const DrillsDrillIdRoute = DrillsDrillIdRouteImport.update({
   path: '/$drillId',
   getParentRoute: () => DrillsRoute,
 } as any)
+const LabCastRoute = LabCastRouteImport.update({
+  id: '/lab/cast',
+  path: '/lab/cast',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LabMailRoute = LabMailRouteImport.update({
   id: '/lab/mail',
   path: '/lab/mail',
@@ -204,6 +218,16 @@ const PathModuleIdRoute = PathModuleIdRouteImport.update({
   id: '/$moduleId',
   path: '/$moduleId',
   getParentRoute: () => PathRoute,
+} as any)
+const WeekIndexRoute = WeekIndexRouteImport.update({
+  id: '/week/',
+  path: '/week/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WeekShiftIdRoute = WeekShiftIdRouteImport.update({
+  id: '/week/$shiftId',
+  path: '/week/$shiftId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthRequestRoute = ApiAuthRequestRouteImport.update({
   id: '/api/auth/request',
@@ -234,6 +258,7 @@ export interface FileRoutesByFullPath {
   '/portal': typeof PortalRoute
   '/privacy': typeof PrivacyRoute
   '/record': typeof RecordRoute
+  '/reminder': typeof ReminderRoute
   '/result': typeof ResultRoute
   '/review': typeof ReviewRoute
   '/sample-record': typeof SampleRecordRoute
@@ -248,12 +273,15 @@ export interface FileRoutesByFullPath {
   '/api/org': typeof ApiOrgRoute
   '/api/partner': typeof ApiPartnerRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
+  '/lab/cast': typeof LabCastRoute
   '/lab/mail': typeof LabMailRoute
   '/lesson/$lessonId': typeof LessonLessonIdRoute
   '/path/$moduleId': typeof PathModuleIdRoute
+  '/week/$shiftId': typeof WeekShiftIdRoute
   '/ai-security/': typeof AiSecurityIndexRoute
   '/drills/': typeof DrillsIndexRoute
   '/path/': typeof PathIndexRoute
+  '/week/': typeof WeekIndexRoute
   '/api/auth/request': typeof ApiAuthRequestRoute
   '/api/auth/signout': typeof ApiAuthSignoutRoute
   '/api/auth/verify': typeof ApiAuthVerifyRoute
@@ -269,6 +297,7 @@ export interface FileRoutesByTo {
   '/portal': typeof PortalRoute
   '/privacy': typeof PrivacyRoute
   '/record': typeof RecordRoute
+  '/reminder': typeof ReminderRoute
   '/result': typeof ResultRoute
   '/review': typeof ReviewRoute
   '/sample-record': typeof SampleRecordRoute
@@ -283,12 +312,15 @@ export interface FileRoutesByTo {
   '/api/org': typeof ApiOrgRoute
   '/api/partner': typeof ApiPartnerRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
+  '/lab/cast': typeof LabCastRoute
   '/lab/mail': typeof LabMailRoute
   '/lesson/$lessonId': typeof LessonLessonIdRoute
   '/path/$moduleId': typeof PathModuleIdRoute
+  '/week/$shiftId': typeof WeekShiftIdRoute
   '/ai-security': typeof AiSecurityIndexRoute
   '/drills': typeof DrillsIndexRoute
   '/path': typeof PathIndexRoute
+  '/week': typeof WeekIndexRoute
   '/api/auth/request': typeof ApiAuthRequestRoute
   '/api/auth/signout': typeof ApiAuthSignoutRoute
   '/api/auth/verify': typeof ApiAuthVerifyRoute
@@ -307,6 +339,7 @@ export interface FileRoutesById {
   '/portal': typeof PortalRoute
   '/privacy': typeof PrivacyRoute
   '/record': typeof RecordRoute
+  '/reminder': typeof ReminderRoute
   '/result': typeof ResultRoute
   '/review': typeof ReviewRoute
   '/sample-record': typeof SampleRecordRoute
@@ -321,12 +354,15 @@ export interface FileRoutesById {
   '/api/org': typeof ApiOrgRoute
   '/api/partner': typeof ApiPartnerRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
+  '/lab/cast': typeof LabCastRoute
   '/lab/mail': typeof LabMailRoute
   '/lesson/$lessonId': typeof LessonLessonIdRoute
   '/path/$moduleId': typeof PathModuleIdRoute
+  '/week/$shiftId': typeof WeekShiftIdRoute
   '/ai-security/': typeof AiSecurityIndexRoute
   '/drills/': typeof DrillsIndexRoute
   '/path/': typeof PathIndexRoute
+  '/week/': typeof WeekIndexRoute
   '/api/auth/request': typeof ApiAuthRequestRoute
   '/api/auth/signout': typeof ApiAuthSignoutRoute
   '/api/auth/verify': typeof ApiAuthVerifyRoute
@@ -346,6 +382,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/privacy'
     | '/record'
+    | '/reminder'
     | '/result'
     | '/review'
     | '/sample-record'
@@ -360,12 +397,15 @@ export interface FileRouteTypes {
     | '/api/org'
     | '/api/partner'
     | '/drills/$drillId'
+    | '/lab/cast'
     | '/lab/mail'
     | '/lesson/$lessonId'
     | '/path/$moduleId'
+    | '/week/$shiftId'
     | '/ai-security/'
     | '/drills/'
     | '/path/'
+    | '/week/'
     | '/api/auth/request'
     | '/api/auth/signout'
     | '/api/auth/verify'
@@ -381,6 +421,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/privacy'
     | '/record'
+    | '/reminder'
     | '/result'
     | '/review'
     | '/sample-record'
@@ -395,12 +436,15 @@ export interface FileRouteTypes {
     | '/api/org'
     | '/api/partner'
     | '/drills/$drillId'
+    | '/lab/cast'
     | '/lab/mail'
     | '/lesson/$lessonId'
     | '/path/$moduleId'
+    | '/week/$shiftId'
     | '/ai-security'
     | '/drills'
     | '/path'
+    | '/week'
     | '/api/auth/request'
     | '/api/auth/signout'
     | '/api/auth/verify'
@@ -418,6 +462,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/privacy'
     | '/record'
+    | '/reminder'
     | '/result'
     | '/review'
     | '/sample-record'
@@ -432,12 +477,15 @@ export interface FileRouteTypes {
     | '/api/org'
     | '/api/partner'
     | '/drills/$drillId'
+    | '/lab/cast'
     | '/lab/mail'
     | '/lesson/$lessonId'
     | '/path/$moduleId'
+    | '/week/$shiftId'
     | '/ai-security/'
     | '/drills/'
     | '/path/'
+    | '/week/'
     | '/api/auth/request'
     | '/api/auth/signout'
     | '/api/auth/verify'
@@ -456,6 +504,7 @@ export interface RootRouteChildren {
   PortalRoute: typeof PortalRoute
   PrivacyRoute: typeof PrivacyRoute
   RecordRoute: typeof RecordRoute
+  ReminderRoute: typeof ReminderRoute
   ResultRoute: typeof ResultRoute
   ReviewRoute: typeof ReviewRoute
   SampleRecordRoute: typeof SampleRecordRoute
@@ -469,9 +518,12 @@ export interface RootRouteChildren {
   ApiMeRoute: typeof ApiMeRoute
   ApiOrgRoute: typeof ApiOrgRoute
   ApiPartnerRoute: typeof ApiPartnerRoute
+  LabCastRoute: typeof LabCastRoute
   LabMailRoute: typeof LabMailRoute
   LessonLessonIdRoute: typeof LessonLessonIdRoute
+  WeekShiftIdRoute: typeof WeekShiftIdRoute
   AiSecurityIndexRoute: typeof AiSecurityIndexRoute
+  WeekIndexRoute: typeof WeekIndexRoute
   ApiAuthRequestRoute: typeof ApiAuthRequestRoute
   ApiAuthSignoutRoute: typeof ApiAuthSignoutRoute
   ApiAuthVerifyRoute: typeof ApiAuthVerifyRoute
@@ -561,6 +613,13 @@ declare module '@tanstack/react-router' {
       path: '/record'
       fullPath: '/record'
       preLoaderRoute: typeof RecordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reminder': {
+      id: '/reminder'
+      path: '/reminder'
+      fullPath: '/reminder'
+      preLoaderRoute: typeof ReminderRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/result': {
@@ -675,6 +734,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DrillsDrillIdRouteImport
       parentRoute: typeof DrillsRoute
     }
+    '/lab/cast': {
+      id: '/lab/cast'
+      path: '/lab/cast'
+      fullPath: '/lab/cast'
+      preLoaderRoute: typeof LabCastRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lab/mail': {
       id: '/lab/mail'
       path: '/lab/mail'
@@ -702,6 +768,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/path/$moduleId'
       preLoaderRoute: typeof PathModuleIdRouteImport
       parentRoute: typeof PathRoute
+    }
+    '/week/': {
+      id: '/week/'
+      path: '/week'
+      fullPath: '/week/'
+      preLoaderRoute: typeof WeekIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/week/$shiftId': {
+      id: '/week/$shiftId'
+      path: '/week/$shiftId'
+      fullPath: '/week/$shiftId'
+      preLoaderRoute: typeof WeekShiftIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/auth/request': {
       id: '/api/auth/request'
@@ -765,6 +845,7 @@ const rootRouteChildren: RootRouteChildren = {
   PortalRoute: PortalRoute,
   PrivacyRoute: PrivacyRoute,
   RecordRoute: RecordRoute,
+  ReminderRoute: ReminderRoute,
   ResultRoute: ResultRoute,
   ReviewRoute: ReviewRoute,
   SampleRecordRoute: SampleRecordRoute,
@@ -778,9 +859,12 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMeRoute: ApiMeRoute,
   ApiOrgRoute: ApiOrgRoute,
   ApiPartnerRoute: ApiPartnerRoute,
+  LabCastRoute: LabCastRoute,
   LabMailRoute: LabMailRoute,
   LessonLessonIdRoute: LessonLessonIdRoute,
+  WeekShiftIdRoute: WeekShiftIdRoute,
   AiSecurityIndexRoute: AiSecurityIndexRoute,
+  WeekIndexRoute: WeekIndexRoute,
   ApiAuthRequestRoute: ApiAuthRequestRoute,
   ApiAuthSignoutRoute: ApiAuthSignoutRoute,
   ApiAuthVerifyRoute: ApiAuthVerifyRoute,

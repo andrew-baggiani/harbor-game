@@ -1,6 +1,6 @@
 // One organization: people, leaderboard, training plan, settings.
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { WEEK } from "@/game/week";
+import { TRACK_LIST, WEEK } from "@/game/week";
 import { api, type Board, type Learner, type OrgDetail } from "@/site/portal-api";
 import { ActivityFeed, clientStatus } from "@/portal/Partner";
 import {
@@ -171,7 +171,7 @@ export function OrgView({ orgId, tab, setTab, onPartner, backTo, onChanged }: Pr
         ))}
       </div>
 
-      {tab === "people" ? <People orgId={orgId} d={d} people={people} onInvite={() => setInviting(true)} /> : null}
+      {tab === "people" ? <People orgId={orgId} d={d} people={people} onInvite={() => setInviting(true)} onChanged={load} /> : null}
       {tab === "leaderboard" ? <LeaderboardTab orgId={orgId} enabled={d.org.leaderboardEnabled} onSettings={() => setTab("settings")} /> : null}
       {tab === "plan" ? <Plan orgId={orgId} dueAt={d.campaign?.dueAt ?? null} hasCampaign={!!d.campaign} onDone={refresh} /> : null}
       {tab === "settings" ? <Settings orgId={orgId} d={d} onDone={refresh} /> : null}
@@ -200,8 +200,9 @@ function MiniStat({ label, value, sub, live }: { label: string; value: number | 
 
 type Filter = "all" | "Complete" | "In progress" | "Not started";
 
-function People({ orgId, d, people, onInvite }: { orgId: string; d: OrgDetail; people: Learner[]; onInvite: () => void }) {
+function People({ orgId, d, people, onInvite, onChanged }: { orgId: string; d: OrgDetail; people: Learner[]; onInvite: () => void; onChanged: () => void }) {
   const [filter, setFilter] = useState<Filter>("all");
+  const [tracksFor, setTracksFor] = useState<Learner | null>(null);
   const [q, setQ] = useState("");
   const toast = useToast();
   const counts = {
@@ -218,6 +219,15 @@ function People({ orgId, d, people, onInvite }: { orgId: string; d: OrgDetail; p
       const out = await api<{ reminded: string[]; skipped: string[] }>("/api/org", { action: "remind", orgId, emails: emails.join(",") });
       if (out.reminded.length) toast(`Reminder sent to ${out.reminded.length === 1 ? personName(out.reminded[0]) : `${out.reminded.length} people`}.`);
       else if (out.skipped.length) toast("They already got a link in the last 15 minutes.");
+    } catch (e) {
+      toast((e as Error).message, "err");
+    }
+  }
+
+  async function remindMonthly(emails: string[]) {
+    try {
+      const out = await api<{ reminded: string[]; skipped: string[] }>("/api/org", { action: "remind", orgId, emails: emails.join(","), next: "/reminder" });
+      toast(out.reminded.length ? `This month's reminder went to ${out.reminded.length === 1 ? "1 person" : `${out.reminded.length} people`}.` : "Everyone got a link in the last 15 minutes.");
     } catch (e) {
       toast((e as Error).message, "err");
     }
@@ -291,7 +301,17 @@ function People({ orgId, d, people, onInvite }: { orgId: string; d: OrgDetail; p
               <div className="min-w-0 flex-1">
                 <div className="truncate font-semibold">{personName(p.email, p.displayName)}</div>
                 <div className="truncate text-[13.5px] text-site-dim">{p.email}</div>
+                <WeekDots p={p} />
               </div>
+              <button
+                type="button"
+                title="Role tracks"
+                aria-label={`Role tracks for ${p.email}`}
+                onClick={() => setTracksFor(p)}
+                className={`${btn.quiet} hidden !px-2.5 text-[12.5px] opacity-70 group-hover:opacity-100 sm:inline-flex`}
+              >
+                {p.tracks?.length ? `${p.tracks.length} track${p.tracks.length > 1 ? "s" : ""}` : "Tracks"}
+              </button>
               <div className="hidden w-[150px] sm:block">
                 {p.monday === "Not started" ? (
                   <span className="text-sm text-site-dim">–</span>
@@ -328,7 +348,9 @@ function People({ orgId, d, people, onInvite }: { orgId: string; d: OrgDetail; p
         </ul>
       </Panel>
 
+      <TrackSheet orgId={orgId} person={tracksFor} onClose={() => setTracksFor(null)} onChanged={onChanged} />
       <div className="space-y-6">
+        <TracksCard people={people} onRemind={() => remindMonthly(people.map((p) => p.email))} />
         <Slips scenarios={d.scenarios} />
         <ActivityFeed scope={`org=${encodeURIComponent(orgId)}`} />
       </div>
@@ -606,5 +628,84 @@ function Invite({ open, onClose, orgId, domain, onDone }: { open: boolean; onClo
         </button>
       </form>
     </Sheet>
+  );
+}
+
+const WEEK_IDS = ["tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+
+/** One dot per shift after Monday, plus assigned tracks. Mint is done, violet is started. */
+function WeekDots({ p }: { p: Learner }) {
+  const items = [
+    ...WEEK_IDS.map((id) => ({ id, label: WEEK.find((w) => w.href.endsWith(id))?.day.slice(0, 3) ?? id })),
+    ...(p.tracks ?? []).map((id) => ({ id, label: TRACK_LIST.find((t) => t.id === id)?.day ?? id })),
+  ];
+  return (
+    <div className="mt-1.5 flex flex-wrap gap-1" aria-label="Week progress">
+      {items.map((it) => {
+        const st = p.week?.[it.id];
+        const tone = st === "Complete" ? "bg-site-mint/15 text-site-mint ring-site-mint/30" : st ? "bg-site-violet/15 text-site-violet-hi ring-site-violet/30" : "text-site-dim ring-white/10";
+        return (
+          <span key={it.id} title={`${it.label}: ${st ?? "not started"}`} className={`rounded-md px-1.5 py-0.5 text-[11px] font-semibold ring-1 ring-inset ${tone} ${it.id.startsWith("track-") ? "border-l-2 border-site-violet" : ""}`}>
+            {it.label}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
+function TrackSheet({ orgId, person, onClose, onChanged }: { orgId: string; person: Learner | null; onClose: () => void; onChanged: () => void }) {
+  const toast = useToast();
+  const [on, setOn] = useState<string[]>([]);
+  useEffect(() => setOn(person?.tracks ?? []), [person]);
+  if (!person) return null;
+  const toggle = async (track: string, value: boolean) => {
+    setOn((list) => (value ? [...list, track] : list.filter((t) => t !== track)));
+    try {
+      await api("/api/org", { action: "track", orgId, userId: person.userId, track, on: value });
+      onChanged();
+    } catch (e) {
+      toast((e as Error).message, "err");
+    }
+  };
+  return (
+    <Sheet open={!!person} onClose={onClose} title={`Role tracks for ${personName(person.email, person.displayName)}`} hint="Assign the tracks that match their job. Each one is a short shift on top of the week.">
+      <div className="space-y-5">
+        {TRACK_LIST.map((t) => (
+          <Switch key={t.id} checked={on.includes(t.id)} onChange={(v) => void toggle(t.id, v)} label={`${t.day}: ${t.title}`} hint={t.topics.replaceAll(" · ", ", ")} />
+        ))}
+      </div>
+      <p className="mt-6 text-sm text-site-dim">These map to NIST 800-53 AT-3, 800-171 3.2.2, CMMC AT.L2-3.2.2, CIS 14.9 and CSF PR.AT-02.</p>
+    </Sheet>
+  );
+}
+
+function TracksCard({ people, onRemind }: { people: Learner[]; onRemind: () => void }) {
+  const month = new Date().toLocaleString("en-US", { month: "long" });
+  const remindedThisMonth = people.filter((p) => p.lastReminder && new Date(p.lastReminder).getMonth() === new Date().getMonth()).length;
+  return (
+    <Panel>
+      <PanelHead title="Tracks and reminders" hint="Role-based training and HIPAA security reminders." />
+      <ul className="mt-4 space-y-2 text-[14.5px]">
+        {TRACK_LIST.map((t) => {
+          const assigned = people.filter((p) => p.tracks?.includes(t.id));
+          const done = assigned.filter((p) => p.week?.[t.id] === "Complete").length;
+          return (
+            <li key={t.id} className="flex items-center justify-between gap-3">
+              <span>{t.day}</span>
+              <span className="num text-site-dim">{assigned.length ? `${done} of ${assigned.length} done` : "Nobody assigned"}</span>
+            </li>
+          );
+        })}
+      </ul>
+      <div className="mt-5 border-t border-white/[0.06] pt-4">
+        <p className="text-[14.5px]">
+          {month} reminder: <b className="num">{remindedThisMonth}</b> of {people.length} answered
+        </p>
+        <button type="button" className={`${btn.quiet} mt-3 !py-2 text-sm`} onClick={onRemind}>
+          <Mail size={16} /> Send this month's reminder
+        </button>
+      </div>
+    </Panel>
   );
 }
