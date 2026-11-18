@@ -22,3 +22,25 @@ export function saveWeek(id: string, score: number, passed: boolean) {
     /* storage can be unavailable; the run still counts on the server */
   }
 }
+
+const FINDS_KEY = "drc-week-finds";
+
+/** Security finds spotted per shift, across runs, so the week page can say how many are left. */
+export function readFinds(): Record<string, string[]> {
+  if (typeof window === "undefined") return {};
+  try {
+    return JSON.parse(window.localStorage.getItem(FINDS_KEY) ?? "{}") as Record<string, string[]>;
+  } catch {
+    return {};
+  }
+}
+
+export function saveFinds(id: string, ids: string[]) {
+  try {
+    const all = readFinds();
+    all[id] = [...new Set([...(all[id] ?? []), ...ids])];
+    window.localStorage.setItem(FINDS_KEY, JSON.stringify(all));
+  } catch {
+    /* optional */
+  }
+}

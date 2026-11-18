@@ -4,16 +4,18 @@ import * as THREE from "three";
 import type { CheckItem } from "@/game/scenarios";
 import type { FalloutStep, ShiftDef, WeekBeat, WeekChoice } from "@/content/week/types";
 import { checkLearner, logDecision, logShiftComplete, newShiftRun } from "@/game/telemetry";
-import { saveWeek } from "@/game/weekplay/progress";
-import { BeatProp, CastFigure, Decor, Room, Walker, approach, player } from "@/game/weekplay/Scene";
+import { saveFinds, saveWeek } from "@/game/weekplay/progress";
+import { COWORKER, FINDS, NUDGE_AFTER, TOYS, placeOf, type Find } from "@/content/week/play";
+import { BeatProp, CastFigure, Decor, FindProp, Poke, Room, Walker, approach, player, type Nearby } from "@/game/weekplay/Scene";
 import { HarborStage, MonitorArt, NightStage } from "@/game/weekplay/HarborStage";
 import { BakedRoom, setRoomBounds } from "@/game/weekplay/BakedRoom";
 import { SETS } from "@/game/weekplay/sets";
 import { falloutLine, promptLine } from "@/content/week/voices";
-import { sayLine, sayLineNext, unlockAudio } from "@/game/audio";
+import { blip, sayLine, sayLineNext, unlockAudio } from "@/game/audio";
 
 type Phase = "intro" | "play" | "panel" | "wrap" | "debrief" | "check" | "result";
-type Bark = { id: number; who: string; text: string; bad: boolean };
+type Tone = "good" | "bad" | "note";
+type Bark = { id: number; who: string; text: string; tone: Tone };
 
 /** Fallout plays at 0.4x the scripted seconds so the player sees it while walking to the next beat. */
 const PACE = 400;
@@ -45,10 +47,30 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
   const [result, setResult] = useState<{ score: number; ratio: number; passed: boolean } | null>(null);
   const timers = useRef<number[]>([]);
   const barkId = useRef(0);
+  const [nearItem, setNearItem] = useState<string | null>(null);
+  const [found, setFound] = useState<Record<string, true>>({});
+  const [poke, setPoke] = useState<{ key: number; x: number; y: number; z: number } | null>(null);
+  const presses = useRef<Record<string, number>>({});
+  const lastProgress = useRef(Date.now());
+  const greeted = useRef(false);
+  const chatter = useRef(0);
 
   const beat = shift.beats[Math.min(index, shift.beats.length - 1)];
   const set = SETS[roomSet];
   const spot = phase === "play" && beat.set === roomSet ? set.spots[beat.spot] : null;
+  const place = placeOf(roomSet);
+  const toysHere = useMemo(() => TOYS.filter((t) => t.place === place), [place]);
+  const findsHere = useMemo(() => FINDS.filter((f) => f.place === place), [place]);
+  const shiftFinds = useMemo(() => {
+    const places = new Set(shift.beats.map((b) => placeOf(b.set)));
+    return FINDS.filter((f) => places.has(f.place));
+  }, [shift]);
+  const items = useMemo<Nearby[]>(
+    () => [...toysHere.map((t) => ({ id: t.id, x: t.x, z: t.z, r: t.r ?? 1.3 })), ...findsHere.map((f) => ({ id: f.id, x: f.x, z: f.z, r: f.r ?? 1.3 }))],
+    [toysHere, findsHere],
+  );
+  const itemToy = nearItem ? toysHere.find((t) => t.id === nearItem) : undefined;
+  const itemFind = nearItem ? findsHere.find((f) => f.id === nearItem) : undefined;
 
   const placePlayer = useCallback((kind: typeof roomSet) => {
     const s = SETS[kind];
@@ -81,9 +103,10 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
     };
   }, [placePlayer, shift]);
 
-  const pushBark = useCallback((who: string, text: string, bad: boolean) => {
+  const pushBark = useCallback((who: string, text: string, bad: boolean | Tone) => {
     const id = (barkId.current += 1);
-    setBarks((list) => [...list.slice(-3), { id, who, text, bad }]);
+    const tone: Tone = bad === true ? "bad" : bad === false ? "good" : bad;
+    setBarks((list) => [...list.slice(-3), { id, who, text, tone }]);
     timers.current.push(window.setTimeout(() => setBarks((list) => list.filter((b) => b.id !== id)), 9000));
   }, []);
 
@@ -97,13 +120,77 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
     setPhase("panel");
   }, [beat, near, phase]);
 
+  const pokeItem = useCallback(
+    (id: string) => {
+      unlockAudio();
+      const toy = TOYS.find((t) => t.id === id);
+      if (toy) {
+        const n = presses.current[id] ?? 0;
+        presses.current[id] = n + 1;
+        pushBark(toy.who ?? toy.label, toy.lines[Math.min(n, toy.lines.length - 1)], "note");
+        setPoke({ key: Date.now(), x: toy.x, y: toy.y, z: toy.z });
+        blip(440 + (n % 3) * 90);
+        return;
+      }
+      const find = FINDS.find((f) => f.id === id);
+      if (!find || found[id]) {
+        if (find) pushBark(find.label, find.line, "note");
+        return;
+      }
+      const next = { ...found, [id]: true as const };
+      setFound(next);
+      blip(780);
+      setPoke({ key: Date.now(), x: find.x, y: find.y + 0.1, z: find.z });
+      pushBark(`Found · ${find.label}`, find.line, "good");
+      if (find.place === "f14") {
+        const left = FINDS.filter((f) => f.place === "f14" && !next[f.id]).length;
+        const line = left === 0 ? COWORKER.allFound : COWORKER.onFind[chatter.current++ % COWORKER.onFind.length];
+        timers.current.push(window.setTimeout(() => pushBark(COWORKER.who, line, "note"), 1400));
+      }
+    },
+    [found, pushBark],
+  );
+
+  // Back on the main path counts as progress. Wandering off for long gets one gentle nudge per 45 s.
+  useEffect(() => {
+    if (phase === "play") lastProgress.current = Date.now();
+  }, [phase, index]);
+  useEffect(() => {
+    const t = window.setInterval(() => {
+      if (phase !== "play" || near) return;
+      if (Date.now() - lastProgress.current < NUDGE_AFTER) return;
+      lastProgress.current = Date.now();
+      const onFloor = place === "f14";
+      const line = onFloor ? COWORKER.nudge[chatter.current++ % COWORKER.nudge.length] : "Your phone buzzes: the thing you came here for is still waiting.";
+      pushBark(onFloor ? COWORKER.who : "Phone", line, "note");
+    }, 1000);
+    return () => window.clearInterval(t);
+  }, [phase, near, place, pushBark]);
+
+  // The coworker says hello the first time a run reaches floor 14.
+  useEffect(() => {
+    if (phase !== "play" || place !== "f14" || greeted.current) return;
+    greeted.current = true;
+    let n = 0;
+    try {
+      n = Number(window.localStorage.getItem("drc-hello") ?? 0);
+      window.localStorage.setItem("drc-hello", String(n + 1));
+    } catch {
+      /* no storage, no memory of the kayak */
+    }
+    timers.current.push(window.setTimeout(() => pushBark(COWORKER.who, COWORKER.hello[n % COWORKER.hello.length], "note"), 2500));
+  }, [phase, place, pushBark]);
+
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
-      if ((e.code === "KeyE" || e.code === "Enter" || e.code === "Space") && phase === "play") open();
+      if ((e.code === "KeyE" || e.code === "Enter" || e.code === "Space") && phase === "play") {
+        if (near) open();
+        else if (nearItem) pokeItem(nearItem);
+      }
     };
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
-  }, [open, phase]);
+  }, [open, phase, near, nearItem, pokeItem]);
 
   const choose = (choice: WeekChoice) => {
     const id = beat.scenario.id;
@@ -201,7 +288,17 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
         {castBeat && castSpot && (
           <CastFigure slot={castBeat.cast!} x={castSpot.fx ?? castSpot.x + 0.9} z={castSpot.fz ?? castSpot.z + 1.1} y={set.harbor?.y ?? 0} talking={phase === "panel"} />
         )}
-        <Walker set={set} target={spot ? { ...approach(spot), lx: spot.x, ly: spot.py, lz: spot.z } : null} onNear={setNear} />
+        {findsHere.map((f) => (
+          <FindProp key={f.id} find={f} found={!!found[f.id]} />
+        ))}
+        {poke && <Poke key={poke.key} x={poke.x} y={poke.y} z={poke.z} />}
+        <Walker
+          set={set}
+          target={spot ? { ...approach(spot), lx: spot.x, ly: spot.py, lz: spot.z } : null}
+          onNear={setNear}
+          items={phase === "play" ? items : []}
+          onItem={setNearItem}
+        />
       </Canvas>
 
       <LookLayer active={phase === "play"} />
@@ -216,6 +313,11 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           {phase === "play" && <p className="mt-2 max-w-[22rem] text-sm text-[#d8d2c4]">{beat.objective}</p>}
         </div>
         <div className="pointer-events-auto flex items-center gap-3">
+          {shiftFinds.length > 0 && (
+            <span className="font-game text-xs tracking-[0.14em] text-[#8fe0b4]" title="Security slip-ups spotted. Optional.">
+              FINDS {shiftFinds.filter((f) => found[f.id]).length}/{shiftFinds.length}
+            </span>
+          )}
           <span className="font-game text-sm tracking-[0.14em] text-[#a8a59c]">
             {Math.min(index + (phase === "panel" ? 1 : 0), shift.beats.length)}/{shift.beats.length}
           </span>
@@ -227,8 +329,15 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
 
       <div className="pointer-events-none absolute bottom-28 left-4 flex max-w-[24rem] flex-col gap-2 sm:bottom-6">
         {barks.map((b) => (
-          <div key={b.id} className={`rounded-xl border px-3 py-2 text-sm backdrop-blur ${b.bad ? "border-[#ff7a66]/40 bg-[#2a0f0f]/80" : "border-[#7fd6a8]/30 bg-[#0d1f18]/80"}`}>
-            <span className={`mr-2 font-game text-xs tracking-[0.14em] ${b.bad ? "text-[#ff9c8a]" : "text-[#8fe0b4]"}`}>{b.who.toUpperCase()}</span>
+          <div
+            key={b.id}
+            className={`rounded-xl border px-3 py-2 text-sm backdrop-blur ${
+              b.tone === "bad" ? "border-[#ff7a66]/40 bg-[#2a0f0f]/80" : b.tone === "good" ? "border-[#7fd6a8]/30 bg-[#0d1f18]/80" : "border-[#c4a574]/30 bg-[#17140e]/85"
+            }`}
+          >
+            <span className={`mr-2 font-game text-xs tracking-[0.14em] ${b.tone === "bad" ? "text-[#ff9c8a]" : b.tone === "good" ? "text-[#8fe0b4]" : "text-[#d9bf8f]"}`}>
+              {b.who.toUpperCase()}
+            </span>
             {b.text}
           </div>
         ))}
@@ -244,6 +353,17 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
         </button>
       )}
 
+      {phase === "play" && !near && nearItem && (itemToy || itemFind) && (
+        <button
+          type="button"
+          onClick={() => pokeItem(nearItem)}
+          className="absolute bottom-10 right-6 rounded-full border border-[#c4a574]/60 bg-[#14110c]/85 sm:bottom-8 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 px-5 py-2.5 font-game text-sm tracking-[0.12em] text-[#e7c48a] shadow-lg backdrop-blur"
+        >
+          {itemFind && !found[itemFind.id] ? "CHECK" : "POKE"} · {(itemToy?.label ?? itemFind?.label ?? "").toUpperCase()}{" "}
+          <span className="ml-1 hidden opacity-60 sm:inline">E</span>
+        </button>
+      )}
+
       {phase === "play" && <TouchStick />}
 
       {phase === "intro" && (
@@ -253,7 +373,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           <p className="mt-3 text-[#d8d2c4]">{shift.intro}</p>
           {shift.audience && <p className="mt-3 text-sm text-[#a8a59c]">For: {shift.audience}</p>}
           <p className="mt-5 text-sm text-[#a8a59c]">
-            Walk with WASD or the arrow keys, drag to look. On a phone, use the left thumb pad. Gold rings mark what needs you.
+            Walk with WASD or the arrow keys, drag to look. On a phone, use the left thumb pad. The gold light marks what needs you. Poke around too: things react, and a few security slip-ups are hidden in every room.
           </p>
           <button type="button" onClick={() => setPhase("play")} className="mt-6 rounded-full bg-[#c4a574] px-6 py-3 font-game tracking-[0.12em] text-[#14110c]">
             START THE SHIFT
@@ -273,7 +393,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
         </Overlay>
       )}
 
-      {phase === "debrief" && <Debrief shift={shift} picked={picked} onNext={() => setPhase("check")} />}
+      {phase === "debrief" && <Debrief shift={shift} picked={picked} finds={shiftFinds} found={found} onNext={() => setPhase("check")} />}
       {phase === "check" && (
         <Check
           items={shift.check}
@@ -283,6 +403,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
             );
             const passed = ratio >= PASS;
             saveWeek(shift.id, beatsScore, passed);
+            saveFinds(shift.id, Object.keys(found));
             if (passed) logShiftComplete(shift.id);
             setResult({ score: beatsScore, ratio, passed });
             setPhase("result");
@@ -366,7 +487,20 @@ function Panel({ beat, flipped, onChoose }: { beat: WeekBeat; flipped: boolean; 
   );
 }
 
-function Debrief({ shift, picked, onNext }: { shift: ShiftDef; picked: Record<string, WeekChoice>; onNext: () => void }) {
+function Debrief({
+  shift,
+  picked,
+  finds,
+  found,
+  onNext,
+}: {
+  shift: ShiftDef;
+  picked: Record<string, WeekChoice>;
+  finds: Find[];
+  found: Record<string, true>;
+  onNext: () => void;
+}) {
+  const got = finds.filter((f) => found[f.id]);
   return (
     <Overlay>
       <h2 className="font-display text-3xl">How it went</h2>
@@ -383,6 +517,27 @@ function Debrief({ shift, picked, onNext }: { shift: ShiftDef; picked: Record<st
           );
         })}
       </ul>
+      {finds.length > 0 && (
+        <div className="mt-6 rounded-xl border border-[#7fd6a8]/25 bg-[#0d1f18]/60 p-4">
+          <p className="font-game text-xs tracking-[0.18em] text-[#8fe0b4]">
+            SHARP EYE · {got.length} OF {finds.length}
+          </p>
+          {got.length ? (
+            <ul className="mt-2 space-y-2 text-sm">
+              {got.map((f) => (
+                <li key={f.id}>
+                  <span className="font-semibold">{f.label}.</span> {f.why}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-2 text-sm text-[#d8d2c4]">None spotted this time. There are {finds.length} security slip-ups hidden in tonight's rooms. Optional, and they don't count against you.</p>
+          )}
+          {got.length > 0 && got.length < finds.length && (
+            <p className="mt-2 text-sm text-[#a8a59c]">{finds.length - got.length} still hiding. Play again to find them.</p>
+          )}
+        </div>
+      )}
       <button type="button" onClick={onNext} className="mt-6 rounded-full bg-[#c4a574] px-6 py-3 font-game tracking-[0.12em] text-[#14110c]">
         KNOWLEDGE CHECK
       </button>
