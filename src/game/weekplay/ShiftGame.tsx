@@ -26,7 +26,7 @@ import { HarborStage, MonitorArt, NightStage } from "@/game/weekplay/HarborStage
 import { BakedRoom, setRoomBounds } from "@/game/weekplay/BakedRoom";
 import { SETS } from "@/game/weekplay/sets";
 import { falloutLine, promptLine } from "@/content/week/voices";
-import { blip, sayLine, sayLineNext, unlockAudio } from "@/game/audio";
+import { blip, sayLine, sayLineNext, stopVoices, unlockAudio } from "@/game/audio";
 import { isMusicOn, playSfx, setBed, setBedFor, toggleMusic, warmSounds } from "@/game/sound";
 
 type Phase = "intro" | "play" | "panel" | "wrap" | "debrief" | "check" | "result";
@@ -151,7 +151,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
     player.keys.clear();
     unlockAudio();
     const line = promptLine(beat);
-    sayLine(line.id, line.text, line.kind, line.who);
+    sayLine(line.id, line.text, line.kind, line.who, "dialog");
     setPhase("panel");
   }, [beat, near, phase]);
 
@@ -165,7 +165,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
         presses.current[id] = n + 1;
         const k = Math.min(n, toy.lines.length - 1);
         pushBark(toy.who ?? toy.label, toy.lines[k], "note");
-        sayLine(toyLineId(toy, k), toy.lines[k], PLAY_VOICES[toy.who ?? ""] ?? "narrator", toy.who ?? toy.label);
+        sayLine(toyLineId(toy, k), toy.lines[k], PLAY_VOICES[toy.who ?? ""] ?? "narrator", toy.who ?? toy.label, "chatter");
         setPoke({ key: Date.now(), x: toy.x, y: toy.y, z: toy.z });
         if (toy.papers?.includes(n))
           addFx({
@@ -189,7 +189,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
       playSfx("sfx-find", 0.6, () => blip(780));
       setPoke({ key: Date.now(), x: find.x, y: find.y + 0.1, z: find.z });
       pushBark(`Found · ${find.label}`, find.line, "good");
-      sayLine(findLineId(find), find.line, "narrator", find.label);
+      sayLine(findLineId(find), find.line, "narrator", find.label, "chatter");
       if (find.place === "f14") {
         const left = FINDS.filter((f) => f.place === "f14" && !next[f.id]).length;
         const k = chatter.current++ % COWORKER.onFind.length;
@@ -198,7 +198,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
         timers.current.push(
           window.setTimeout(() => {
             pushBark(COWORKER.who, line, "note");
-            sayLineNext(lid, line, "man", COWORKER.who);
+            sayLineNext(lid, line, "man", COWORKER.who, "chatter");
           }, 1400),
         );
       }
@@ -213,7 +213,13 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
     if (phase === "play" || phase === "panel") setBedFor(roomSet === "server" ? "server" : place);
     else setBed(null, null);
   }, [phase, roomSet, place]);
-  useEffect(() => () => setBed(null, null), []);
+  useEffect(
+    () => () => {
+      setBed(null, null);
+      stopVoices();
+    },
+    [],
+  );
 
   // Time on the decisions vs. exploring. Exploring = walking away from the gold light, or a few seconds
   // around each poke or find. Reported with the completion so curiosity never reads as slow.
@@ -264,7 +270,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
       const k = chatter.current++ % COWORKER.nudge.length;
       const line = onFloor ? COWORKER.nudge[k] : PHONE_NUDGE.text;
       pushBark(onFloor ? COWORKER.who : "Phone", line, "note");
-      if (onFloor) sayLineNext(cwLineId("nudge", k), line, "man", COWORKER.who);
+      if (onFloor) sayLineNext(cwLineId("nudge", k), line, "man", COWORKER.who, "chatter");
     }, 1000);
     return () => window.clearInterval(t);
   }, [phase, near, place, pushBark]);
@@ -284,7 +290,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
     timers.current.push(
       window.setTimeout(() => {
         pushBark(COWORKER.who, COWORKER.hello[k], "note");
-        sayLineNext(cwLineId("hello", k), COWORKER.hello[k], "man", COWORKER.who);
+        sayLineNext(cwLineId("hello", k), COWORKER.hello[k], "man", COWORKER.who, "chatter");
       }, 2500),
     );
   }, [phase, place, pushBark]);

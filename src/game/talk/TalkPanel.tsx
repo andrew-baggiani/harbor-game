@@ -17,7 +17,7 @@ export function TalkPanel({ content, onDone }: { content: TalkContent; onDone: (
     if (!content.voice || d.node === spoken.current) return;
     spoken.current = d.node;
     const n = content.nodes[d.node];
-    sayLine(`${content.voice}-${d.node}`, n.say, n.kind ?? content.speaker.kind ?? "narrator", n.who ?? content.speaker.who);
+    sayLine(`${content.voice}-${d.node}`, n.say, n.kind ?? content.speaker.kind ?? "narrator", n.who ?? content.speaker.who, "dialog");
   });
 
   const notes = d.lines.filter((l) => l.who === "look" || l.who === "act");

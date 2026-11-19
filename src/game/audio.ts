@@ -139,10 +139,65 @@ export function blip(freq = 520) {
 let voice: AudioBufferSourceNode | null = null;
 const clips = new Map<string, AudioBuffer>();
 let queued: string | null = null;
+
+/**
+ * Line ranks, so fast players never lose the lines that matter:
+ * - story: outcomes, debriefs, fallout, beat prompts on Monday. Never cut off; a new story line waits its turn.
+ * - dialog: conversation and prompt lines the player clicks through. Replace each other, wait behind story.
+ * - chatter: toys, finds, the coworker. Cut by anything, and skipped while a story line is talking.
+ */
+export type LineRank = "story" | "dialog" | "chatter";
+type Waiting = { id: string; rank: LineRank; at: number };
 /** Lines that wait for the current one to finish instead of cutting it off. */
-let waiting: string[] = [];
+let waiting: Waiting[] = [];
 let queueTimer: number | null = null;
 let voiceGen = 0;
+/** What is talking right now (set as soon as a line starts loading, so a slow fetch can't be trampled). */
+let current: { rank: LineRank; gen: number } | null = null;
+const MAX_WAITING = 5;
+/** A line that has waited this long is out of date; skip it rather than play it over a later scene. */
+const STALE_MS = 60_000;
+
+function enqueue(id: string, rank: LineRank, front = false) {
+  if (waiting.some((w) => w.id === id)) return;
+  if (rank === "dialog") waiting = waiting.filter((w) => w.rank !== "dialog");
+  const item = { id, rank, at: performance.now() };
+  if (front) {
+    // Behind any story lines already waiting, ahead of the rest.
+    const k = waiting.findIndex((w) => w.rank !== "story");
+    if (k < 0) waiting.push(item);
+    else waiting.splice(k, 0, item);
+  } else waiting.push(item);
+  while (waiting.length > MAX_WAITING) {
+    const drop = waiting.findIndex((w) => w.rank === "chatter");
+    waiting.splice(drop >= 0 ? drop : waiting.findIndex((w) => w.rank === "dialog") >= 0 ? waiting.findIndex((w) => w.rank === "dialog") : 0, 1);
+  }
+}
+
+/** Stop every voice line and forget the queue (leaving the game, replaying a shift). */
+export function stopVoices() {
+  voiceGen += 1;
+  clearQueue();
+  waiting = [];
+  current = null;
+  playing = false;
+  if (voice) {
+    try {
+      voice.stop();
+    } catch {
+      /* already stopped */
+    }
+    voice = null;
+  }
+  if (typeof window !== "undefined") window.speechSynthesis?.cancel();
+}
+
+function lineDone(gen: number) {
+  if (gen !== voiceGen) return; // a line that was cut off or stopped
+  current = null;
+  playing = false;
+  queueNext(gen, 400);
+}
 
 function clearQueue() {
   queued = null;
@@ -154,20 +209,26 @@ function clearQueue() {
 
 function queueNext(gen: number, delayMs: number) {
   if (gen !== voiceGen) return;
-  const next = queued ?? waiting.shift() ?? null;
+  let next: Waiting | null = queued ? { id: queued, rank: "story", at: performance.now() } : null;
   queued = null;
+  const now = performance.now();
+  while (!next && waiting.length) {
+    const w = waiting.shift()!;
+    if (now - w.at < STALE_MS) next = w;
+  }
   if (!next) return;
+  const pick = next;
   queueTimer = window.setTimeout(() => {
     queueTimer = null;
     if (gen !== voiceGen) return;
-    say(next);
+    start(pick.id, pick.rank);
   }, delayMs);
 }
 
 let playing = false;
 
 export function voiceBusy() {
-  return playing || queueTimer != null;
+  return playing || current != null || queueTimer != null;
 }
 
 // v2 lines (conversations, follow-up calls) register here at runtime instead of
@@ -179,34 +240,50 @@ export function registerLine(id: string, text: string, kind: VoiceKind, who: str
 }
 
 /** Register and play a v2 line in one go. */
-export function sayLine(id: string, text: string, kind: VoiceKind, who: string) {
+export function sayLine(id: string, text: string, kind: VoiceKind, who: string, rank: LineRank = "story") {
   registerLine(id, text, kind, who);
-  say(id);
+  say(id, undefined, rank);
 }
 
 /** Play after whatever is talking now finishes (or right away if nothing is). */
-export function sayNext(id: string) {
+export function sayNext(id: string, rank: LineRank = "story") {
   if (typeof window === "undefined") return;
-  if (playing || queueTimer != null) {
-    if (!waiting.includes(id)) waiting.push(id);
+  if (current || queueTimer != null) {
+    if (rank === "chatter" && current?.rank === "story") return;
+    enqueue(id, rank);
     return;
   }
-  say(id);
+  start(id, rank);
 }
 
-export function sayLineNext(id: string, text: string, kind: VoiceKind, who: string) {
+export function sayLineNext(id: string, text: string, kind: VoiceKind, who: string, rank: LineRank = "story") {
   registerLine(id, text, kind, who);
-  sayNext(id);
+  sayNext(id, rank);
 }
 
-export function say(id: string, thenId?: string) {
+/**
+ * Play a line now, unless a story line is talking: then a story or dialog line waits its turn
+ * (next in line) and chatter is skipped. Captions on screen still show either way.
+ */
+export function say(id: string, thenId?: string, rank: LineRank = "story") {
   if (typeof window === "undefined") return;
+  if (current?.rank === "story") {
+    if (rank === "chatter") return;
+    enqueue(id, rank, true);
+    if (thenId) enqueue(thenId, "story", true);
+    return;
+  }
+  start(id, rank, thenId);
+}
+
+function start(id: string, rank: LineRank, thenId?: string) {
   const extra = extraLines.get(id);
   const line = extra ?? voiceFor(id);
   if (!line) return;
   clearQueue();
-  waiting = waiting.filter((w) => w !== id);
+  waiting = waiting.filter((w) => w.id !== id);
   const gen = ++voiceGen;
+  current = { rank, gen };
   queued = thenId ?? null;
   unlockAudio();
   caption.who = extra?.who ?? speaker[id] ?? (id.startsWith("debrief-") ? "Narrator · debrief" : "Harbor");
@@ -230,6 +307,7 @@ async function playLine(audio: AudioContext, id: string, line: { text: string; k
       buffer = await audio.decodeAudioData(await response.arrayBuffer());
       clips.set(id, buffer);
     }
+    if (gen !== voiceGen) return; // replaced or stopped while loading
     if (voice) {
       try {
         voice.stop();
@@ -248,9 +326,8 @@ async function playLine(audio: AudioContext, id: string, line: { text: string; k
     voice = source;
     source.onended = () => {
       if (voice === source) {
-        playing = false;
         voice = null;
-        queueNext(gen, 400);
+        lineDone(gen);
       }
     };
   } catch {
@@ -258,8 +335,14 @@ async function playLine(audio: AudioContext, id: string, line: { text: string; k
   }
 }
 
+
 function speak(line: { text: string; kind: VoiceKind }, gen: number) {
-  if (!window.speechSynthesis) return;
+  if (gen !== voiceGen) return;
+  if (!window.speechSynthesis) {
+    // No voice at all: hold the slot about as long as the caption, so the queue still paces.
+    window.setTimeout(() => lineDone(gen), Math.min(9000, 1500 + line.text.length * 55));
+    return;
+  }
   const synth = window.speechSynthesis;
   const run = () => {
     synth.cancel();
@@ -277,10 +360,7 @@ function speak(line: { text: string; kind: VoiceKind }, gen: number) {
       );
     const picked = match(line.kind) ?? voices[0];
     if (picked) uttered.voice = picked;
-    uttered.onend = () => {
-      playing = false;
-      queueNext(gen, 400);
-    };
+    uttered.onend = () => lineDone(gen);
     playing = true;
     synth.speak(uttered);
   };

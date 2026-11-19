@@ -36,7 +36,7 @@ export function mondayUse(action: string) {
     const n = presses[toy.id] ?? 0;
     presses[toy.id] = n + 1;
     const k = Math.min(n, toy.lines.length - 1);
-    sayLine(toyLineId(toy, k), toy.lines[k], toy.who === "Next desk" ? "man" : "narrator", toy.who ?? toy.label);
+    sayLine(toyLineId(toy, k), toy.lines[k], toy.who === "Next desk" ? "man" : "narrator", toy.who ?? toy.label, "chatter");
     playSfx(toySfx(toy, k), 0.7, () => blip(440 + (n % 3) * 90));
     return;
   }
@@ -48,7 +48,7 @@ export function mondayUse(action: string) {
       useMondayPlay.setState({ found: { ...found, [find.id]: true } });
       playSfx("sfx-find", 0.6, () => blip(780));
     }
-    sayLine(findLineId(find), find.line, "narrator", found[find.id] ? find.label : `Found · ${find.label}`);
+    sayLine(findLineId(find), find.line, "narrator", found[find.id] ? find.label : `Found · ${find.label}`, "chatter");
   }
 }
 

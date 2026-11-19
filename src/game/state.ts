@@ -5,7 +5,7 @@ import { recordDecision, resetRecord, sealShift, noteVariants } from "@/game/rec
 import { choiceOf, currentVariants, pickVariants, variantOf } from "@/game/scenarios";
 import { say, sayLineNext } from "@/game/audio";
 import { resetFocus } from "@/game/focus";
-import { FALLOUT_FROM_CHOICE, addFallout, after, resetFallout } from "@/game/fallout";
+import { FALLOUT_FROM_CHOICE, addFallout, after, resetFallout, flushFallout } from "@/game/fallout";
 import { logDecision, logShiftComplete, newShiftRun } from "@/game/telemetry";
 import { mondayFindCount } from "@/game/mondayPlay";
 
@@ -301,6 +301,7 @@ export const useHarbor = create<HarborStore>((set, get) => ({
   },
   finish: () => {
     if (get().report) return;
+    flushFallout();
     sealShift(get().flags);
     const finds = mondayFindCount();
     logShiftComplete("monday", { onTask: world.time.onTask, exploring: world.time.exploring, finds: finds.found, findsTotal: finds.total });

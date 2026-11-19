@@ -14,7 +14,7 @@ import { DeskScreen } from "@/game/mail/DeskScreen";
 import { missedSigns } from "@/game/fallout";
 import { focusActive } from "@/game/focus";
 import { Key, TitleScreen } from "@/game/TitleScreen";
-import { blip, caption, say, unlockAudio } from "@/game/audio";
+import { blip, caption, say, stopVoices, unlockAudio } from "@/game/audio";
 import { nightPath, reportLines, scoreOf } from "@/game/story";
 import { drawKnowledgeCheck, type CheckItem } from "@/game/scenarios";
 import { exportRecord, gradeKnowledge } from "@/game/records";
@@ -40,6 +40,7 @@ function LoadBar() {
 
 export function Harbor({ callsign, onDone }: { callsign: string; onDone: (score: number, clean: boolean) => void }) {
   const lookDrag = useRef<{ x: number; y: number } | null>(null);
+  useEffect(() => stopVoices, []);
   useEffect(() => {
     useHarbor.getState().reset();
     useMondayPlay.getState().reset();
