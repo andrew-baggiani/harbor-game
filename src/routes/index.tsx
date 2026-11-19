@@ -46,6 +46,7 @@ function Landing() {
         <Night />
         <Later />
         <Evidence />
+        <HowItWorks />
         <ForMsps />
         <Close />
       </main>
@@ -441,6 +442,72 @@ function Evidence() {
           </div>
           <figcaption className="mt-8 text-sm text-site-dim">One line from a training record. Control mappings are the ones shipped with the Monday shift.</figcaption>
         </figure>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------------------------------------------------------- how it works: what counts, what doesn't, controls */
+
+function HowItWorks() {
+  const keys: [string, string][] = [
+    ["W A S D", "Walk. Arrow keys work too."],
+    ["Drag", "Look around."],
+    ["Space", "Talk, look or poke."],
+    ["Phone", "Left thumb walks, drag the right side to look."],
+  ];
+  return (
+    <section id="how-it-works" aria-labelledby="how-title" className="border-t border-site-rule">
+      <div className="mx-auto max-w-[1240px] px-6 py-14 sm:py-24 md:px-10 lg:py-32">
+        <h2 id="how-title" className="display max-w-[18ch] text-[38px] lg:text-[52px]">
+          What counts, and what's just for fun.
+        </h2>
+        <p className="mt-6 max-w-[36rem] text-lg leading-relaxed text-site-mist">
+          Every shift opens with a short briefing so people know the rules before they start. Here is the same thing for the admins who assign it.
+        </p>
+        <div className="mt-12 grid gap-12 lg:grid-cols-3 lg:gap-14">
+          <div>
+            <h3 className="text-xl font-semibold text-site-paper">Scored and recorded</h3>
+            <ul className="mt-4 space-y-3 text-[15.5px] leading-relaxed text-site-mist">
+              <li>The decisions under the gold light. Each one is a real situation with a right call.</li>
+              <li>Every choice, its outcome, the time, and the controls it maps to, in the client's training record.</li>
+              <li>A short knowledge check at the end. Pass it and the shift counts as complete.</li>
+              <li>Wrong answers play out in the room instead of ending the shift. People can replay any shift.</li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-xl font-semibold text-site-paper">Optional, never scored</h3>
+            <ul className="mt-4 space-y-3 text-[15.5px] leading-relaxed text-site-mist">
+              <li>Things to poke in every room: printers, plants, the coffee machine. None of it touches the score or completion.</li>
+              <li>A few hidden security slip-ups per shift. Spotting one earns a Sharp eye bonus. Missing them costs nothing.</li>
+              <li>
+                Time is split into on the decisions and exploring, and both show in the portal. Someone curious never looks slower than someone who rushed.
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-xl font-semibold text-site-paper">Controls</h3>
+            <dl className="mt-4 grid grid-cols-[5rem_1fr] gap-x-5 gap-y-3 text-[15.5px]">
+              {keys.map(([k, v]) => (
+                <div key={k} className="contents">
+                  <dt>
+                    <kbd className="rounded-md border border-site-rule bg-white/[0.04] px-2 py-0.5 font-sans text-[13px] text-site-paper">{k}</kbd>
+                  </dt>
+                  <dd className="text-site-mist">{v}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="mt-4 text-[15px] text-site-dim">Music can be turned off in the briefing. Runs in any modern browser, no install.</p>
+          </div>
+        </div>
+        <div className="mt-12 flex flex-wrap gap-3">
+          <a href="/sample-record" className={btn.primary}>
+            See a sample record <Arrow size={16} />
+          </a>
+          <a href="/play" className={btn.ghost}>
+            Play Monday
+          </a>
+        </div>
       </div>
     </section>
   );

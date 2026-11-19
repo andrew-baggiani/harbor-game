@@ -7,6 +7,7 @@ import { say, sayLineNext } from "@/game/audio";
 import { resetFocus } from "@/game/focus";
 import { FALLOUT_FROM_CHOICE, addFallout, after, resetFallout } from "@/game/fallout";
 import { logDecision, logShiftComplete, newShiftRun } from "@/game/telemetry";
+import { mondayFindCount } from "@/game/mondayPlay";
 
 export type Bark = { who: string; text: string };
 
@@ -61,6 +62,8 @@ export const world = {
   reader: "off" as "off" | "red" | "green",
   badgeOut: 0,
   moving: false,
+  /** Seconds on the main path vs. exploring this run (see sim stepTiming). */
+  time: { onTask: 0, exploring: 0, lastDist: Infinity },
   speed: 0,
   walk: 0,
   guyX: 1.55,
@@ -299,7 +302,8 @@ export const useHarbor = create<HarborStore>((set, get) => ({
   finish: () => {
     if (get().report) return;
     sealShift(get().flags);
-    logShiftComplete();
+    const finds = mondayFindCount();
+    logShiftComplete("monday", { onTask: world.time.onTask, exploring: world.time.exploring, finds: finds.found, findsTotal: finds.total });
     set({ beat: "done", report: true, objective: objectiveFor("done"), prompt: null, talk: null });
     world.ending = true;
   },
@@ -326,6 +330,7 @@ export const useHarbor = create<HarborStore>((set, get) => ({
     world.reader = "off";
     world.badgeOut = 0;
     world.moving = false;
+    world.time = { onTask: 0, exploring: 0, lastDist: Infinity };
     world.walk = 0;
     world.guyX = 1.55;
     world.guyZ = 1.05;

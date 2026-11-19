@@ -1,6 +1,6 @@
 import { enterFocus, focusActive, showApp } from "@/game/focus";
 import { playSfx, setBed, setBedFor, warmSounds } from "@/game/sound";
-import { mondayNearby, mondayUse } from "@/game/mondayPlay";
+import { mondayNearby, mondayUse, pokeClock } from "@/game/mondayPlay";
 import { tickFallout } from "@/game/fallout";
 import { DESK, DOOR, ELEVATOR, ELEVATOR_F14, MAYA, OFFICE_Y, USB, slide } from "@/game/layout";
 import { blip, caption, say, setEngine, setRing, setWalking, tickAudio, voiceBusy, sayNext } from "@/game/audio";
@@ -64,6 +64,7 @@ export function step(dt: number) {
   dt = Math.min(dt, 0.033);
   tickAudio(dt);
   stepReach(dt);
+  stepTiming(dt);
   // What plays under Monday: muzak in the elevator, the room's own bed indoors, the water outside.
   const riding = world.ride === "board" || world.ride === "hold" || world.ride === "shut" || world.ride === "ride";
   if (store.boot) setBed(null, null);
@@ -479,6 +480,24 @@ function carHandle(index: number) {
   const sideB = { x: car.x + lx * Math.cos(th) - 0.86 * Math.sin(th), z: car.z - lx * Math.sin(th) - 0.86 * Math.cos(th) };
   const a = Math.hypot(world.px - sideA.x, world.pz - sideA.z) < Math.hypot(world.px - sideB.x, world.pz - sideB.z) ? sideA : sideB;
   return { x: a.x, y: car.kind === "van" ? 0.96 : 0.82, z: a.z };
+}
+
+/** On the main path vs. exploring: walking away from the marker, or a moment around each poke or find. */
+function stepTiming(dt: number) {
+  const store = useHarbor.getState();
+  if (store.boot || store.report) return;
+  const t = world.time;
+  if (store.talk) {
+    t.onTask += dt;
+    return;
+  }
+  const spot = markerNow();
+  const dist = spot ? Math.hypot(world.px - spot.x, world.pz - spot.z) : 0;
+  const away = world.moving && !world.driving && dist > 2 && dist >= t.lastDist - 0.01;
+  const poking = performance.now() - pokeClock.last < 2500;
+  if (away || poking) t.exploring += dt;
+  else t.onTask += dt;
+  t.lastDist = dist;
 }
 
 function smooth01(t: number) {

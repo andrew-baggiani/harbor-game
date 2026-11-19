@@ -1,3 +1,4 @@
+import { Briefing, needsBriefing } from "@/game/Briefing";
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
@@ -61,6 +62,7 @@ function propImage(beat: WeekBeat, flipped: boolean): string | null {
 
 export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => void }) {
   const [phase, setPhase] = useState<Phase>("intro");
+  const [briefing, setBriefing] = useState(false);
   const [index, setIndex] = useState(0);
   const [picked, setPicked] = useState<Record<string, WeekChoice>>({});
   const [flipped, setFlipped] = useState<Record<string, boolean>>({});
@@ -156,6 +158,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
   const pokeItem = useCallback(
     (id: string) => {
       unlockAudio();
+      timing.current.lastPoke = performance.now();
       const toy = TOYS.find((t) => t.id === id);
       if (toy) {
         const n = presses.current[id] ?? 0;
@@ -211,6 +214,34 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
     else setBed(null, null);
   }, [phase, roomSet, place]);
   useEffect(() => () => setBed(null, null), []);
+
+  // Time on the decisions vs. exploring. Exploring = walking away from the gold light, or a few seconds
+  // around each poke or find. Reported with the completion so curiosity never reads as slow.
+  const timing = useRef({ onTask: 0, exploring: 0, lastDist: Infinity, lastPoke: -1e9, last: 0 });
+  const timingSpot = useRef<{ x: number; z: number } | null>(null);
+  timingSpot.current = spot ? approach(spot) : null;
+  useEffect(() => {
+    if (phase !== "play" && phase !== "panel") return;
+    const t = timing.current;
+    t.last = performance.now();
+    const id = window.setInterval(() => {
+      const now = performance.now();
+      const dt = Math.min(1, (now - t.last) / 1000);
+      t.last = now;
+      if (phase === "panel") {
+        t.onTask += dt;
+        return;
+      }
+      const target = timingSpot.current;
+      const dist = target ? Math.hypot(player.x - target.x, player.z - target.z) : 0;
+      const away = player.moving && dist > 1.5 && dist >= t.lastDist - 0.02;
+      const poking = now - t.lastPoke < 2500;
+      if (away || poking) t.exploring += dt;
+      else t.onTask += dt;
+      t.lastDist = dist;
+    }, 250);
+    return () => window.clearInterval(id);
+  }, [phase]);
 
   // Test hook for automated checks: jump to another room of the tower.
   useEffect(() => {
@@ -514,13 +545,22 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
             onClick={() => {
               unlockAudio();
               warmSounds();
-              setPhase("play");
+              if (needsBriefing()) setBriefing(true);
+              else setPhase("play");
             }}
             className="mt-6 rounded-full bg-[#c4a574] px-6 py-3 font-game tracking-[0.12em] text-[#14110c]"
           >
             START THE SHIFT
           </button>
         </Overlay>
+      )}
+      {phase === "intro" && briefing && (
+        <Briefing
+          onDone={() => {
+            setBriefing(false);
+            setPhase("play");
+          }}
+        />
       )}
 
       {phase === "panel" && <Panel beat={beat} flipped={!!flipped[beat.scenario.id]} onChoose={choose} />}
@@ -539,7 +579,9 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
         </Overlay>
       )}
 
-      {phase === "debrief" && <Debrief shift={shift} picked={picked} finds={shiftFinds} found={found} onNext={() => setPhase("check")} />}
+      {phase === "debrief" && (
+        <Debrief shift={shift} picked={picked} finds={shiftFinds} found={found} time={{ ...timing.current }} onNext={() => setPhase("check")} />
+      )}
       {phase === "check" && (
         <Check
           items={shift.check}
@@ -548,7 +590,13 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
             const passed = ratio >= PASS;
             saveWeek(shift.id, beatsScore, passed);
             saveFinds(shift.id, Object.keys(found));
-            if (passed) logShiftComplete(shift.id);
+            if (passed)
+              logShiftComplete(shift.id, {
+                onTask: timing.current.onTask,
+                exploring: timing.current.exploring,
+                finds: shiftFinds.filter((f) => found[f.id]).length,
+                findsTotal: shiftFinds.length,
+              });
             setResult({ score: beatsScore, ratio, passed });
             setPhase("result");
           }}
@@ -642,12 +690,14 @@ function Debrief({
   picked,
   finds,
   found,
+  time,
   onNext,
 }: {
   shift: ShiftDef;
   picked: Record<string, WeekChoice>;
   finds: Find[];
   found: Record<string, true>;
+  time: { onTask: number; exploring: number };
   onNext: () => void;
 }) {
   const got = finds.filter((f) => found[f.id]);
@@ -667,6 +717,9 @@ function Debrief({
           );
         })}
       </ul>
+      <p className="mt-5 text-sm text-[#a8a59c]">
+        On the decisions: {minutes(time.onTask)}. Exploring: {minutes(time.exploring)}. Exploring is recorded separately and never counts against you.
+      </p>
       {finds.length > 0 && (
         <div className="mt-6 rounded-xl border border-[#7fd6a8]/25 bg-[#0d1f18]/60 p-4">
           <p className="font-game text-xs tracking-[0.18em] text-[#8fe0b4]">
@@ -823,4 +876,9 @@ function TouchStick() {
       />
     </div>
   );
+}
+
+function minutes(sec: number) {
+  if (sec < 60) return `${Math.max(0, Math.round(sec))} s`;
+  return `${Math.round(sec / 60)} min`;
 }

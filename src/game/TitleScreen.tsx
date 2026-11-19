@@ -1,3 +1,4 @@
+import { Briefing, needsBriefing } from "@/game/Briefing";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { blip, say, unlockAudio } from "@/game/audio";
@@ -30,9 +31,19 @@ export function TitleScreen() {
   const [panel, setPanel] = useState<Panel>("main");
   const [sel, setSel] = useState(0);
 
+  const [briefing, setBriefing] = useState(false);
+  const go = () => {
+    setBriefing(false);
+    say("brief");
+    useHarbor.getState().setBoot(false);
+  };
   const start = () => {
     unlockAudio();
     blip(440);
+    if (needsBriefing()) {
+      setBriefing(true);
+      return;
+    }
     say("brief");
     useHarbor.getState().setBoot(false);
   };
@@ -45,6 +56,7 @@ export function TitleScreen() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (briefing) return;
       if (panel !== "main") {
         if (e.code === "Escape" || e.code === "Backspace") {
           e.preventDefault();
@@ -76,6 +88,7 @@ export function TitleScreen() {
 
   return (
     <div className="absolute inset-0 z-20 overflow-y-auto font-ui text-[#f4f0e6]">
+      {briefing && <Briefing onDone={go} />}
       {/* cinematic vignette over the live scene */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_70%_40%,transparent_0%,rgba(7,9,14,0.55)_55%,rgba(7,9,14,0.95)_100%)]" />
       <div className="pointer-events-none absolute inset-y-0 left-0 w-full bg-gradient-to-r from-[#07090e]/95 via-[#07090e]/60 to-transparent md:w-3/4" />

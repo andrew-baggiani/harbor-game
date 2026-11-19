@@ -320,6 +320,32 @@ export async function orgDetail(db: D1Database, a: Access, orgId: string) {
     else rec[e.shift] ??= "In progress";
     week.set(e.user_id, rec);
   }
+  // Time on the decisions vs. exploring, from each learner's latest completion of every shift.
+  const { results: doneRows } = await db
+    .prepare("SELECT user_id, shift, xapi, ts FROM events WHERE org_id = ? AND kind = 'shift_complete' ORDER BY ts")
+    .bind(orgId)
+    .all<{ user_id: string; shift: string; xapi: string; ts: number }>();
+  const latest = new Map<string, { onTask: number; exploring: number }>();
+  for (const r of doneRows) {
+    try {
+      const ext = (JSON.parse(r.xapi) as { result?: { extensions?: Record<string, number> } }).result?.extensions;
+      if (!ext) continue;
+      latest.set(`${r.user_id}|${r.shift}`, {
+        onTask: Number(ext["https://dryruncyber.com/xapi/on-task-seconds"]) || 0,
+        exploring: Number(ext["https://dryruncyber.com/xapi/exploring-seconds"]) || 0,
+      });
+    } catch {
+      /* older statements carry no timing */
+    }
+  }
+  const timeBy = new Map<string, { onTask: number; exploring: number }>();
+  for (const [key, t] of latest) {
+    const user = key.split("|")[0];
+    const sum = timeBy.get(user) ?? { onTask: 0, exploring: 0 };
+    sum.onTask += t.onTask;
+    sum.exploring += t.exploring;
+    timeBy.set(user, sum);
+  }
   const lastReminder = new Map<string, number>();
   for (const e of allEvents) if (e.shift === "reminder") lastReminder.set(e.user_id, Math.max(lastReminder.get(e.user_id) ?? 0, e.ts));
   const { results: trackRows } = await db
@@ -355,6 +381,7 @@ export async function orgDetail(db: D1Database, a: Access, orgId: string) {
       week: week.get(p.user_id) ?? {},
       tracks: tracksBy.get(p.user_id) ?? [],
       lastReminder: lastReminder.get(p.user_id) ?? null,
+      time: timeBy.get(p.user_id) ?? null,
     };
   });
   return {
@@ -504,7 +531,15 @@ export async function exportEvents(db: D1Database, a: Access, orgId: string) {
 
 /* ------------------------------------------------------------------ the decision log */
 
-export type EventInput = { runId: string; choiceId?: string; complete?: boolean; shift?: string };
+export type EventInput = { runId: string; choiceId?: string; complete?: boolean; shift?: string; timing?: unknown };
+
+/** Client-reported time split for a finished shift. Clamped: it's informational, never scored. */
+function cleanTiming(t: unknown): { onTask: number; exploring: number; finds: number; findsTotal: number } | null {
+  if (!t || typeof t !== "object") return null;
+  const o = t as Record<string, unknown>;
+  const n = (v: unknown, max: number) => (typeof v === "number" && Number.isFinite(v) ? Math.max(0, Math.min(max, Math.round(v))) : 0);
+  return { onTask: n(o.onTask, 4 * 3600), exploring: n(o.exploring, 4 * 3600), finds: n(o.finds, 50), findsTotal: n(o.findsTotal, 50) };
+}
 
 /** Scored on the server from the scenario content: the client only says which choice it made. */
 export async function recordEvent(db: D1Database, a: Access, input: EventInput) {
@@ -516,12 +551,26 @@ export async function recordEvent(db: D1Database, a: Access, input: EventInput) 
 
   if (input.complete) {
     const shift = input.shift ?? "monday";
+    const timing = cleanTiming(input.timing);
     if (!(SHIFT_IDS as readonly string[]).includes(shift) || shift === "reminder") throw new Forbidden("Unknown shift");
     const statement = {
       actor,
       verb: { id: "http://adlnet.gov/expapi/verbs/completed", display: { "en-US": "completed" } },
       object: { id: `https://dryruncyber.com/xapi/shift/${shift}`, definition: { name: { "en-US": shift } } },
-      result: { completion: true, score: { raw: POINTS.complete } },
+      result: {
+        completion: true,
+        score: { raw: POINTS.complete },
+        ...(timing
+          ? {
+              duration: `PT${timing.onTask + timing.exploring}S`,
+              extensions: {
+                "https://dryruncyber.com/xapi/on-task-seconds": timing.onTask,
+                "https://dryruncyber.com/xapi/exploring-seconds": timing.exploring,
+                "https://dryruncyber.com/xapi/finds": `${timing.finds}/${timing.findsTotal}`,
+              },
+            }
+          : {}),
+      },
       timestamp: new Date(ts).toISOString(),
     };
     const res = await db
