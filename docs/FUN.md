@@ -26,3 +26,15 @@ Plan and research: the "Dry Run Cyber: making it fun" doc.
   its ElevenLabs voice); `tools/voice/generate.ps1` records the missing ones on a Windows PC.
 
 Not yet: finds sent to the portal record, exploring time tracked separately, watchable fallout on Monday.
+
+## Music, room tone and sound effects
+
+`src/content/audio.ts` lists every track and effect with its ElevenLabs prompt; `src/game/sound.ts` plays them.
+- **Beds:** office music + office room tone on floor 14 (server room: fans only), lobby music + echo in the lobby,
+  cafe jazz + chatter, home lo-fi + fridge hum, the water outside on Monday, and elevator muzak for Monday's ride.
+  Music crossfades into itself, dips while someone talks, and has a Music on/off button in the week HUD
+  (remembered per browser).
+- **Effects:** each toy has its own (the printer escalates to a full spew), a chime for a find, a two-tone alert
+  when a prop flips, a phone buzz on other wrong-choice steps, an elevator ding on Monday's arrival.
+- Missing files are silent and effects fall back to the old synthesized blips, so nothing breaks before recording.
+- `tools/voice/generate.ps1` records all of it (`-What music`, `-What sfx` or `-What voices` for one group).

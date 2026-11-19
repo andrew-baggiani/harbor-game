@@ -35,6 +35,8 @@ export type Toy = {
   lines: string[];
   /** Press numbers (0-based) on which paper flies out of it. */
   papers?: number[];
+  /** Sound per press (an array is read by press number, the last one repeats). */
+  sfx?: string | string[];
 };
 
 export type FindKind = "sticky" | "badge" | "paper" | "usb" | "tablet" | "flyer" | "board";
@@ -67,6 +69,7 @@ export const TOYS: Toy[] = [
   // Floor 14
   {
     id: "f14-printer",
+    sfx: ["sfx-printer", "sfx-printer-jam", "sfx-printer-spew"],
     place: "f14",
     x: 7.86,
     y: F + 0.55,
@@ -82,6 +85,7 @@ export const TOYS: Toy[] = [
   },
   {
     id: "f14-coffee",
+    sfx: "sfx-coffee",
     place: "f14",
     x: 6.9,
     y: F + 1.1,
@@ -96,6 +100,7 @@ export const TOYS: Toy[] = [
   },
   {
     id: "f14-shred",
+    sfx: "sfx-shred",
     place: "f14",
     x: 5.85,
     y: F + 0.5,
@@ -105,6 +110,7 @@ export const TOYS: Toy[] = [
   },
   {
     id: "f14-recycle",
+    sfx: "sfx-bin",
     place: "f14",
     x: 6.5,
     y: F + 0.36,
@@ -114,6 +120,7 @@ export const TOYS: Toy[] = [
   },
   {
     id: "f14-extinguisher",
+    sfx: "sfx-metal-tap",
     place: "f14",
     x: 4.6,
     y: F + 0.6,
@@ -123,6 +130,7 @@ export const TOYS: Toy[] = [
   },
   {
     id: "f14-elevator",
+    sfx: "sfx-button",
     place: "f14",
     x: 2.65,
     y: F + 1.1,
@@ -132,6 +140,7 @@ export const TOYS: Toy[] = [
   },
   {
     id: "f14-camera",
+    sfx: "sfx-camera",
     place: "f14",
     x: 0.4,
     y: F + 2.9,
@@ -142,6 +151,7 @@ export const TOYS: Toy[] = [
   },
   {
     id: "f14-tv",
+    sfx: "sfx-tv",
     place: "f14",
     x: -8.2,
     y: F + 1.35,
@@ -152,6 +162,7 @@ export const TOYS: Toy[] = [
   },
   {
     id: "f14-coats",
+    sfx: "sfx-cloth",
     place: "f14",
     x: -9.9,
     y: F + 1.3,
@@ -161,6 +172,7 @@ export const TOYS: Toy[] = [
   },
   {
     id: "f14-chair",
+    sfx: "sfx-chair",
     place: "f14",
     x: -5.83,
     y: F + 0.5,
@@ -173,6 +185,7 @@ export const TOYS: Toy[] = [
   // Lobby
   {
     id: "lob-monitors",
+    sfx: "sfx-monitors",
     place: "lobby",
     x: -4.4,
     y: 1.0,
@@ -183,6 +196,7 @@ export const TOYS: Toy[] = [
   },
   {
     id: "lob-directory",
+    sfx: "sfx-glass-tap",
     place: "lobby",
     x: 4.55,
     y: 1.0,
@@ -202,6 +216,7 @@ export const TOYS: Toy[] = [
   },
   {
     id: "lob-mail",
+    sfx: "sfx-paper",
     place: "lobby",
     x: -10.0,
     y: 0.9,
@@ -213,6 +228,7 @@ export const TOYS: Toy[] = [
   // Cafe
   {
     id: "cafe-bell",
+    sfx: "sfx-bell",
     place: "cafe",
     x: 4.2,
     y: 1.1,
@@ -224,6 +240,7 @@ export const TOYS: Toy[] = [
   },
   {
     id: "cafe-menu",
+    sfx: "sfx-chalk",
     place: "cafe",
     x: 4.6,
     y: 2.0,
@@ -234,6 +251,7 @@ export const TOYS: Toy[] = [
   },
   {
     id: "cafe-specials",
+    sfx: "sfx-chalk",
     place: "cafe",
     x: -0.5,
     y: 1.0,
@@ -255,6 +273,7 @@ export const TOYS: Toy[] = [
   // Home
   {
     id: "home-fridge",
+    sfx: "sfx-fridge",
     place: "home",
     x: -5.57,
     y: 1.45,
@@ -265,6 +284,7 @@ export const TOYS: Toy[] = [
   },
   {
     id: "home-curtains",
+    sfx: "sfx-curtain",
     place: "home",
     x: 3.0,
     y: 1.3,
@@ -275,6 +295,7 @@ export const TOYS: Toy[] = [
   },
   {
     id: "home-door",
+    sfx: "sfx-door",
     place: "home",
     x: -4.05,
     y: 1.0,
@@ -518,3 +539,10 @@ export function playLines(): { id: string; text: string; who: string }[] {
 /** Finds that Monday shows: floor 14 and the lobby, minus the ones Monday already teaches as a beat. */
 export const MONDAY_FINDS = FINDS.filter((f) => (f.place === "f14" || f.place === "lobby") && f.monday !== false);
 export const MONDAY_TOYS = TOYS.filter((t) => t.place === "f14" || t.place === "lobby");
+
+/** The sound for a toy's nth press. Falls back to a soft tap. */
+export function toySfx(toy: Toy, n: number): string {
+  if (!toy.sfx) return "sfx-poke";
+  if (typeof toy.sfx === "string") return toy.sfx;
+  return toy.sfx[Math.min(n, toy.sfx.length - 1)];
+}

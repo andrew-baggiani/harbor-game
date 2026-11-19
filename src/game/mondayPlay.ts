@@ -1,6 +1,7 @@
 import { create } from "zustand";
-import { MONDAY_FINDS, MONDAY_TOYS, findLineId, toyLineId } from "@/content/week/play";
+import { MONDAY_FINDS, MONDAY_TOYS, findLineId, toyLineId, toySfx } from "@/content/week/play";
 import { blip, sayLine } from "@/game/audio";
+import { playSfx } from "@/game/sound";
 
 /**
  * Monday's share of the optional play: the same toys and finds as the week shifts, on floor 14 and in the
@@ -20,7 +21,7 @@ export function mondayUse(action: string) {
     presses[toy.id] = n + 1;
     const k = Math.min(n, toy.lines.length - 1);
     sayLine(toyLineId(toy, k), toy.lines[k], toy.who === "Next desk" ? "man" : "narrator", toy.who ?? toy.label);
-    blip(440 + (n % 3) * 90);
+    playSfx(toySfx(toy, k), 0.7, () => blip(440 + (n % 3) * 90));
     return;
   }
   if (action.startsWith("find:")) {
@@ -29,7 +30,7 @@ export function mondayUse(action: string) {
     const { found } = useMondayPlay.getState();
     if (!found[find.id]) {
       useMondayPlay.setState({ found: { ...found, [find.id]: true } });
-      blip(780);
+      playSfx("sfx-find", 0.6, () => blip(780));
     }
     sayLine(findLineId(find), find.line, "narrator", found[find.id] ? find.label : `Found · ${find.label}`);
   }

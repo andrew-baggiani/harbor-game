@@ -1,5 +1,6 @@
-// Builds docs/voice-all.json: every week, AI-shift and optional-play line that should have a voice file,
-// with the ElevenLabs voice each one uses. Run: node tools/voice/build-sheet.mjs
+// Builds docs/voice-all.json (every week, AI-shift and optional-play line, with its ElevenLabs voice) and
+// docs/audio-all.json (music, room tone and sound effects from src/content/audio.ts).
+// Run: node tools/voice/build-sheet.mjs
 import { createJiti } from "jiti";
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -10,6 +11,7 @@ const jiti = createJiti(import.meta.url, { alias: { "@": join(root, "src") } });
 const { SHIFTS } = await jiti.import(join(root, "src/content/week/index.ts"));
 const { allLines } = await jiti.import(join(root, "src/content/week/voices.ts"));
 const { playLines } = await jiti.import(join(root, "src/content/week/play.ts"));
+const { AUDIO } = await jiti.import(join(root, "src/content/audio.ts"));
 
 const V = {
   narrator: ["Benjamin (Monday narrator)", "rBBV1yn6Ib1hDeOTrn08"],
@@ -33,3 +35,7 @@ for (const l of playLines()) {
 writeFileSync(join(root, "docs/voice-all.json"), JSON.stringify(out, null, 1) + "\n");
 const chars = out.reduce((n, l) => n + l.text.length, 0);
 console.log(`${out.length} lines, ${chars} characters -> docs/voice-all.json`);
+
+writeFileSync(join(root, "docs/audio-all.json"), JSON.stringify(AUDIO, null, 1) + "\n");
+const secs = (k) => AUDIO.filter((a) => a.kind === k).reduce((n, a) => n + a.seconds, 0);
+console.log(`${AUDIO.length} music/sound entries (${secs("music")} s music, ${secs("loop")} s room tone, ${secs("sfx")} s effects) -> docs/audio-all.json`);
