@@ -11,24 +11,84 @@ export type AudioEntry = { id: string; kind: AudioKind; prompt: string; seconds:
 
 export const AUDIO: AudioEntry[] = [
   // Music beds. Kept short and calm: they sit under voices and loop with a crossfade.
-  { id: "music-elevator", kind: "music", seconds: 60, prompt: "Classic elevator muzak: breezy bossa nova lounge, soft electric piano, vibraphone melody, light brushed drums, upright bass. Cheerful, polite, a little cheesy. Instrumental, no vocals, steady from start to finish." },
-  { id: "music-office", kind: "music", seconds: 90, prompt: "Unobtrusive modern office background music: soft lo-fi electronic, warm Rhodes chords, gentle muted pulse, low energy, made for focus. Instrumental, no vocals, no build-ups or drops, even level throughout." },
-  { id: "music-lobby", kind: "music", seconds: 75, prompt: "Corporate building lobby music at night: airy ambient pads, sparse soft piano, polished and calm, slightly cinematic. Instrumental, no vocals, no drums, even level throughout." },
-  { id: "music-cafe", kind: "music", seconds: 90, prompt: "Quiet evening cafe jazz trio: piano, upright bass, brushed drums, relaxed and warm, low volume background. Instrumental, no vocals, steady tempo throughout." },
-  { id: "music-home", kind: "music", seconds: 75, prompt: "Calm late-night lo-fi hip hop for a quiet apartment: mellow chords, soft kick and snare, light vinyl crackle. Instrumental, no vocals, even level throughout." },
+  {
+    id: "music-elevator",
+    kind: "music",
+    seconds: 60,
+    prompt:
+      "Classic elevator muzak: breezy bossa nova lounge, soft electric piano, vibraphone melody, light brushed drums, upright bass. Cheerful, polite, a little cheesy. Instrumental, no vocals, steady from start to finish.",
+  },
+  {
+    id: "music-office",
+    kind: "music",
+    seconds: 90,
+    prompt:
+      "Unobtrusive modern office background music: soft lo-fi electronic, warm Rhodes chords, gentle muted pulse, low energy, made for focus. Instrumental, no vocals, no build-ups or drops, even level throughout.",
+  },
+  {
+    id: "music-lobby",
+    kind: "music",
+    seconds: 75,
+    prompt:
+      "Corporate building lobby music at night: airy ambient pads, sparse soft piano, polished and calm, slightly cinematic. Instrumental, no vocals, no drums, even level throughout.",
+  },
+  {
+    id: "music-cafe",
+    kind: "music",
+    seconds: 90,
+    prompt:
+      "Quiet evening cafe jazz trio: piano, upright bass, brushed drums, relaxed and warm, low volume background. Instrumental, no vocals, steady tempo throughout.",
+  },
+  {
+    id: "music-home",
+    kind: "music",
+    seconds: 75,
+    prompt:
+      "Calm late-night lo-fi hip hop for a quiet apartment: mellow chords, soft kick and snare, light vinyl crackle. Instrumental, no vocals, even level throughout.",
+  },
 
   // Room tone, made to loop seamlessly.
-  { id: "amb-office", kind: "loop", seconds: 22, prompt: "Quiet open-plan office at night: steady air conditioning hum, faint distant keyboard typing, an occasional chair creak. No voices." },
-  { id: "amb-lobby", kind: "loop", seconds: 22, prompt: "Large marble building lobby at night: soft ventilation, quiet reverberant room tone, very faint distant footsteps. No voices." },
-  { id: "amb-cafe", kind: "loop", seconds: 22, prompt: "Small cafe ambience: low indistinct murmur of conversation, cups and saucers clinking, espresso machine hissing in the distance." },
-  { id: "amb-home", kind: "loop", seconds: 22, prompt: "Quiet apartment at night: refrigerator hum, faint city traffic outside the window, a clock ticking softly." },
+  {
+    id: "amb-office",
+    kind: "loop",
+    seconds: 22,
+    prompt: "Quiet open-plan office at night: steady air conditioning hum, faint distant keyboard typing, an occasional chair creak. No voices.",
+  },
+  {
+    id: "amb-lobby",
+    kind: "loop",
+    seconds: 22,
+    prompt: "Large marble building lobby at night: soft ventilation, quiet reverberant room tone, very faint distant footsteps. No voices.",
+  },
+  {
+    id: "amb-cafe",
+    kind: "loop",
+    seconds: 22,
+    prompt: "Small cafe ambience: low indistinct murmur of conversation, cups and saucers clinking, espresso machine hissing in the distance.",
+  },
+  {
+    id: "amb-home",
+    kind: "loop",
+    seconds: 22,
+    prompt: "Quiet apartment at night: refrigerator hum, faint city traffic outside the window, a clock ticking softly.",
+  },
   { id: "amb-server", kind: "loop", seconds: 18, prompt: "Server room: loud steady cooling fans, electrical hum, occasional relay click." },
-  { id: "amb-harbor", kind: "loop", seconds: 22, prompt: "Waterfront at night: gentle waves lapping against a wooden dock, light wind, a distant ship horn once, faint city hum." },
+  {
+    id: "amb-harbor",
+    kind: "loop",
+    seconds: 22,
+    prompt: "Waterfront at night: gentle waves lapping against a wooden dock, light wind, a distant ship horn once, faint city hum.",
+  },
 
   // One-shots.
   { id: "sfx-printer", kind: "sfx", seconds: 3, prompt: "Office laser printer waking up and printing one page, rollers and paper feed." },
   { id: "sfx-printer-jam", kind: "sfx", seconds: 2.5, prompt: "Office printer jamming: grinding rollers, then three short error beeps." },
-  { id: "sfx-printer-spew", kind: "sfx", seconds: 4, prompt: "Office printer rapidly printing many pages in a row, pages sliding out, then a pile of papers sliding off and scattering on the floor." },
+  {
+    id: "sfx-printer-spew",
+    kind: "sfx",
+    seconds: 4,
+    prompt: "Office printer rapidly printing many pages in a row, pages sliding out, then a pile of papers sliding off and scattering on the floor.",
+  },
   { id: "sfx-coffee", kind: "sfx", seconds: 4, prompt: "Office coffee machine roaring and gurgling loudly, then sputtering out a few drops." },
   { id: "sfx-shred", kind: "sfx", seconds: 2.5, prompt: "Paper shredder briefly shredding a few sheets inside a locked bin." },
   { id: "sfx-bin", kind: "sfx", seconds: 1.5, prompt: "Rummaging through a recycling bin full of paper cups." },

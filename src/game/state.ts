@@ -7,6 +7,7 @@ import { say, sayLineNext } from "@/game/audio";
 import { resetFocus } from "@/game/focus";
 import { FALLOUT_FROM_CHOICE, addFallout, after, resetFallout } from "@/game/fallout";
 import { logDecision, logShiftComplete, newShiftRun } from "@/game/telemetry";
+import { mondayFindCount } from "@/game/mondayPlay";
 
 export type Bark = { who: string; text: string };
 
@@ -61,6 +62,8 @@ export const world = {
   reader: "off" as "off" | "red" | "green",
   badgeOut: 0,
   moving: false,
+  /** Seconds on the main path vs. exploring this run (see sim stepTiming). */
+  time: { onTask: 0, exploring: 0, lastDist: Infinity },
   speed: 0,
   walk: 0,
   guyX: 1.55,
@@ -88,6 +91,10 @@ export const world = {
   laneT: [0, 0, 0, 0] as number[],
   laneHold: [0, 0, 0, 0] as number[],
   gatePoints: [] as { lane: number; x: number; z: number }[],
+  /** The player's right hand reaching for something: weight 0..1 and the world point. */
+  reach: { w: 0, x: 0, y: 0, z: 0, t: 0, dur: 0 },
+  /** A car the player is opening the door of; they get in when the reach lands. -1 = none. */
+  entering: -1,
   callX: 1.5,
   callZ: -16.4,
   pending: "" as "" | "misdirect" | "signin" | "cleandesk",
@@ -295,7 +302,8 @@ export const useHarbor = create<HarborStore>((set, get) => ({
   finish: () => {
     if (get().report) return;
     sealShift(get().flags);
-    logShiftComplete();
+    const finds = mondayFindCount();
+    logShiftComplete("monday", { onTask: world.time.onTask, exploring: world.time.exploring, finds: finds.found, findsTotal: finds.total });
     set({ beat: "done", report: true, objective: objectiveFor("done"), prompt: null, talk: null });
     world.ending = true;
   },
@@ -322,6 +330,7 @@ export const useHarbor = create<HarborStore>((set, get) => ({
     world.reader = "off";
     world.badgeOut = 0;
     world.moving = false;
+    world.time = { onTask: 0, exploring: 0, lastDist: Infinity };
     world.walk = 0;
     world.guyX = 1.55;
     world.guyZ = 1.05;
@@ -348,6 +357,9 @@ export const useHarbor = create<HarborStore>((set, get) => ({
     world.laneT = [0, 0, 0, 0];
     world.laneHold = [0, 0, 0, 0];
     world.gatePoints = [];
+    world.reach.w = 0;
+    world.reach.dur = 0;
+    world.entering = -1;
     world.pending = "";
     world.quiet = 0;
     world.buzz = 0;

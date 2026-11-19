@@ -9,11 +9,27 @@ import { playSfx } from "@/game/sound";
  */
 
 type MondayPlay = { found: Record<string, true>; reset: () => void };
-export const useMondayPlay = create<MondayPlay>((set) => ({ found: {}, reset: () => set({ found: {} }) }));
+export const useMondayPlay = create<MondayPlay>((set) => ({
+  found: {},
+  reset: () => {
+    for (const k of Object.keys(presses)) delete presses[k];
+    set({ found: {} });
+  },
+}));
 
-const presses: Record<string, number> = {};
+/** Times each toy has been poked this run; the gold dot over a toy goes once it's been poked. */
+export const presses: Record<string, number> = {};
+
+/** When the player last poked a toy or spotted a find; the few seconds after count as exploring. */
+export const pokeClock = { last: -1e9 };
+
+export function mondayFindCount() {
+  const { found } = useMondayPlay.getState();
+  return { found: MONDAY_FINDS.filter((f) => found[f.id]).length, total: MONDAY_FINDS.length };
+}
 
 export function mondayUse(action: string) {
+  pokeClock.last = performance.now();
   if (action.startsWith("toy:")) {
     const toy = MONDAY_TOYS.find((t) => `toy:${t.id}` === action);
     if (!toy) return;

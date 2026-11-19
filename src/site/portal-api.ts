@@ -19,6 +19,8 @@ export type Learner = {
   week?: Record<string, "Complete" | "In progress">;
   tracks?: string[];
   lastReminder?: number | null;
+  /** Seconds across finished shifts: on the decisions vs. optional exploring. */
+  time?: { onTask: number; exploring: number } | null;
 };
 export type OrgDetail = {
   org: { id: string; name: string; domain: string | null; partnerId: string | null; leaderboardEnabled: boolean };

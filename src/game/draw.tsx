@@ -390,7 +390,15 @@ function HarborTower() {
       </mesh>
       <mesh position={[DOOR.x, 2.1, 1.7]}>
         <planeGeometry args={[3.4, 3.2]} />
-        <meshBasicMaterial color="#ffc48a" transparent opacity={0.08} depthWrite={false} blending={THREE.AdditiveBlending} side={THREE.DoubleSide} toneMapped={false} />
+        <meshBasicMaterial
+          color="#ffc48a"
+          transparent
+          opacity={0.08}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+          side={THREE.DoubleSide}
+          toneMapped={false}
+        />
       </mesh>
       <pointLight position={[DOOR.x, 4.2, 0.2]} color="#ffc48a" intensity={18} distance={16} decay={2} />
       <TowerDoors />
@@ -478,7 +486,12 @@ function Desk({ x, y, z, hot = false }: { x: number; y: number; z: number; hot?:
       </mesh>
       <mesh position={[0, 1.12, -0.22]}>
         <boxGeometry args={[0.62, 0.36, 0.04]} />
-        <meshStandardMaterial color={hot ? "#d5e6ff" : "#121820"} emissive={hot ? "#9ec4ff" : "#132033"} emissiveIntensity={hot ? 1.6 : 0.25} toneMapped={false} />
+        <meshStandardMaterial
+          color={hot ? "#d5e6ff" : "#121820"}
+          emissive={hot ? "#9ec4ff" : "#132033"}
+          emissiveIntensity={hot ? 1.6 : 0.25}
+          toneMapped={false}
+        />
       </mesh>
       {hot ? <DeskMail /> : null}
       <mesh position={[0.62, 0.46, 0.42]}>
@@ -725,9 +738,7 @@ function Wheel({ spinRef }: { spinRef?: Ref<THREE.Group> }) {
 }
 
 function AutoPaint({ color }: { color: string }) {
-  return (
-    <meshPhysicalMaterial color={color} metalness={0.78} roughness={0.24} clearcoat={1} clearcoatRoughness={0.1} envMapIntensity={1.5} />
-  );
+  return <meshPhysicalMaterial color={color} metalness={0.78} roughness={0.24} clearcoat={1} clearcoatRoughness={0.1} envMapIntensity={1.5} />;
 }
 
 function Glass() {
@@ -766,12 +777,18 @@ function profileGeo(van: boolean) {
     return hole;
   };
   shape.holes.push(cut(van ? 1.35 : 1.28), cut(van ? -1.25 : -1.3));
+  // Rounded edges: a bevel takes the slab look off the body. Total width stays 1.66 (van 1.78).
+  const bevel = 0.07;
+  const depth = (van ? 1.78 : 1.66) - bevel * 2;
   const geo = new THREE.ExtrudeGeometry(shape, {
-    depth: van ? 1.78 : 1.66,
-    bevelEnabled: false,
+    depth,
+    bevelEnabled: true,
+    bevelThickness: bevel,
+    bevelSize: 0.035,
+    bevelSegments: 3,
     curveSegments: 8,
   });
-  geo.translate(0, 0, van ? -0.89 : -0.83);
+  geo.translate(0, 0, -depth / 2);
   geo.computeVertexNormals();
   return geo;
 }
@@ -790,9 +807,62 @@ function glassGeo(van: boolean) {
     shape.lineTo(-1.2, 0.98);
   }
   shape.closePath();
-  const geo = new THREE.ExtrudeGeometry(shape, { depth: van ? 1.62 : 1.48, bevelEnabled: false, curveSegments: 6 });
-  geo.translate(0, 0, van ? -0.81 : -0.74);
+  // A touch wider than the body so the side windows actually show.
+  const depth = van ? 1.8 : 1.68;
+  const geo = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: false, curveSegments: 6 });
+  geo.translate(0, 0, -depth / 2);
   return geo;
+}
+
+const trimMat = new THREE.MeshStandardMaterial({ color: "#111317", metalness: 0.4, roughness: 0.55 });
+const chromeMat = new THREE.MeshStandardMaterial({ color: "#c9ccd1", metalness: 0.95, roughness: 0.22 });
+const seamMat = new THREE.MeshBasicMaterial({ color: "#07080a" });
+const plateMat = new THREE.MeshStandardMaterial({ color: "#efe9dc", roughness: 0.6 });
+
+/** The small things that make it read as a car: door seams and handles, mirrors, rockers, bumpers, plates. */
+function CarDetails({ van, nose, tail }: { van: boolean; nose: number; tail: number }) {
+  const side = van ? 0.895 : 0.835;
+  const seams = van ? [1.05, 0.35, -0.95] : [0.95, -0.12, -1.25];
+  const handles = van ? [0.6, -0.55] : [0.35, -0.72];
+  const beltY = van ? 1.0 : 0.86;
+  return (
+    <group>
+      {[side, -side].map((z) => (
+        <group key={z}>
+          {seams.map((x) => (
+            <mesh key={x} position={[x, beltY - 0.27, z + Math.sign(z) * 0.002]} material={seamMat}>
+              <boxGeometry args={[0.012, 0.5, 0.004]} />
+            </mesh>
+          ))}
+          {handles.map((x) => (
+            <mesh key={x} position={[x, beltY - 0.04, z + Math.sign(z) * 0.012]} material={chromeMat}>
+              <boxGeometry args={[0.16, 0.035, 0.022]} />
+            </mesh>
+          ))}
+          <mesh position={[0, 0.36, z + Math.sign(z) * 0.006]} material={trimMat}>
+            <boxGeometry args={[van ? 2.3 : 2.2, 0.08, 0.02]} />
+          </mesh>
+          <group position={[van ? 1.3 : 0.62, beltY + 0.12, z + Math.sign(z) * 0.1]}>
+            <mesh material={trimMat}>
+              <boxGeometry args={[0.14, 0.09, 0.16]} />
+            </mesh>
+            <mesh position={[-0.072, 0, 0]} material={chromeMat}>
+              <boxGeometry args={[0.004, 0.07, 0.13]} />
+            </mesh>
+          </group>
+        </group>
+      ))}
+      <mesh position={[nose + 0.03, 0.38, 0]} material={trimMat}>
+        <boxGeometry args={[0.08, 0.14, van ? 1.7 : 1.58]} />
+      </mesh>
+      <mesh position={[tail - 0.03, 0.38, 0]} material={trimMat}>
+        <boxGeometry args={[0.08, 0.14, van ? 1.7 : 1.58]} />
+      </mesh>
+      <mesh position={[nose + 0.075, 0.4, 0]} material={plateMat}>
+        <boxGeometry args={[0.01, 0.1, 0.3]} />
+      </mesh>
+    </group>
+  );
 }
 
 function CarBody({ color, live, kind = "sedan" }: { color: string; live?: boolean; kind?: "sedan" | "van" }) {
@@ -848,14 +918,45 @@ function CarBody({ color, live, kind = "sedan" }: { color: string; live?: boolea
         <boxGeometry args={[0.02, 0.1, 0.26]} />
         <meshStandardMaterial color="#efe6d4" />
       </mesh>
-      <group ref={(node) => { fronts.current[0] = node; }} position={[frontX, 0.4, wz]}>
-        <Wheel spinRef={(node) => { wheels.current[0] = node; }} />
+      <CarDetails van={van} nose={nose} tail={tail} />
+      <group
+        ref={(node) => {
+          fronts.current[0] = node;
+        }}
+        position={[frontX, 0.4, wz]}
+      >
+        <Wheel
+          spinRef={(node) => {
+            wheels.current[0] = node;
+          }}
+        />
       </group>
-      <group ref={(node) => { fronts.current[1] = node; }} position={[frontX, 0.4, -wz]}>
-        <Wheel spinRef={(node) => { wheels.current[1] = node; }} />
+      <group
+        ref={(node) => {
+          fronts.current[1] = node;
+        }}
+        position={[frontX, 0.4, -wz]}
+      >
+        <Wheel
+          spinRef={(node) => {
+            wheels.current[1] = node;
+          }}
+        />
       </group>
-      <group position={[rearX, 0.4, wz]}><Wheel spinRef={(node) => { wheels.current[2] = node; }} /></group>
-      <group position={[rearX, 0.4, -wz]}><Wheel spinRef={(node) => { wheels.current[3] = node; }} /></group>
+      <group position={[rearX, 0.4, wz]}>
+        <Wheel
+          spinRef={(node) => {
+            wheels.current[2] = node;
+          }}
+        />
+      </group>
+      <group position={[rearX, 0.4, -wz]}>
+        <Wheel
+          spinRef={(node) => {
+            wheels.current[3] = node;
+          }}
+        />
+      </group>
     </group>
   );
 }
@@ -894,12 +995,22 @@ export function Vehicles() {
         <meshBasicMaterial color="#e7c48a" transparent opacity={0.85} depthWrite={false} side={THREE.DoubleSide} />
       </mesh>
       {fleet.map((car, index) => (
-        <group key={`p${index}`} ref={(node) => { parked.current[index] = node; }}>
+        <group
+          key={`p${index}`}
+          ref={(node) => {
+            parked.current[index] = node;
+          }}
+        >
           <CarBody color={car.color} kind={car.kind} live={index === 0} />
         </group>
       ))}
       {trafficCars().map((car, index) => (
-        <group key={`t${index}`} ref={(node) => { traffic.current[index] = node; }}>
+        <group
+          key={`t${index}`}
+          ref={(node) => {
+            traffic.current[index] = node;
+          }}
+        >
           <CarBody color={index % 2 === 0 ? "#2a3038" : "#3a241c"} kind={car.dir > 0 ? "sedan" : "van"} />
         </group>
       ))}
@@ -936,6 +1047,7 @@ export function People() {
   const player = useRef<THREE.Group>(null);
   const guy = useRef<THREE.Group>(null);
   const bodyYaw = useRef(Math.PI / 2);
+  const guyMotion = useRef({ x: world.guyX, z: world.guyZ, speed: 0, yaw: 0 });
   useFrame((_, raw) => {
     const dt = Math.min(raw, 0.05);
     if (player.current) {
@@ -950,8 +1062,18 @@ export function People() {
     }
     if (guy.current) {
       guy.current.visible = world.guyVisible;
+      // The courier walks: speed from how far he moved this frame, and he turns to face where he's going.
+      const g = guyMotion.current;
+      const dx = world.guyX - g.x;
+      const dz = world.guyZ - g.z;
+      const v = dt > 0 ? Math.hypot(dx, dz) / dt : 0;
+      g.speed += (v - g.speed) * (1 - Math.exp(-8 * dt));
+      if (v > 0.25) g.yaw = dampAngle(g.yaw, Math.atan2(dx, dz), 8, dt);
+      else g.yaw = dampAngle(g.yaw, 0, 3, dt);
+      g.x = world.guyX;
+      g.z = world.guyZ;
       guy.current.position.set(world.guyX, 0, world.guyZ);
-      guy.current.rotation.y = 0;
+      guy.current.rotation.y = g.yaw;
     }
   });
   return (
@@ -961,14 +1083,16 @@ export function People() {
         <pointLight position={[0, 1.55, 0.48]} color="#ffd2b0" intensity={2.2} distance={2.2} decay={2} />
       </group>
       <group ref={guy}>
-        <Human gait="idle" tint="#8d3d28" hair="#1a120e" scale={1.12} phase={1.4} />
+        <Human gait="idle" tint="#8d3d28" hair="#1a120e" scale={1.12} phase={1.4} speedOf={() => guyMotion.current.speed} />
         <CourierBadge />
       </group>
       {/* Receptionist stands behind the desk (desk front at z -7.0, chair at -8.9), facing the entrance. */}
       <group position={[-4.4, 0, -8.35]}>
         <CastActor slot="night-desk" fallback={<Human gait="idle" tint="#2f6a4a" hair="#e0c07a" scale={0.92} phase={0.8} />} />
       </group>
-      <group position={[3.35, OFFICE_Y, -14.55]} rotation={[0, Math.PI, 0]}><Human gait="idle" tint="#6e2438" hair="#2a160e" scale={0.86} phase={2.2} /></group>
+      <group position={[3.35, OFFICE_Y, -14.55]} rotation={[0, Math.PI, 0]}>
+        <Human gait="idle" tint="#6e2438" hair="#2a160e" scale={0.86} phase={2.2} />
+      </group>
       <Walker origin={-40} span={16} z={2.6} speed={1.05} tint="#4e6a38" hair="#14110e" phase={0.3} scale={1.08} />
       <Walker origin={-6} span={8} z={3.1} speed={0.7} tint="#8a6230" hair="#d9d4cc" phase={1.7} scale={0.9} />
       <Walker origin={28} span={14} z={2.4} speed={0.9} tint="#2a4a55" hair="#6a3a22" phase={2.6} scale={1.05} />
@@ -976,7 +1100,25 @@ export function People() {
   );
 }
 
-function Walker({ origin, span, z, speed, tint, hair, phase, scale }: { origin: number; span: number; z: number; speed: number; tint: string; hair: string; phase: number; scale: number }) {
+function Walker({
+  origin,
+  span,
+  z,
+  speed,
+  tint,
+  hair,
+  phase,
+  scale,
+}: {
+  origin: number;
+  span: number;
+  z: number;
+  speed: number;
+  tint: string;
+  hair: string;
+  phase: number;
+  scale: number;
+}) {
   const ref = useRef<THREE.Group>(null);
   useFrame(({ clock }) => {
     if (!ref.current) return;
@@ -985,7 +1127,11 @@ function Walker({ origin, span, z, speed, tint, hair, phase, scale }: { origin: 
     ref.current.position.set(origin + along, 0, z);
     ref.current.rotation.y = t < span ? Math.PI / 2 : -Math.PI / 2;
   });
-  return <group ref={ref}><Human gait="walk" speed={speed} tint={tint} hair={hair} phase={phase} scale={scale} /></group>;
+  return (
+    <group ref={ref}>
+      <Human gait="walk" speed={speed} tint={tint} hair={hair} phase={phase} scale={scale} />
+    </group>
+  );
 }
 
 export function Marker() {
@@ -1006,15 +1152,41 @@ export function Marker() {
 }
 
 const trailDummy = new THREE.Object3D();
+const trailColor = new THREE.Color();
+let chevronTex: THREE.Texture | null = null;
+function chevronTexture() {
+  if (chevronTex) return chevronTex;
+  const c = document.createElement("canvas");
+  c.width = 128;
+  c.height = 128;
+  const g = c.getContext("2d")!;
+  // A soft glowing chevron pointing up the texture (+V), which the trail aims at the target.
+  g.shadowColor = "rgba(255,226,170,0.9)";
+  g.shadowBlur = 18;
+  g.strokeStyle = "rgba(255,240,210,1)";
+  g.lineWidth = 16;
+  g.lineCap = "round";
+  g.lineJoin = "round";
+  g.beginPath();
+  g.moveTo(28, 86);
+  g.lineTo(64, 46);
+  g.lineTo(100, 86);
+  g.stroke();
+  chevronTex = new THREE.CanvasTexture(c);
+  chevronTex.colorSpace = THREE.SRGBColorSpace;
+  return chevronTex;
+}
 
+/** Chevrons on the floor that flow from you toward the next beat, fading in near you and out near it. */
 export function Trail() {
   const mesh = useRef<THREE.InstancedMesh>(null);
-  const count = 22;
-  useFrame(() => {
+  const count = 30;
+  const SPACING = 0.85;
+  useFrame(({ clock }) => {
     const mark = mesh.current;
     const spot = markerNow();
     if (!mark) return;
-    if (!spot || world.driving) {
+    if (!spot || world.driving || world.ride !== "idle") {
       mark.visible = false;
       return;
     }
@@ -1022,27 +1194,44 @@ export function Trail() {
     const dx = spot.x - world.px;
     const dz = spot.z - world.pz;
     const len = Math.hypot(dx, dz);
+    const ux = len > 0 ? dx / len : 0;
+    const uz = len > 0 ? dz / len : 0;
     const yaw = Math.atan2(dx, dz);
+    const flow = (clock.elapsedTime * 1.1) % SPACING;
+    const floorY = (world.py > 2 ? world.py : 0) + 0.04;
     for (let i = 0; i < count; i += 1) {
-      const t = (i + 0.6) / count;
-      const along = t * len;
-      if (along < 1.6 || along > len - 1.2) {
-        trailDummy.position.set(0, -20, 0);
-        trailDummy.scale.set(0.001, 0.001, 0.001);
+      const along = 1.1 + i * SPACING + flow;
+      const end = len - 1.0;
+      if (along > end) {
+        trailDummy.position.set(0, -50, 0);
+        trailDummy.scale.setScalar(0.001);
+        trailColor.setScalar(0);
       } else {
-        trailDummy.position.set(world.px + dx * t, (world.py > 2 ? world.py : 0) + 0.05, world.pz + dz * t);
-        trailDummy.rotation.set(-Math.PI / 2, 0, -yaw);
-        trailDummy.scale.set(1, 1, 1);
+        // Fade in over the first metre, out over the last one, and pulse a little as they march.
+        const fadeIn = THREE.MathUtils.clamp((along - 1.1) / 1.0, 0, 1);
+        const fadeOut = THREE.MathUtils.clamp((end - along) / 1.2, 0, 1);
+        const a = fadeIn * fadeOut * 0.9;
+        trailDummy.position.set(world.px + ux * along, floorY, world.pz + uz * along);
+        trailDummy.rotation.set(-Math.PI / 2, 0, yaw + Math.PI);
+        trailDummy.scale.setScalar(0.9 + 0.15 * fadeIn);
+        trailColor.setRGB(0.91 * a, 0.77 * a, 0.54 * a);
       }
       trailDummy.updateMatrix();
       mark.setMatrixAt(i, trailDummy.matrix);
+      mark.setColorAt(i, trailColor);
     }
     mark.instanceMatrix.needsUpdate = true;
+    if (mark.instanceColor) mark.instanceColor.needsUpdate = true;
+    if (!mark.userData.colored) {
+      // The colour buffer appears on the first setColorAt; recompile once so the shader reads it.
+      mark.userData.colored = true;
+      (mark.material as THREE.Material).needsUpdate = true;
+    }
   });
   return (
-    <instancedMesh ref={mesh} args={[undefined, undefined, count]}>
-      <planeGeometry args={[0.22, 0.7]} />
-      <meshBasicMaterial color="#e7c48a" transparent opacity={0.8} depthWrite={false} />
+    <instancedMesh ref={mesh} args={[undefined, undefined, count]} renderOrder={3}>
+      <planeGeometry args={[0.46, 0.46]} />
+      <meshBasicMaterial map={chevronTexture()} transparent depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
     </instancedMesh>
   );
 }
@@ -1123,10 +1312,12 @@ export function Sky() {
 }
 
 function WetRoad() {
-  const mat = useMemo(() => new THREE.ShaderMaterial({
-    uniforms: { uTime: { value: 0 } },
-    vertexShader: `varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position,1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`,
-    fragmentShader: `
+  const mat = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        uniforms: { uTime: { value: 0 } },
+        vertexShader: `varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position,1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`,
+        fragmentShader: `
       varying vec3 vW; uniform float uTime;
       float hash21(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
       void main() {
@@ -1171,8 +1362,12 @@ function WetRoad() {
         gl_FragColor = vec4(col, 1.0);
       }
     `,
-  }), []);
-  useFrame((_, dt) => { mat.uniforms.uTime.value += dt; });
+      }),
+    [],
+  );
+  useFrame((_, dt) => {
+    mat.uniforms.uTime.value += dt;
+  });
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[10, 0.01, -11]} material={mat}>
       <planeGeometry args={[186, 11]} />
@@ -1456,9 +1651,11 @@ function Quay({ hull }: { hull: THREE.Texture }) {
 }
 
 function Water() {
-  const mat = useMemo(() => new THREE.ShaderMaterial({
-    uniforms: { uTime: { value: 0 } },
-    vertexShader: `
+  const mat = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        uniforms: { uTime: { value: 0 } },
+        vertexShader: `
       uniform float uTime;
       varying vec3 vW;
       varying vec3 vN;
@@ -1475,7 +1672,7 @@ function Water() {
         gl_Position = projectionMatrix * viewMatrix * w;
       }
     `,
-    fragmentShader: `
+        fragmentShader: `
       varying vec3 vW;
       varying vec3 vN;
       uniform float uTime;
@@ -1500,8 +1697,12 @@ function Water() {
         gl_FragColor = vec4(col, 1.0);
       }
     `,
-  }), []);
-  useFrame((_, dt) => { mat.uniforms.uTime.value += dt; });
+      }),
+    [],
+  );
+  useFrame((_, dt) => {
+    mat.uniforms.uTime.value += dt;
+  });
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[8, -0.22, -60]} material={mat}>
       <planeGeometry args={[420, 48, 64, 18]} />
@@ -1605,10 +1806,23 @@ function Containers() {
 function Dressing() {
   return (
     <group>
-      {[[-58, 1.4, 0.8], [-41, -0.4, 1.3], [-19, 1.1, 0.7], [-2, 0.2, 1.15], [21, 1.6, 0.85], [47, -0.6, 1.25]].map(([x, z, s]) => (
+      {[
+        [-58, 1.4, 0.8],
+        [-41, -0.4, 1.3],
+        [-19, 1.1, 0.7],
+        [-2, 0.2, 1.15],
+        [21, 1.6, 0.85],
+        [47, -0.6, 1.25],
+      ].map(([x, z, s]) => (
         <group key={x} position={[x, 0, z]}>
-          <mesh position={[0, 1.1, 0]}><cylinderGeometry args={[0.08, 0.14, 2.2, 6]} /><meshStandardMaterial color="#1a1410" roughness={0.9} /></mesh>
-          <mesh position={[0.15, 2.4, 0]} scale={s}><sphereGeometry args={[1.05, 10, 8]} /><meshStandardMaterial color="#152018" roughness={0.92} /></mesh>
+          <mesh position={[0, 1.1, 0]}>
+            <cylinderGeometry args={[0.08, 0.14, 2.2, 6]} />
+            <meshStandardMaterial color="#1a1410" roughness={0.9} />
+          </mesh>
+          <mesh position={[0.15, 2.4, 0]} scale={s}>
+            <sphereGeometry args={[1.05, 10, 8]} />
+            <meshStandardMaterial color="#152018" roughness={0.92} />
+          </mesh>
         </group>
       ))}
       {[-34, -8, 16].map((x) => (
@@ -1618,8 +1832,14 @@ function Dressing() {
         </mesh>
       ))}
       <group position={[-16, 0, -26]}>
-        <mesh position={[0, 1, 0]}><boxGeometry args={[11, 1.4, 3]} /><meshStandardMaterial color="#12161c" metalness={0.35} roughness={0.5} /></mesh>
-        <mesh position={[1.5, 2.2, 1.2]}><planeGeometry args={[1.4, 0.65]} /><meshStandardMaterial color="#ffd2a4" emissive="#ffb06a" emissiveIntensity={2.5} toneMapped={false} /></mesh>
+        <mesh position={[0, 1, 0]}>
+          <boxGeometry args={[11, 1.4, 3]} />
+          <meshStandardMaterial color="#12161c" metalness={0.35} roughness={0.5} />
+        </mesh>
+        <mesh position={[1.5, 2.2, 1.2]}>
+          <planeGeometry args={[1.4, 0.65]} />
+          <meshStandardMaterial color="#ffd2a4" emissive="#ffb06a" emissiveIntensity={2.5} toneMapped={false} />
+        </mesh>
       </group>
     </group>
   );
@@ -1637,20 +1857,37 @@ export function Rain() {
     const attr = geo.getAttribute("position") as THREE.BufferAttribute;
     const arr = attr.array as Float32Array;
     for (let i = 0; i < count; i += 1) {
-      let y = arr[i * 6 + 1] - dt * 22;
+      const y = arr[i * 6 + 1] - dt * 22;
       if (y < 0 || arr[i * 6 + 1] === 0) {
         const x = world.camX + (Math.random() - 0.5) * 30;
         const z = world.camZ + (Math.random() - 0.5) * 30;
         const top = 12 + Math.random() * 8;
-        arr[i * 6] = x; arr[i * 6 + 1] = top; arr[i * 6 + 2] = z;
-        arr[i * 6 + 3] = x + 0.06; arr[i * 6 + 4] = top - 0.6; arr[i * 6 + 5] = z;
+        arr[i * 6] = x;
+        arr[i * 6 + 1] = top;
+        arr[i * 6 + 2] = z;
+        arr[i * 6 + 3] = x + 0.06;
+        arr[i * 6 + 4] = top - 0.6;
+        arr[i * 6 + 5] = z;
       } else {
-        arr[i * 6 + 1] = y; arr[i * 6 + 4] = y - 0.6;
+        arr[i * 6 + 1] = y;
+        arr[i * 6 + 4] = y - 0.6;
       }
     }
     attr.needsUpdate = true;
   });
-  return <lineSegments geometry={geo}><lineBasicMaterial color="#c9d4e2" transparent opacity={0.2} /></lineSegments>;
+  return (
+    <lineSegments geometry={geo}>
+      <lineBasicMaterial color="#c9d4e2" transparent opacity={0.2} />
+    </lineSegments>
+  );
+}
+
+const orbit = { yaw: Number.NaN, pitch: 0, dist: Number.NaN };
+function dampAngle(current: number, target: number, lambda: number, dt: number) {
+  let delta = target - current;
+  while (delta > Math.PI) delta -= Math.PI * 2;
+  while (delta < -Math.PI) delta += Math.PI * 2;
+  return current + delta * (1 - Math.exp(-lambda * dt));
 }
 
 const _followLook = new THREE.Vector3();
@@ -1662,8 +1899,16 @@ export function Rig() {
     const dt = Math.min(raw, 0.05);
     step(dt);
     const aerial = world.ending;
-    const yaw = world.camYaw;
-    const pitch = Math.max(-1.05, Math.min(1.15, world.camPitch));
+    // Orbit on smoothed angles, not a lerped position: a lerped position cuts a chord through the
+    // player when you swing the view, which reads as the camera lurching in and out.
+    if (world.snap || !Number.isFinite(orbit.yaw)) {
+      orbit.yaw = world.camYaw;
+      orbit.pitch = world.camPitch;
+    }
+    orbit.yaw = dampAngle(orbit.yaw, world.camYaw, 22, dt);
+    orbit.pitch += (world.camPitch - orbit.pitch) * (1 - Math.exp(-22 * dt));
+    const yaw = orbit.yaw;
+    const pitch = Math.max(-1.05, Math.min(1.15, orbit.pitch));
     const dist = aerial ? 34 : world.driving ? 9.2 : 4.45;
     const focusX = aerial ? 27 : world.px;
     const focusY = aerial ? 16 : world.py + 1.38;
@@ -1678,37 +1923,23 @@ export function Rig() {
     const lookY = focusY + lookUp * dist * 2.6 - lookDown * 1.4;
     // Keep the camera on the player's side of walls: cast from the head toward the
     // wanted spot and stop just short of the first collider.
-    let cx = tx;
-    let cy = ty;
-    let cz = tz;
-    let blockedCam = false;
+    // Keep the camera on the player's side of walls. The distance pulls in fast when something is in
+    // the way and eases back out, so grazing a wall doesn't flicker the camera in and out.
+    const want = Math.hypot(tx - focusX, ty - focusY, tz - focusZ) || 1;
+    let allowed = want;
     if (!aerial) {
-      const want = Math.hypot(tx - focusX, ty - focusY, tz - focusZ);
       const reach = cameraReach(focusX, focusY, focusZ, tx, ty, tz);
-      if (reach < want) {
-        const f = Math.max(0.35, reach - 0.28) / want;
-        cx = focusX + (tx - focusX) * f;
-        cy = focusY + (ty - focusY) * f;
-        cz = focusZ + (tz - focusZ) * f;
-        blockedCam = true;
-      }
+      if (reach < want) allowed = Math.max(0.35, reach - 0.28);
     }
-    // Pull in immediately when something is in the way; ease back out when clear.
-    const k = world.snap || blockedCam ? 1 : 1 - Math.exp(-8 * dt);
+    if (world.snap || !Number.isFinite(orbit.dist)) orbit.dist = allowed;
+    else if (allowed < orbit.dist) orbit.dist = Math.max(allowed, orbit.dist + (allowed - orbit.dist) * (1 - Math.exp(-30 * dt)));
+    else orbit.dist += (allowed - orbit.dist) * (1 - Math.exp(-4 * dt));
+    if (orbit.dist > allowed) orbit.dist = allowed;
+    const f = orbit.dist / want;
     world.snap = false;
-    if (blockedCam) {
-      const nowD = Math.hypot(world.camX - focusX, world.camY - focusY, world.camZ - focusZ);
-      const newD = Math.hypot(cx - focusX, cy - focusY, cz - focusZ);
-      if (newD > nowD) {
-        const ease = 1 - Math.exp(-8 * dt);
-        cx = world.camX + (cx - world.camX) * ease;
-        cy = world.camY + (cy - world.camY) * ease;
-        cz = world.camZ + (cz - world.camZ) * ease;
-      }
-    }
-    world.camX += (cx - world.camX) * k;
-    world.camY += (cy - world.camY) * k;
-    world.camZ += (cz - world.camZ) * k;
+    world.camX = focusX + (tx - focusX) * f;
+    world.camY = focusY + (ty - focusY) * f;
+    world.camZ = focusZ + (tz - focusZ) * f;
     camera.position.set(world.camX, world.camY + world.rideBob, world.camZ);
     camera.lookAt(focusX, lookY, focusZ);
     if (focus.phase !== "off") {
