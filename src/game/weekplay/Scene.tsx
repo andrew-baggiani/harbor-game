@@ -1,7 +1,9 @@
 import { useFrame, useThree } from "@react-three/fiber";
+import { Beam } from "@/game/Beam";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import type { CastSlot, Prop, WeekBeat } from "@/content/week/types";
+import type { Find } from "@/content/week/play";
 import { Figure } from "@/game/draw";
 import { CastActor } from "@/game/cast";
 import { blocked } from "@/game/layout";
@@ -9,7 +11,7 @@ import { roomBlocked } from "@/game/weekplay/BakedRoom";
 import { blockedIn, type RoomSet, type Spot } from "@/game/weekplay/sets";
 
 /** Mutable per-frame player state, shared with the HUD. */
-export const player = { x: 0, z: 0, yaw: 0, pitch: -0.08, moveX: 0, moveZ: 0, keys: new Set<string>(), near: false };
+export const player = { x: 0, z: 0, yaw: 0, pitch: -0.08, moveX: 0, moveZ: 0, keys: new Set<string>(), near: false, moving: false };
 
 /** Greybox cast colours. A MetaHuman swap keys off the same slot name. */
 const CAST_LOOK: Record<CastSlot, { color: string; accent: string }> = {
@@ -35,7 +37,7 @@ function loadTexture(path: string): THREE.Texture {
 }
 
 /** A small screen rendered from text, for props that have no art file yet. */
-function textTexture(text: string, w: number, h: number, bg: string, fg: string): THREE.Texture {
+export function textTexture(text: string, w: number, h: number, bg: string, fg: string): THREE.Texture {
   const key = `${text}|${w}|${h}|${bg}|${fg}`;
   const hit = textureCache.get(key);
   if (hit) return hit;
@@ -185,16 +187,10 @@ export function approach(spot: Spot) {
   return { x: spot.ax ?? spot.x, z: spot.az ?? spot.z + 0.9 };
 }
 
-/** One beat's prop at its spot, with a pulsing ring where the player stands when it's the live beat. */
+/** One beat's prop at its spot, with a column of light where the player stands when it's the live beat. */
 export function BeatProp({ beat, set, flipped, live }: { beat: WeekBeat; set: RoomSet; flipped: boolean; live: boolean }) {
   const spot = set.spots[beat.spot];
-  const ring = useRef<THREE.Mesh>(null);
   const tex = beat.prop ? propTexture(beat.prop, flipped) : null;
-  useFrame(({ clock }) => {
-    if (!ring.current) return;
-    const s = 1 + Math.sin(clock.elapsedTime * 3) * 0.08;
-    ring.current.scale.set(s, s, 1);
-  });
   if (!spot) return null;
   const kind = beat.prop?.kind ?? "screen";
   const [pw, ph] = PROP_SIZE[kind];
@@ -226,10 +222,9 @@ export function BeatProp({ beat, set, flipped, live }: { beat: WeekBeat; set: Ro
         </group>
       )}
       {live && (
-        <mesh ref={ring} rotation={[-Math.PI / 2, 0, 0]} position={[at.x, floor + 0.02, at.z]}>
-          <ringGeometry args={[0.32, 0.38, 48]} />
-          <meshBasicMaterial color="#c4a574" transparent opacity={0.85} toneMapped={false} />
-        </mesh>
+        <group position={[at.x, floor, at.z]}>
+          <Beam height={2.5} radius={0.42} />
+        </group>
       )}
     </group>
   );
@@ -254,9 +249,25 @@ export function CastFigure({ slot, x, z, y = 0, talking = false }: { slot: CastS
 }
 
 /** First-person walker. W forward, S back, A strafe left, D strafe right, drag to look. */
-export function Walker({ set, target, onNear }: { set: RoomSet; target: { x: number; z: number; lx?: number; ly?: number; lz?: number } | null; onNear: (near: boolean) => void }) {
+/** Something optional the player can use when standing within r of (x, z). */
+export type Nearby = { id: string; x: number; z: number; r: number };
+
+export function Walker({
+  set,
+  target,
+  onNear,
+  items = [],
+  onItem,
+}: {
+  set: RoomSet;
+  target: { x: number; z: number; lx?: number; ly?: number; lz?: number } | null;
+  onNear: (near: boolean) => void;
+  items?: Nearby[];
+  onItem?: (id: string | null) => void;
+}) {
   const { camera } = useThree();
   const lastNear = useRef(false);
+  const lastItem = useRef<string | null>(null);
   useEffect(() => {
     camera.rotation.order = "YXZ";
   }, [camera]);
@@ -293,10 +304,27 @@ export function Walker({ set, target, onNear }: { set: RoomSet; target: { x: num
     camera.position.set(player.x, floor + 1.62 + bob, player.z);
     camera.rotation.set(player.pitch, player.yaw, 0);
     const near = !!target && Math.hypot(player.x - target.x, player.z - target.z) < 1.2;
+    player.moving = len > 0.1;
     if (near !== lastNear.current) {
       lastNear.current = near;
       player.near = near;
       onNear(near);
+    }
+    // The beat always wins; optional things only offer themselves when the beat isn't in reach.
+    let item: string | null = null;
+    if (!near && onItem) {
+      let best = Infinity;
+      for (const it of items) {
+        const d = Math.hypot(player.x - it.x, player.z - it.z);
+        if (d < it.r && d < best) {
+          best = d;
+          item = it.id;
+        }
+      }
+    }
+    if (item !== lastItem.current) {
+      lastItem.current = item;
+      onItem?.(item);
     }
   });
   return null;
@@ -314,5 +342,96 @@ export function Decor({ set }: { set: RoomSet }) {
         </mesh>
       ))}
     </group>
+  );
+}
+
+const FIND_SIZE: Record<Find["kind"], [number, number, string, string]> = {
+  sticky: [0.075, 0.075, "#f3dc5a", "#2a2410"],
+  badge: [0.086, 0.054, "#f4f1ea", "#18202c"],
+  paper: [0.21, 0.297, "#f2efe8", "#1d1d1d"],
+  usb: [0.055, 0.02, "#1f6fd1", "#ffffff"],
+  tablet: [0.24, 0.17, "#0f1824", "#d8e6f5"],
+  flyer: [0.21, 0.297, "#ffe14a", "#151515"],
+  board: [0.42, 0.2, "#fbfbf8", "#1f4fa8"],
+};
+
+/** A small security slip-up placed in the room. Glints now and then until it's found. */
+export function FindProp({ find, found }: { find: Find; found: boolean }) {
+  const glint = useRef<THREE.Mesh>(null);
+  const [w, h, bg, fg] = FIND_SIZE[find.kind];
+  const big = 1;
+  const tex = useMemo(() => {
+    const scale = find.kind === "usb" ? 256 : 512;
+    return textTexture(find.text, Math.round(scale * (w / Math.max(w, h))), Math.round(scale * (h / Math.max(w, h))), bg, fg);
+  }, [find, w, h, bg, fg]);
+  useFrame(({ clock }) => {
+    if (!glint.current) return;
+    const t = (clock.elapsedTime + find.x) % 4;
+    const k = found ? 0 : t < 0.5 ? Math.sin((t / 0.5) * Math.PI) : 0;
+    glint.current.scale.setScalar(0.4 + k);
+    (glint.current.material as THREE.MeshBasicMaterial).opacity = k * 0.8;
+  });
+  const pw = w * big;
+  const ph = h * big;
+  return (
+    <group position={[find.x, find.y, find.z]} rotation={[0, find.face ?? 0, 0]}>
+      <group rotation={[find.flat ? -Math.PI / 2 : 0, 0, 0]}>
+        {find.kind === "usb" ? (
+          <mesh position={[0, 0, 0.006]}>
+            <boxGeometry args={[pw, ph, 0.012]} />
+            <meshStandardMaterial map={tex} roughness={0.5} />
+          </mesh>
+        ) : (
+          <mesh position={[0, 0, 0.002]}>
+            <planeGeometry args={[pw, ph]} />
+            <meshStandardMaterial map={tex} roughness={0.8} side={THREE.DoubleSide} emissive="#ffffff" emissiveMap={tex} emissiveIntensity={find.kind === "tablet" ? 0.9 : 0.12} />
+          </mesh>
+        )}
+        <mesh ref={glint} position={[pw * 0.3, ph * 0.3, 0.02]}>
+          <planeGeometry args={[0.06, 0.06]} />
+          <meshBasicMaterial map={sparkTexture()} transparent opacity={0} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
+let spark: THREE.Texture | null = null;
+function sparkTexture(): THREE.Texture {
+  if (spark) return spark;
+  const c = document.createElement("canvas");
+  c.width = c.height = 64;
+  const ctx = c.getContext("2d")!;
+  const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(0.25, "rgba(255,240,200,0.6)");
+  g.addColorStop(1, "rgba(255,240,200,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 64, 64);
+  ctx.fillStyle = "rgba(255,255,255,0.9)";
+  ctx.fillRect(30, 4, 4, 56);
+  ctx.fillRect(4, 30, 56, 4);
+  spark = new THREE.CanvasTexture(c);
+  return spark;
+}
+
+/** A quick ring of light where the player just poked something. Remount with a new key to replay. */
+export function Poke({ x, y, z }: { x: number; y: number; z: number }) {
+  const ref = useRef<THREE.Mesh>(null);
+  const born = useRef<number | null>(null);
+  useFrame(({ clock, camera }) => {
+    const m = ref.current;
+    if (!m) return;
+    born.current ??= clock.elapsedTime;
+    const k = Math.min(1, (clock.elapsedTime - born.current) / 0.7);
+    m.quaternion.copy(camera.quaternion);
+    m.scale.setScalar(0.15 + k * 0.5);
+    (m.material as THREE.MeshBasicMaterial).opacity = 0.9 * (1 - k);
+  });
+  return (
+    <mesh ref={ref} position={[x, y, z]}>
+      <ringGeometry args={[0.8, 1, 40]} />
+      <meshBasicMaterial color="#e7c48a" transparent opacity={0.9} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+    </mesh>
   );
 }

@@ -1,7 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AI_ENTRY, TRACK_LIST, WEEK } from "@/game/week";
-import { readWeek, type WeekRecord } from "@/game/weekplay/progress";
+import { readFinds, readWeek, type WeekRecord } from "@/game/weekplay/progress";
+import { shiftById } from "@/content/week";
+import { FINDS, placeOf } from "@/content/week/play";
+
+/** Security finds still hidden in a shift's rooms, once it has been played. */
+function findsLeft(id: string, seen: Record<string, string[]>): number {
+  const shift = shiftById(id);
+  if (!shift) return 0;
+  const places = new Set(shift.beats.map((b) => placeOf(b.set)));
+  const mine = new Set(seen[id] ?? []);
+  return FINDS.filter((f) => places.has(f.place) && !mine.has(f.id)).length;
+}
 
 export const Route = createFileRoute("/week/")({
   head: () => ({ meta: [{ title: "The week · Dry Run Cyber" }] }),
@@ -12,7 +23,11 @@ const idOf = (href: string) => (href === "/play" ? "monday" : href.split("/").at
 
 function WeekHub() {
   const [done, setDone] = useState<Record<string, WeekRecord>>({});
-  useEffect(() => setDone(readWeek()), []);
+  const [seen, setSeen] = useState<Record<string, string[]>>({});
+  useEffect(() => {
+    setDone(readWeek());
+    setSeen(readFinds());
+  }, []);
 
   return (
     <div className="min-h-dvh bg-[#07090e] px-5 py-10 text-[#f4f0e6] sm:px-10">
@@ -41,6 +56,9 @@ function WeekHub() {
                   </div>
                   <p className="mt-2 font-display text-2xl">{s.title}</p>
                   <p className="mt-2 text-sm text-[#a8a59c]">{s.topics.replaceAll(" · ", ", ")}.</p>
+                  {rec && findsLeft(idOf(s.href), seen) > 0 && (
+                    <p className="mt-3 font-game text-xs tracking-[0.14em] text-[#8fe0b4]">{findsLeft(idOf(s.href), seen)} FINDS STILL HIDDEN</p>
+                  )}
                 </a>
               </li>
             );
