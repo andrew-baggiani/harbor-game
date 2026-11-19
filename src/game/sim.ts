@@ -1,4 +1,5 @@
 import { enterFocus, focusActive, showApp } from "@/game/focus";
+import { playSfx, setBed, setBedFor, warmSounds } from "@/game/sound";
 import { mondayNearby, mondayUse } from "@/game/mondayPlay";
 import { tickFallout } from "@/game/fallout";
 import { DESK, DOOR, ELEVATOR, ELEVATOR_F14, MAYA, OFFICE_Y, USB, slide } from "@/game/layout";
@@ -62,6 +63,13 @@ export function step(dt: number) {
   publishProbe();
   dt = Math.min(dt, 0.033);
   tickAudio(dt);
+  // What plays under Monday: muzak in the elevator, the room's own bed indoors, the water outside.
+  const riding = world.ride === "board" || world.ride === "hold" || world.ride === "shut" || world.ride === "ride";
+  if (store.boot) setBed(null, null);
+  else {
+    warmSounds();
+    setBedFor(riding ? "elevator" : world.py > 10 ? "f14" : world.py < 2 && insideTower(world.px, world.pz) ? "lobby" : "harbor");
+  }
 
   if (world.ride === "idle" && world.fadingIn) {
     world.fade = Math.max(0, world.fade - dt * 1.7);
@@ -365,6 +373,7 @@ function stepRide(dt: number) {
     }
     if (world.rideT >= 2.4 && world.rideMoved && world.fade === 0) {
       world.ride = "arrive";
+      playSfx("sfx-elevator-ding", 0.6);
       world.rideT = 0;
       world.cabButton = "";
       world.indicator = up ? "14" : "L";

@@ -17,6 +17,7 @@ import {
   findLineId,
   placeOf,
   toyLineId,
+  toySfx,
   type Find,
 } from "@/content/week/play";
 import { Alarm, BeatProp, CastFigure, Decor, FindProp, Papers, Poke, Room, Walker, approach, player, type Nearby } from "@/game/weekplay/Scene";
@@ -25,6 +26,7 @@ import { BakedRoom, setRoomBounds } from "@/game/weekplay/BakedRoom";
 import { SETS } from "@/game/weekplay/sets";
 import { falloutLine, promptLine } from "@/content/week/voices";
 import { blip, sayLine, sayLineNext, unlockAudio } from "@/game/audio";
+import { isMusicOn, playSfx, setBed, setBedFor, toggleMusic, warmSounds } from "@/game/sound";
 
 type Phase = "intro" | "play" | "panel" | "wrap" | "debrief" | "check" | "result";
 type Tone = "good" | "bad" | "note";
@@ -171,7 +173,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
             z: toy.z + 0.35,
             floor: SETS[roomSet].harbor?.y ?? 0,
           });
-        blip(440 + (n % 3) * 90);
+        playSfx(toySfx(toy, k), 0.7, () => blip(440 + (n % 3) * 90));
         return;
       }
       const find = FINDS.find((f) => f.id === id);
@@ -181,7 +183,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
       }
       const next = { ...found, [id]: true as const };
       setFound(next);
-      blip(780);
+      playSfx("sfx-find", 0.6, () => blip(780));
       setPoke({ key: Date.now(), x: find.x, y: find.y + 0.1, z: find.z });
       pushBark(`Found · ${find.label}`, find.line, "good");
       sayLine(findLineId(find), find.line, "narrator", find.label);
@@ -200,6 +202,15 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
     },
     [found, pushBark, addFx, roomSet],
   );
+
+  // Music and room tone follow the room. Quiet on the intro, the debrief and the check.
+  const [musicOn, setMusicOn] = useState(true);
+  useEffect(() => setMusicOn(isMusicOn()), []);
+  useEffect(() => {
+    if (phase === "play" || phase === "panel") setBedFor(roomSet === "server" ? "server" : place);
+    else setBed(null, null);
+  }, [phase, roomSet, place]);
+  useEffect(() => () => setBed(null, null), []);
 
   // Test hook for automated checks: jump to another room of the tower.
   useEffect(() => {
@@ -277,17 +288,12 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
             setShakes((m) => ({ ...m, [id]: performance.now() }));
             const floorY = SETS[beat.set].harbor?.y ?? 0;
             if (kind === "alarm") {
-              addFx({
-                kind: "alarm",
-                set: beat.set,
-                x: sp.x,
-                y: sp.py + 0.25,
-                z: sp.z,
-                floor: floorY,
+              addFx({ kind: "alarm", set: beat.set, x: sp.x, y: sp.py + 0.25, z: sp.z, floor: floorY });
+              playSfx("sfx-alarm", 0.45, () => {
+                blip(220);
+                timers.current.push(window.setTimeout(() => blip(180), 220));
               });
-              blip(220);
-              timers.current.push(window.setTimeout(() => blip(180), 220));
-            }
+            } else playSfx("sfx-buzz", 0.5);
             if (kind === "papers")
               addFx({
                 kind: "papers",
@@ -431,6 +437,14 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           <span className="font-game text-sm tracking-[0.14em] text-[#a8a59c]">
             {Math.min(index + (phase === "panel" ? 1 : 0), shift.beats.length)}/{shift.beats.length}
           </span>
+          <button
+            type="button"
+            onClick={() => setMusicOn(toggleMusic())}
+            aria-pressed={musicOn}
+            className="rounded-full border border-white/15 px-3 py-1 text-xs text-[#d8d2c4] hover:bg-white/10"
+          >
+            Music {musicOn ? "on" : "off"}
+          </button>
           <button type="button" onClick={onExit} className="rounded-full border border-white/15 px-3 py-1 text-xs text-[#d8d2c4] hover:bg-white/10">
             Leave
           </button>
@@ -496,7 +510,11 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           </p>
           <button
             type="button"
-            onClick={() => setPhase("play")}
+            onClick={() => {
+              unlockAudio();
+              warmSounds();
+              setPhase("play");
+            }}
             className="mt-6 rounded-full bg-[#c4a574] px-6 py-3 font-game tracking-[0.12em] text-[#14110c]"
           >
             START THE SHIFT
