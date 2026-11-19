@@ -12,6 +12,7 @@
 @import "@fontsource/barlow/latin-400.css";
 @import "@fontsource/barlow/latin-500.css";
 @import "@fontsource/barlow/latin-600.css";
+@import "@fontsource-variable/archivo/wdth.css";
 
 @theme {
   --font-sans: "Source Sans 3", "Segoe UI", sans-serif;
@@ -20,6 +21,18 @@
   /* Game chrome: title screen, HUD keycaps, menus. */
   --font-game: "Barlow Condensed", "Arial Narrow", sans-serif;
   --font-ui: "Barlow", "Segoe UI", sans-serif;
+  /* Public site (Dry Run Cyber brand). */
+  --font-site: "Archivo Variable", "Archivo", "Segoe UI", sans-serif;
+  --color-site-ink: #101319;
+  --color-site-ink-2: #171b24;
+  --color-site-rule: #262c3a;
+  --color-site-paper: #fafafc;
+  --color-site-mist: #a6abba;
+  --color-site-dim: #878d9d;
+  --color-site-violet: #8b2cf5;
+  --color-site-violet-hi: #a45cff;
+  --color-site-mint: #19f5a5;
+  --color-site-alarm: #ff5a5f;
 
   --color-bg: #0c0d0f;
   --color-elevated: #15171a;
@@ -106,4 +119,221 @@
   *::after {
     scroll-behavior: auto !important;
   }
+}
+
+/* ---------- Public site ---------- */
+.site {
+  font-family: var(--font-site);
+  font-stretch: 100%;
+  background: var(--color-site-ink);
+  color: var(--color-site-paper);
+}
+.site section[id] { scroll-margin-top: 88px; }
+html:has(.site) { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html:has(.site) { scroll-behavior: auto; } }
+.site .display {
+  font-stretch: 125%;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+  text-wrap: balance;
+}
+.site :focus-visible {
+  outline: 2px solid var(--color-site-mint);
+  outline-offset: 3px;
+}
+/* The logo's brackets, as a frame. Corner arms sized by --arm, stroke by --stroke. */
+.brackets {
+  --arm: 28px;
+  --stroke: 6px;
+  --c: var(--color-site-violet);
+  position: relative;
+}
+.brackets::before,
+.brackets::after {
+  content: "";
+  position: absolute;
+  width: var(--arm);
+  height: var(--arm);
+  pointer-events: none;
+  transition: inset 420ms cubic-bezier(0.22, 1, 0.36, 1), border-color 300ms ease, width 420ms cubic-bezier(0.22, 1, 0.36, 1), height 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.brackets::before {
+  top: var(--inset, -14px);
+  left: var(--inset, -14px);
+  border-top: var(--stroke) solid var(--c);
+  border-left: var(--stroke) solid var(--c);
+}
+.brackets::after {
+  bottom: var(--inset, -14px);
+  right: var(--inset, -14px);
+  border-bottom: var(--stroke) solid var(--c);
+  border-right: var(--stroke) solid var(--c);
+}
+/* A flagged detail inside the demo email: small brackets lock onto it. */
+.flag {
+  --arm: 10px;
+  --stroke: 2px;
+  --c: transparent;
+  --inset: -10px;
+}
+.flag[data-on="true"] {
+  --c: var(--color-site-alarm);
+  --inset: -5px;
+}
+.check-draw {
+  stroke-dasharray: 520;
+  stroke-dashoffset: 520;
+  animation: check-draw 620ms cubic-bezier(0.22, 1, 0.36, 1) 120ms forwards;
+}
+@keyframes check-draw {
+  to { stroke-dashoffset: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brackets::before,
+  .brackets::after { transition: none; }
+  .check-draw { animation: none; stroke-dashoffset: 0; }
+}
+/* One orchestrated moment: the brackets lock onto the practice email on load. */
+.lock-in::before { animation: lock-tl 900ms cubic-bezier(0.22, 1, 0.36, 1) 250ms both; }
+.lock-in::after { animation: lock-br 900ms cubic-bezier(0.22, 1, 0.36, 1) 250ms both; }
+@keyframes lock-tl { from { top: -70px; left: -70px; opacity: 0; } to { top: var(--inset); left: var(--inset); opacity: 1; } }
+@keyframes lock-br { from { bottom: -70px; right: -70px; opacity: 0; } to { bottom: var(--inset); right: var(--inset); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .lock-in::before, .lock-in::after { animation: none; }
+}
+
+/* ================================================================== portal */
+.portal {
+  font-family: var(--font-site);
+  background: var(--color-site-ink);
+  color: var(--color-site-paper);
+  -webkit-font-smoothing: antialiased;
+}
+.portal .num { font-variant-numeric: tabular-nums; font-stretch: 112%; letter-spacing: -0.02em; }
+.portal .display { font-family: var(--font-site); letter-spacing: -0.015em; }
+.portal :focus-visible { outline: 2px solid var(--color-site-violet-hi); outline-offset: 2px; border-radius: 10px; }
+
+.panel {
+  position: relative;
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)), #141822;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07), 0 24px 60px -36px rgba(0, 0, 0, 0.8);
+  padding: 22px;
+}
+@media (min-width: 768px) { .panel { padding: 26px; } }
+
+/* The hero band: aurora light over a faint floor grid, the way the lobby reads at night. */
+.aurora {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  background:
+    radial-gradient(60% 90% at 88% 10%, rgba(25, 245, 165, 0.16), transparent 60%),
+    radial-gradient(55% 80% at 70% 100%, rgba(139, 44, 245, 0.32), transparent 65%),
+    radial-gradient(40% 60% at 5% 0%, rgba(164, 92, 255, 0.18), transparent 60%),
+    #121522;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 40px 80px -40px rgba(139, 44, 245, 0.45);
+}
+.aurora::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(80% 90% at 75% 60%, #000 20%, transparent 75%);
+  pointer-events: none;
+}
+.aurora::after {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: conic-gradient(from 0deg at 70% 50%, transparent 0deg, rgba(164, 92, 255, 0.12) 40deg, transparent 90deg, rgba(25, 245, 165, 0.08) 200deg, transparent 260deg);
+  animation: aurora-spin 28s linear infinite;
+  pointer-events: none;
+}
+.aurora > * { position: relative; z-index: 1; }
+@keyframes aurora-spin { to { transform: rotate(360deg); } }
+
+.live-dot { position: relative; width: 8px; height: 8px; border-radius: 999px; background: var(--color-site-mint); box-shadow: 0 0 12px var(--color-site-mint); }
+.live-dot::after { content: ""; position: absolute; inset: -4px; border-radius: 999px; border: 2px solid var(--color-site-mint); animation: live-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite; }
+@keyframes live-ping { 0% { transform: scale(0.6); opacity: 0.9; } 100% { transform: scale(1.8); opacity: 0; } }
+
+.lift { transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s; }
+.lift:hover { transform: translateY(-3px); box-shadow: inset 0 0 0 1px rgba(164, 92, 255, 0.45), 0 30px 60px -30px rgba(139, 44, 245, 0.55); }
+
+.sheet { animation: sheet-in 0.32s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.sheet-scrim { animation: fade-in 0.25s ease-out; }
+@media (min-width: 640px) { .sheet { animation-name: sheet-in-side; } }
+@keyframes sheet-in { from { transform: translateY(40px); opacity: 0; } }
+@keyframes sheet-in-side { from { transform: translateX(40px); opacity: 0; } }
+@keyframes fade-in { from { opacity: 0; } }
+.toast { animation: sheet-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+.feed-in { animation: feed-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); }
+@keyframes feed-in { from { opacity: 0; transform: translateY(-6px); background: rgba(25, 245, 165, 0.08); } }
+
+.podium-bar { background: linear-gradient(180deg, rgba(164, 92, 255, 0.45), rgba(139, 44, 245, 0.08)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2); }
+.podium-bar.gold { background: linear-gradient(180deg, rgba(25, 245, 165, 0.45), rgba(25, 245, 165, 0.06)); }
+
+.nav-item[aria-current="page"] { background: rgba(139, 44, 245, 0.16); color: var(--color-site-paper); box-shadow: inset 2px 0 0 var(--color-site-violet-hi); }
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora::after, .live-dot::after, .sheet, .sheet-scrim, .toast, .feed-in { animation: none; }
+  .lift, .lift:hover { transition: none; transform: none; }
+}
+
+/* Main site: the portal's light, behind the hero and the consequences. */
+.hero-glow::before {
+  content: "";
+  position: absolute;
+  inset: -120px 0 0 0;
+  background:
+    radial-gradient(50% 45% at 85% 8%, rgba(25, 245, 165, 0.1), transparent 70%),
+    radial-gradient(55% 55% at 15% 0%, rgba(139, 44, 245, 0.22), transparent 70%),
+    radial-gradient(60% 40% at 50% 85%, rgba(139, 44, 245, 0.16), transparent 70%);
+  pointer-events: none;
+}
+.hero-glow::after {
+  content: "";
+  position: absolute;
+  inset: -120px 0 40% 0;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(60% 70% at 50% 20%, #000 10%, transparent 75%);
+  pointer-events: none;
+}
+.later-glow { background: radial-gradient(60% 80% at 80% 50%, rgba(255, 90, 95, 0.08), transparent 70%), #12151d; }
+.site .num { font-variant-numeric: tabular-nums; font-stretch: 112%; }
+
+@media print {
+  .no-print, .site [aria-label="Ask a question"] { display: none !important; }
+  .site { background: #fff !important; color: #111 !important; }
+  .site .record { background: #fff !important; box-shadow: none !important; border: 1px solid #ccc; }
+  .site .record * { color: #111 !important; border-color: #ddd !important; }
+}
+/* Long-form guide body */
+.prose-guide { font-size: 18px; line-height: 1.7; color: rgba(250, 250, 252, 0.86); }
+.prose-guide > p + p, .prose-guide > p + ul, .prose-guide > ul + p, .prose-guide > p + ol { margin-top: 1.1em; }
+.prose-guide > ul { list-style: none; padding: 0; }
+.prose-guide > ul > li { position: relative; padding-left: 1.4em; margin-top: 0.55em; }
+.prose-guide > ul > li::before { content: ""; position: absolute; left: 0.2em; top: 0.72em; width: 6px; height: 6px; border-radius: 99px; background: var(--color-site-violet-hi); }
+.prose-guide strong { color: var(--color-site-paper); font-weight: 650; }
+.prose-guide a:not([class]) { color: var(--color-site-paper); text-decoration: underline; text-decoration-color: rgba(164, 92, 255, 0.6); text-underline-offset: 4px; }
+.prose-guide a:not([class]):hover { text-decoration-color: var(--color-site-violet-hi); }
+.prose-guide code { font-size: 0.9em; background: rgba(255, 255, 255, 0.06); padding: 0.1em 0.35em; border-radius: 6px; }
+.steps { counter-reset: step; }
+.steps > li::before { counter-increment: step; content: counter(step); position: absolute; left: 0; top: 0.1em; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 9px; background: rgba(139, 44, 245, 0.18); color: var(--color-site-violet-hi); font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; }
+.toc-link[aria-current="true"] { color: var(--color-site-paper); }
+.toc-link[aria-current="true"]::before { background: var(--color-site-violet-hi); box-shadow: 0 0 10px var(--color-site-violet-hi); }
+
+/* Policy builder: print only the document */
+@media print {
+  body[data-print] .no-print { display: none !important; }
+  body[data-print] .site { background: #fff !important; }
+  body[data-print] main { padding: 0 !important; max-width: none !important; }
+  body[data-print] .print-doc { max-height: none !important; overflow: visible !important; box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; background: #fff !important; }
+  body[data-print] [aria-label="Ask a question"] { display: none !important; }
 }

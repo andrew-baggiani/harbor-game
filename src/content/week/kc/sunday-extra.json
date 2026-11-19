@@ -1,0 +1,130 @@
+[
+  {
+    "id": "s17",
+    "from": "Facilities, company mail",
+    "subject": "Dock gate sticks after ten",
+    "body": "The side gate sticks tonight. Use the main door. No link.",
+    "risky": false,
+    "why": "Internal, a fact, nothing to click or send."
+  },
+  {
+    "id": "s18",
+    "from": "People desk, a lookalike",
+    "subject": "Send every tax form tonight",
+    "body": "The lead wants all the tax forms as one file before morning. Do not call, they are in a review.",
+    "risky": true,
+    "why": "A file of tax forms, a deadline, and a request not to call."
+  },
+  {
+    "id": "s19",
+    "from": "Team calendar",
+    "subject": "Thursday cafe, same time",
+    "body": "Meet at the cafe. No deck. No link.",
+    "risky": false,
+    "why": "A normal move of a meeting you already have."
+  },
+  {
+    "id": "s20",
+    "from": "A coworker",
+    "subject": "Approve this prompt for me",
+    "body": "My phone is dead. When the prompt hits your phone, approve it. It is my login.",
+    "risky": true,
+    "why": "A prompt is for the person signing in. Never for someone else."
+  },
+  {
+    "id": "s21",
+    "from": "The company help desk",
+    "subject": "Ticket you opened is done",
+    "body": "The badge printer on fourteen is back. Reply if it jams again.",
+    "risky": false,
+    "why": "It matches a ticket you opened, on the company address."
+  },
+  {
+    "id": "s22",
+    "from": "Shared file",
+    "subject": "Payroll preview",
+    "body": "A file you did not ask for. It wants you to sign in to see who got what.",
+    "risky": true,
+    "why": "An unexpected file with a bait title and a sign-in."
+  },
+  {
+    "id": "s23",
+    "from": "Security, company mail",
+    "subject": "Your report was received",
+    "body": "We have the thread you sent. Stay out of it. We will pull it back.",
+    "risky": false,
+    "why": "A reply to a report you made, on the real channel."
+  },
+  {
+    "id": "s24",
+    "from": "Cinder Wharf",
+    "subject": "Pay the new account today",
+    "body": "Our bank changed last night. The address is one letter off the vendor you pay.",
+    "risky": true,
+    "why": "A bank change and a lookalike. Call the number already on file."
+  },
+  {
+    "id": "s25",
+    "from": "Kitchen",
+    "subject": "Leftovers, back fridge",
+    "body": "Night crew can finish the soup. Nothing to open.",
+    "risky": false,
+    "why": "A note about food. No ask."
+  },
+  {
+    "id": "s26",
+    "from": "Your phone",
+    "subject": "A code you did not request",
+    "body": "A sign-in code arrived. You are not signing in.",
+    "risky": true,
+    "why": "A code you did not ask for means someone is trying the account."
+  },
+  {
+    "id": "s27",
+    "from": "Training",
+    "subject": "This month's reminder is up",
+    "body": "One question, in the company app you already use. No attachment.",
+    "risky": false,
+    "why": "Points you at the app, not at a link in the mail."
+  },
+  {
+    "id": "s28",
+    "from": "A writing tool",
+    "subject": "Paste the complaint, we will clean it",
+    "body": "Free if you use your personal login. Customer notes welcome.",
+    "risky": true,
+    "why": "Customer details do not go into a personal tool."
+  },
+  {
+    "id": "s29",
+    "from": "Receiving",
+    "subject": "The late truck is at the quay",
+    "body": "Bay two. No paperwork in this note.",
+    "risky": false,
+    "why": "A floor fact. Nothing to pay or open."
+  },
+  {
+    "id": "s30",
+    "from": "Unknown",
+    "subject": "Guest network, no password",
+    "body": "Join Harbor_Guest to read your mail. The real guest name has a space, not an underscore.",
+    "risky": true,
+    "why": "A lookalike network name, and a push to put mail on it."
+  },
+  {
+    "id": "s31",
+    "from": "Benefits, company mail",
+    "subject": "Window opens next week",
+    "body": "Use the bookmark you already have. Do not use a link from mail.",
+    "risky": false,
+    "why": "Internal, and it tells you not to click."
+  },
+  {
+    "id": "s32",
+    "from": "A voice note",
+    "subject": "Release the payment, do not call",
+    "body": "The voice is right. They are walking into a meeting. Call the number you have instead.",
+    "risky": true,
+    "why": "A familiar voice plus do-not-call-back. The known number is the check."
+  }
+]

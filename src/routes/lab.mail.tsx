@@ -8,7 +8,7 @@ import { phishVariants, type InboxContent, type MailResult } from "@/game/mail/m
 // Not linked from the game yet. Open /lab/mail to try it.
 
 export const Route = createFileRoute("/lab/mail")({
-  head: () => ({ meta: [{ title: "Mail lab · Meridian" }] }),
+  head: () => ({ meta: [{ title: "Mail lab · Dry Run Cyber" }] }),
   component: MailLab,
 });
 
@@ -22,7 +22,7 @@ function MailLab() {
 
   return (
     <div className="mx-auto w-full max-w-prose">
-      <Link to="/" className="text-sm text-muted underline-offset-4 hover:underline">
+      <Link to="/play" className="text-sm text-muted underline-offset-4 hover:underline">
         Home
       </Link>
       <h1 className="mt-4 font-display text-4xl">Mail lab</h1>

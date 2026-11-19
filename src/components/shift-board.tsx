@@ -97,8 +97,8 @@ export function ShiftBoard({
           <Button onClick={onExit}>Another shift</Button>
           <ShareButton
             label="Share this shift"
-            title={`Meridian · ${callsign}`}
-            text={`Meridian shift — ${held ? "held" : "lost"}, score ${run.score}, pressure ${run.pressure}. ${callsign}.`}
+            title={`Dry Run Cyber · ${callsign}`}
+            text={`Dry Run Cyber shift — ${held ? "held" : "lost"}, score ${run.score}, pressure ${run.pressure}. ${callsign}.`}
             path={path}
           />
         </div>

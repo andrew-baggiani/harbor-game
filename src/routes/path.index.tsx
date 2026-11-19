@@ -3,7 +3,7 @@ import { LESSONS, MODULES, lessonsFor } from "@/content/curriculum";
 import { moduleMastery, useProgress } from "@/lib/progress";
 
 export const Route = createFileRoute("/path/")({
-  head: () => ({ meta: [{ title: "Path · Meridian" }] }),
+  head: () => ({ meta: [{ title: "Path · Dry Run Cyber" }] }),
   component: PathPage,
 });
 

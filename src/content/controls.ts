@@ -150,7 +150,7 @@ export function coverage(extra: Record<string, string[]> = {}): CoverageRow[] {
   });
 }
 
-/** Known gaps today: role-based tracks (CIS 14.9, AT-3, 3.2.2, PR.AT-02) and monthly reminders (HIPAA A). */
+/** Controls nothing maps to. Role tracks and monthly reminders closed the last ones; this should come back empty. */
 export function gaps(extra: Record<string, string[]> = {}): ControlDef[] {
   return coverage(extra)
     .filter((row) => row.gap)

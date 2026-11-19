@@ -1,0 +1,134 @@
+[
+  {
+    "id": "kc-tue-invoice-1",
+    "skill": "payment-fraud",
+    "prompt": "A vendor email says the bank account changed last night. The invoice is due today.",
+    "choices": [
+      {
+        "id": "pay",
+        "label": "Pay the new account today.",
+        "correct": false
+      },
+      {
+        "id": "call",
+        "label": "Call the number already on file.",
+        "correct": true
+      },
+      {
+        "id": "reply",
+        "label": "Reply and ask them to confirm it.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-tue-invoice-2",
+    "skill": "payment-fraud",
+    "prompt": "The new bank details came from an address one letter off the vendor you pay.",
+    "choices": [
+      {
+        "id": "close",
+        "label": "The name matches. That is enough.",
+        "correct": false
+      },
+      {
+        "id": "stop",
+        "label": "The address is not the one on file.",
+        "correct": true
+      },
+      {
+        "id": "forward",
+        "label": "Forward it to someone who can pay.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-tue-access-1",
+    "skill": "access-control",
+    "prompt": "A contractor's login expired. He asks to use yours for one upload.",
+    "choices": [
+      {
+        "id": "share",
+        "label": "Sign him in. You will watch.",
+        "correct": false
+      },
+      {
+        "id": "desk",
+        "label": "Send him for his own login.",
+        "correct": true
+      },
+      {
+        "id": "watch",
+        "label": "Do the upload while he watches.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-tue-access-2",
+    "skill": "access-control",
+    "prompt": "The upload finished. He asks you to stay signed in for one more file.",
+    "choices": [
+      {
+        "id": "stay",
+        "label": "Stay signed in. It is the same job.",
+        "correct": false
+      },
+      {
+        "id": "out",
+        "label": "Sign out and send him to the desk.",
+        "correct": true
+      },
+      {
+        "id": "lunch",
+        "label": "Leave it open and step away.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-tue-shadow-1",
+    "skill": "shadow-it",
+    "prompt": "The company share is down. A coworker sends a free site for the client file.",
+    "choices": [
+      {
+        "id": "upload",
+        "label": "Upload it. The client is waiting.",
+        "correct": false
+      },
+      {
+        "id": "wait",
+        "label": "Wait for the company share.",
+        "correct": true
+      },
+      {
+        "id": "mail",
+        "label": "Mail it to a personal address.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-tue-badge-1",
+    "skill": "physical-access",
+    "prompt": "A contractor badge is on the lobby bench. The photo is face down.",
+    "choices": [
+      {
+        "id": "use",
+        "label": "Use it to get back upstairs.",
+        "correct": false
+      },
+      {
+        "id": "desk",
+        "label": "Take it to the security desk.",
+        "correct": true
+      },
+      {
+        "id": "leave",
+        "label": "Leave it. Someone will notice.",
+        "correct": false
+      }
+    ]
+  }
+]

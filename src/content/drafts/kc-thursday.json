@@ -1,0 +1,134 @@
+[
+  {
+    "id": "kc-thu-voice-1",
+    "skill": "vishing",
+    "prompt": "A voice like the finance lead wants a payment out now, and says not to call back.",
+    "choices": [
+      {
+        "id": "send",
+        "label": "Release it. The voice is right.",
+        "correct": false
+      },
+      {
+        "id": "back",
+        "label": "Hang up. Call the number on file.",
+        "correct": true
+      },
+      {
+        "id": "text",
+        "label": "Text the number that just called.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-thu-voice-2",
+    "skill": "vishing",
+    "prompt": "The caller says they are walking into a meeting and cannot be reached.",
+    "choices": [
+      {
+        "id": "skip",
+        "label": "Then you can skip the callback.",
+        "correct": false
+      },
+      {
+        "id": "file",
+        "label": "Then you use the number on file.",
+        "correct": true
+      },
+      {
+        "id": "after",
+        "label": "Send the payment and tell them after.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-thu-laptop-1",
+    "skill": "asset-loss",
+    "prompt": "Your laptop bag is gone. The machine was asleep, not shut down.",
+    "choices": [
+      {
+        "id": "wait",
+        "label": "Wait and see if it turns up.",
+        "correct": false
+      },
+      {
+        "id": "call",
+        "label": "Call the help desk and report it missing.",
+        "correct": true
+      },
+      {
+        "id": "lock",
+        "label": "Lock it from your phone. Tell no one.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-thu-laptop-2",
+    "skill": "asset-loss",
+    "prompt": "You tried a remote lock. You are not sure it reached the laptop.",
+    "choices": [
+      {
+        "id": "hope",
+        "label": "A lock you hope for is not a report.",
+        "correct": true
+      },
+      {
+        "id": "quiet",
+        "label": "No one else needs to know.",
+        "correct": false
+      },
+      {
+        "id": "buy",
+        "label": "Buy a replacement and expense it.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-thu-wifi-1",
+    "skill": "remote-access",
+    "prompt": "The cafe network has no password. Company mail wants to sync.",
+    "choices": [
+      {
+        "id": "join",
+        "label": "Join and read the mail.",
+        "correct": false
+      },
+      {
+        "id": "hot",
+        "label": "Use the company hotspot.",
+        "correct": true
+      },
+      {
+        "id": "once",
+        "label": "Join for one reply, then leave.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-thu-home-1",
+    "skill": "remote-work",
+    "prompt": "You step out. The work laptop is unlocked. Someone in the house wants a minute.",
+    "choices": [
+      {
+        "id": "door",
+        "label": "Let them. You can see it from the door.",
+        "correct": false
+      },
+      {
+        "id": "lock",
+        "label": "Lock it and take it with you.",
+        "correct": true
+      },
+      {
+        "id": "watch",
+        "label": "Stay in the doorway until they finish.",
+        "correct": false
+      }
+    ]
+  }
+]

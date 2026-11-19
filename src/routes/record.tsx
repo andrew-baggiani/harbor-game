@@ -9,7 +9,7 @@ import { cardQuery, lessonAverage, useProgress } from "@/lib/progress";
 import { cleanCallsign, cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/record")({
-  head: () => ({ meta: [{ title: "Record · Meridian" }] }),
+  head: () => ({ meta: [{ title: "Record · Dry Run Cyber" }] }),
   component: RecordPage,
 });
 
@@ -58,8 +58,8 @@ function RecordPage() {
         <div className="mt-4">
           <ShareButton
             label="Share field card"
-            title={`Meridian · ${state.callsign}`}
-            text={`Meridian field card — ${state.callsign}, ${current.name}, ${state.xp} XP.${drillBits ? ` Drills: ${drillBits}.` : ""} Snapshot, not a credential.`}
+            title={`Dry Run Cyber · ${state.callsign}`}
+            text={`Dry Run Cyber field card — ${state.callsign}, ${current.name}, ${state.xp} XP.${drillBits ? ` Drills: ${drillBits}.` : ""} Snapshot, not a credential.`}
             path={`/card?${query}`}
           />
         </div>

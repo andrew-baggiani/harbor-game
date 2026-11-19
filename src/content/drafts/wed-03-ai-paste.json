@@ -1,0 +1,104 @@
+{
+  "id": "WED-03-ai",
+  "version": "1.0.0-draft",
+  "day": "wednesday",
+  "location": "Desk_Player",
+  "trigger": "Ai_Window",
+  "roles": [
+    "all"
+  ],
+  "skill": "data-handling",
+  "controls": {
+    "CIS_v8.1": [
+      "3.13",
+      "14.5"
+    ],
+    "NIST_800-53r5": [
+      "AT-2"
+    ],
+    "NIST_800-171r2": [
+      "3.1.22"
+    ],
+    "CMMC_L2": [
+      "AC.L2-3.1.22"
+    ],
+    "HIPAA": [
+      "164.308(a)(5)(ii)(A)"
+    ],
+    "CSF_2.0": [
+      "PR.DS-02",
+      "PR.AT-01"
+    ]
+  },
+  "variants": [
+    {
+      "caller": "Browser tab",
+      "pressure": "rushed",
+      "tell": "paste"
+    }
+  ],
+  "prompt": {
+    "who": "Browser tab",
+    "role": "A writing tool, personal login",
+    "text": "A personal writing tool is open. The box says it will clean up your paragraph. The paragraph is a customer complaint, with the account number in it."
+  },
+  "choices": [
+    {
+      "id": "wed-ai-paste",
+      "label": "Paste it and clean it up",
+      "outcome": "pasted",
+      "score": 0,
+      "verb": "decided",
+      "flag": "paste",
+      "ok": false,
+      "debrief": "That box is a personal account. The complaint is not.",
+      "bark": "You pasted it.",
+      "report": "A customer complaint and an account number went into a personal tool.",
+      "voice_line": "You pasted a customer complaint into a personal tool.",
+      "fallout": {
+        "when": "friday",
+        "text": "The same paragraph is sitting in that tool's history, on a login that is not the company's."
+      }
+    },
+    {
+      "id": "wed-ai-strip",
+      "label": "Take out the name and the account number, then paste",
+      "outcome": "stripped",
+      "score": 40,
+      "verb": "decided",
+      "flag": "strip",
+      "ok": false,
+      "debrief": "Stripping the obvious fields still left the story, and the tool is still personal.",
+      "bark": "You pasted a stripped version.",
+      "report": "A customer story went out, with the name removed.",
+      "voice_line": "You removed the name and still pasted the rest.",
+      "fallout": {
+        "when": "friday",
+        "text": "The story is specific enough that the customer is obvious without the name."
+      }
+    },
+    {
+      "id": "wed-ai-local",
+      "label": "Rewrite it yourself in the company mail",
+      "outcome": "local",
+      "score": 100,
+      "verb": "decided",
+      "flag": "local",
+      "ok": true,
+      "debrief": "The company mail is the place that complaint already lives.",
+      "bark": "You rewrote it in company mail.",
+      "report": "The complaint stayed in company mail.",
+      "voice_line": "You rewrote it in company mail. Nothing was pasted out."
+    }
+  ],
+  "beat": "ai",
+  "next": "down",
+  "flagKey": "wedAi",
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{REPORT_CHANNEL}}"
+  ],
+  "knowledge_check_pool": "kc/wednesday",
+  "draft_note": "800-171 3.1.22 is public posting of CUI. A personal AI tool is the closest fit. Confirm before locking the crosswalk."
+}

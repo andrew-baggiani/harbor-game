@@ -147,7 +147,30 @@ function prepare(root: THREE.Object3D) {
           spot.penumbra = 0.65;
           spot.decay = 2;
         }
-      } else if (lamp.startsWith("Lobby_Light") || lamp.startsWith("F14_")) {
+      } else if (lamp.startsWith("Lobby_Light")) {
+        // Front-left hangs over reception, front-right and back-right over the directory.
+        // The other back-row lights sit on the gate bank, which is already in the lightmap.
+        const reception = lamp === "Lobby_Light_0";
+        const directory = lamp === "Lobby_Light_2" || lamp === "Lobby_Light_5";
+        if (reception) {
+          light.color.set("#ffe3bf");
+          light.intensity = 22;
+          if (point.isPointLight) point.distance = 8;
+        } else if (directory) {
+          light.color.set("#f0d7b4");
+          light.intensity = 14;
+          if (point.isPointLight) point.distance = 9;
+        } else if (lamp === "Lobby_Light_1") {
+          light.color.set("#efe6d8");
+          light.intensity = 8;
+          if (point.isPointLight) point.distance = 11;
+        } else {
+          light.color.set("#c9d4e4");
+          light.intensity = 4.5;
+          if (point.isPointLight) point.distance = 10;
+        }
+        if (point.isPointLight) point.decay = 2;
+      } else if (lamp.startsWith("F14_")) {
         light.color.set("#e7eef8");
         light.intensity = 12;
         if (point.isPointLight) point.distance = 16;
@@ -177,6 +200,14 @@ function prepare(root: THREE.Object3D) {
         physical.metalness = Math.min(physical.metalness, 0.08);
         physical.depthWrite = false;
       }
+    }
+    const pendant = mesh.name.endsWith("Pendant_Light") ? mesh.name : (mesh.parent?.name ?? "");
+    if (pendant.endsWith("Pendant_Light") && !Array.isArray(mesh.material)) {
+      const warm = pendant !== "Gate_Pendant_Light";
+      const mat = (mesh.material as THREE.MeshStandardMaterial).clone();
+      mat.emissive = new THREE.Color(warm ? "#ffe3bf" : "#c5d0e0");
+      mat.emissiveIntensity = warm ? 1.6 : 0.4;
+      mesh.material = mat;
     }
   });
 }
@@ -336,6 +367,52 @@ function showLed(root: THREE.Object3D, which: "off" | "red" | "green") {
   if (green) green.visible = which === "green";
 }
 
+/** Framed art, the directory, the whiteboard and two stickies: swapped onto the existing
+ *  label materials by name, so the models don't need re-exporting. Images are pre-cropped to
+ *  each frame's shape (see public/assets/textures/art). */
+const ART: Record<string, string> = {
+  "label_art_0.png": "lobby_art_0.webp",
+  "label_art_1.png": "lobby_art_1.webp",
+  "label_art_2.png": "lobby_art_2.webp",
+  "label_directory.png": "directory.webp",
+  "label_whiteboard.png": "whiteboard.webp",
+  "label_sticky_green.png": "sticky_a.webp",
+  "label_sticky_pink.png": "sticky_b.webp",
+};
+const artCache = new Map<string, THREE.Texture>();
+const artLoader = new THREE.TextureLoader();
+function artTexture(file: string) {
+  let tex = artCache.get(file);
+  if (!tex) {
+    tex = artLoader.load(`/assets/textures/art/${file}`);
+    tex.flipY = false;
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 4;
+    artCache.set(file, tex);
+  }
+  return tex;
+}
+function applyArt(root: THREE.Object3D) {
+  root.traverse((obj) => {
+    const mesh = obj as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    for (const m of materials as THREE.MeshStandardMaterial[]) {
+      const key = Object.keys(ART).find((k) => m.name?.endsWith(k));
+      if (!key) continue;
+      const tex = artTexture(ART[key]);
+      if (m.map) {
+        tex.wrapS = m.map.wrapS;
+        tex.wrapT = m.map.wrapT;
+        tex.channel = m.map.channel;
+      }
+      m.map = tex;
+      if (m.emissiveMap) m.emissiveMap = tex;
+      m.needsUpdate = true;
+    }
+  });
+}
+
 export function HarborWorld() {
   const block = useGLTFOnce(`${MODEL_BASE}harbor_block.glb`);
   const office = useGLTFOnce(`${MODEL_BASE}harbor_office_f14.glb`);
@@ -368,12 +445,13 @@ export function HarborWorld() {
   const scenes = useMemo(() => {
     const loaded = [block, office, props, car, lobbyDetail, floorDetail, cab, shaft, security, beats];
     for (const gltf of loaded) prepare(gltf.scene);
+    for (const gltf of [lobbyDetail, floorDetail, lobbyBaked, f14Baked]) applyArt(gltf.scene);
     // Desk monitor: register it for the desk zoom and show this shift's inbox on it,
     // the same picture the clickable inbox opens with, so the hand-off is invisible.
     const deskScreen = office.scene.getObjectByName("Monitor_Player_Screen");
     if (deskScreen) {
       registerScreen("desk", deskScreen);
-      applyScreenImage(deskScreen, `/assets/ui/desk_inbox_${focus.mailVariant === 0 ? "a" : "b"}.jpg`);
+      applyScreenImage(deskScreen, `/assets/ui/desk_inbox_${focus.mailVariant === 0 ? "a" : "b"}.jpg?v=2`);
     }
     for (const gltf of [lobbyDetail, floorDetail, cab, shaft, security, beats]) applyDefaultVisible(gltf.scene);
     beats.scene.traverse((obj) => {

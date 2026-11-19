@@ -1,4 +1,6 @@
 import { enterFocus, focusActive, showApp } from "@/game/focus";
+import { playSfx, setBed, setBedFor, warmSounds } from "@/game/sound";
+import { mondayNearby, mondayUse } from "@/game/mondayPlay";
 import { tickFallout } from "@/game/fallout";
 import { DESK, DOOR, ELEVATOR, ELEVATOR_F14, MAYA, OFFICE_Y, USB, slide } from "@/game/layout";
 import { blip, caption, say, setEngine, setRing, setWalking, tickAudio, voiceBusy, sayNext } from "@/game/audio";
@@ -61,6 +63,13 @@ export function step(dt: number) {
   publishProbe();
   dt = Math.min(dt, 0.033);
   tickAudio(dt);
+  // What plays under Monday: muzak in the elevator, the room's own bed indoors, the water outside.
+  const riding = world.ride === "board" || world.ride === "hold" || world.ride === "shut" || world.ride === "ride";
+  if (store.boot) setBed(null, null);
+  else {
+    warmSounds();
+    setBedFor(riding ? "elevator" : world.py > 10 ? "f14" : world.py < 2 && insideTower(world.px, world.pz) ? "lobby" : "harbor");
+  }
 
   if (world.ride === "idle" && world.fadingIn) {
     world.fade = Math.max(0, world.fade - dt * 1.7);
@@ -364,6 +373,7 @@ function stepRide(dt: number) {
     }
     if (world.rideT >= 2.4 && world.rideMoved && world.fade === 0) {
       world.ride = "arrive";
+      playSfx("sfx-elevator-ding", 0.6);
       world.rideT = 0;
       world.cabButton = "";
       world.indicator = up ? "14" : "L";
@@ -456,6 +466,10 @@ function takeCar(index: number) {
 function tryInteract() {
   const store = useHarbor.getState();
   const action = world.use;
+  if (action.startsWith("toy:") || action.startsWith("find:")) {
+    mondayUse(action);
+    return;
+  }
   if (action === "out") {
     fleet[0].x = world.carX;
     fleet[0].z = world.carZ;
@@ -693,6 +707,15 @@ function computePrompt(): string | null {
   if (store.beat === "cleandesk" && !store.flags.cleandesk && world.py > 10 && dist(x, z, PRINTER) < 1.6) {
     world.use = "cleandesk";
     return "E  ·  Printouts on the printer";
+  }
+  // Optional toys and finds, only when no beat above was in reach.
+  const level = world.py > 10 ? "f14" : world.py < 2 && insideTower(x, z) ? "lobby" : null;
+  if (level) {
+    const near = mondayNearby(x, z, level);
+    if (near) {
+      world.use = near.use;
+      return near.prompt;
+    }
   }
   if (store.beat === "leave" && world.py < 2) return "Walk out the front door";
   if (world.py < 2 && insideTower(x, z)) {

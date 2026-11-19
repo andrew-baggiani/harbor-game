@@ -440,7 +440,7 @@ export const LESSONS_A: Lesson[] = [
       {
         heading: "Let a generator do it",
         paragraphs: [
-          "The company password manager can invent a long random secret and remember it. You remember one strong vault passphrase. Everything else can be impossible to type from memory, which is a feature. Meridian never stores what you type in the forge.",
+          "The company password manager can invent a long random secret and remember it. You remember one strong vault passphrase. Everything else can be impossible to type from memory, which is a feature. Dry Run Cyber never stores what you type in the forge.",
         ],
       },
     ],

@@ -6,6 +6,7 @@ import { choiceOf, currentVariants, pickVariants, variantOf } from "@/game/scena
 import { say, sayLineNext } from "@/game/audio";
 import { resetFocus } from "@/game/focus";
 import { FALLOUT_FROM_CHOICE, addFallout, after, resetFallout } from "@/game/fallout";
+import { logDecision, logShiftComplete, newShiftRun } from "@/game/telemetry";
 
 export type Bark = { who: string; text: string };
 
@@ -208,6 +209,7 @@ export const useHarbor = create<HarborStore>((set, get) => ({
     const found = choiceOf(id);
     const flags = applyFlag(get().flags, id);
     recordDecision(id);
+    if (found) logDecision(id);
     const bark = barkFor(id);
     if (found?.choice.then?.length) {
       world.misdirectScreen = "sent";
@@ -293,11 +295,13 @@ export const useHarbor = create<HarborStore>((set, get) => ({
   finish: () => {
     if (get().report) return;
     sealShift(get().flags);
+    logShiftComplete();
     set({ beat: "done", report: true, objective: objectiveFor("done"), prompt: null, talk: null });
     world.ending = true;
   },
   reset: () => {
     resetRecord();
+    newShiftRun();
     resetFocus();
     resetFallout();
     world.px = SPAWN.x;

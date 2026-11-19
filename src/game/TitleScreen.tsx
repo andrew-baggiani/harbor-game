@@ -21,16 +21,8 @@ export function Key({ children, wide = false }: { children: ReactNode; wide?: bo
   );
 }
 
-export type Shift = { day: string; title: string; topics: string; status: "open" | "soon" };
-
-/** The week: one shift a day, each a ~20-minute night mapped to a block of required training. */
-export const WEEK: Shift[] = [
-  { day: "Monday", title: "First night", topics: "Tailgating · phishing · phone scams · MFA push · USB drops · updates · wire fraud · misdirected email · clean desk", status: "open" },
-  { day: "Tuesday", title: "The vendor", topics: "Invoice and payment fraud · third-party access · shadow IT · contractor badges", status: "soon" },
-  { day: "Wednesday", title: "The data", topics: "Customer and patient data · classification · sharing links · AI tools and confidential data", status: "soon" },
-  { day: "Thursday", title: "On the road", topics: "Public Wi-Fi · lost device · travel · deepfake voice and video · working from home", status: "soon" },
-  { day: "Friday", title: "The incident", topics: "Insider risk · spotting and reporting an incident · the first hour · what not to delete", status: "soon" },
-];
+import { WEEK } from "@/game/week";
+export { WEEK };
 
 type Panel = "main" | "week" | "controls";
 
@@ -93,7 +85,7 @@ export function TitleScreen() {
           <span className="flex h-9 w-9 items-center justify-center border border-[#c4a574] font-game text-lg font-bold text-[#c4a574]">H</span>
           <div className="leading-none">
             <p className="font-game text-lg font-semibold tracking-[0.18em]">HARBOR &amp; CO.</p>
-            <p className="mt-1 text-[11px] tracking-[0.2em] text-[#a8a59c]">SECURITY TRAINING · MERIDIAN</p>
+            <p className="mt-1 text-[11px] tracking-[0.2em] text-[#a8a59c]">SECURITY TRAINING · DRY RUN CYBER</p>
           </div>
         </header>
 
@@ -101,7 +93,7 @@ export function TitleScreen() {
           {panel === "main" && (
             <>
               <p className="font-game text-sm font-semibold tracking-[0.3em]" style={{ color: GOLD }}>
-                WEEK 1 · MONDAY
+                DRY RUN CYBER · WEEK 1 · MONDAY
               </p>
               <h1 className="mt-1 font-game text-7xl leading-[0.86] font-bold uppercase md:text-[6.5rem]">
                 The night

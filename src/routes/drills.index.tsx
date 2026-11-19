@@ -5,7 +5,7 @@ import { useClientNow } from "@/lib/dates";
 import { useProgress } from "@/lib/progress";
 
 export const Route = createFileRoute("/drills/")({
-  head: () => ({ meta: [{ title: "Drills · Meridian" }] }),
+  head: () => ({ meta: [{ title: "Drills · Dry Run Cyber" }] }),
   component: DrillsPage,
 });
 
@@ -25,7 +25,7 @@ function DrillsPage() {
       <div className="mt-5">
         <ShareButton
           label="Share the drill hall"
-          title="Meridian drills"
+          title="Dry Run Cyber drills"
           text="Scored cybersecurity drills: inbox triage, links, calls, passwords, data, incidents, and a wire."
           path="/drills"
         />

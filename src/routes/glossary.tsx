@@ -3,7 +3,7 @@ import { GLOSSARY } from "@/content/glossary";
 import { ShareButton } from "@/components/share-button";
 
 export const Route = createFileRoute("/glossary")({
-  head: () => ({ meta: [{ title: "Glossary · Meridian" }] }),
+  head: () => ({ meta: [{ title: "Glossary · Dry Run Cyber" }] }),
   component: GlossaryPage,
 });
 
@@ -20,7 +20,7 @@ function GlossaryPage() {
       <div className="mt-5">
         <ShareButton
           label="Share the glossary"
-          title="Meridian glossary"
+          title="Dry Run Cyber glossary"
           text="Short definitions for a cybersecurity awareness field school."
           path="/glossary"
         />

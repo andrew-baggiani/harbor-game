@@ -6,7 +6,7 @@ import { useProgress } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/review")({
-  head: () => ({ meta: [{ title: "Review · Meridian" }] }),
+  head: () => ({ meta: [{ title: "Review · Dry Run Cyber" }] }),
   component: ReviewPage,
 });
 

@@ -49,7 +49,7 @@ export function Meter({ value, label }: { value: number; label: string }) {
 export function Missing({ what }: { what: string }) {
   return (
     <div className="mx-auto max-w-prose">
-      <p className="text-sm text-faint">Meridian</p>
+      <p className="text-sm text-faint">Dry Run Cyber</p>
       <h1 className="mt-2 font-display text-4xl text-balance">Not on this floor</h1>
       <p className="mt-3 text-pretty text-muted">That {what} is not in this edition.</p>
     </div>

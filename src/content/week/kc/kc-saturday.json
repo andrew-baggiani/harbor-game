@@ -1,0 +1,222 @@
+[
+  {
+    "id": "kc-sat-6",
+    "skill": "smishing",
+    "prompt": "The fee page asks for the full card number. The store app shows no fee.",
+    "choices": [
+      {
+        "id": "card",
+        "label": "Pay. The app must be behind.",
+        "correct": false
+      },
+      {
+        "id": "app",
+        "label": "Close it. The app is the order.",
+        "correct": true
+      },
+      {
+        "id": "save",
+        "label": "Save the card for next time.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-sat-7",
+    "skill": "authentication",
+    "prompt": "A leaked password with a new number on the end. What do attackers try first?",
+    "choices": [
+      {
+        "id": "new",
+        "label": "A completely different phrase.",
+        "correct": false
+      },
+      {
+        "id": "near",
+        "label": "The leaked one, and small changes.",
+        "correct": true
+      },
+      {
+        "id": "old",
+        "label": "Only passwords from ten years ago.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-sat-8",
+    "skill": "oversharing",
+    "prompt": "Friends-only, and the badge is still in the photo. What is the risk?",
+    "choices": [
+      {
+        "id": "none",
+        "label": "Friends cannot share a picture.",
+        "correct": false
+      },
+      {
+        "id": "shot",
+        "label": "A screenshot leaves the group.",
+        "correct": true
+      },
+      {
+        "id": "day",
+        "label": "The risk is posting on a weekend.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-sat-9",
+    "skill": "home-network",
+    "prompt": "You changed the Wi-Fi password. The admin password is still the one on the sticker.",
+    "choices": [
+      {
+        "id": "done",
+        "label": "The network is finished.",
+        "correct": false
+      },
+      {
+        "id": "admin",
+        "label": "The admin door is still open.",
+        "correct": true
+      },
+      {
+        "id": "name",
+        "label": "A short Wi-Fi name closes it.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-sat-10",
+    "skill": "smishing",
+    "prompt": "You were expecting a parcel. A text says it is held.",
+    "choices": [
+      {
+        "id": "expect",
+        "label": "Expecting it makes the text real.",
+        "correct": false
+      },
+      {
+        "id": "app",
+        "label": "Expecting it is why you check the app.",
+        "correct": true
+      },
+      {
+        "id": "fee",
+        "label": "A small fee means it is real.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-sat-11",
+    "skill": "authentication",
+    "prompt": "The streaming password is new and unique. Work still uses the old pattern.",
+    "choices": [
+      {
+        "id": "fine",
+        "label": "One site was enough.",
+        "correct": false
+      },
+      {
+        "id": "work",
+        "label": "Work still has the leaked twin.",
+        "correct": true
+      },
+      {
+        "id": "wait",
+        "label": "Wait for work to force a change.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-sat-12",
+    "skill": "oversharing",
+    "prompt": "The board in the photo shows a guest password. You already posted.",
+    "choices": [
+      {
+        "id": "leave",
+        "label": "Leave it. Few people will zoom.",
+        "correct": false
+      },
+      {
+        "id": "pull",
+        "label": "Take it down, and tell the desk.",
+        "correct": true
+      },
+      {
+        "id": "crop",
+        "label": "Crop it now. The post already went.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-sat-13",
+    "skill": "home-network",
+    "prompt": "Work traffic crosses the home router some days. The firmware is from years ago.",
+    "choices": [
+      {
+        "id": "old",
+        "label": "Old firmware is fine if it is fast.",
+        "correct": false
+      },
+      {
+        "id": "upd",
+        "label": "Update it before you trust it.",
+        "correct": true
+      },
+      {
+        "id": "off",
+        "label": "Turn the router off overnight.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-sat-14",
+    "skill": "smishing",
+    "prompt": "Three more texts arrive after you reply. What did the reply do?",
+    "choices": [
+      {
+        "id": "stop",
+        "label": "It stopped a real courier.",
+        "correct": false
+      },
+      {
+        "id": "live",
+        "label": "It showed the number is read.",
+        "correct": true
+      },
+      {
+        "id": "fee",
+        "label": "It paid the fee.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-sat-15",
+    "skill": "authentication",
+    "prompt": "Where should the new unique passwords live?",
+    "choices": [
+      {
+        "id": "head",
+        "label": "In your head, one pattern.",
+        "correct": false
+      },
+      {
+        "id": "mgr",
+        "label": "In a password manager.",
+        "correct": true
+      },
+      {
+        "id": "note",
+        "label": "On a note in the laptop bag.",
+        "correct": false
+      }
+    ]
+  }
+]

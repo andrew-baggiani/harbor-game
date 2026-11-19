@@ -1,0 +1,111 @@
+{
+  "id": "TUE-02-contractor",
+  "version": "1.0.0-draft",
+  "day": "tuesday",
+  "location": "Floor14_Aisle",
+  "trigger": "Contractor_Laptop",
+  "roles": [
+    "all"
+  ],
+  "skill": "access-control",
+  "controls": {
+    "CIS_v8.1": [
+      "6.3",
+      "6.5"
+    ],
+    "NIST_800-53r5": [
+      "AC-2",
+      "AC-6",
+      "IA-2(2)"
+    ],
+    "NIST_800-171r2": [
+      "3.1.1",
+      "3.1.5",
+      "3.5.3"
+    ],
+    "CMMC_L2": [
+      "AC.L2-3.1.1",
+      "AC.L2-3.1.5",
+      "IA.L2-3.5.3"
+    ],
+    "HIPAA": [
+      "164.312(d)",
+      "164.312(a)(2)(i)"
+    ],
+    "CSF_2.0": [
+      "PR.AA-01",
+      "PR.AA-03"
+    ]
+  },
+  "variants": [
+    {
+      "caller": "Contractor",
+      "pressure": "rushed",
+      "tell": "share"
+    }
+  ],
+  "prompt": {
+    "who": "Contractor",
+    "role": "Standing at a dark laptop",
+    "text": "He says his login expired at noon and the job has to go out tonight. He asks to borrow yours, just to upload one folder."
+  },
+  "choices": [
+    {
+      "id": "tue-access-share",
+      "label": "Sign him in on your account",
+      "outcome": "shared",
+      "score": 0,
+      "verb": "decided",
+      "flag": "share",
+      "ok": false,
+      "debrief": "Your name is now on his work.",
+      "bark": "You signed him in.",
+      "report": "A contractor used your account for the rest of the night.",
+      "voice_line": "You lent your login. The work will be filed under your name.",
+      "fallout": {
+        "when": "friday",
+        "text": "A folder you never opened was uploaded under your name, after you had gone home."
+      }
+    },
+    {
+      "id": "tue-access-desk",
+      "label": "Send him to the service desk for his own login",
+      "outcome": "separated",
+      "score": 100,
+      "verb": "reported",
+      "flag": "desk",
+      "ok": true,
+      "debrief": "His own login can be turned off when the job ends. Yours cannot, once he has it.",
+      "bark": "You sent him to the service desk.",
+      "report": "The contractor was sent for his own account.",
+      "voice_line": "You sent him to the service desk. One person, one login."
+    },
+    {
+      "id": "tue-access-watch",
+      "label": "Let him watch while you upload it",
+      "outcome": "shoulder",
+      "score": 40,
+      "verb": "decided",
+      "flag": "watch",
+      "ok": false,
+      "debrief": "He still saw the screen, the path, and how you sign in.",
+      "bark": "You uploaded it while he watched.",
+      "report": "You kept the password and still showed him the way in.",
+      "voice_line": "You did the upload yourself, with him looking over your shoulder.",
+      "fallout": {
+        "when": "wednesday",
+        "text": "He asks a coworker for the same path, and names the folder he saw on your screen."
+      }
+    }
+  ],
+  "beat": "contractor",
+  "next": "shadow",
+  "flagKey": "tueContractor",
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{REPORT_CHANNEL}}"
+  ],
+  "knowledge_check_pool": "kc/tuesday",
+  "draft_note": "Right choice is a separate account, not a supervised use of yours."
+}

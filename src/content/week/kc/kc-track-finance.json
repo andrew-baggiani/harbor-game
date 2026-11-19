@@ -1,0 +1,222 @@
+[
+  {
+    "id": "kc-fin-6",
+    "skill": "payroll-diversion",
+    "prompt": "They say email is easiest because they are on site. Payroll runs tomorrow.",
+    "choices": [
+      {
+        "id": "fast",
+        "label": "On site plus a deadline means do it.",
+        "correct": false
+      },
+      {
+        "id": "portal",
+        "label": "On site means they can use the portal.",
+        "correct": true
+      },
+      {
+        "id": "reply",
+        "label": "Reply, and update if they say yes.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-fin-7",
+    "skill": "payroll-diversion",
+    "prompt": "You replied, and the same mailbox confirmed the new account.",
+    "choices": [
+      {
+        "id": "ok",
+        "label": "A confirmation is the check.",
+        "correct": false
+      },
+      {
+        "id": "same",
+        "label": "The mailbox may be the attacker.",
+        "correct": true
+      },
+      {
+        "id": "run",
+        "label": "Update it so the run is not late.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-fin-8",
+    "skill": "payment-fraud",
+    "prompt": "The text says you will be reimbursed for the cards.",
+    "choices": [
+      {
+        "id": "safe",
+        "label": "Reimbursed means it is internal.",
+        "correct": false
+      },
+      {
+        "id": "cash",
+        "label": "The codes are cash. Call a known number.",
+        "correct": true
+      },
+      {
+        "id": "ask",
+        "label": "Text back and ask which store.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-fin-9",
+    "skill": "payment-fraud",
+    "prompt": "You call the number you already have. They did not send the text.",
+    "choices": [
+      {
+        "id": "buy",
+        "label": "Buy the cards anyway. It was close.",
+        "correct": false
+      },
+      {
+        "id": "report",
+        "label": "Do not buy. Report the number.",
+        "correct": true
+      },
+      {
+        "id": "codes",
+        "label": "Send one code as a test.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-fin-10",
+    "skill": "segregation-of-duties",
+    "prompt": "The approver is out. The batch is tomorrow. Your coworker entered the change.",
+    "choices": [
+      {
+        "id": "cover",
+        "label": "Cover them. You trust them.",
+        "correct": false
+      },
+      {
+        "id": "two",
+        "label": "One person still cannot finish it.",
+        "correct": true
+      },
+      {
+        "id": "split",
+        "label": "Split the payment so it fits your limit.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-fin-11",
+    "skill": "segregation-of-duties",
+    "prompt": "Both halves of a split go out the same day, to the same new account.",
+    "choices": [
+      {
+        "id": "fine",
+        "label": "Same day means it is one payment.",
+        "correct": false
+      },
+      {
+        "id": "dodge",
+        "label": "That is how a limit gets dodged.",
+        "correct": true
+      },
+      {
+        "id": "vendor",
+        "label": "It is fine if the vendor is old.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-fin-12",
+    "skill": "payroll-diversion",
+    "prompt": "Where should a pay-account change be made?",
+    "choices": [
+      {
+        "id": "mail",
+        "label": "In the mail thread, so there is a record.",
+        "correct": false
+      },
+      {
+        "id": "hr",
+        "label": "In the payroll system, or face to face.",
+        "correct": true
+      },
+      {
+        "id": "chat",
+        "label": "In chat, if you both are online.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-fin-13",
+    "skill": "payment-fraud",
+    "prompt": "A request not to call back is attached to a payment.",
+    "choices": [
+      {
+        "id": "busy",
+        "label": "They are busy. Skip the call.",
+        "correct": false
+      },
+      {
+        "id": "tell",
+        "label": "That is the reason to use the known number.",
+        "correct": true
+      },
+      {
+        "id": "text",
+        "label": "Text the same thread instead.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-fin-14",
+    "skill": "segregation-of-duties",
+    "prompt": "The vendor, on the number already on file, says the bank did not change.",
+    "choices": [
+      {
+        "id": "approve",
+        "label": "Approve it. Your coworker was sure.",
+        "correct": false
+      },
+      {
+        "id": "stop",
+        "label": "Stop the change. Nothing has to leave.",
+        "correct": true
+      },
+      {
+        "id": "half",
+        "label": "Pay half while you think.",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "id": "kc-fin-15",
+    "skill": "payroll-diversion",
+    "prompt": "The real person asks where their pay is. You changed it from the email.",
+    "choices": [
+      {
+        "id": "them",
+        "label": "They must have mistyped the account.",
+        "correct": false
+      },
+      {
+        "id": "mail",
+        "label": "The mailbox was not them.",
+        "correct": true
+      },
+      {
+        "id": "wait",
+        "label": "Wait one more cycle.",
+        "correct": false
+      }
+    ]
+  }
+]

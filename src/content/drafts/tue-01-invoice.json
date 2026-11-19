@@ -1,0 +1,105 @@
+{
+  "id": "TUE-01-invoice",
+  "version": "1.0.0-draft",
+  "day": "tuesday",
+  "location": "Desk_Player",
+  "trigger": "Invoice_Screen",
+  "roles": [
+    "all"
+  ],
+  "skill": "payment-fraud",
+  "controls": {
+    "CIS_v8.1": [
+      "14.2"
+    ],
+    "NIST_800-53r5": [
+      "AT-2",
+      "AT-2(3)"
+    ],
+    "NIST_800-171r2": [
+      "3.2.1",
+      "3.2.3"
+    ],
+    "CMMC_L2": [
+      "AT.L2-3.2.1",
+      "AT.L2-3.2.3"
+    ],
+    "HIPAA": [
+      "164.308(a)(5)(i)"
+    ],
+    "CSF_2.0": [
+      "PR.AT-01"
+    ]
+  },
+  "variants": [
+    {
+      "caller": "Accounts payable",
+      "pressure": "rushed",
+      "tell": "pay"
+    }
+  ],
+  "prompt": {
+    "who": "Accounts payable",
+    "role": "Floor 14",
+    "text": "A vendor email says their bank account changed last night. The invoice is due today. The address is one letter off the vendor you pay every month."
+  },
+  "choices": [
+    {
+      "id": "tue-invoice-pay",
+      "label": "Pay the new account",
+      "outcome": "paid",
+      "score": 0,
+      "verb": "decided",
+      "flag": "pay",
+      "ok": false,
+      "debrief": "The new account was not the vendor. The money left the same day.",
+      "bark": "You paid the new account.",
+      "report": "The invoice was paid to an account the vendor does not own.",
+      "voice_line": "You paid a new account from an email. The vendor never changed banks.",
+      "fallout": {
+        "when": "thursday",
+        "text": "The real vendor calls. Their invoice is still unpaid. The Tuesday payment is already gone."
+      }
+    },
+    {
+      "id": "tue-invoice-call",
+      "label": "Call the vendor on the number already on file",
+      "outcome": "verified",
+      "score": 100,
+      "verb": "reported",
+      "flag": "call",
+      "ok": true,
+      "debrief": "The vendor answers on the old number. They did not change banks.",
+      "bark": "You called the number on file.",
+      "report": "The bank change was checked on the number the company already had.",
+      "voice_line": "You called the number already on file. They never changed the account."
+    },
+    {
+      "id": "tue-invoice-wait",
+      "label": "Leave it for the morning",
+      "outcome": "delayed",
+      "score": 40,
+      "verb": "decided",
+      "flag": "wait",
+      "ok": false,
+      "debrief": "Waiting avoided the bad payment, and nobody checked the email.",
+      "bark": "You left it.",
+      "report": "The invoice sat overnight. The fake request was not reported.",
+      "voice_line": "You left it for morning. Safe, and the fake request is still in the box.",
+      "fallout": {
+        "when": "wednesday",
+        "text": "The same request is forwarded to someone else, and they pay it."
+      }
+    }
+  ],
+  "beat": "invoice",
+  "next": "contractor",
+  "flagKey": "tueInvoice",
+  "tenant_tokens": [
+    "{{COMPANY}}",
+    "{{HELPDESK_PHONE}}",
+    "{{REPORT_CHANNEL}}"
+  ],
+  "knowledge_check_pool": "kc/tuesday",
+  "draft_note": "flagKey and beat are new. Claude must add them before this file is imported."
+}

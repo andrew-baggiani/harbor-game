@@ -1,4 +1,7 @@
 import { Suspense, useEffect, useRef, useState } from "react";
+import { MONDAY_FINDS } from "@/content/week/play";
+import { useMondayPlay } from "@/game/mondayPlay";
+import { FindProp } from "@/game/weekplay/Scene";
 import { Canvas } from "@react-three/fiber";
 import { useProgress } from "@react-three/drei";
 import { EffectComposer, Bloom, Vignette, ToneMapping, SMAA, BrightnessContrast, HueSaturation } from "@react-three/postprocessing";
@@ -18,6 +21,8 @@ import { exportRecord, gradeKnowledge } from "@/game/records";
 import { markerNow } from "@/game/sim";
 import { keys, useHarbor, world, fleet } from "@/game/state";
 import { ShareButton } from "@/components/share-button";
+import { OrgBoard } from "@/game/OrgBoard";
+import { checkLearner } from "@/game/telemetry";
 
 function LoadBar() {
   const { active, progress } = useProgress();
@@ -43,6 +48,7 @@ export function Harbor({
   const lookDrag = useRef<{ x: number; y: number } | null>(null);
   useEffect(() => {
     useHarbor.getState().reset();
+    useMondayPlay.getState().reset();
     const down = (event: KeyboardEvent) => {
       if (event.repeat && (event.code.startsWith("Digit") || event.code.startsWith("Numpad"))) return;
       press(event.code, true);
@@ -111,6 +117,7 @@ export function Harbor({
         </Suspense>
         <People />
         <Marker />
+        <MondayFinds />
         <Trail />
         <Rain />
         <Rig />
@@ -385,6 +392,9 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
     if (!report) setChecked(false);
   }, [report]);
   useEffect(() => {
+    void checkLearner();
+  }, []);
+  useEffect(() => {
     world.choice = 0;
     setPick(0);
   }, [talk]);
@@ -549,6 +559,7 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
           </button>
         </div>
       ) : null}
+      {!boot && !report ? <FindsCount /> : null}
       {hint && !boot && !talk && !report && !prompt ? <Keys /> : null}
       {talk ? (
         <div className="absolute inset-x-0 bottom-0 flex justify-center bg-gradient-to-t from-[#07090e] via-[#07090e]/80 to-transparent px-4 pb-5 pt-16">
@@ -583,7 +594,7 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
       {report && !checked ? <KnowledgeGate onPassed={() => setChecked(true)} /> : null}
       {report && checked ? (
         <div className="absolute inset-0 flex items-end justify-start bg-[#07090e]/55 p-4 md:items-center md:p-10">
-          <div className="w-full max-w-lg border border-white/10 bg-[#0c0d0f]/95 p-6 md:p-8">
+          <div className="w-full max-h-[calc(100dvh-2rem)] max-w-lg overflow-y-auto border border-white/10 bg-[#0c0d0f]/95 p-6 md:p-8">
             <p className="text-[10px] tracking-[0.24em] text-[#c4a574]">MONDAY CLOSED</p>
             <h2 className="mt-2 font-display text-5xl text-[#f4f0e6]">{scored.title}</h2>
             <p className="mt-2 font-display text-4xl tabular-nums text-[#f4f0e6]">{scored.score}</p>
@@ -615,6 +626,8 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
                 </ul>
               </div>
             )}
+            <SharpEye />
+            <OrgBoard />
             <div className="mt-6 flex flex-wrap gap-3">
               <ShareButton
                 label="Share the night"
@@ -631,6 +644,7 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
                 onClick={() => {
                   filed.current = false;
                   useHarbor.getState().reset();
+                  useMondayPlay.getState().reset();
                   useHarbor.getState().setBoot(false);
                 }}
               >
@@ -826,6 +840,53 @@ function MoveStick({ driving }: { driving: boolean }) {
           <div className="absolute left-1/2 top-1/2 h-11 w-11 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/30" />
           <p className="absolute inset-x-0 bottom-2 text-center text-[10px] tracking-[0.18em] text-[#f4f0e6]">{driving ? "DRIVE" : "MOVE"}</p>
         </div>
+      )}
+    </div>
+  );
+}
+
+function MondayFinds() {
+  const found = useMondayPlay((st) => st.found);
+  return (
+    <>
+      {MONDAY_FINDS.map((f) => (
+        <FindProp key={f.id} find={f} found={!!found[f.id]} />
+      ))}
+    </>
+  );
+}
+
+function FindsCount() {
+  const found = useMondayPlay((st) => st.found);
+  const n = MONDAY_FINDS.filter((f) => found[f.id]).length;
+  if (!n) return null;
+  return (
+    <p className="pointer-events-none absolute right-4 top-16 z-20 font-game text-xs tracking-[0.16em] text-[#8fe0b4]" title="Security slip-ups spotted. Optional.">
+      FINDS {n}/{MONDAY_FINDS.length}
+    </p>
+  );
+}
+
+function SharpEye() {
+  const found = useMondayPlay((st) => st.found);
+  const got = MONDAY_FINDS.filter((f) => found[f.id]);
+  return (
+    <div className="mt-5 border-t border-white/10 pt-4">
+      <p className="text-[10px] tracking-[0.24em] text-[#8fe0b4]">
+        SHARP EYE · {got.length} OF {MONDAY_FINDS.length}
+      </p>
+      {got.length ? (
+        <ul className="mt-2 space-y-1.5 text-sm text-[#d9d4c8]">
+          {got.map((f) => (
+            <li key={f.id}>
+              <span className="text-[#f4f0e6]">{f.label}.</span> {f.why}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-2 text-sm text-[#a8a59c]">
+          {MONDAY_FINDS.length} security slip-ups are hidden in the lobby and on 14. Optional. Play again and poke around.
+        </p>
       )}
     </div>
   );
