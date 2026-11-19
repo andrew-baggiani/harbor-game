@@ -20,7 +20,7 @@ import {
   toySfx,
   type Find,
 } from "@/content/week/play";
-import { Alarm, BeatProp, CastFigure, Decor, FindProp, Papers, Poke, Room, Walker, approach, player, type Nearby } from "@/game/weekplay/Scene";
+import { Alarm, BeatProp, CastFigure, Decor, FindProp, Papers, Poke, Room, ToyDots, Walker, approach, player, type Nearby } from "@/game/weekplay/Scene";
 import { HarborStage, MonitorArt, NightStage } from "@/game/weekplay/HarborStage";
 import { BakedRoom, setRoomBounds } from "@/game/weekplay/BakedRoom";
 import { SETS } from "@/game/weekplay/sets";
@@ -405,6 +405,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           <FindProp key={f.id} find={f} found={!!found[f.id]} />
         ))}
         {poke && <Poke key={poke.key} x={poke.x} y={poke.y} z={poke.z} />}
+        {phase === "play" && <ToyDots toys={toysHere} poked={presses.current} player={() => player} />}
         {fx
           .filter((f) => f.set === roomSet)
           .map((f) => (f.kind === "alarm" ? <Alarm key={f.key} x={f.x} y={f.y} z={f.z} /> : <Papers key={f.key} x={f.x} y={f.y} z={f.z} floor={f.floor} />))}

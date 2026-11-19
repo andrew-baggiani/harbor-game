@@ -9,9 +9,16 @@ import { playSfx } from "@/game/sound";
  */
 
 type MondayPlay = { found: Record<string, true>; reset: () => void };
-export const useMondayPlay = create<MondayPlay>((set) => ({ found: {}, reset: () => set({ found: {} }) }));
+export const useMondayPlay = create<MondayPlay>((set) => ({
+  found: {},
+  reset: () => {
+    for (const k of Object.keys(presses)) delete presses[k];
+    set({ found: {} });
+  },
+}));
 
-const presses: Record<string, number> = {};
+/** Times each toy has been poked this run; the gold dot over a toy goes once it's been poked. */
+export const presses: Record<string, number> = {};
 
 export function mondayUse(action: string) {
   if (action.startsWith("toy:")) {

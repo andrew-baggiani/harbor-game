@@ -63,6 +63,7 @@ export function step(dt: number) {
   publishProbe();
   dt = Math.min(dt, 0.033);
   tickAudio(dt);
+  stepReach(dt);
   // What plays under Monday: muzak in the elevator, the room's own bed indoors, the water outside.
   const riding = world.ride === "board" || world.ride === "hold" || world.ride === "shut" || world.ride === "ride";
   if (store.boot) setBed(null, null);
@@ -110,7 +111,7 @@ export function step(dt: number) {
   world.minutes += dt * 0.35;
   store.setMinute(Math.floor(world.minutes));
 
-  const locked = store.talk != null;
+  const locked = store.talk != null || world.entering >= 0;
   let mx = 0;
   let mz = 0;
   let pace = 0;
@@ -289,9 +290,7 @@ const GATE_LANES: [number, number][] = [
 
 function gateBlock() {
   if (world.py > 4) return [];
-  return GATE_LANES.flatMap(([minX, maxX], index) =>
-    world.laneT[index] > 0.75 ? [] : [{ minX, maxX, minZ: -12.35, maxZ: -11.65, minY: 0, maxY: 1.5 }],
-  );
+  return GATE_LANES.flatMap(([minX, maxX], index) => (world.laneT[index] > 0.75 ? [] : [{ minX, maxX, minZ: -12.35, maxZ: -11.65, minY: 0, maxY: 1.5 }]));
 }
 
 const RIDE_FLOORS = ["L", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14"];
@@ -301,6 +300,16 @@ function inCab() {
 }
 
 function stepLanes(dt: number) {
+  // Free exit, like real turnstiles: walking up to a lane from the elevator side opens it. Badging is
+  // only needed on the way in.
+  if (world.py < 3 && world.pz < -12.3 && world.pz > -14.6) {
+    GATE_LANES.forEach(([minX, maxX], index) => {
+      if (world.px > minX - 0.15 && world.px < maxX + 0.15 && world.laneOpen[index] === 0) {
+        world.laneOpen[index] = 1;
+        world.laneHold[index] = 2.5;
+      }
+    });
+  }
   for (let index = 0; index < 4; index += 1) {
     const target = world.laneOpen[index];
     const step = dt / 0.4;
@@ -310,6 +319,22 @@ function stepLanes(dt: number) {
       if (world.laneHold[index] <= 0) world.laneOpen[index] = 0;
     }
   }
+}
+
+function beginRide(up: boolean) {
+  world.ride = "open";
+  world.rideDir = up ? "up" : "down";
+  world.rideT = 0;
+  world.rideMoved = false;
+  world.cabShown = true;
+  world.cabY = up ? 0 : 50.6;
+  world.cabZ = up ? -17.36 : -16.51;
+  world.elevDoor = 0;
+  world.callLit = true;
+  world.cabButton = "";
+  world.indicator = up ? "L" : "14";
+  world.arrow = up ? "up" : "down";
+  blip(240);
 }
 
 function stepRide(dt: number) {
@@ -335,13 +360,17 @@ function stepRide(dt: number) {
   }
   if (world.ride === "hold") {
     world.rideT += dt;
-    if (world.rideT >= 1) world.ride = "shut";
+    // Turn around to face the doors, the way anyone does in an elevator.
+    world.face = dampAngle(world.face, Math.PI / 2, 4.5, dt);
+    world.camYaw = dampAngle(world.camYaw, Math.PI / 2, 4.5, dt);
+    world.camPitch += (-0.13 - world.camPitch) * (1 - Math.exp(-4 * dt));
+    if (world.rideT >= 1.1) world.ride = "shut";
     return;
   }
   if (world.ride === "shut") {
+    world.face = dampAngle(world.face, Math.PI / 2, 4.5, dt);
+    world.camYaw = dampAngle(world.camYaw, Math.PI / 2, 4.5, dt);
     world.elevDoor = Math.max(0, world.elevDoor - dt / 1.2);
-    // Cut away as the doors close: the ride itself is a short title card, not a close-up of the cab wall.
-    world.fade = Math.min(1, world.fade + dt * 1.4);
     if (world.elevDoor <= 0) {
       world.ride = "ride";
       world.rideT = 0;
@@ -350,40 +379,39 @@ function stepRide(dt: number) {
     return;
   }
   if (world.ride === "ride") {
+    // The whole ride happens inside the cab: doors shut, the readout above them counts the floors,
+    // a little sway. The jump between floors happens behind closed doors, so there's nothing to see.
     world.rideT += dt;
-    world.rideBob = Math.sin(world.rideT * 9) * 0.02;
+    const RIDE = 5.2;
+    const k = Math.min(1, world.rideT / RIDE);
+    const eased = k * k * (3 - 2 * k);
+    world.rideBob = Math.sin(world.rideT * 7) * 0.006 * Math.sin(Math.PI * k);
     const floors = up ? RIDE_FLOORS : [...RIDE_FLOORS].reverse();
-    world.indicator = floors[Math.min(floors.length - 1, Math.floor((world.rideT / 2.5) * floors.length))];
+    world.indicator = floors[Math.min(floors.length - 1, Math.round(eased * (floors.length - 1)))];
     world.arrow = up ? "up" : "down";
     if (!world.rideMoved) {
-      world.fade = Math.min(1, world.fade + dt * 3);
-      if (world.fade >= 1) {
-        world.py += up ? 50.6 : -50.6;
-        world.pz += up ? 0.85 : -0.85;
-        world.cabY += up ? 50.6 : -50.6;
-        world.cabZ += up ? 0.85 : -0.85;
-        // Turn to face the doors so you can walk straight out when they open.
-        world.face += Math.PI;
-        world.camYaw += Math.PI;
-        world.snap = true;
-        world.rideMoved = true;
-      }
-    } else if (world.rideT >= 2.4 && world.fade > 0) {
-      world.fade = Math.max(0, world.fade - dt * 2.2);
+      world.py += up ? 50.6 : -50.6;
+      world.pz += up ? 0.85 : -0.85;
+      world.cabY += up ? 50.6 : -50.6;
+      world.cabZ += up ? 0.85 : -0.85;
+      world.camY += up ? 50.6 : -50.6;
+      world.camZ += up ? 0.85 : -0.85;
+      world.rideMoved = true;
     }
-    if (world.rideT >= 2.4 && world.rideMoved && world.fade === 0) {
+    if (world.rideT >= RIDE) {
       world.ride = "arrive";
+      world.rideBob = 0;
       playSfx("sfx-elevator-ding", 0.6);
       world.rideT = 0;
       world.cabButton = "";
       world.indicator = up ? "14" : "L";
+      world.arrow = "";
       if (up) {
         useHarbor.setState({ beat: "desk", objective: objectiveFor("desk") });
         world.minutes += 4;
       } else {
         useHarbor.setState({ beat: "leave", objective: objectiveFor("leave") });
       }
-      blip(880);
     }
     return;
   }
@@ -398,7 +426,8 @@ function stepRide(dt: number) {
   }
   world.rideT += dt;
   // Doors stay open until you've stepped out: never close on the player.
-  if (world.rideT > 0.8 && !inCab()) {
+  const clear = !inCab() && (world.pz > world.cabZ + 0.9 || Math.abs(world.px - 1.5) > 1.3 || Math.abs(world.py - world.cabY) > 2);
+  if (world.rideT > 0.8 && clear) {
     world.elevDoor = Math.max(0, world.elevDoor - dt / 1.2);
     if (world.elevDoor <= 0) {
       world.cabShown = false;
@@ -424,12 +453,67 @@ function updateGuy(dt: number, door: "held" | "shut" | null) {
     tx = world.doorOpen > 0.45 ? 0.2 : 1.35;
     tz = world.doorOpen > 0.45 ? -3.4 : 0.35;
   } else if (door === "shut") {
-    tx = 7.5;
-    tz = 2.2;
+    // Off down the street, back toward his van, until he's out of sight.
+    tx = 19;
+    tz = 2.6;
   }
-  world.guyX += (tx - world.guyX) * Math.min(1, dt * 1.4);
-  world.guyZ += (tz - world.guyZ) * Math.min(1, dt * 1.4);
+  // Walk there at a person's pace instead of gliding in on an ease-out curve.
+  const dx = tx - world.guyX;
+  const dz = tz - world.guyZ;
+  const d = Math.hypot(dx, dz);
+  const pace = door === "shut" ? 1.5 : 1.25;
+  if (d > 0.02) {
+    const stepLen = Math.min(d, pace * dt);
+    world.guyX += (dx / d) * stepLen;
+    world.guyZ += (dz / d) * stepLen;
+  }
   if (door === "shut" && Math.hypot(world.guyX - tx, world.guyZ - tz) < 0.4) world.guyVisible = false;
+}
+
+/** The driver-side handle of a parked car, on whichever side the player is standing. */
+function carHandle(index: number) {
+  const car = fleet[index];
+  const th = -car.yaw;
+  const lx = car.kind === "van" ? 0.6 : 0.35;
+  const sideA = { x: car.x + lx * Math.cos(th) + 0.86 * Math.sin(th), z: car.z - lx * Math.sin(th) + 0.86 * Math.cos(th) };
+  const sideB = { x: car.x + lx * Math.cos(th) - 0.86 * Math.sin(th), z: car.z - lx * Math.sin(th) - 0.86 * Math.cos(th) };
+  const a = Math.hypot(world.px - sideA.x, world.pz - sideA.z) < Math.hypot(world.px - sideB.x, world.pz - sideB.z) ? sideA : sideB;
+  return { x: a.x, y: car.kind === "van" ? 0.96 : 0.82, z: a.z };
+}
+
+function smooth01(t: number) {
+  const c = Math.min(1, Math.max(0, t));
+  return c * c * (3 - 2 * c);
+}
+
+function startReach(x: number, y: number, z: number, dur: number) {
+  world.reach.x = x;
+  world.reach.y = y;
+  world.reach.z = z;
+  world.reach.t = 0;
+  world.reach.dur = dur;
+}
+
+function stepReach(dt: number) {
+  const r = world.reach;
+  if (r.dur <= 0) return;
+  r.t += dt;
+  const k = r.t / r.dur;
+  // Up to the handle over the first half, hold, then let go.
+  r.w = k < 0.5 ? smooth01(k / 0.5) : 1 - smooth01((k - 0.75) / 0.25);
+  if (world.entering >= 0 && k >= 0.62) {
+    const car = world.entering;
+    world.entering = -1;
+    r.dur = 0;
+    r.w = 0;
+    playSfx("sfx-poke", 0.5);
+    takeCar(car);
+    return;
+  }
+  if (k >= 1) {
+    r.dur = 0;
+    r.w = 0;
+  }
 }
 
 function takeCar(index: number) {
@@ -484,7 +568,14 @@ function tryInteract() {
   }
   if (action === "car") {
     const car = nearestFleet(world.px, world.pz, 8);
-    if (car >= 0) takeCar(car);
+    if (car < 0) return;
+    // Close enough to the driver's door: reach for the handle first, then get in.
+    const h = carHandle(car);
+    if (Math.hypot(world.px - h.x, world.pz - h.z) < 2.6) {
+      world.entering = car;
+      world.face = Math.atan2(h.z - world.pz, h.x - world.px);
+      startReach(h.x, h.y, h.z, 0.6);
+    } else takeCar(car);
     return;
   }
   if (action.startsWith("gate-")) {
@@ -527,6 +618,8 @@ function tryInteract() {
     return;
   }
   if (action === "badge") {
+    // Hand on the door's pull as it swings open.
+    startReach(world.px < DOOR.x ? DOOR.x - 0.32 : DOOR.x + 0.32, 1.05, DOOR.z + 0.12, 0.9);
     world.doorOpen = 1;
     world.reader = "green";
     blip(720);
@@ -535,20 +628,7 @@ function tryInteract() {
     return;
   }
   if (action === "up" || action === "down") {
-    const up = action === "up";
-    world.ride = "open";
-    world.rideDir = up ? "up" : "down";
-    world.rideT = 0;
-    world.rideMoved = false;
-    world.cabShown = true;
-    world.cabY = up ? 0 : 50.6;
-    world.cabZ = up ? -17.36 : -16.51;
-    world.elevDoor = 0;
-    world.callLit = true;
-    world.cabButton = "";
-    world.indicator = up ? "L" : "14";
-    world.arrow = up ? "up" : "down";
-    blip(240);
+    beginRide(action === "up");
     return;
   }
   if (action === "updates") {
@@ -728,6 +808,8 @@ function computePrompt(): string | null {
 export function markerNow(): { x: number; y: number; z: number } | null {
   const store = useHarbor.getState();
   if (store.report || store.boot) return null;
+  // Nothing to point at while the cab is moving.
+  if (world.ride === "hold" || world.ride === "shut" || world.ride === "ride") return null;
   const beat = store.beat;
   const outside = world.py < 2 && world.pz < 2.2;
   const inLobby = world.py < 2 && insideTower(world.px, world.pz);
@@ -824,5 +906,18 @@ function publishProbe() {
     setPitch: (pitch: number) => {
       world.camPitch = pitch;
     },
+    ride: (up: boolean) => beginRide(up),
+    state: () => ({
+      ride: world.ride,
+      indicator: world.indicator,
+      py: world.py,
+      pz: world.pz,
+      door: world.elevDoor,
+      lanes: [...world.laneT],
+      guy: [world.guyX, world.guyZ, world.guyVisible],
+      car: { ...fleet[0] },
+      driving: world.driving,
+      reach: { ...world.reach },
+    }),
   };
 }

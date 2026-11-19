@@ -88,6 +88,10 @@ export const world = {
   laneT: [0, 0, 0, 0] as number[],
   laneHold: [0, 0, 0, 0] as number[],
   gatePoints: [] as { lane: number; x: number; z: number }[],
+  /** The player's right hand reaching for something: weight 0..1 and the world point. */
+  reach: { w: 0, x: 0, y: 0, z: 0, t: 0, dur: 0 },
+  /** A car the player is opening the door of; they get in when the reach lands. -1 = none. */
+  entering: -1,
   callX: 1.5,
   callZ: -16.4,
   pending: "" as "" | "misdirect" | "signin" | "cleandesk",
@@ -348,6 +352,9 @@ export const useHarbor = create<HarborStore>((set, get) => ({
     world.laneT = [0, 0, 0, 0];
     world.laneHold = [0, 0, 0, 0];
     world.gatePoints = [];
+    world.reach.w = 0;
+    world.reach.dur = 0;
+    world.entering = -1;
     world.pending = "";
     world.quiet = 0;
     world.buzz = 0;

@@ -45,6 +45,18 @@ type Entry = {
 const colliders: Entry[] = [];
 let ready = false;
 
+/** getObjectByName walks the whole scene graph; these lookups run every frame, so cache them per root. */
+const nameCache = new WeakMap<THREE.Object3D, Map<string, THREE.Object3D | null>>();
+function byName(root: THREE.Object3D, name: string): THREE.Object3D | undefined {
+  let m = nameCache.get(root);
+  if (!m) {
+    m = new Map();
+    nameCache.set(root, m);
+  }
+  if (!m.has(name)) m.set(name, root.getObjectByName(name) ?? null);
+  return m.get(name) ?? undefined;
+}
+
 export function sceneryReady() {
   return ready;
 }
@@ -248,7 +260,7 @@ function applyDefaultVisible(root: THREE.Object3D) {
 }
 
 function hideNamed(root: THREE.Object3D, name: string) {
-  const node = root.getObjectByName(name);
+  const node = byName(root, name);
   if (node) node.visible = false;
 }
 
@@ -257,16 +269,16 @@ let blinkT = 0;
 function showCabReadout(root: THREE.Object3D) {
   const floors = ["L", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14"];
   for (const floor of floors) {
-    const node = root.getObjectByName(`Elevator_Cab_Indicator_${floor}`);
+    const node = byName(root, `Elevator_Cab_Indicator_${floor}`);
     if (node) node.visible = floor === world.indicator;
   }
-  const up = root.getObjectByName("Elevator_Cab_Indicator_Up");
-  const down = root.getObjectByName("Elevator_Cab_Indicator_Down");
+  const up = byName(root, "Elevator_Cab_Indicator_Up");
+  const down = byName(root, "Elevator_Cab_Indicator_Down");
   if (up) up.visible = world.arrow === "up";
   if (down) down.visible = world.arrow === "down";
   for (const floor of ["14", "L"] as const) {
-    const lit = root.getObjectByName(`Elevator_Cab_Button_${floor}_Lit`);
-    const unlit = root.getObjectByName(`Elevator_Cab_Button_${floor}_Unlit`);
+    const lit = byName(root, `Elevator_Cab_Button_${floor}_Lit`);
+    const unlit = byName(root, `Elevator_Cab_Button_${floor}_Unlit`);
     const on = world.cabButton === floor;
     if (lit) lit.visible = on;
     if (unlit) unlit.visible = !on;
@@ -275,7 +287,7 @@ function showCabReadout(root: THREE.Object3D) {
 
 function findNamed(roots: THREE.Object3D[], name: string) {
   for (const root of roots) {
-    const node = root.getObjectByName(name);
+    const node = byName(root, name);
     if (node) return node;
   }
   return null;
@@ -313,7 +325,7 @@ function showLanding(block: THREE.Object3D, office: THREE.Object3D, floor: THREE
 
 function showNamed(root: THREE.Object3D, name: string, visible: boolean) {
   if (!name) return;
-  const node = root.getObjectByName(name);
+  const node = byName(root, name);
   if (node) node.visible = visible;
 }
 
@@ -340,9 +352,9 @@ function showMondayBeats(root: THREE.Object3D, floor: THREE.Object3D) {
   showNamed(root, "Beat_CleanDesk_Sticky_Player", world.playerSticky);
   showNamed(root, "Beat_CleanDesk_PlayerScreen_Locked", world.lockScreen && desk?.lock_node === "Beat_CleanDesk_PlayerScreen_Locked");
   showNamed(root, "Beat_CleanDesk_Desk07Screen_Locked", world.lockScreen && desk?.lock_node === "Beat_CleanDesk_Desk07Screen_Locked");
-  const note = floor.getObjectByName("Sticky_Password_Desk07");
+  const note = byName(floor, "Sticky_Password_Desk07");
   if (note) note.visible = world.desk07Note && desk?.sticky_node === "Sticky_Password_Desk07";
-  const phone = root.getObjectByName("Beat_Signin_Phone");
+  const phone = byName(root, "Beat_Signin_Phone");
   if (phone) {
     if (phone.userData.baseY == null) phone.userData.baseY = phone.position.y;
     const base = Number(phone.userData.baseY);
@@ -352,16 +364,16 @@ function showMondayBeats(root: THREE.Object3D, floor: THREE.Object3D) {
 
 function blinkRacks(root: THREE.Object3D, dt: number) {
   blinkT += dt;
-  const a = root.getObjectByName("ServerRack_LEDs_A");
-  const b = root.getObjectByName("ServerRack_LEDs_B");
+  const a = byName(root, "ServerRack_LEDs_A");
+  const b = byName(root, "ServerRack_LEDs_B");
   if (a) a.visible = Math.sin(blinkT * Math.PI * 2 * 2) > 0;
   if (b) b.visible = Math.sin(blinkT * Math.PI * 2 * 1.3 + Math.PI) > 0;
 }
 
 function showLed(root: THREE.Object3D, which: "off" | "red" | "green") {
-  const off = root.getObjectByName("BadgeReader_LED_Off");
-  const red = root.getObjectByName("BadgeReader_LED_Red");
-  const green = root.getObjectByName("BadgeReader_LED_Green");
+  const off = byName(root, "BadgeReader_LED_Off");
+  const red = byName(root, "BadgeReader_LED_Red");
+  const green = byName(root, "BadgeReader_LED_Green");
   if (off) off.visible = which === "off";
   if (red) red.visible = which === "red";
   if (green) green.visible = which === "green";
@@ -448,7 +460,7 @@ export function HarborWorld() {
     for (const gltf of [lobbyDetail, floorDetail, lobbyBaked, f14Baked]) applyArt(gltf.scene);
     // Desk monitor: register it for the desk zoom and show this shift's inbox on it,
     // the same picture the clickable inbox opens with, so the hand-off is invisible.
-    const deskScreen = office.scene.getObjectByName("Monitor_Player_Screen");
+    const deskScreen = byName(office.scene, "Monitor_Player_Screen");
     if (deskScreen) {
       registerScreen("desk", deskScreen);
       applyScreenImage(deskScreen, `/assets/ui/desk_inbox_${focus.mailVariant === 0 ? "a" : "b"}.jpg?v=2`);
@@ -464,7 +476,7 @@ export function HarborWorld() {
         material.polygonOffsetUnits = -1;
       }
     });
-    const parked = block.scene.getObjectByName("Company_Sedan_Navy");
+    const parked = byName(block.scene, "Company_Sedan_Navy");
     if (parked) parked.visible = false;
     hideNamed(block.scene, "Harbor_Tower");
     hideNamed(block.scene, "Lobby_Interior");
@@ -483,15 +495,15 @@ export function HarborWorld() {
       hideReplaced(scene, originals);
       void applyBakedLighting(scene, MODEL_BASE);
     }
-    const cabRoot = cab.scene.getObjectByName("Elevator_Cab");
-    const cabShell = cabBaked.scene.getObjectByName("Elevator_Cab_Shell_Baked");
+    const cabRoot = byName(cab.scene, "Elevator_Cab");
+    const cabShell = byName(cabBaked.scene, "Elevator_Cab_Shell_Baked");
     if (cabRoot && cabShell) cabRoot.add(cabShell);
-    const bakedGate = lobbyBaked.scene.getObjectByName("SpeedGate_Bank_Baked");
+    const bakedGate = byName(lobbyBaked.scene, "SpeedGate_Bank_Baked");
     if (bakedGate) bakedGate.visible = false;
-    const liveGate = lobbyDetail.scene.getObjectByName("SpeedGate_Bank");
+    const liveGate = byName(lobbyDetail.scene, "SpeedGate_Bank");
     if (liveGate) liveGate.visible = true;
     for (const name of ["Elevator_Cab_Door_L", "Elevator_Cab_Door_R"]) {
-      cab.scene.getObjectByName(name)?.traverse((obj) => {
+      byName(cab.scene, name)?.traverse((obj) => {
         const mesh = obj as THREE.Mesh;
         if (!mesh.isMesh || mesh.userData.harborDoorMetal || Array.isArray(mesh.material)) return;
         const material = (mesh.material as THREE.MeshStandardMaterial).clone();
@@ -533,8 +545,8 @@ export function HarborWorld() {
     collect(f14Baked.scene);
     ready = true;
     setWorldLive(true);
-    const left = block.scene.getObjectByName("Lobby_Door_L");
-    const right = block.scene.getObjectByName("Lobby_Door_R");
+    const left = byName(block.scene, "Lobby_Door_L");
+    const right = byName(block.scene, "Lobby_Door_R");
     doors.current.left = left ?? null;
     doors.current.right = right ?? null;
     elev.current = [
@@ -545,7 +557,7 @@ export function HarborWorld() {
       "Elevator_Cab_Door_L",
       "Elevator_Cab_Door_R",
     ]
-      .map((name) => block.scene.getObjectByName(name) ?? office.scene.getObjectByName(name) ?? cab.scene.getObjectByName(name))
+      .map((name) => byName(block.scene, name) ?? byName(office.scene, name) ?? byName(cab.scene, name))
       .filter((node): node is THREE.Object3D => !!node);
     for (const door of elev.current) {
       door.userData.baseX = door.position.x;
@@ -557,11 +569,11 @@ export function HarborWorld() {
       if (data.role !== "turnstile") return;
       flaps.current.push({ node: obj, lane: Number(data.lane ?? 1), deg: Number(data.open_deg ?? 90) });
     });
-    cabRoot.current = cab.scene.getObjectByName("Elevator_Cab") ?? cab.scene;
+    cabRoot.current = byName(cab.scene, "Elevator_Cab") ?? cab.scene;
     if (left && !left.userData.restQuat) left.userData.restQuat = left.quaternion.clone();
     if (right && !right.userData.restQuat) right.userData.restQuat = right.quaternion.clone();
     showLed(block.scene, "off");
-    const root = car.scene.getObjectByName("Company_Sedan_Navy") ?? car.scene;
+    const root = byName(car.scene, "Company_Sedan_Navy") ?? car.scene;
     carRoot.current = root;
     wheels.current = [];
     root.traverse((obj) => {
@@ -569,8 +581,8 @@ export function HarborWorld() {
       const steer = obj.name.endsWith("_FL") || obj.name.endsWith("_FR");
       wheels.current.push({ steer, bone: obj, rest: obj.quaternion.clone() });
     });
-    const envelope = office.scene.getObjectByName("Envelope_Mail");
-    const ring = office.scene.getObjectByName("DeskPhone_RingLight");
+    const envelope = byName(office.scene, "Envelope_Mail");
+    const ring = byName(office.scene, "DeskPhone_RingLight");
     if (envelope) envelope.visible = false;
     if (ring) ring.visible = false;
     return () => {
@@ -578,7 +590,20 @@ export function HarborWorld() {
       setWorldLive(false);
       colliders.length = 0;
     };
-  }, [block.scene, office.scene, car.scene, lobbyDetail.scene, floorDetail.scene, cab.scene, shaft.scene, beats.scene, lobbyBaked.scene, frontBaked.scene, f14Baked.scene, cabBaked.scene]);
+  }, [
+    block.scene,
+    office.scene,
+    car.scene,
+    lobbyDetail.scene,
+    floorDetail.scene,
+    cab.scene,
+    shaft.scene,
+    beats.scene,
+    lobbyBaked.scene,
+    frontBaked.scene,
+    f14Baked.scene,
+    cabBaked.scene,
+  ]);
 
   useFrame(({ scene }, raw) => {
     const dt = Math.min(raw, 0.05);
@@ -619,22 +644,25 @@ export function HarborWorld() {
       flap.node.rotation.y = THREE.MathUtils.degToRad(flap.deg) * t;
       const readerOn = t > 0.15 ? "Green" : "Off";
       for (const state of ["Off", "Red", "Green"]) {
-        const led = lobbyDetail.scene.getObjectByName(`Turnstile_L${flap.lane}_Reader_LED_${state}`);
+        const led = byName(lobbyDetail.scene, `Turnstile_L${flap.lane}_Reader_LED_${state}`);
         if (led) led.visible = state === readerOn;
       }
     }
-    const points: { lane: number; x: number; z: number }[] = [];
-    const gateBox = new THREE.Box3();
-    for (let lane = 1; lane <= 4; lane += 1) {
-      const reader = lobbyDetail.scene.getObjectByName(`Turnstile_L${lane}_Reader`);
-      if (!reader) continue;
-      gateBox.setFromObject(reader);
-      if (gateBox.isEmpty()) continue;
-      gateBox.getCenter(_center);
-      points.push({ lane, x: _center.x, z: _center.z });
+    // The readers don't move: find them once.
+    if (!world.gatePoints.length) {
+      const points: { lane: number; x: number; z: number }[] = [];
+      const gateBox = new THREE.Box3();
+      for (let lane = 1; lane <= 4; lane += 1) {
+        const reader = byName(lobbyDetail.scene, `Turnstile_L${lane}_Reader`);
+        if (!reader) continue;
+        gateBox.setFromObject(reader);
+        if (gateBox.isEmpty()) continue;
+        gateBox.getCenter(_center);
+        points.push({ lane, x: _center.x, z: _center.z });
+      }
+      world.gatePoints = points;
     }
-    world.gatePoints = points;
-    const call = lobbyDetail.scene.getObjectByName("Elevator_Lobby_A_CallButton");
+    const call = byName(lobbyDetail.scene, "Elevator_Lobby_A_CallButton");
     if (call) {
       call.getWorldPosition(_center);
       world.callX = _center.x;
@@ -651,19 +679,19 @@ export function HarborWorld() {
     blinkRacks(floorDetail.scene, raw);
     showMondayBeats(beats.scene, floorDetail.scene);
 
-    const envelope = office.scene.getObjectByName("Envelope_Mail");
-    const ring = office.scene.getObjectByName("DeskPhone_RingLight");
+    const envelope = byName(office.scene, "Envelope_Mail");
+    const ring = byName(office.scene, "DeskPhone_RingLight");
     if (envelope) envelope.visible = beat === "desk";
     if (ring) ring.visible = beat === "phone";
 
-    const card = props.scene.getObjectByName("Courier_BlankCard");
+    const card = byName(props.scene, "Courier_BlankCard");
     if (card) {
       card.visible = world.badgeOut > 0 && world.guyVisible;
       card.position.set(world.guyX + 0.22, 1.2, world.guyZ + 0.28);
       card.rotation.set(-0.5, 0.2, 0.4);
     }
-    const phone = props.scene.getObjectByName("Maya_Phone");
-    const form = props.scene.getObjectByName("Wire_Form");
+    const phone = byName(props.scene, "Maya_Phone");
+    const form = byName(props.scene, "Wire_Form");
     const showMaya = beat === "maya";
     if (phone) {
       phone.visible = showMaya;
