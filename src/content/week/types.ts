@@ -23,7 +23,9 @@ export type PropKind = "screen" | "phone" | "badge" | "paper" | "laptop" | "driv
 export type Prop = { kind: PropKind; a?: string; b?: string; text?: string; textB?: string; /** Opening the prop shows B straight away. */ reveal?: boolean };
 
 /** What the room shows after a choice. `at` is seconds from the choice; the player sees it at 0.4x. */
-export type FalloutStep = { at: number; who: string; text: string; flip?: boolean };
+/** fx: what the room does at this step. Default: an alarm pulse on a flip, a buzz otherwise. "papers" throws sheets out of the prop. */
+export type FalloutFx = "alarm" | "buzz" | "papers" | "none";
+export type FalloutStep = { at: number; who: string; text: string; flip?: boolean; fx?: FalloutFx };
 
 export type WeekChoice = ScenarioChoice & { voice_line?: string; fallout?: { when: string; text: string } };
 

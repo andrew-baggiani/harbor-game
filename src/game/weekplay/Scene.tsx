@@ -11,7 +11,17 @@ import { roomBlocked } from "@/game/weekplay/BakedRoom";
 import { blockedIn, type RoomSet, type Spot } from "@/game/weekplay/sets";
 
 /** Mutable per-frame player state, shared with the HUD. */
-export const player = { x: 0, z: 0, yaw: 0, pitch: -0.08, moveX: 0, moveZ: 0, keys: new Set<string>(), near: false, moving: false };
+export const player = {
+  x: 0,
+  z: 0,
+  yaw: 0,
+  pitch: -0.08,
+  moveX: 0,
+  moveZ: 0,
+  keys: new Set<string>(),
+  near: false,
+  moving: false,
+};
 
 /** Greybox cast colours. A MetaHuman swap keys off the same slot name. */
 const CAST_LOOK: Record<CastSlot, { color: string; accent: string }> = {
@@ -92,7 +102,7 @@ function windowTexture(): THREE.Texture {
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 1024, 256);
   let seed = 7;
-  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   for (let b = 0; b < 26; b += 1) {
     const bx = b * 40 + rnd() * 10;
     const bh = 60 + rnd() * 170;
@@ -161,12 +171,7 @@ export function Room({ set }: { set: RoomSet }) {
       {set.pieces.map((p, i) => (
         <mesh key={i} position={[p.x, (p.y ?? 0) + p.h / 2, p.z]} castShadow receiveShadow>
           <boxGeometry args={[p.w, p.h, p.d]} />
-          <meshStandardMaterial
-            color={p.color ?? "#3a3d44"}
-            roughness={0.8}
-            emissive={p.glow ?? "#000"}
-            emissiveIntensity={p.glow ? 0.16 : 0}
-          />
+          <meshStandardMaterial color={p.color ?? "#3a3d44"} roughness={0.8} emissive={p.glow ?? "#000"} emissiveIntensity={p.glow ? 0.16 : 0} />
         </mesh>
       ))}
     </group>
@@ -188,9 +193,17 @@ export function approach(spot: Spot) {
 }
 
 /** One beat's prop at its spot, with a column of light where the player stands when it's the live beat. */
-export function BeatProp({ beat, set, flipped, live }: { beat: WeekBeat; set: RoomSet; flipped: boolean; live: boolean }) {
+export function BeatProp({ beat, set, flipped, live, shakeAt = 0 }: { beat: WeekBeat; set: RoomSet; flipped: boolean; live: boolean; shakeAt?: number }) {
   const spot = set.spots[beat.spot];
   const tex = beat.prop ? propTexture(beat.prop, flipped) : null;
+  const shaker = useRef<THREE.Group>(null);
+  useFrame(() => {
+    const g = shaker.current;
+    if (!g) return;
+    const age = (performance.now() - shakeAt) / 1000;
+    const k = shakeAt && age < 1.4 ? (1 - age / 1.4) * 0.012 : 0;
+    g.position.set(Math.sin(age * 90) * k, Math.abs(Math.sin(age * 60)) * k * 0.6, Math.cos(age * 75) * k);
+  });
   if (!spot) return null;
   const kind = beat.prop?.kind ?? "screen";
   const [pw, ph] = PROP_SIZE[kind];
@@ -202,21 +215,27 @@ export function BeatProp({ beat, set, flipped, live }: { beat: WeekBeat; set: Ro
     <group>
       {beat.prop && !onMonitor && (
         <group position={[spot.x, spot.py, spot.z]} rotation={[0, spot.face ?? Math.atan2(at.x - spot.x, at.z - spot.z), 0]}>
-          <group position={[0, flat ? 0.01 : ph / 2 + 0.02, 0]} rotation={[flat ? -Math.PI / 2 + 0.35 : -0.12, 0, 0]}>
-            <mesh castShadow>
-              <boxGeometry args={[pw + 0.02, ph + 0.02, kind === "paper" ? 0.003 : 0.012]} />
-              <meshStandardMaterial color={kind === "paper" ? "#e9e4d8" : "#0e1014"} roughness={kind === "paper" ? 0.9 : 0.35} metalness={kind === "paper" ? 0 : 0.4} />
-            </mesh>
-            <mesh position={[0, 0, kind === "paper" ? 0.002 : 0.0065]}>
-              <planeGeometry args={[pw, ph]} />
-              <meshBasicMaterial map={tex ?? undefined} color={tex ? "#ffffff" : "#1a2230"} toneMapped={false} />
-            </mesh>
-            {kind === "laptop" && (
-              <mesh position={[0, -ph / 2 - 0.01, 0.16]} rotation={[Math.PI / 2 - 0.12, 0, 0]}>
-                <boxGeometry args={[pw + 0.02, 0.3, 0.014]} />
-                <meshStandardMaterial color="#1c1f25" roughness={0.4} metalness={0.5} />
+          <group ref={shaker}>
+            <group position={[0, flat ? 0.01 : ph / 2 + 0.02, 0]} rotation={[flat ? -Math.PI / 2 + 0.35 : -0.12, 0, 0]}>
+              <mesh castShadow>
+                <boxGeometry args={[pw + 0.02, ph + 0.02, kind === "paper" ? 0.003 : 0.012]} />
+                <meshStandardMaterial
+                  color={kind === "paper" ? "#e9e4d8" : "#0e1014"}
+                  roughness={kind === "paper" ? 0.9 : 0.35}
+                  metalness={kind === "paper" ? 0 : 0.4}
+                />
               </mesh>
-            )}
+              <mesh position={[0, 0, kind === "paper" ? 0.002 : 0.0065]}>
+                <planeGeometry args={[pw, ph]} />
+                <meshBasicMaterial map={tex ?? undefined} color={tex ? "#ffffff" : "#1a2230"} toneMapped={false} />
+              </mesh>
+              {kind === "laptop" && (
+                <mesh position={[0, -ph / 2 - 0.01, 0.16]} rotation={[Math.PI / 2 - 0.12, 0, 0]}>
+                  <boxGeometry args={[pw + 0.02, 0.3, 0.014]} />
+                  <meshStandardMaterial color="#1c1f25" roughness={0.4} metalness={0.5} />
+                </mesh>
+              )}
+            </group>
           </group>
           {/* No lights here on purpose: adding or removing a light recompiles every material in the tower. */}
         </group>
@@ -296,8 +315,7 @@ export function Walker({
     const dx = (-sin * fwd + cos * side) * speed * dt;
     const dz = (-cos * fwd - sin * side) * speed * dt;
     const floor = set.harbor?.y ?? 0;
-    const hit = (x: number, z: number) =>
-      set.harbor ? blocked(x, z, floor, 0.26) : set.baked ? roomBlocked(x, z, floor, 0.26) : blockedIn(set, x, z);
+    const hit = (x: number, z: number) => (set.harbor ? blocked(x, z, floor, 0.26) : set.baked ? roomBlocked(x, z, floor, 0.26) : blockedIn(set, x, z));
     if (!hit(player.x + dx, player.z)) player.x += dx;
     if (!hit(player.x, player.z + dz)) player.z += dz;
     const bob = len > 0.1 ? Math.sin(performance.now() / 140) * 0.025 : 0;
@@ -384,7 +402,14 @@ export function FindProp({ find, found }: { find: Find; found: boolean }) {
         ) : (
           <mesh position={[0, 0, 0.002]}>
             <planeGeometry args={[pw, ph]} />
-            <meshStandardMaterial map={tex} roughness={0.8} side={THREE.DoubleSide} emissive="#ffffff" emissiveMap={tex} emissiveIntensity={find.kind === "tablet" ? 0.9 : 0.12} />
+            <meshStandardMaterial
+              map={tex}
+              roughness={0.8}
+              side={THREE.DoubleSide}
+              emissive="#ffffff"
+              emissiveMap={tex}
+              emissiveIntensity={find.kind === "tablet" ? 0.9 : 0.12}
+            />
           </mesh>
         )}
         <mesh ref={glint} position={[pw * 0.3, ph * 0.3, 0.02]}>
@@ -433,5 +458,108 @@ export function Poke({ x, y, z }: { x: number; y: number; z: number }) {
       <ringGeometry args={[0.8, 1, 40]} />
       <meshBasicMaterial color="#e7c48a" transparent opacity={0.9} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
     </mesh>
+  );
+}
+
+/** A red warning pulse where something just went wrong: three beats over about two seconds. */
+export function Alarm({ x, y, z }: { x: number; y: number; z: number }) {
+  const ring = useRef<THREE.Mesh>(null);
+  const glow = useRef<THREE.Mesh>(null);
+  const born = useRef<number | null>(null);
+  useFrame(({ clock, camera }) => {
+    born.current ??= clock.elapsedTime;
+    const t = clock.elapsedTime - born.current;
+    const alive = t < 2.4;
+    const beat = alive ? Math.max(0, Math.sin((t / 0.8) * Math.PI * 2 - Math.PI / 2)) : 0;
+    const fade = alive ? 1 - t / 2.4 : 0;
+    if (ring.current) {
+      ring.current.quaternion.copy(camera.quaternion);
+      ring.current.scale.setScalar(0.25 + ((t % 0.8) / 0.8) * 0.45);
+      (ring.current.material as THREE.MeshBasicMaterial).opacity = 0.85 * fade * (1 - (t % 0.8) / 0.8);
+    }
+    if (glow.current) {
+      glow.current.quaternion.copy(camera.quaternion);
+      (glow.current.material as THREE.MeshBasicMaterial).opacity = 0.55 * beat * fade;
+    }
+  });
+  return (
+    <group position={[x, y, z]}>
+      <mesh ref={glow}>
+        <planeGeometry args={[0.9, 0.9]} />
+        <meshBasicMaterial
+          map={glowTexture()}
+          color="#ff2a1a"
+          transparent
+          opacity={0}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+      <mesh ref={ring}>
+        <ringGeometry args={[0.85, 1, 40]} />
+        <meshBasicMaterial color="#ff3b2b" transparent opacity={0} depthWrite={false} toneMapped={false} />
+      </mesh>
+    </group>
+  );
+}
+
+let glowTex: THREE.Texture | null = null;
+function glowTexture(): THREE.Texture {
+  if (glowTex) return glowTex;
+  const c = document.createElement("canvas");
+  c.width = c.height = 64;
+  const ctx = c.getContext("2d")!;
+  const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 64, 64);
+  glowTex = new THREE.CanvasTexture(c);
+  return glowTex;
+}
+
+const SHEETS = 12;
+/** Sheets of paper thrown out of something and fluttering to the floor. */
+/** dir: the way they fly, radians in the floor plane (cos → x, sin → z). Defaults to +Z, out into the room. */
+export function Papers({ x, y, z, floor, dir = Math.PI / 2 }: { x: number; y: number; z: number; floor: number; dir?: number }) {
+  const mesh = useRef<THREE.InstancedMesh>(null);
+  const born = useRef<number | null>(null);
+  const seeds = useMemo(
+    () =>
+      Array.from({ length: SHEETS }, (_, i) => ({
+        a: dir + (i / (SHEETS - 1) - 0.5) * 2.0 + Math.sin(i * 7.3) * 0.15,
+        v: 0.6 + ((i * 53) % 10) / 12,
+        up: 1.4 + ((i * 31) % 10) / 8,
+        spin: 2 + (i % 5),
+        delay: i * 0.07,
+      })),
+    [dir],
+  );
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  useFrame(({ clock }) => {
+    const m = mesh.current;
+    if (!m) return;
+    born.current ??= clock.elapsedTime;
+    const t0 = clock.elapsedTime - born.current;
+    for (let i = 0; i < SHEETS; i += 1) {
+      const s = seeds.at(i)!;
+      const t = Math.max(0, t0 - s.delay);
+      // Thrown up and out, then a slow flutter down with drag; rests on the floor.
+      const out = s.v * (1 - Math.exp(-t * 1.6));
+      const h = y + s.up * t - 2.2 * t * t * 0.5;
+      const py = Math.max(floor + 0.004, h - Math.max(0, t - 0.6) * 0.35);
+      dummy.position.set(x + Math.cos(s.a) * out, t0 < s.delay ? -999 : py, z + Math.sin(s.a) * out);
+      const landed = py <= floor + 0.005;
+      dummy.rotation.set(landed ? -Math.PI / 2 : Math.sin(t * s.spin) * 1.2, s.a + t * s.spin * 0.6, landed ? 0 : Math.cos(t * s.spin) * 0.8);
+      dummy.updateMatrix();
+      m.setMatrixAt(i, dummy.matrix);
+    }
+    m.instanceMatrix.needsUpdate = true;
+  });
+  return (
+    <instancedMesh ref={mesh} args={[undefined, undefined, SHEETS]}>
+      <planeGeometry args={[0.21, 0.297]} />
+      <meshStandardMaterial color="#f2efe8" roughness={0.9} side={THREE.DoubleSide} />
+    </instancedMesh>
   );
 }

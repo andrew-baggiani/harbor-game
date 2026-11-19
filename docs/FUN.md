@@ -15,5 +15,14 @@ Plan and research: the "Dry Run Cyber: making it fun" doc.
   Nothing optional gates a beat, the check or the score. No jokes in the decision panel or the debrief.
   No names in lines, so the company-name swap keeps working.
 
-Not yet: toys and finds on Monday (separate engine), watchable fallout props, voiced toy lines, finds sent to the
-portal record, exploring time tracked separately.
+- **Monday.** The same toys and finds on floor 14 and in the lobby (`src/game/mondayPlay.ts`), minus the finds Monday
+  already teaches as beats (badge on the counter, printer tray, USB). Two lobby-only finds: the CCTV login on the
+  monitors and the propped stair door. Monday's report gets the same "Sharp eye" section. No coworker on Monday.
+- **Mistakes play out in the room.** Every wrong-choice fallout step jolts the beat's prop; a step that flips the
+  prop also sets off a red pulse with a two-tone alarm blip. `fx: "papers"` on a fallout step (or `papers` on a toy)
+  throws a dozen sheets out into the room. The printer does it on its third poke.
+- **Voices.** Every new line has a stable id and plays `/voice/v2/<id>.mp3` when the file exists, the browser voice
+  otherwise. `node tools/voice/build-sheet.mjs` writes `docs/voice-all.json` (every week, AI-shift and play line with
+  its ElevenLabs voice); `tools/voice/generate.ps1` records the missing ones on a Windows PC.
+
+Not yet: finds sent to the portal record, exploring time tracked separately, watchable fallout on Monday.
