@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useRef, useState } from "react";
-import { MONDAY_FINDS } from "@/content/week/play";
-import { useMondayPlay } from "@/game/mondayPlay";
-import { FindProp } from "@/game/weekplay/Scene";
+import { MONDAY_FINDS, MONDAY_TOYS } from "@/content/week/play";
+import { presses as mondayPresses, useMondayPlay } from "@/game/mondayPlay";
+import { FindProp, ToyDots } from "@/game/weekplay/Scene";
 import { Canvas } from "@react-three/fiber";
 import { useProgress } from "@react-three/drei";
 import { EffectComposer, Bloom, Vignette, ToneMapping, SMAA, BrightnessContrast, HueSaturation } from "@react-three/postprocessing";
@@ -38,13 +38,7 @@ function LoadBar() {
   );
 }
 
-export function Harbor({
-  callsign,
-  onDone,
-}: {
-  callsign: string;
-  onDone: (score: number, clean: boolean) => void;
-}) {
+export function Harbor({ callsign, onDone }: { callsign: string; onDone: (score: number, clean: boolean) => void }) {
   const lookDrag = useRef<{ x: number; y: number } | null>(null);
   useEffect(() => {
     useHarbor.getState().reset();
@@ -218,7 +212,17 @@ function press(code: string, down: boolean) {
     }
     if (!live.boot) live.setPaused(!live.paused);
   }
-  if (storeTalk() && (code === "Digit1" || code === "Digit2" || code === "Digit3" || code === "Digit4" || code === "Numpad1" || code === "Numpad2" || code === "Numpad3" || code === "Numpad4")) {
+  if (
+    storeTalk() &&
+    (code === "Digit1" ||
+      code === "Digit2" ||
+      code === "Digit3" ||
+      code === "Digit4" ||
+      code === "Numpad1" ||
+      code === "Numpad2" ||
+      code === "Numpad3" ||
+      code === "Numpad4")
+  ) {
     const index = Number(code.slice(-1)) - 1;
     const talk = useHarbor.getState().talk;
     const choice = talk?.choices[index];
@@ -260,7 +264,9 @@ function KnowledgeGate({ onPassed }: { onPassed: () => void }) {
         <p className="text-[10px] tracking-[0.24em] text-[#c4a574]">KNOWLEDGE CHECK · 7 OF 8 TO PASS</p>
         {missed ? (
           <>
-            <h2 className="mt-2 font-display text-5xl text-[#f4f0e6]">{missed.correct}/{missed.asked}</h2>
+            <h2 className="mt-2 font-display text-5xl text-[#f4f0e6]">
+              {missed.correct}/{missed.asked}
+            </h2>
             <p className="mt-3 text-sm text-[#a8a59c]">That is under 7 of 8. The questions change. Try again.</p>
             <button type="button" className="mt-6 min-h-11 border border-[#c4a574] px-4 text-sm" onClick={retry}>
               Try again
@@ -268,11 +274,18 @@ function KnowledgeGate({ onPassed }: { onPassed: () => void }) {
           </>
         ) : item ? (
           <>
-            <p className="mt-2 text-[10px] tracking-[0.16em] text-[#a8a59c]">{index + 1} / {items.length}</p>
+            <p className="mt-2 text-[10px] tracking-[0.16em] text-[#a8a59c]">
+              {index + 1} / {items.length}
+            </p>
             <h2 className="mt-2 font-display text-3xl text-balance text-[#f4f0e6]">{item.prompt}</h2>
             <div className="mt-5 flex flex-col border-t border-white/10">
               {item.choices.map((choice) => (
-                <button key={choice.id} type="button" className="min-h-12 border-b border-white/10 text-left text-sm text-[#f4f0e6]" onClick={() => pick(choice.id)}>
+                <button
+                  key={choice.id}
+                  type="button"
+                  className="min-h-12 border-b border-white/10 text-left text-sm text-[#f4f0e6]"
+                  onClick={() => pick(choice.id)}
+                >
                   {choice.label}
                 </button>
               ))}
@@ -308,9 +321,9 @@ function RideFade() {
         veil.current.style.opacity = String(world.fade);
         veil.current.style.visibility = world.fade > 0.01 ? "visible" : "hidden";
       }
-      // Elevator title card: the floor counter while the screen is black.
-      if (floor.current) floor.current.textContent = world.ride === "ride" ? world.indicator : "";
-      if (arrow.current) arrow.current.textContent = world.ride === "ride" ? (world.arrow === "up" ? "▲" : "▼") : "";
+      // The floor count now lives on the readout inside the cab; this veil is only for scene fades.
+      if (floor.current) floor.current.textContent = "";
+      if (arrow.current) arrow.current.textContent = "";
       id = requestAnimationFrame(tick);
     };
     id = requestAnimationFrame(tick);
@@ -535,15 +548,34 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
       </div>
       <Waypoint beat={beat} />
       <RideFade />
-      <canvas ref={map} width={180} height={180} className={coarse ? "pointer-events-none absolute left-4 top-32 h-16 w-16 rounded-full" : "pointer-events-none absolute bottom-5 left-5 h-24 w-24 rounded-full md:h-28 md:w-28"} />
+      <canvas
+        ref={map}
+        width={180}
+        height={180}
+        className={
+          coarse
+            ? "pointer-events-none absolute left-4 top-32 h-16 w-16 rounded-full"
+            : "pointer-events-none absolute bottom-5 left-5 h-24 w-24 rounded-full md:h-28 md:w-28"
+        }
+      />
       {driving && !boot ? (
-        <p className={coarse ? "pointer-events-none absolute right-4 top-16 font-display text-3xl tabular-nums text-[#f4f0e6]" : "pointer-events-none absolute bottom-6 right-6 font-display text-4xl tabular-nums text-[#f4f0e6]"}>
+        <p
+          className={
+            coarse
+              ? "pointer-events-none absolute right-4 top-16 font-display text-3xl tabular-nums text-[#f4f0e6]"
+              : "pointer-events-none absolute bottom-6 right-6 font-display text-4xl tabular-nums text-[#f4f0e6]"
+          }
+        >
           {Math.round(speed * 3.6)}
           <span className="ml-1 text-sm tracking-normal text-[#a8a59c]">km/h</span>
         </p>
       ) : null}
       {prompt && !talk && !boot ? (
-        <div className={coarse ? "absolute inset-x-0 bottom-48 z-30 flex justify-center px-16" : "absolute inset-x-0 bottom-24 z-30 flex justify-center md:bottom-16"}>
+        <div
+          className={
+            coarse ? "absolute inset-x-0 bottom-48 z-30 flex justify-center px-16" : "absolute inset-x-0 bottom-24 z-30 flex justify-center md:bottom-16"
+          }
+        >
           <button
             type="button"
             className="border border-[#c4a574]/50 bg-[#0c0d0f]/85 px-5 py-2.5 font-game text-2xl font-semibold tracking-wide text-[#f4f0e6]"
@@ -572,7 +604,11 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
                 <button
                   key={choice.id}
                   type="button"
-                  className={index === pick ? "flex min-h-12 items-center gap-3 border-t border-[#c4a574] bg-[#c4a574]/10 text-left text-[#f4f0e6]" : "flex min-h-12 items-center gap-3 border-t border-white/10 text-left text-[#f4f0e6] hover:bg-white/5"}
+                  className={
+                    index === pick
+                      ? "flex min-h-12 items-center gap-3 border-t border-[#c4a574] bg-[#c4a574]/10 text-left text-[#f4f0e6]"
+                      : "flex min-h-12 items-center gap-3 border-t border-white/10 text-left text-[#f4f0e6] hover:bg-white/5"
+                  }
                   onClick={() => {
                     blip(640);
                     useHarbor.getState().choose(choice.id);
@@ -586,7 +622,7 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
                   <span>{choice.label}</span>
                 </button>
               ))}
-              <p className="mt-3 text-[10px] tracking-[0.16em] text-[#a8a59c]">TAP A LINE  ·  ARROWS AND ENTER ALSO WORK</p>
+              <p className="mt-3 text-[10px] tracking-[0.16em] text-[#a8a59c]">TAP A LINE · ARROWS AND ENTER ALSO WORK</p>
             </div>
           </div>
         </div>
@@ -740,7 +776,11 @@ function Touch({ driving }: { driving: boolean }) {
       <div data-touch className="absolute bottom-6 right-4 z-20 flex flex-col items-center gap-3">
         <button
           type="button"
-          className={run ? "flex h-14 w-14 items-center justify-center rounded-full border border-[#c4a574] bg-[#c4a574]/25 text-[10px] tracking-[0.14em] text-[#f4f0e6]" : "flex h-14 w-14 items-center justify-center rounded-full border border-white/30 bg-[#0c0d0f]/75 text-[10px] tracking-[0.14em] text-[#f4f0e6]"}
+          className={
+            run
+              ? "flex h-14 w-14 items-center justify-center rounded-full border border-[#c4a574] bg-[#c4a574]/25 text-[10px] tracking-[0.14em] text-[#f4f0e6]"
+              : "flex h-14 w-14 items-center justify-center rounded-full border border-white/30 bg-[#0c0d0f]/75 text-[10px] tracking-[0.14em] text-[#f4f0e6]"
+          }
           onPointerDown={(event) => {
             event.preventDefault();
             event.stopPropagation();
@@ -832,8 +872,14 @@ function MoveStick({ driving }: { driving: boolean }) {
       onPointerCancel={release}
     >
       {knob.on ? (
-        <div className="absolute h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/45 bg-black/45" style={{ left: knob.x, top: knob.y }}>
-          <div className="absolute left-1/2 top-1/2 h-12 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f4f0e6]/80" style={{ marginLeft: knob.dx, marginTop: knob.dy }} />
+        <div
+          className="absolute h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/45 bg-black/45"
+          style={{ left: knob.x, top: knob.y }}
+        >
+          <div
+            className="absolute left-1/2 top-1/2 h-12 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f4f0e6]/80"
+            style={{ marginLeft: knob.dx, marginTop: knob.dy }}
+          />
         </div>
       ) : (
         <div className="absolute bottom-8 left-5 h-28 w-28 rounded-full border border-white/35 bg-black/40">
@@ -852,6 +898,7 @@ function MondayFinds() {
       {MONDAY_FINDS.map((f) => (
         <FindProp key={f.id} find={f} found={!!found[f.id]} />
       ))}
+      <ToyDots toys={MONDAY_TOYS} poked={mondayPresses} player={() => ({ x: world.px, z: world.pz, y: world.py })} />
     </>
   );
 }
@@ -859,9 +906,11 @@ function MondayFinds() {
 function FindsCount() {
   const found = useMondayPlay((st) => st.found);
   const n = MONDAY_FINDS.filter((f) => found[f.id]).length;
-  if (!n) return null;
   return (
-    <p className="pointer-events-none absolute right-4 top-16 z-20 font-game text-xs tracking-[0.16em] text-[#8fe0b4]" title="Security slip-ups spotted. Optional.">
+    <p
+      className="pointer-events-none absolute right-4 top-16 z-20 font-game text-xs tracking-[0.16em] text-[#8fe0b4]"
+      title="Security slip-ups spotted. Optional."
+    >
       FINDS {n}/{MONDAY_FINDS.length}
     </p>
   );

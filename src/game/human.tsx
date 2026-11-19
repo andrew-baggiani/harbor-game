@@ -48,7 +48,7 @@ function paintAvatar(image: CanvasImageSource, tint: string, hair: string) {
     const g = data[i + 1];
     const b = data[i + 2];
     const x = (i / 4) % 1024;
-    const y = (i / 4) / 1024;
+    const y = i / 4 / 1024;
     const logo = (x > 150 && x < 470 && y > 690 && y < 800) || (x < 530 && y > 660 && y < 900 && r + g + b > 240);
     const hairPix = Math.abs(r - 42) < 18 && Math.abs(g - 29) < 18 && Math.abs(b - 13) < 18;
     const shirtPix = logo || (x < 530 && y > 640 && y < 1010 && Math.abs(r - 33) < 36 && Math.abs(g - 33) < 36 && Math.abs(b - 44) < 40);
@@ -133,7 +133,7 @@ function roughnessFrom(src: Uint8ClampedArray) {
   const dst = out.data;
   for (let i = 0; i < src.length; i += 4) {
     const x = (i / 4) % 1024;
-    const y = (i / 4) / 1024;
+    const y = i / 4 / 1024;
     const r = src[i];
     const g = src[i + 1];
     const b = src[i + 2];
@@ -312,7 +312,10 @@ function plantFoot(upper: THREE.Object3D, lower: THREE.Object3D, foot: THREE.Obj
   _bend.addScaledVector(_dir, -_bend.dot(_dir));
   if (_bend.lengthSq() < 1e-6) _bend.set(0, 1, 0);
   else _bend.normalize();
-  _kneePos.copy(_hip).addScaledVector(_dir, Math.cos(hipAngle) * thigh).addScaledVector(_bend, Math.sin(hipAngle) * thigh);
+  _kneePos
+    .copy(_hip)
+    .addScaledVector(_dir, Math.cos(hipAngle) * thigh)
+    .addScaledVector(_bend, Math.sin(hipAngle) * thigh);
   _pole.copy(_hip).add(_forward);
   const savedUpper = _savedUpper.copy(upper.quaternion);
   const savedLower = _savedLower.copy(lower.quaternion);
@@ -328,6 +331,53 @@ function plantFoot(upper: THREE.Object3D, lower: THREE.Object3D, foot: THREE.Obj
   }
 }
 
+const _shoulder = new THREE.Vector3();
+const _elbow = new THREE.Vector3();
+const _wrist = new THREE.Vector3();
+const _elbowPos = new THREE.Vector3();
+const _armUpQ = new THREE.Quaternion();
+const _armLoQ = new THREE.Quaternion();
+
+/** Two-bone IK for an arm, blended over the animated pose by `weight` (0 = animation, 1 = hand on target). */
+function reachArm(upper: THREE.Object3D, lower: THREE.Object3D, hand: THREE.Object3D, target: THREE.Vector3, weight: number) {
+  upper.updateWorldMatrix(true, true);
+  _shoulder.setFromMatrixPosition(upper.matrixWorld);
+  _elbow.setFromMatrixPosition(lower.matrixWorld);
+  _wrist.setFromMatrixPosition(hand.matrixWorld);
+  const a = _shoulder.distanceTo(_elbow);
+  const b = _elbow.distanceTo(_wrist);
+  if (a < 0.05 || b < 0.05) return;
+  const animUp = _armUpQ.copy(upper.quaternion);
+  const animLo = _armLoQ.copy(lower.quaternion);
+  const dist = THREE.MathUtils.clamp(target.distanceTo(_shoulder), Math.abs(a - b) + 0.01, a + b - 0.01);
+  _dir.copy(target).sub(_shoulder).normalize();
+  _target.copy(_shoulder).addScaledVector(_dir, dist);
+  const cosS = THREE.MathUtils.clamp((a * a + dist * dist - b * b) / (2 * a * dist), -1, 1);
+  const angle = Math.acos(cosS);
+  // Elbow bends down and a little back, the way an arm reaches for a handle.
+  _bend.set(0, -1, 0);
+  _bend.addScaledVector(_dir, -_bend.dot(_dir));
+  if (_bend.lengthSq() < 1e-6) _bend.set(0, 0, -1);
+  _bend.normalize();
+  _elbowPos
+    .copy(_shoulder)
+    .addScaledVector(_dir, Math.cos(angle) * a)
+    .addScaledVector(_bend, Math.sin(angle) * a);
+  _pole.copy(_elbowPos).add(_bend);
+  pointBone(upper, _elbowPos, _pole);
+  pointBone(lower, _target, _pole);
+  if (!Number.isFinite(upper.quaternion.x) || !Number.isFinite(lower.quaternion.x)) {
+    upper.quaternion.copy(animUp);
+    lower.quaternion.copy(animLo);
+    return;
+  }
+  upper.quaternion.copy(animUp.slerp(upper.quaternion.clone(), weight));
+  lower.quaternion.copy(animLo.slerp(lower.quaternion.clone(), weight));
+  upper.updateMatrixWorld(true);
+}
+
+const _reach = new THREE.Vector3();
+
 export function Human({
   gait = "idle",
   tint = "#243044",
@@ -335,8 +385,11 @@ export function Human({
   scale = 1,
   phase = 0,
   speed: pace = 1.15,
+  speedOf,
 }: {
   gait?: "hero" | "idle" | "walk";
+  /** Live walking speed in m/s for a character moved by code; drives idle/walk/jog blending. */
+  speedOf?: () => number;
   tint?: string;
   hair?: string;
   scale?: number;
@@ -447,10 +500,7 @@ export function Human({
       );
       card.position.set(-0.045, -0.04, 0.16);
       card.castShadow = true;
-      const strap = new THREE.Mesh(
-        new THREE.BoxGeometry(0.012, 0.16, 0.006),
-        new THREE.MeshStandardMaterial({ color: "#16120e", roughness: 0.62 }),
-      );
+      const strap = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.16, 0.006), new THREE.MeshStandardMaterial({ color: "#16120e", roughness: 0.62 }));
       strap.position.set(0, 0.08, 0.12);
       badge.add(strap, card);
       spine.add(badge);
@@ -459,7 +509,7 @@ export function Human({
 
   useFrame(({ clock }, raw) => {
     const dt = Math.min(raw, 0.05);
-    const speed = gait === "hero" ? (world.moving && !world.driving ? world.speed : 0) : gait === "walk" ? pace : 0;
+    const speed = speedOf ? speedOf() : gait === "hero" ? (world.moving && !world.driving ? world.speed : 0) : gait === "walk" ? pace : 0;
     const fade = 1 - Math.exp(-7 * dt);
     let idleT = 1;
     let walkT = 0;
@@ -551,6 +601,13 @@ export function Human({
     } else {
       locks.current.left.on = false;
       locks.current.right.on = false;
+    }
+    // Reaching for a handle (car door, the tower's front door).
+    if (gait === "hero" && world.reach.w > 0.01) {
+      const up = model.getObjectByName("RightArm");
+      const lo = model.getObjectByName("RightForeArm");
+      const hand = model.getObjectByName("RightHand");
+      if (up && lo && hand) reachArm(up, lo, hand, _reach.set(world.reach.x, world.reach.y, world.reach.z), world.reach.w);
     }
   });
 

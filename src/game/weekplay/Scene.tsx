@@ -384,10 +384,10 @@ export function FindProp({ find, found }: { find: Find; found: boolean }) {
   }, [find, w, h, bg, fg]);
   useFrame(({ clock }) => {
     if (!glint.current) return;
-    const t = (clock.elapsedTime + find.x) % 4;
-    const k = found ? 0 : t < 0.5 ? Math.sin((t / 0.5) * Math.PI) : 0;
-    glint.current.scale.setScalar(0.4 + k);
-    (glint.current.material as THREE.MeshBasicMaterial).opacity = k * 0.8;
+    const t = (clock.elapsedTime + find.x) % 2.6;
+    const k = found ? 0 : t < 0.6 ? Math.sin((t / 0.6) * Math.PI) : 0;
+    glint.current.scale.setScalar(0.6 + k * 1.6);
+    (glint.current.material as THREE.MeshBasicMaterial).opacity = k;
   });
   const pw = w * big;
   const ph = h * big;
@@ -486,14 +486,7 @@ export function Alarm({ x, y, z }: { x: number; y: number; z: number }) {
     <group position={[x, y, z]}>
       <mesh ref={glow}>
         <planeGeometry args={[0.9, 0.9]} />
-        <meshBasicMaterial
-          map={glowTexture()}
-          color="#ff2a1a"
-          transparent
-          opacity={0}
-          depthWrite={false}
-          toneMapped={false}
-        />
+        <meshBasicMaterial map={glowTexture()} color="#ff2a1a" transparent opacity={0} depthWrite={false} toneMapped={false} />
       </mesh>
       <mesh ref={ring}>
         <ringGeometry args={[0.85, 1, 40]} />
@@ -560,6 +553,52 @@ export function Papers({ x, y, z, floor, dir = Math.PI / 2 }: { x: number; y: nu
     <instancedMesh ref={mesh} args={[undefined, undefined, SHEETS]}>
       <planeGeometry args={[0.21, 0.297]} />
       <meshStandardMaterial color="#f2efe8" roughness={0.9} side={THREE.DoubleSide} />
+    </instancedMesh>
+  );
+}
+
+/** A small gold dot over each thing you can poke, shown when you're near and until you've poked it. */
+export function ToyDots({
+  toys,
+  poked,
+  player: who,
+}: {
+  toys: { id: string; x: number; y: number; z: number }[];
+  poked: Record<string, number | true>;
+  player: () => { x: number; z: number; y?: number };
+}) {
+  const mesh = useRef<THREE.InstancedMesh>(null);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const col = useMemo(() => new THREE.Color(), []);
+  useFrame(({ clock, camera }) => {
+    const m = mesh.current;
+    if (!m) return;
+    const p = who();
+    toys.forEach((t, i) => {
+      const d = Math.hypot(p.x - t.x, p.z - t.z);
+      const level = p.y === undefined || Math.abs(t.y - p.y) < 3.2;
+      const show = !poked[t.id] && d < 6.5 && level;
+      const near = THREE.MathUtils.clamp((6.5 - d) / 2.5, 0, 1);
+      dummy.position.set(t.x, t.y + 0.55 + Math.sin(clock.elapsedTime * 2.2 + i) * 0.04, t.z);
+      dummy.quaternion.copy(camera.quaternion);
+      dummy.scale.setScalar(show ? 1 : 0.0001);
+      dummy.updateMatrix();
+      m.setMatrixAt(i, dummy.matrix);
+      const a = show ? 0.35 + 0.55 * near : 0;
+      m.setColorAt(i, col.setRGB(0.91 * a, 0.77 * a, 0.54 * a));
+    });
+    m.instanceMatrix.needsUpdate = true;
+    if (m.instanceColor) m.instanceColor.needsUpdate = true;
+    if (!m.userData.colored) {
+      m.userData.colored = true;
+      (m.material as THREE.Material).needsUpdate = true;
+    }
+  });
+  if (!toys.length) return null;
+  return (
+    <instancedMesh key={toys.length} ref={mesh} args={[undefined, undefined, toys.length]}>
+      <planeGeometry args={[0.11, 0.11]} />
+      <meshBasicMaterial map={sparkTexture()} transparent depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
     </instancedMesh>
   );
 }

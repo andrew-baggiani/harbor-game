@@ -38,8 +38,11 @@ export function logDecision(choiceId: string) {
   send({ choiceId });
 }
 
-export function logShiftComplete(shift = "monday") {
-  send({ complete: true, shift });
+/** Seconds spent on the decisions vs. exploring (toys, finds, wandering), and finds spotted. */
+export type ShiftTiming = { onTask: number; exploring: number; finds: number; findsTotal: number };
+
+export function logShiftComplete(shift = "monday", timing?: ShiftTiming) {
+  send({ complete: true, shift, ...(timing ? { timing } : {}) });
 }
 
 /** A replay is a new run: its score stands on its own and the best run counts. */

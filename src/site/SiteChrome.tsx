@@ -22,7 +22,7 @@ export function SiteNav() {
           <img src="/brand/logo-horizontal.svg" alt="Dry Run Cyber" className="h-9 w-auto sm:h-10 md:h-12" />
         </a>
         <nav aria-label="Primary" className="flex items-center gap-4 whitespace-nowrap text-[15px] text-site-mist sm:gap-7">
-          <a href="/#night" className="hidden hover:text-site-paper lg:inline">How it works</a>
+          <a href="/#how-it-works" className="hidden hover:text-site-paper lg:inline">How it works</a>
           <a href="/#msps" className="hidden hover:text-site-paper md:inline">For MSPs</a>
           <a href="/ai-security" className="hidden hover:text-site-paper md:inline">AI security guide</a>
           <a href="/login" className="hover:text-site-paper">Sign in</a>

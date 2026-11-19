@@ -302,6 +302,11 @@ function People({ orgId, d, people, onInvite, onChanged }: { orgId: string; d: O
                 <div className="truncate font-semibold">{personName(p.email, p.displayName)}</div>
                 <div className="truncate text-[13.5px] text-site-dim">{p.email}</div>
                 <WeekDots p={p} />
+                {p.time ? (
+                  <div className="mt-1 text-[12px] text-site-dim" title="Exploring is optional play. It never counts toward the score or completion.">
+                    On task {mins(p.time.onTask)} · Exploring {mins(p.time.exploring)}
+                  </div>
+                ) : null}
               </div>
               <button
                 type="button"
@@ -709,4 +714,8 @@ function TracksCard({ people, onRemind }: { people: Learner[]; onRemind: () => v
       </div>
     </Panel>
   );
+}
+
+function mins(sec: number) {
+  return sec < 60 ? "<1m" : `${Math.round(sec / 60)}m`;
 }

@@ -1,3 +1,4 @@
+import { Briefing, needsBriefing } from "@/game/Briefing";
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
@@ -17,14 +18,16 @@ import {
   findLineId,
   placeOf,
   toyLineId,
+  toySfx,
   type Find,
 } from "@/content/week/play";
-import { Alarm, BeatProp, CastFigure, Decor, FindProp, Papers, Poke, Room, Walker, approach, player, type Nearby } from "@/game/weekplay/Scene";
+import { Alarm, BeatProp, CastFigure, Decor, FindProp, Papers, Poke, Room, ToyDots, Walker, approach, player, type Nearby } from "@/game/weekplay/Scene";
 import { HarborStage, MonitorArt, NightStage } from "@/game/weekplay/HarborStage";
 import { BakedRoom, setRoomBounds } from "@/game/weekplay/BakedRoom";
 import { SETS } from "@/game/weekplay/sets";
 import { falloutLine, promptLine } from "@/content/week/voices";
 import { blip, sayLine, sayLineNext, unlockAudio } from "@/game/audio";
+import { isMusicOn, playSfx, setBed, setBedFor, toggleMusic, warmSounds } from "@/game/sound";
 
 type Phase = "intro" | "play" | "panel" | "wrap" | "debrief" | "check" | "result";
 type Tone = "good" | "bad" | "note";
@@ -59,6 +62,7 @@ function propImage(beat: WeekBeat, flipped: boolean): string | null {
 
 export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => void }) {
   const [phase, setPhase] = useState<Phase>("intro");
+  const [briefing, setBriefing] = useState(false);
   const [index, setIndex] = useState(0);
   const [picked, setPicked] = useState<Record<string, WeekChoice>>({});
   const [flipped, setFlipped] = useState<Record<string, boolean>>({});
@@ -154,6 +158,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
   const pokeItem = useCallback(
     (id: string) => {
       unlockAudio();
+      timing.current.lastPoke = performance.now();
       const toy = TOYS.find((t) => t.id === id);
       if (toy) {
         const n = presses.current[id] ?? 0;
@@ -171,7 +176,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
             z: toy.z + 0.35,
             floor: SETS[roomSet].harbor?.y ?? 0,
           });
-        blip(440 + (n % 3) * 90);
+        playSfx(toySfx(toy, k), 0.7, () => blip(440 + (n % 3) * 90));
         return;
       }
       const find = FINDS.find((f) => f.id === id);
@@ -181,7 +186,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
       }
       const next = { ...found, [id]: true as const };
       setFound(next);
-      blip(780);
+      playSfx("sfx-find", 0.6, () => blip(780));
       setPoke({ key: Date.now(), x: find.x, y: find.y + 0.1, z: find.z });
       pushBark(`Found · ${find.label}`, find.line, "good");
       sayLine(findLineId(find), find.line, "narrator", find.label);
@@ -200,6 +205,43 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
     },
     [found, pushBark, addFx, roomSet],
   );
+
+  // Music and room tone follow the room. Quiet on the intro, the debrief and the check.
+  const [musicOn, setMusicOn] = useState(true);
+  useEffect(() => setMusicOn(isMusicOn()), []);
+  useEffect(() => {
+    if (phase === "play" || phase === "panel") setBedFor(roomSet === "server" ? "server" : place);
+    else setBed(null, null);
+  }, [phase, roomSet, place]);
+  useEffect(() => () => setBed(null, null), []);
+
+  // Time on the decisions vs. exploring. Exploring = walking away from the gold light, or a few seconds
+  // around each poke or find. Reported with the completion so curiosity never reads as slow.
+  const timing = useRef({ onTask: 0, exploring: 0, lastDist: Infinity, lastPoke: -1e9, last: 0 });
+  const timingSpot = useRef<{ x: number; z: number } | null>(null);
+  timingSpot.current = spot ? approach(spot) : null;
+  useEffect(() => {
+    if (phase !== "play" && phase !== "panel") return;
+    const t = timing.current;
+    t.last = performance.now();
+    const id = window.setInterval(() => {
+      const now = performance.now();
+      const dt = Math.min(1, (now - t.last) / 1000);
+      t.last = now;
+      if (phase === "panel") {
+        t.onTask += dt;
+        return;
+      }
+      const target = timingSpot.current;
+      const dist = target ? Math.hypot(player.x - target.x, player.z - target.z) : 0;
+      const away = player.moving && dist > 1.5 && dist >= t.lastDist - 0.02;
+      const poking = now - t.lastPoke < 2500;
+      if (away || poking) t.exploring += dt;
+      else t.onTask += dt;
+      t.lastDist = dist;
+    }, 250);
+    return () => window.clearInterval(id);
+  }, [phase]);
 
   // Test hook for automated checks: jump to another room of the tower.
   useEffect(() => {
@@ -277,17 +319,12 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
             setShakes((m) => ({ ...m, [id]: performance.now() }));
             const floorY = SETS[beat.set].harbor?.y ?? 0;
             if (kind === "alarm") {
-              addFx({
-                kind: "alarm",
-                set: beat.set,
-                x: sp.x,
-                y: sp.py + 0.25,
-                z: sp.z,
-                floor: floorY,
+              addFx({ kind: "alarm", set: beat.set, x: sp.x, y: sp.py + 0.25, z: sp.z, floor: floorY });
+              playSfx("sfx-alarm", 0.45, () => {
+                blip(220);
+                timers.current.push(window.setTimeout(() => blip(180), 220));
               });
-              blip(220);
-              timers.current.push(window.setTimeout(() => blip(180), 220));
-            }
+            } else playSfx("sfx-buzz", 0.5);
             if (kind === "papers")
               addFx({
                 kind: "papers",
@@ -399,6 +436,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           <FindProp key={f.id} find={f} found={!!found[f.id]} />
         ))}
         {poke && <Poke key={poke.key} x={poke.x} y={poke.y} z={poke.z} />}
+        {phase === "play" && <ToyDots toys={toysHere} poked={presses.current} player={() => player} />}
         {fx
           .filter((f) => f.set === roomSet)
           .map((f) => (f.kind === "alarm" ? <Alarm key={f.key} x={f.x} y={f.y} z={f.z} /> : <Papers key={f.key} x={f.x} y={f.y} z={f.z} floor={f.floor} />))}
@@ -431,6 +469,14 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           <span className="font-game text-sm tracking-[0.14em] text-[#a8a59c]">
             {Math.min(index + (phase === "panel" ? 1 : 0), shift.beats.length)}/{shift.beats.length}
           </span>
+          <button
+            type="button"
+            onClick={() => setMusicOn(toggleMusic())}
+            aria-pressed={musicOn}
+            className="rounded-full border border-white/15 px-3 py-1 text-xs text-[#d8d2c4] hover:bg-white/10"
+          >
+            Music {musicOn ? "on" : "off"}
+          </button>
           <button type="button" onClick={onExit} className="rounded-full border border-white/15 px-3 py-1 text-xs text-[#d8d2c4] hover:bg-white/10">
             Leave
           </button>
@@ -496,12 +542,25 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           </p>
           <button
             type="button"
-            onClick={() => setPhase("play")}
+            onClick={() => {
+              unlockAudio();
+              warmSounds();
+              if (needsBriefing()) setBriefing(true);
+              else setPhase("play");
+            }}
             className="mt-6 rounded-full bg-[#c4a574] px-6 py-3 font-game tracking-[0.12em] text-[#14110c]"
           >
             START THE SHIFT
           </button>
         </Overlay>
+      )}
+      {phase === "intro" && briefing && (
+        <Briefing
+          onDone={() => {
+            setBriefing(false);
+            setPhase("play");
+          }}
+        />
       )}
 
       {phase === "panel" && <Panel beat={beat} flipped={!!flipped[beat.scenario.id]} onChoose={choose} />}
@@ -520,7 +579,9 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
         </Overlay>
       )}
 
-      {phase === "debrief" && <Debrief shift={shift} picked={picked} finds={shiftFinds} found={found} onNext={() => setPhase("check")} />}
+      {phase === "debrief" && (
+        <Debrief shift={shift} picked={picked} finds={shiftFinds} found={found} time={{ ...timing.current }} onNext={() => setPhase("check")} />
+      )}
       {phase === "check" && (
         <Check
           items={shift.check}
@@ -529,7 +590,13 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
             const passed = ratio >= PASS;
             saveWeek(shift.id, beatsScore, passed);
             saveFinds(shift.id, Object.keys(found));
-            if (passed) logShiftComplete(shift.id);
+            if (passed)
+              logShiftComplete(shift.id, {
+                onTask: timing.current.onTask,
+                exploring: timing.current.exploring,
+                finds: shiftFinds.filter((f) => found[f.id]).length,
+                findsTotal: shiftFinds.length,
+              });
             setResult({ score: beatsScore, ratio, passed });
             setPhase("result");
           }}
@@ -623,12 +690,14 @@ function Debrief({
   picked,
   finds,
   found,
+  time,
   onNext,
 }: {
   shift: ShiftDef;
   picked: Record<string, WeekChoice>;
   finds: Find[];
   found: Record<string, true>;
+  time: { onTask: number; exploring: number };
   onNext: () => void;
 }) {
   const got = finds.filter((f) => found[f.id]);
@@ -648,6 +717,9 @@ function Debrief({
           );
         })}
       </ul>
+      <p className="mt-5 text-sm text-[#a8a59c]">
+        On the decisions: {minutes(time.onTask)}. Exploring: {minutes(time.exploring)}. Exploring is recorded separately and never counts against you.
+      </p>
       {finds.length > 0 && (
         <div className="mt-6 rounded-xl border border-[#7fd6a8]/25 bg-[#0d1f18]/60 p-4">
           <p className="font-game text-xs tracking-[0.18em] text-[#8fe0b4]">
@@ -804,4 +876,9 @@ function TouchStick() {
       />
     </div>
   );
+}
+
+function minutes(sec: number) {
+  if (sec < 60) return `${Math.max(0, Math.round(sec))} s`;
+  return `${Math.round(sec / 60)} min`;
 }

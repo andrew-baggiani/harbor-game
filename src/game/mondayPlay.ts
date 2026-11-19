@@ -1,6 +1,7 @@
 import { create } from "zustand";
-import { MONDAY_FINDS, MONDAY_TOYS, findLineId, toyLineId } from "@/content/week/play";
+import { MONDAY_FINDS, MONDAY_TOYS, findLineId, toyLineId, toySfx } from "@/content/week/play";
 import { blip, sayLine } from "@/game/audio";
+import { playSfx } from "@/game/sound";
 
 /**
  * Monday's share of the optional play: the same toys and finds as the week shifts, on floor 14 and in the
@@ -8,11 +9,27 @@ import { blip, sayLine } from "@/game/audio";
  */
 
 type MondayPlay = { found: Record<string, true>; reset: () => void };
-export const useMondayPlay = create<MondayPlay>((set) => ({ found: {}, reset: () => set({ found: {} }) }));
+export const useMondayPlay = create<MondayPlay>((set) => ({
+  found: {},
+  reset: () => {
+    for (const k of Object.keys(presses)) delete presses[k];
+    set({ found: {} });
+  },
+}));
 
-const presses: Record<string, number> = {};
+/** Times each toy has been poked this run; the gold dot over a toy goes once it's been poked. */
+export const presses: Record<string, number> = {};
+
+/** When the player last poked a toy or spotted a find; the few seconds after count as exploring. */
+export const pokeClock = { last: -1e9 };
+
+export function mondayFindCount() {
+  const { found } = useMondayPlay.getState();
+  return { found: MONDAY_FINDS.filter((f) => found[f.id]).length, total: MONDAY_FINDS.length };
+}
 
 export function mondayUse(action: string) {
+  pokeClock.last = performance.now();
   if (action.startsWith("toy:")) {
     const toy = MONDAY_TOYS.find((t) => `toy:${t.id}` === action);
     if (!toy) return;
@@ -20,7 +37,7 @@ export function mondayUse(action: string) {
     presses[toy.id] = n + 1;
     const k = Math.min(n, toy.lines.length - 1);
     sayLine(toyLineId(toy, k), toy.lines[k], toy.who === "Next desk" ? "man" : "narrator", toy.who ?? toy.label);
-    blip(440 + (n % 3) * 90);
+    playSfx(toySfx(toy, k), 0.7, () => blip(440 + (n % 3) * 90));
     return;
   }
   if (action.startsWith("find:")) {
@@ -29,7 +46,7 @@ export function mondayUse(action: string) {
     const { found } = useMondayPlay.getState();
     if (!found[find.id]) {
       useMondayPlay.setState({ found: { ...found, [find.id]: true } });
-      blip(780);
+      playSfx("sfx-find", 0.6, () => blip(780));
     }
     sayLine(findLineId(find), find.line, "narrator", found[find.id] ? find.label : `Found · ${find.label}`);
   }

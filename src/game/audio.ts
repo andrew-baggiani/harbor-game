@@ -14,6 +14,11 @@ function context(): AudioContext | null {
   return ctx;
 }
 
+/** The shared AudioContext, created on first use. Null during SSR. */
+export function audioContext(): AudioContext | null {
+  return context();
+}
+
 export function unlockAudio() {
   const audio = context();
   if (!audio) return;
