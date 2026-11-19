@@ -349,7 +349,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           onClick={open}
           className="absolute bottom-10 right-6 rounded-full bg-[#c4a574] sm:bottom-8 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 px-6 py-3 font-game text-base tracking-[0.12em] text-[#14110c] shadow-lg"
         >
-          {beat.cast && !beat.voiceOnly ? "TALK" : "LOOK"} <span className="ml-2 hidden opacity-60 sm:inline">E</span>
+          {beat.cast && !beat.voiceOnly ? "TALK" : "LOOK"} <span className="ml-2 hidden opacity-60 sm:inline">SPACE</span>
         </button>
       )}
 
@@ -360,7 +360,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           className="absolute bottom-10 right-6 rounded-full border border-[#c4a574]/60 bg-[#14110c]/85 sm:bottom-8 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 px-5 py-2.5 font-game text-sm tracking-[0.12em] text-[#e7c48a] shadow-lg backdrop-blur"
         >
           {itemFind && !found[itemFind.id] ? "CHECK" : "POKE"} · {(itemToy?.label ?? itemFind?.label ?? "").toUpperCase()}{" "}
-          <span className="ml-1 hidden opacity-60 sm:inline">E</span>
+          <span className="ml-1 hidden opacity-60 sm:inline">SPACE</span>
         </button>
       )}
 
@@ -373,7 +373,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           <p className="mt-3 text-[#d8d2c4]">{shift.intro}</p>
           {shift.audience && <p className="mt-3 text-sm text-[#a8a59c]">For: {shift.audience}</p>}
           <p className="mt-5 text-sm text-[#a8a59c]">
-            Walk with WASD or the arrow keys, drag to look. On a phone, use the left thumb pad. The gold light marks what needs you. Poke around too: things react, and a few security slip-ups are hidden in every room.
+            Walk with WASD or the arrow keys, drag to look. On a phone, use the left thumb pad. The gold light marks what needs you. Press Space to talk, look or poke. Poke around too: things react, and a few security slip-ups are hidden in every room.
           </p>
           <button type="button" onClick={() => setPhase("play")} className="mt-6 rounded-full bg-[#c4a574] px-6 py-3 font-game tracking-[0.12em] text-[#14110c]">
             START THE SHIFT

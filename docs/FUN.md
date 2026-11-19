@@ -3,7 +3,7 @@
 Content: `src/content/week/play.ts`. Engine: `src/game/weekplay/ShiftGame.tsx` and `Scene.tsx` (`FindProp`, `Poke`, `Walker` items).
 Plan and research: the "Dry Run Cyber: making it fun" doc.
 
-- **Toys.** Press E near an object that's already in the room: printer, coffee machine, elevator button, camera,
+- **Toys.** Press Space (or E) near an object that's already in the room: printer, coffee machine, elevator button, camera,
   barista bell, fridge and so on. Each press gives the next line; the last one repeats. No score.
 - **Finds.** Small security slip-ups placed in each room: sticky-note password, loose badge, printout in the tray,
   USB stick, whiteboard login, QR flyer, dropped badge, fridge password note, a family tablet signed in to work.
