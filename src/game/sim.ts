@@ -1,4 +1,5 @@
 import { enterFocus, focusActive, showApp } from "@/game/focus";
+import { mondayNearby, mondayUse } from "@/game/mondayPlay";
 import { tickFallout } from "@/game/fallout";
 import { DESK, DOOR, ELEVATOR, ELEVATOR_F14, MAYA, OFFICE_Y, USB, slide } from "@/game/layout";
 import { blip, caption, say, setEngine, setRing, setWalking, tickAudio, voiceBusy, sayNext } from "@/game/audio";
@@ -456,6 +457,10 @@ function takeCar(index: number) {
 function tryInteract() {
   const store = useHarbor.getState();
   const action = world.use;
+  if (action.startsWith("toy:") || action.startsWith("find:")) {
+    mondayUse(action);
+    return;
+  }
   if (action === "out") {
     fleet[0].x = world.carX;
     fleet[0].z = world.carZ;
@@ -693,6 +698,15 @@ function computePrompt(): string | null {
   if (store.beat === "cleandesk" && !store.flags.cleandesk && world.py > 10 && dist(x, z, PRINTER) < 1.6) {
     world.use = "cleandesk";
     return "E  ·  Printouts on the printer";
+  }
+  // Optional toys and finds, only when no beat above was in reach.
+  const level = world.py > 10 ? "f14" : world.py < 2 && insideTower(x, z) ? "lobby" : null;
+  if (level) {
+    const near = mondayNearby(x, z, level);
+    if (near) {
+      world.use = near.use;
+      return near.prompt;
+    }
   }
   if (store.beat === "leave" && world.py < 2) return "Walk out the front door";
   if (world.py < 2 && insideTower(x, z)) {

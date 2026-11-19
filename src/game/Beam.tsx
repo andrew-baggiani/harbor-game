@@ -103,9 +103,20 @@ export const Beam = forwardRef<THREE.Group, BeamProps>(function Beam({ height = 
   const motes = useRef<THREE.InstancedMesh>(null);
   const seeds = useMemo(() => Array.from({ length: MOTES }, (_, i) => ({ a: (i / MOTES) * Math.PI * 2 + i * 1.7, r: 0.15 + ((i * 37) % 10) / 40, off: (i * 0.61) % 1 })), []);
   const dummy = useMemo(() => new THREE.Object3D(), []);
+  const inner = useRef<THREE.Group>(null);
+  const here = useMemo(() => new THREE.Vector3(), []);
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock, camera }) => {
     const t = clock.elapsedTime;
+    // Standing in the light would wash the screen gold, so the column fades as the camera reaches it.
+    let near = 1;
+    if (inner.current) {
+      inner.current.getWorldPosition(here);
+      const d = Math.hypot(camera.position.x - here.x, camera.position.z - here.z);
+      near = THREE.MathUtils.smoothstep(d, 0.45, 1.8);
+    }
+    core.uniforms.uOpacity.value = 0.95 * (0.12 + 0.88 * near);
+    halo.uniforms.uOpacity.value = 0.35 * near;
     core.uniforms.uTime.value = t;
     halo.uniforms.uTime.value = t * 0.7;
     const pulse = 1 + Math.sin(t * 2.6) * 0.06;
@@ -135,6 +146,7 @@ export const Beam = forwardRef<THREE.Group, BeamProps>(function Beam({ height = 
   const col = radius * 0.32;
   return (
     <group ref={outer}>
+      <group ref={inner} />
       <mesh position={[0, height / 2, 0]} material={core} renderOrder={2}>
         <cylinderGeometry args={[col * 0.75, col, height, 24, 1, true]} />
       </mesh>
