@@ -2,7 +2,7 @@ import { enterFocus, focusActive, showApp } from "@/game/focus";
 import { playSfx, setBed, setBedFor, warmSounds } from "@/game/sound";
 import { mondayNearby, mondayUse, pokeClock } from "@/game/mondayPlay";
 import { tickFallout } from "@/game/fallout";
-import { DESK, DOOR, ELEVATOR, ELEVATOR_F14, MAYA, OFFICE_Y, USB, slide } from "@/game/layout";
+import { DESK, DOOR, ELEVATOR, ELEVATOR_F14, MAYA, OFFICE_Y, USB, slide, walker } from "@/game/layout";
 import { blip, caption, say, setEngine, setRing, setWalking, tickAudio, voiceBusy, sayNext } from "@/game/audio";
 import { objectiveFor } from "@/game/story";
 import { keys, useHarbor, world, fleet } from "@/game/state";
@@ -65,6 +65,9 @@ export function step(dt: number) {
   tickAudio(dt);
   stepReach(dt);
   stepTiming(dt);
+  walker.x = world.px;
+  walker.y = world.py;
+  walker.z = world.pz;
   // What plays under Monday: muzak in the elevator, the room's own bed indoors, the water outside.
   const riding = world.ride === "board" || world.ride === "hold" || world.ride === "shut" || world.ride === "ride";
   if (store.boot) setBed(null, null);

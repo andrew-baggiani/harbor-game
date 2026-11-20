@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { CAR_SPAWN, SPAWN } from "@/game/layout";
+import { CAR_SPAWN, SPAWN, floorMood } from "@/game/layout";
 import { applyFlag, barkFor, emptyFlags, nextBeat, objectiveFor, panelFor, scoreOf, talkFor, type Beat, type Flags, type Talk, type VoiceKind } from "@/game/story";
 import { recordDecision, resetRecord, sealShift, noteVariants } from "@/game/records";
 import { choiceOf, currentVariants, pickVariants, variantOf } from "@/game/scenarios";
@@ -214,6 +214,7 @@ export const useHarbor = create<HarborStore>((set, get) => ({
       return;
     }
     const found = choiceOf(id);
+    if (found && !found.choice.ok) floorMood.slips += 1;
     const flags = applyFlag(get().flags, id);
     recordDecision(id);
     if (found) logDecision(id);
@@ -332,6 +333,7 @@ export const useHarbor = create<HarborStore>((set, get) => ({
     world.badgeOut = 0;
     world.moving = false;
     world.time = { onTask: 0, exploring: 0, lastDist: Infinity };
+    floorMood.slips = 0;
     world.walk = 0;
     world.guyX = 1.55;
     world.guyZ = 1.05;

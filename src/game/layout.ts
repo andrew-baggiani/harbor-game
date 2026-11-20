@@ -87,8 +87,29 @@ add(19.2, 25.4, 8.6, 11.2, 0, 1.15);
 add(21, 24.2, 7.2, 8.4, OFFICE_Y, OFFICE_Y + 1.2);
 add(30.4, 34.6, 9.4, 11.2, OFFICE_Y, OFFICE_Y + 1.05);
 
+/** Furniture added in code on top of the modeled floors (see FloorDetail). Always solid. */
+export const detailBoxes: Box[] = [];
+
+/** Where the player is standing right now, in either game mode (Monday's sim and the week walker both write it). */
+export const walker = { x: 0, y: -100, z: 0 };
+
+/** Mistakes made this shift, for the things in the room that notice (the whiteboard counter). */
+export const floorMood = { slips: 0 };
+
+function hitDetail(x: number, z: number, y: number, radius: number) {
+  const head = y + 1.75;
+  for (const box of detailBoxes) {
+    if (head <= box.minY || y >= box.maxY) continue;
+    const cx = Math.max(box.minX, Math.min(x, box.maxX));
+    const cz = Math.max(box.minZ, Math.min(z, box.maxZ));
+    if ((x - cx) ** 2 + (z - cz) ** 2 < radius * radius) return true;
+  }
+  return false;
+}
+
 export function blocked(x: number, z: number, y: number, radius: number, extra: Box[] = []): boolean {
   if (worldHit?.(x, z, y, radius)) return true;
+  if (detailBoxes.length && hitDetail(x, z, y, radius)) return true;
   const list = worldLive ? extra : extra.length > 0 ? boxes.concat(extra) : boxes;
   if (worldLive && extra.length === 0) return false;
   const head = y + 1.75;

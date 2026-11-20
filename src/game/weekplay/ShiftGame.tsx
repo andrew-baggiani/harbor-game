@@ -1,4 +1,5 @@
 import { Briefing, needsBriefing } from "@/game/Briefing";
+import { floorMood } from "@/game/layout";
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
@@ -21,7 +22,7 @@ import {
   toySfx,
   type Find,
 } from "@/content/week/play";
-import { Alarm, BeatProp, CastFigure, Decor, FindProp, Papers, Poke, Room, ToyDots, Walker, approach, player, type Nearby } from "@/game/weekplay/Scene";
+import { Alarm, BeatProp, CastFigure, Decor, FindProp, Inspect, Papers, Poke, Room, ToyDots, Walker, approach, heldKind, player, propVerb, type Nearby } from "@/game/weekplay/Scene";
 import { HarborStage, MonitorArt, NightStage } from "@/game/weekplay/HarborStage";
 import { BakedRoom, setRoomBounds } from "@/game/weekplay/BakedRoom";
 import { SETS } from "@/game/weekplay/sets";
@@ -63,6 +64,8 @@ function propImage(beat: WeekBeat, flipped: boolean): string | null {
 export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => void }) {
   const [phase, setPhase] = useState<Phase>("intro");
   const [briefing, setBriefing] = useState(false);
+  // The beat whose prop is pulled up. It outlives the panel by a moment so the prop can go back down.
+  const [inspecting, setInspecting] = useState<WeekBeat | null>(null);
   const [index, setIndex] = useState(0);
   const [picked, setPicked] = useState<Record<string, WeekChoice>>({});
   const [flipped, setFlipped] = useState<Record<string, boolean>>({});
@@ -93,6 +96,14 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
   const beat = shift.beats[Math.min(index, shift.beats.length - 1)];
   const set = SETS[roomSet];
   const spot = phase === "play" && beat.set === roomSet ? set.spots[beat.spot] : null;
+  useEffect(() => {
+    if (phase === "panel" && beat.prop && beat.set === roomSet) {
+      setInspecting(beat);
+      return;
+    }
+    const t = window.setTimeout(() => setInspecting(null), 700);
+    return () => window.clearTimeout(t);
+  }, [phase, beat, roomSet]);
   const place = placeOf(roomSet);
   const toysHere = useMemo(() => TOYS.filter((t) => t.place === place), [place]);
   const findsHere = useMemo(() => FINDS.filter((f) => f.place === place), [place]);
@@ -213,13 +224,13 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
     if (phase === "play" || phase === "panel") setBedFor(roomSet === "server" ? "server" : place);
     else setBed(null, null);
   }, [phase, roomSet, place]);
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    floorMood.slips = 0;
+    return () => {
       setBed(null, null);
       stopVoices();
-    },
-    [],
-  );
+    };
+  }, []);
 
   // Time on the decisions vs. exploring. Exploring = walking away from the gold light, or a few seconds
   // around each poke or find. Reported with the completion so curiosity never reads as slow.
@@ -310,6 +321,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
     const id = beat.scenario.id;
     setPicked((p) => ({ ...p, [id]: choice }));
     logDecision(choice.id);
+    if (!choice.ok) floorMood.slips += 1;
     const steps: FalloutStep[] = beat.timeline?.[choice.id] ?? [];
     if (choice.ok) pushBark(beat.scenario.prompt.who, choice.debrief, false);
     else if (!steps.length) pushBark(beat.scenario.prompt.who, choice.debrief, true);
@@ -427,8 +439,18 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
             flipped={!!flipped[b.scenario.id]}
             live={phase === "play" && i === index}
             shakeAt={shakes[b.scenario.id] ?? 0}
+            held={inspecting?.scenario.id === b.scenario.id && heldKind(b.prop)}
           />
         ))}
+        {inspecting && (
+          <Inspect
+            key={inspecting.scenario.id}
+            beat={inspecting}
+            set={set}
+            flipped={!!flipped[inspecting.scenario.id]}
+            open={phase === "panel" && inspecting.scenario.id === beat.scenario.id}
+          />
+        )}
         {castBeat && castSpot && (
           <CastFigure
             slot={castBeat.cast!}
@@ -517,7 +539,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           onClick={open}
           className="absolute bottom-10 right-6 rounded-full bg-[#c4a574] sm:bottom-8 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 px-6 py-3 font-game text-base tracking-[0.12em] text-[#14110c] shadow-lg"
         >
-          {beat.cast && !beat.voiceOnly ? "TALK" : "LOOK"} <span className="ml-2 hidden opacity-60 sm:inline">SPACE</span>
+          {beat.cast && !beat.voiceOnly ? "TALK" : propVerb(beat.prop)} <span className="ml-2 hidden opacity-60 sm:inline">SPACE</span>
         </button>
       )}
 
@@ -569,7 +591,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
         />
       )}
 
-      {phase === "panel" && <Panel beat={beat} flipped={!!flipped[beat.scenario.id]} onChoose={choose} />}
+      {phase === "panel" && <Panel beat={beat} flipped={!!flipped[beat.scenario.id]} pulled={!!beat.prop && beat.set === roomSet} onChoose={choose} />}
 
       {phase === "wrap" && (
         <Overlay>
@@ -643,18 +665,67 @@ function Overlay({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Panel({ beat, flipped, onChoose }: { beat: WeekBeat; flipped: boolean; onChoose: (c: WeekChoice) => void }) {
+function Panel({ beat, flipped, pulled, onChoose }: { beat: WeekBeat; flipped: boolean; pulled: boolean; onChoose: (c: WeekChoice) => void }) {
   const img = propImage(beat, flipped);
   const tall = beat.prop?.kind === "phone";
   const { prompt, choices } = beat.scenario;
+  const [zoom, setZoom] = useState(false);
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && zoom) {
+        setZoom(false);
+        return;
+      }
+      if ((e.key === "z" || e.key === "Z") && img && pulled) setZoom((v) => !v);
       const n = Number(e.key);
       if (n >= 1 && n <= choices.length) onChoose(choices[n - 1]);
     };
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
-  }, [choices, onChoose]);
+  }, [choices, onChoose, zoom, img, pulled]);
+  const question = (
+    <div>
+      <p className="font-game text-xs tracking-[0.2em] text-[#c4a574]">
+        {prompt.who.toUpperCase()} · {prompt.role}
+      </p>
+      <p className="mt-2 text-lg leading-snug">{prompt.text}</p>
+      <div className="mt-4 grid gap-2">
+        {choices.map((c, i) => (
+          <button
+            key={c.id}
+            type="button"
+            onClick={() => onChoose(c)}
+            className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-left hover:border-[#c4a574]/60 hover:bg-white/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#c4a574]"
+          >
+            <span className="font-game text-sm text-[#c4a574]">{i + 1}</span>
+            <span>{c.label}</span>
+          </button>
+        ))}
+      </div>
+      {pulled && img && (
+        <button type="button" onClick={() => setZoom(true)} className="mt-3 text-sm text-[#a8a59c] underline-offset-4 hover:text-[#f4f0e6] hover:underline">
+          Read it up close <span className="hidden opacity-60 sm:inline">(Z)</span>
+        </button>
+      )}
+    </div>
+  );
+  if (pulled) {
+    // The prop is in the scene now (in hand, or the camera leaned in), so the question sits beside it.
+    return (
+      <>
+        <div className="pointer-events-none absolute inset-0 z-20 flex items-end justify-center p-3 sm:items-center sm:justify-end sm:p-6">
+          <div className="pointer-events-auto max-h-[52dvh] w-full overflow-y-auto rounded-2xl border border-white/10 bg-[#10141b]/92 p-5 shadow-2xl backdrop-blur-sm sm:max-h-[88dvh] sm:max-w-md">
+            {question}
+          </div>
+        </div>
+        {zoom && img && (
+          <div className="absolute inset-0 z-30 flex items-center justify-center bg-[#07090e]/85 p-4" onClick={() => setZoom(false)}>
+            <img src={img} alt="" className={`rounded-lg border border-white/10 ${tall ? "max-h-[88dvh]" : "max-h-[80dvh] max-w-full object-contain"}`} />
+          </div>
+        )}
+      </>
+    );
+  }
   return (
     <div className="absolute inset-0 z-20 flex items-end justify-center bg-gradient-to-t from-[#07090e] via-[#07090e]/70 to-transparent p-4 sm:items-center">
       <div
@@ -667,25 +738,7 @@ function Panel({ beat, flipped, onChoose }: { beat: WeekBeat; flipped: boolean; 
             className={`rounded-lg border border-white/10 ${tall ? "mx-auto max-h-[32dvh] sm:max-h-[50dvh]" : "max-h-[28dvh] w-full object-contain sm:max-h-[40dvh]"}`}
           />
         )}
-        <div>
-          <p className="font-game text-xs tracking-[0.2em] text-[#c4a574]">
-            {prompt.who.toUpperCase()} · {prompt.role}
-          </p>
-          <p className="mt-2 text-lg leading-snug">{prompt.text}</p>
-          <div className="mt-4 grid gap-2">
-            {choices.map((c, i) => (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => onChoose(c)}
-                className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-left hover:border-[#c4a574]/60 hover:bg-white/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#c4a574]"
-              >
-                <span className="font-game text-sm text-[#c4a574]">{i + 1}</span>
-                <span>{c.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
+        {question}
       </div>
     </div>
   );

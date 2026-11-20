@@ -8,6 +8,7 @@ import * as THREE from "three";
 import { variantOf } from "@/game/scenarios";
 import { setWorldHit, setWorldLive } from "@/game/layout";
 import { useHarbor, world } from "@/game/state";
+import { FloorDetail } from "@/game/FloorDetail";
 
 export const MODEL_BASE = "/assets/models/";
 export const MODEL_FALLBACK = "https://raw.githubusercontent.com/andrew-baggiani/harbor-game/main/assets/models/";
@@ -733,6 +734,7 @@ export function HarborWorld() {
       <primitive object={scenes.lobbyBaked} />
       <primitive object={scenes.frontBaked} />
       <primitive object={scenes.f14Baked} />
+      <FloorDetail />
       <pointLight position={[0, 6.5, 26]} color="#9eb6cc" intensity={18} distance={42} decay={2} />
       <Ring />
     </group>
