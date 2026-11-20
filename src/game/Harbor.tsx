@@ -1,9 +1,10 @@
+import { walker } from "@/game/layout";
 import { PerfDriver, PerfOverlay, usePerf, useQuality } from "@/game/perf";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { MONDAY_FINDS, MONDAY_TOYS } from "@/content/week/play";
 import { presses as mondayPresses, useMondayPlay } from "@/game/mondayPlay";
 import { FindProp, ToyDots } from "@/game/weekplay/Scene";
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useProgress } from "@react-three/drei";
 import { EffectComposer, Bloom, Vignette, ToneMapping, SMAA, BrightnessContrast, HueSaturation } from "@react-three/postprocessing";
 import { ToneMappingMode } from "postprocessing";
@@ -92,21 +93,7 @@ export function Harbor({ callsign, onDone }: { callsign: string; onDone: (score:
       >
         <fog attach="fog" args={["#121820", 16, 92]} />
         <hemisphereLight args={["#8aa0b8", "#1a1814", 0.15]} />
-        <directionalLight
-          position={[40, 80, -30]}
-          intensity={0.32}
-          color="#d5e2f4"
-          castShadow
-          shadow-mapSize-width={2048}
-          shadow-mapSize-height={2048}
-          shadow-bias={-0.00025}
-          shadow-camera-near={2}
-          shadow-camera-far={180}
-          shadow-camera-left={-60}
-          shadow-camera-right={60}
-          shadow-camera-top={60}
-          shadow-camera-bottom={-60}
-        />
+        <MoonShadow />
         <directionalLight position={[-30, 18, -20]} intensity={0.08} color="#ffc49a" />
         <directionalLight position={[6, 10, 34]} intensity={0.42} color="#b7c9dc" />
         <Sky />
@@ -969,4 +956,51 @@ function MondayIdle() {
     return () => usePerf.getState().setIdle(false);
   }, [idle]);
   return null;
+}
+
+/**
+ * The moonlight, with its shadow fitted to the 60 m around the player instead of the whole block: fewer
+ * things to draw into the shadow map and a sharper result from a smaller map. Same angle as before.
+ */
+const MOON = new THREE.Vector3(40, 80, -30);
+function MoonShadow() {
+  const light = useRef<THREE.DirectionalLight>(null);
+  const scene = useThree((s) => s.scene);
+  useEffect(() => {
+    const l = light.current;
+    if (!l) return;
+    scene.add(l.target);
+    return () => {
+      scene.remove(l.target);
+    };
+  }, [scene]);
+  useFrame(() => {
+    const l = light.current;
+    if (!l) return;
+    // Snap to a 2 m grid so shadow edges don't shimmer as you walk.
+    const x = walker.y > -50 ? Math.round(walker.x / 2) * 2 : 0;
+    const y = walker.y > -50 ? walker.y : 0;
+    const z = walker.y > -50 ? Math.round(walker.z / 2) * 2 : 0;
+    l.target.position.set(x, y, z);
+    l.position.set(x + MOON.x, y + MOON.y, z + MOON.z);
+    l.target.updateMatrixWorld();
+  });
+  return (
+    <directionalLight
+      ref={light}
+      position={[40, 80, -30]}
+      intensity={0.32}
+      color="#d5e2f4"
+      castShadow
+      shadow-mapSize-width={1024}
+      shadow-mapSize-height={1024}
+      shadow-bias={-0.0004}
+      shadow-camera-near={1}
+      shadow-camera-far={200}
+      shadow-camera-left={-30}
+      shadow-camera-right={30}
+      shadow-camera-top={30}
+      shadow-camera-bottom={-30}
+    />
+  );
 }
