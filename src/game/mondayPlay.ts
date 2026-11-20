@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { MONDAY_FINDS, MONDAY_TOYS, findLineId, toyLineId, toySfx } from "@/content/week/play";
+import { CAB_TOY, MONDAY_FINDS, MONDAY_TOYS, findLineId, toyLineId, toySfx } from "@/content/week/play";
 import { blip, sayLine } from "@/game/audio";
 import { playSfx } from "@/game/sound";
 
@@ -31,7 +31,7 @@ export function mondayFindCount() {
 export function mondayUse(action: string) {
   pokeClock.last = performance.now();
   if (action.startsWith("toy:")) {
-    const toy = MONDAY_TOYS.find((t) => `toy:${t.id}` === action);
+    const toy = [...MONDAY_TOYS, CAB_TOY].find((t) => `toy:${t.id}` === action);
     if (!toy) return;
     const n = presses[toy.id] ?? 0;
     presses[toy.id] = n + 1;

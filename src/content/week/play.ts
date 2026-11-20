@@ -526,7 +526,7 @@ export const PLAY_VOICES: Record<string, "man" | "woman"> = {
 /** Every voiced optional line, for the recording sheet. */
 export function playLines(): { id: string; text: string; who: string }[] {
   const out: { id: string; text: string; who: string }[] = [];
-  for (const t of TOYS) t.lines.forEach((text, n) => out.push({ id: toyLineId(t, n), text, who: t.who ?? "Narrator" }));
+  for (const t of [...TOYS, CAB_TOY]) t.lines.forEach((text, n) => out.push({ id: toyLineId(t, n), text, who: t.who ?? "Narrator" }));
   for (const f of FINDS) out.push({ id: findLineId(f), text: f.line, who: "Narrator" });
   COWORKER.hello.forEach((text, n) => out.push({ id: cwLineId("hello", n), text, who: COWORKER.who }));
   COWORKER.nudge.forEach((text, n) => out.push({ id: cwLineId("nudge", n), text, who: COWORKER.who }));
@@ -539,6 +539,23 @@ export function playLines(): { id: string; text: string; who: string }[] {
 /** Finds that Monday shows: floor 14 and the lobby, minus the ones Monday already teaches as a beat. */
 export const MONDAY_FINDS = FINDS.filter((f) => (f.place === "f14" || f.place === "lobby") && f.monday !== false);
 export const MONDAY_TOYS = TOYS.filter((t) => t.place === "f14" || t.place === "lobby");
+
+/** The panel inside Monday's elevator cab. Pressed during the ride; the cab moves, so it has no fixed spot. */
+export const CAB_TOY: Toy = {
+  id: "cab-panel",
+  place: "lobby",
+  x: 0,
+  y: 0,
+  z: 0,
+  label: "Floor buttons",
+  sfx: "sfx-button",
+  lines: [
+    "You press 9. It lights up. The elevator is going to 14 and does not care about 9.",
+    "You press 10, 11 and 12. Somewhere in facilities, a log file fills up.",
+    "Door Close. It has not been wired to anything since 1998. You press it anyway.",
+    "The emergency call button looks at you. You leave it alone. Good call.",
+  ],
+};
 
 /** The sound for a toy's nth press. Falls back to a soft tap. */
 export function toySfx(toy: Toy, n: number): string {

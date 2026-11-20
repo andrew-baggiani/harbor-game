@@ -84,6 +84,14 @@ export function step(dt: number) {
   stepRide(dt);
   if (world.ride === "hold" || world.ride === "shut" || world.ride === "ride") {
     standStill();
+    // Nothing to steer in the cab, but the floor buttons are right there.
+    const want = world.wantInteract;
+    world.wantInteract = false;
+    if (want && world.interactCd <= 0 && !store.talk) {
+      mondayUse("toy:cab-panel");
+      world.interactCd = 0.28;
+    }
+    store.setPrompt(store.talk ? null : "E  ·  Floor buttons");
     return;
   }
 
