@@ -49,3 +49,13 @@ export function logShiftComplete(shift = "monday", timing?: ShiftTiming) {
 export function newShiftRun() {
   runId = newRun();
 }
+
+/** The current run, for auto-save. */
+export function currentRun() {
+  return (runId ||= newRun());
+}
+
+/** Carry on a saved run, so a resumed shift stays one attempt in the record. */
+export function resumeRun(id: string) {
+  if (/^[0-9a-f]{24}$/.test(id)) runId = id;
+}

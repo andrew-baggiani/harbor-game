@@ -1,3 +1,5 @@
+import { saveMonday, startMondaySaves } from "@/game/mondaySave";
+import { watchAway } from "@/game/save";
 import { walker } from "@/game/layout";
 import { PerfDriver, PerfOverlay, usePerf, useQuality } from "@/game/perf";
 import { Suspense, useEffect, useRef, useState } from "react";
@@ -109,6 +111,7 @@ export function Harbor({ callsign, onDone }: { callsign: string; onDone: (score:
         <PerfDriver />
         <ToneFallback />
         <MondayIdle />
+        <MondayKeep />
         {quality.effects && (
         <EffectComposer enableNormalPass={false} multisampling={0}>
           <Bloom intensity={0.22} luminanceThreshold={0.78} luminanceSmoothing={0.2} mipmapBlur />
@@ -692,6 +695,7 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
           <div className="w-full max-w-xs border border-white/10 bg-[#0c0d0f] p-6">
             <p className="text-[10px] tracking-[0.24em] text-[#c4a574]">PAUSED</p>
             <p className="mt-2 font-display text-4xl">Harbor</p>
+            <p className="mt-2 text-sm text-[#a8a59c]">Progress is saved. Time paused doesn't count.</p>
             <div className="mt-5 flex flex-col border-t border-white/10">
               <button type="button" className="min-h-12 border-b border-white/10 text-left" onClick={() => useHarbor.getState().setPaused(false)}>
                 Resume
@@ -1003,4 +1007,25 @@ function MoonShadow() {
       shadow-camera-bottom={-30}
     />
   );
+}
+
+/** Auto-save while playing, and pause (Esc menu) when the player switches away or goes idle. */
+function MondayKeep() {
+  useEffect(() => {
+    const stopSaves = startMondaySaves();
+    const stopAway = watchAway(() => {
+      const s = useHarbor.getState();
+      if (s.boot || s.report || s.paused) return;
+      saveMonday();
+      s.setPaused(true);
+    });
+    const beforeUnload = () => saveMonday();
+    window.addEventListener("pagehide", beforeUnload);
+    return () => {
+      stopSaves();
+      stopAway();
+      window.removeEventListener("pagehide", beforeUnload);
+    };
+  }, []);
+  return null;
 }

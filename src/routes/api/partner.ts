@@ -1,3 +1,4 @@
+import { isOwner } from "@/server/billing";
 import { createFileRoute } from "@tanstack/react-router";
 import { guard, requireAccess } from "@/server/auth";
 import { createOrg, createPartner, partnerOverview } from "@/server/db";
@@ -22,7 +23,11 @@ export const Route = createFileRoute("/api/partner")({
           const body = await readJson<{ action?: string; name?: string; partnerId?: string; domain?: string }>(request);
           const name = body?.name?.trim().slice(0, 120);
           if (!name) return bad("Name required");
-          if (body?.action === "create") return json(await createPartner(ctx.db, ctx.access, name));
+          if (body?.action === "create") {
+            // Partner workspaces come from an approved application (/partners), not self-serve.
+            if (!isOwner(ctx.env, ctx.access)) return bad("Partner access comes with an approved application. Apply at dryruncyber.com/partners.", 403);
+            return json(await createPartner(ctx.db, ctx.access, name));
+          }
           if (body?.action === "createOrg" && body.partnerId)
             return json(await createOrg(ctx.db, ctx.access, { name, partnerId: body.partnerId, domain: body.domain?.trim() || null }));
           return bad("Unknown action");

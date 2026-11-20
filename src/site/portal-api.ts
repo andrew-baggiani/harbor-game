@@ -7,7 +7,7 @@ export type Membership = {
   partnerName: string | null;
   displayName: string | null;
 };
-export type Me = { user: { id: string; email: string } | null; learnerOrg?: string | null; memberships?: Membership[] };
+export type Me = { user: { id: string; email: string } | null; learnerOrg?: string | null; memberships?: Membership[]; canPlay?: boolean; owner?: boolean };
 export type Learner = {
   userId: string;
   email: string;

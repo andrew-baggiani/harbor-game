@@ -6,7 +6,8 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "rea
 import * as THREE from "three";
 import type { CheckItem } from "@/game/scenarios";
 import type { FalloutStep, ShiftDef, WeekBeat, WeekChoice } from "@/content/week/types";
-import { checkLearner, logDecision, logShiftComplete, newShiftRun } from "@/game/telemetry";
+import { checkLearner, currentRun, logDecision, logShiftComplete, newShiftRun, resumeRun } from "@/game/telemetry";
+import { ago, clearSave, readSave, watchAway, writeSave } from "@/game/save";
 import { saveFinds, saveWeek } from "@/game/weekplay/progress";
 import {
   COWORKER,
@@ -67,6 +68,9 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
   const [briefing, setBriefing] = useState(false);
   // The beat whose prop is pulled up. It outlives the panel by a moment so the prop can go back down.
   const [inspecting, setInspecting] = useState<WeekBeat | null>(null);
+  // Auto-save: what was saved last time (offered on the intro), and whether the shift is paused.
+  const [saved] = useState(() => readSave<ShiftSave>(shift.id));
+  const [away, setAway] = useState<null | "tab" | "idle">(null);
   const [index, setIndex] = useState(0);
   const [picked, setPicked] = useState<Record<string, WeekChoice>>({});
   const [flipped, setFlipped] = useState<Record<string, boolean>>({});
@@ -97,11 +101,63 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
   const beat = shift.beats[Math.min(index, shift.beats.length - 1)];
   const set = SETS[roomSet];
   const spot = phase === "play" && beat.set === roomSet ? set.spots[beat.spot] : null;
+  // Save after every decision and find, so a closed tab or a crash costs nothing.
+  useEffect(() => {
+    if (phase === "intro" || result) return;
+    if (index >= shift.beats.length) return;
+    writeSave<ShiftSave>(shift.id, {
+      runId: currentRun(),
+      index,
+      picked: Object.fromEntries(Object.entries(picked).map(([k, c]) => [k, c.id])),
+      flipped,
+      found,
+      onTask: timing.current.onTask,
+      exploring: timing.current.exploring,
+    });
+  }, [phase, index, picked, flipped, found, result, shift]);
+
+  // Stepping away (another tab, another window, or 4 minutes without touching anything) pauses the shift.
+  useEffect(() => {
+    if (phase !== "play" && phase !== "panel") return;
+    return watchAway((why) => {
+      player.keys.clear();
+      player.paused = true;
+      setAway((a) => a ?? why);
+    });
+  }, [phase]);
+  useEffect(() => {
+    player.paused = !!away;
+    return () => {
+      player.paused = false;
+    };
+  }, [away]);
+
+  const resume = (s: ShiftSave) => {
+    resumeRun(s.runId);
+    const byId = new Map(shift.beats.flatMap((b) => b.scenario.choices.map((c) => [c.id, c] as const)));
+    const p: Record<string, WeekChoice> = {};
+    for (const [k, id] of Object.entries(s.picked)) {
+      const c = byId.get(id);
+      if (c) p[k] = c as WeekChoice;
+    }
+    setPicked(p);
+    setFlipped(s.flipped ?? {});
+    setFound(s.found ?? {});
+    timing.current.onTask = s.onTask ?? 0;
+    timing.current.exploring = s.exploring ?? 0;
+    const at = Math.min(s.index, shift.beats.length - 1);
+    setIndex(at);
+    const set = shift.beats[at].set;
+    setRoomSet(set);
+    placePlayer(set);
+    setPhase("play");
+  };
+
   // Draw at 30 fps while reading (panels, briefing, debrief); 60 while walking.
   useEffect(() => {
-    usePerf.getState().setIdle(phase !== "play" || briefing);
+    usePerf.getState().setIdle(phase !== "play" || briefing || !!away);
     return () => usePerf.getState().setIdle(false);
-  }, [phase, briefing]);
+  }, [phase, briefing, away]);
   useEffect(() => {
     if (phase === "panel" && beat.prop && beat.set === roomSet) {
       setInspecting(beat);
@@ -251,6 +307,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
       const now = performance.now();
       const dt = Math.min(1, (now - t.last) / 1000);
       t.last = now;
+      if (player.paused || document.hidden) return;
       if (phase === "panel") {
         t.onTask += dt;
         return;
@@ -314,7 +371,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
 
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
-      if ((e.code === "KeyE" || e.code === "Enter" || e.code === "Space") && phase === "play") {
+      if ((e.code === "KeyE" || e.code === "Enter" || e.code === "Space") && phase === "play" && !player.paused) {
         if (near) open();
         else if (nearItem) pokeItem(nearItem);
       }
@@ -484,6 +541,25 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           onItem={setNearItem}
         />
       </Canvas>
+      {away && (
+        <div className="absolute inset-0 z-40 flex items-center justify-center bg-[#07090e]/80 p-5 font-ui">
+          <div role="dialog" aria-modal="true" className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#10141b] p-6 text-center">
+            <h2 className="font-display text-3xl">Paused</h2>
+            <p className="mt-3 text-[#d8d2c4]">
+              {away === "idle" ? "You've been away for a few minutes, so the shift paused." : "You switched away, so the shift paused."} Your progress is saved, and
+              time away doesn't count.
+            </p>
+            <button
+              type="button"
+              autoFocus
+              onClick={() => setAway(null)}
+              className="mt-6 rounded-full bg-[#c4a574] px-6 py-3 font-game tracking-[0.12em] text-[#14110c]"
+            >
+              CONTINUE
+            </button>
+          </div>
+        </div>
+      )}
       <PerfOverlay />
 
       <LookLayer active={phase === "play"} />
@@ -577,6 +653,37 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
             Walk with WASD or the arrow keys, drag to look. On a phone, use the left thumb pad. The gold light marks what needs you. Press Space to talk, look
             or poke. Poke around too: things react, and a few security slip-ups are hidden in every room.
           </p>
+          {saved && saved.index > 0 && saved.index < shift.beats.length ? (
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  unlockAudio();
+                  warmSounds();
+                  resume(saved);
+                }}
+                className="rounded-full bg-[#c4a574] px-6 py-3 font-game tracking-[0.12em] text-[#14110c]"
+              >
+                PICK UP WHERE YOU LEFT OFF
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  clearSave(shift.id);
+                  unlockAudio();
+                  warmSounds();
+                  if (needsBriefing()) setBriefing(true);
+                  else setPhase("play");
+                }}
+                className="rounded-full border border-white/20 px-5 py-3 text-sm text-[#d8d2c4] hover:border-white/40"
+              >
+                Start over
+              </button>
+              <p className="w-full text-sm text-[#a8a59c]">
+                Saved {ago(saved.savedAt)}, {saved.index} of {shift.beats.length} decisions made.
+              </p>
+            </div>
+          ) : (
           <button
             type="button"
             onClick={() => {
@@ -589,6 +696,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           >
             START THE SHIFT
           </button>
+          )}
         </Overlay>
       )}
       {phase === "intro" && briefing && (
@@ -627,6 +735,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
             const passed = ratio >= PASS;
             saveWeek(shift.id, beatsScore, passed);
             saveFinds(shift.id, Object.keys(found));
+            if (passed) clearSave(shift.id);
             if (passed)
               logShiftComplete(shift.id, {
                 onTask: timing.current.onTask,
@@ -950,3 +1059,13 @@ function minutes(sec: number) {
   if (sec < 60) return `${Math.max(0, Math.round(sec))} s`;
   return `${Math.round(sec / 60)} min`;
 }
+
+type ShiftSave = {
+  runId: string;
+  index: number;
+  picked: Record<string, string>;
+  flipped: Record<string, boolean>;
+  found: Record<string, true>;
+  onTask: number;
+  exploring: number;
+};

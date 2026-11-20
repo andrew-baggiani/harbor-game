@@ -2,6 +2,7 @@
 // access context and checks it against the org or partner before touching the row.
 import type { D1Database } from "@/server/env";
 import { newId, newToken, sha256 } from "@/server/crypto";
+import { seatProblem, startTrial } from "@/server/billing";
 import { choiceOf } from "@/game/scenarios";
 import { SHIFT_IDS, weekChoiceOf } from "@/content/week";
 
@@ -174,6 +175,8 @@ export async function createOrg(db: D1Database, a: Access, input: { name: string
     );
   }
   await db.batch(stmts);
+  // A company signing itself up starts on a trial; MSP client orgs are billed through the partner.
+  if (!input.partnerId) await startTrial(db, id);
   return { id, name: input.name };
 }
 
@@ -395,6 +398,16 @@ export async function orgDetail(db: D1Database, a: Access, orgId: string) {
 /** Adds learners (creating user records as needed). Returns the users that are new to this org. */
 export async function addLearners(db: D1Database, a: Access, orgId: string, emails: string[]) {
   await assertOrgAdmin(db, a, orgId);
+  let fresh = 0;
+  for (const email of emails) {
+    const hit = await db
+      .prepare("SELECT 1 FROM memberships m JOIN users u ON u.id = m.user_id WHERE u.email = ? AND m.org_id = ? AND m.role = 'learner'")
+      .bind(email, orgId)
+      .first();
+    if (!hit) fresh += 1;
+  }
+  const problem = await seatProblem(db, orgId, fresh);
+  if (problem) throw new Forbidden(problem);
   const added: User[] = [];
   const already: string[] = [];
   for (const email of emails) {

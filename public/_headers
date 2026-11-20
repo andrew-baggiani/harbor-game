@@ -1,0 +1,20 @@
+# Static files (served by Cloudflare's edge, not the Worker).
+# Big assets change rarely: let browsers keep them a week and revalidate after, so a returning
+# player doesn't download 25 MB of models again.
+
+/assets/models/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+
+/people/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+
+/voice/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
+
+/audio/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=31536000; includeSubDomains

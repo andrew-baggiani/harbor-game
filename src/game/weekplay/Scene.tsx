@@ -23,6 +23,8 @@ export const player = {
   moving: false,
   /** Set while something is pulled up: the walker stops moving the player. */
   frozen: false,
+  /** Set while the shift is paused (you stepped away). */
+  paused: false,
   /** Camera lean toward a screen (k 0..1 blends from the walking camera to this pose). */
   lean: { k: 0, x: 0, y: 0, z: 0, yaw: 0, pitch: 0 },
 };
@@ -334,7 +336,7 @@ export function Walker({
     player.yaw -= turn * dt * 2.2;
     fwd += -player.moveZ;
     side += player.moveX;
-    if (player.frozen) {
+    if (player.frozen || player.paused) {
       fwd = 0;
       side = 0;
     }

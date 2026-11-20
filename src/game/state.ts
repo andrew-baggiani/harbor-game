@@ -1,3 +1,4 @@
+import { clearSave } from "@/game/save";
 import { create } from "zustand";
 import { CAR_SPAWN, SPAWN, floorMood } from "@/game/layout";
 import { applyFlag, barkFor, emptyFlags, nextBeat, objectiveFor, panelFor, scoreOf, talkFor, type Beat, type Flags, type Talk, type VoiceKind } from "@/game/story";
@@ -303,6 +304,7 @@ export const useHarbor = create<HarborStore>((set, get) => ({
   finish: () => {
     if (get().report) return;
     flushFallout();
+    clearSave("monday");
     sealShift(get().flags);
     const finds = mondayFindCount();
     logShiftComplete("monday", { onTask: world.time.onTask, exploring: world.time.exploring, finds: finds.found, findsTotal: finds.total });

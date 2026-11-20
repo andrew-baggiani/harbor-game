@@ -118,8 +118,9 @@ export function Setup({ onDone }: { onDone: (v: View) => void }) {
         const o = await api<{ id: string }>("/api/org", { action: "create", name, domain });
         onDone({ kind: "org", id: o.id, tab: "people" });
       } else {
-        const p = await api<{ id: string }>("/api/partner", { action: "create", name });
-        onDone({ kind: "partner", id: p.id, section: "overview" });
+        // Partner workspaces come from an approved application.
+        window.location.href = "/partners#apply";
+        return;
       }
     } catch (error) {
       setErr((error as Error).message);
@@ -140,8 +141,8 @@ export function Setup({ onDone }: { onDone: (v: View) => void }) {
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {(
               [
-                ["partner", "My MSP's clients", "Manage training for several client organizations.", <Building key="i" size={22} />],
-                ["org", "My own company", "Train your own team directly.", <Users key="i" size={22} />],
+                ["partner", "My MSP's clients", "Apply for partner access: 25 free internal seats, one portal for every client.", <Building key="i" size={22} />],
+                ["org", "My own company", "Start a free 14-day trial for up to 10 people.", <Users key="i" size={22} />],
               ] as const
             ).map(([k, label, hint, icon]) => (
               <label key={k} className={`flex cursor-pointer gap-3 rounded-2xl border p-4 transition ${kind === k ? "border-site-violet bg-site-violet/10" : "border-white/10 hover:border-white/20"}`}>

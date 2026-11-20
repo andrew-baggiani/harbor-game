@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ChatWidget } from "@/site/ChatWidget";
-import { CONTACT, SiteFooter, SiteNav, SkipLink } from "@/site/SiteChrome";
+import { SiteFooter, SiteNav, SkipLink } from "@/site/SiteChrome";
 import { AI_ENTRY, WEEK } from "@/game/week";
 import phishing from "@/content/scenarios/mon-02-phishing.json";
 import { Arrow, Avatar, Check, Gauge, LiveDot, MiniRing, Pill, btn } from "@/portal/ui";
@@ -90,8 +90,8 @@ function Hero({ phone }: { phone: boolean | null }) {
             every decision recorded against the controls your clients are audited on.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
-            <a href={CONTACT} className={`${btn.primary} w-full justify-center !px-6 !py-3.5 text-base sm:w-auto`}>
-              Request partner access <Arrow size={17} />
+            <a href="/partners" className={`${btn.primary} w-full justify-center !px-6 !py-3.5 text-base sm:w-auto`}>
+              Apply for partner access <Arrow size={17} />
             </a>
             <a href="#night" className={`${btn.ghost} w-full justify-center !px-6 !py-3.5 text-base sm:w-auto`}>
               See what's in a shift
@@ -504,8 +504,8 @@ function HowItWorks() {
           <a href="/sample-record" className={btn.primary}>
             See a sample record <Arrow size={16} />
           </a>
-          <a href="/play" className={btn.ghost}>
-            Play Monday
+          <a href="/pricing#waitlist" className={btn.ghost}>
+            Join the waitlist
           </a>
         </div>
       </div>
@@ -596,11 +596,14 @@ function Close() {
       <div className="aurora mx-auto max-w-[980px] px-6 py-16 text-center sm:px-12 sm:py-20">
         <h2 id="close-title" className="display mx-auto max-w-[12ch] text-[38px] lg:text-[64px]">Run it before it runs you.</h2>
         <p className="mx-auto mt-6 max-w-[34rem] text-lg leading-relaxed text-site-mist">
-          The whole week is ready now. Tell us about your clients and we'll set you up with partner access.
+          The whole week is ready now. Apply for partner access, or put your own team on the waitlist with founding pricing.
         </p>
         <div className="mt-10 flex flex-wrap justify-center gap-3">
-          <a href={CONTACT} className={`${btn.primary} !px-7 !py-4 text-base`}>
-            Email hello@dryruncyber.com
+          <a href="/partners" className={`${btn.primary} !px-7 !py-4 text-base`}>
+            Apply to partner
+          </a>
+          <a href="/pricing#waitlist" className={`${btn.ghost} !px-7 !py-4 text-base`}>
+            Join the waitlist
           </a>
           <a href="/login" className={`${btn.ghost} !px-7 !py-4 text-base`}>
             Partner sign in

@@ -31,6 +31,24 @@ export async function sendMagicLink(env: Env, to: string, link: string, purpose:
   return { sent: true, provider: "resend" };
 }
 
+/** A plain notification or confirmation email. Logged instead of sent when Resend isn't set up. */
+export async function sendMail(env: Env, to: string, subject: string, text: string, replyTo?: string): Promise<SendResult> {
+  if (!env.RESEND_API_KEY) {
+    console.log(`[email] (not sent, no RESEND_API_KEY) to ${to}: ${subject}`);
+    return { sent: false, provider: "log" };
+  }
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, "content-type": "application/json" },
+    body: JSON.stringify({ from: "Dry Run Cyber <hello@dryruncyber.com>", to: [to], subject, text, ...(replyTo ? { reply_to: replyTo } : {}) }),
+  });
+  if (!res.ok) {
+    console.error(`[email] resend failed ${res.status}`);
+    return { sent: false, provider: "resend" };
+  }
+  return { sent: true, provider: "resend" };
+}
+
 function escapeHtml(s: string) {
   return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] ?? c);
 }
