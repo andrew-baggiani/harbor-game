@@ -1,3 +1,4 @@
+import { PerfDriver, PerfOverlay, usePerf } from "@/game/perf";
 import { Briefing, needsBriefing } from "@/game/Briefing";
 import { floorMood } from "@/game/layout";
 import { Canvas } from "@react-three/fiber";
@@ -96,6 +97,11 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
   const beat = shift.beats[Math.min(index, shift.beats.length - 1)];
   const set = SETS[roomSet];
   const spot = phase === "play" && beat.set === roomSet ? set.spots[beat.spot] : null;
+  // Draw at 30 fps while reading (panels, briefing, debrief); 60 while walking.
+  useEffect(() => {
+    usePerf.getState().setIdle(phase !== "play" || briefing);
+    return () => usePerf.getState().setIdle(false);
+  }, [phase, briefing]);
   useEffect(() => {
     if (phase === "panel" && beat.prop && beat.set === roomSet) {
       setInspecting(beat);
@@ -398,7 +404,8 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
     <div className="relative h-dvh w-full select-none overflow-hidden bg-[#07090e] text-[#f4f0e6]" style={{ touchAction: "none" }}>
       <Canvas
         className="h-full w-full"
-        dpr={[1, 1.75]}
+        dpr={[1, 1.5]}
+        frameloop="demand"
         shadows
         camera={{ fov: 62, near: 0.05, far: 500 }}
         gl={{ antialias: true, powerPreference: "high-performance" }}
@@ -409,6 +416,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           gl.setClearColor("#07090e");
         }}
       >
+        <PerfDriver />
         {set.harbor ? (
           <HarborStage />
         ) : set.baked ? (
@@ -476,6 +484,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           onItem={setNearItem}
         />
       </Canvas>
+      <PerfOverlay />
 
       <LookLayer active={phase === "play"} />
       <div className={`pointer-events-none absolute inset-0 bg-black transition-opacity duration-500 ${fade ? "opacity-100" : "opacity-0"}`} />

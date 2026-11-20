@@ -1,8 +1,9 @@
+import { PerfDriver, PerfOverlay, usePerf, useQuality } from "@/game/perf";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { MONDAY_FINDS, MONDAY_TOYS } from "@/content/week/play";
 import { presses as mondayPresses, useMondayPlay } from "@/game/mondayPlay";
 import { FindProp, ToyDots } from "@/game/weekplay/Scene";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import { useProgress } from "@react-three/drei";
 import { EffectComposer, Bloom, Vignette, ToneMapping, SMAA, BrightnessContrast, HueSaturation } from "@react-three/postprocessing";
 import { ToneMappingMode } from "postprocessing";
@@ -39,6 +40,7 @@ function LoadBar() {
 }
 
 export function Harbor({ callsign, onDone }: { callsign: string; onDone: (score: number, clean: boolean) => void }) {
+  const quality = useQuality();
   const lookDrag = useRef<{ x: number; y: number } | null>(null);
   useEffect(() => stopVoices, []);
   useEffect(() => {
@@ -75,13 +77,14 @@ export function Harbor({ callsign, onDone }: { callsign: string; onDone: (score:
     >
       <Canvas
         className="h-full w-full"
-        dpr={[1, 2]}
+        dpr={[1, 1.5]}
+        frameloop="demand"
         shadows={{ type: THREE.PCFShadowMap }}
         camera={{ fov: 46, near: 0.12, far: 480, position: [0, 2.6, 10] }}
         gl={{ antialias: true, powerPreference: "high-performance", stencil: false, preserveDrawingBuffer: true }}
         onCreated={({ gl }) => {
           gl.outputColorSpace = THREE.SRGBColorSpace;
-          gl.toneMapping = THREE.NoToneMapping;
+          gl.toneMapping = THREE.NoToneMapping; // the effect chain tone-maps (see ToneFallback)
           gl.shadowMap.enabled = true;
           gl.setClearColor("#07090e");
         }}
@@ -116,6 +119,10 @@ export function Harbor({ callsign, onDone }: { callsign: string; onDone: (score:
         <Trail />
         <Rain />
         <Rig />
+        <PerfDriver />
+        <ToneFallback />
+        <MondayIdle />
+        {quality.effects && (
         <EffectComposer enableNormalPass={false} multisampling={0}>
           <Bloom intensity={0.22} luminanceThreshold={0.78} luminanceSmoothing={0.2} mipmapBlur />
           <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
@@ -124,7 +131,9 @@ export function Harbor({ callsign, onDone }: { callsign: string; onDone: (score:
           <Vignette offset={0.28} darkness={0.28} />
           <SMAA />
         </EffectComposer>
+        )}
       </Canvas>
+      <PerfOverlay />
       <LoadBar />
       <DeskScreen />
       <div
@@ -940,4 +949,24 @@ function SharpEye() {
       )}
     </div>
   );
+}
+
+/** Without the effect chain (low quality), the renderer does the tone mapping itself. */
+function ToneFallback() {
+  const gl = useThree((s) => s.gl);
+  const q = useQuality();
+  useEffect(() => {
+    gl.toneMapping = q.effects ? THREE.NoToneMapping : THREE.ACESFilmicToneMapping;
+  }, [gl, q.effects]);
+  return null;
+}
+
+/** Monday draws at 30 fps on the title screen, in conversations and on the report. */
+function MondayIdle() {
+  const idle = useHarbor((s) => s.boot || !!s.talk || !!s.report);
+  useEffect(() => {
+    usePerf.getState().setIdle(idle);
+    return () => usePerf.getState().setIdle(false);
+  }, [idle]);
+  return null;
 }
