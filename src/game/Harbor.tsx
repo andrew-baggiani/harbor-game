@@ -1,8 +1,12 @@
+import { saveMonday, startMondaySaves } from "@/game/mondaySave";
+import { watchAway } from "@/game/save";
+import { walker } from "@/game/layout";
+import { PerfDriver, PerfOverlay, usePerf, useQuality } from "@/game/perf";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { MONDAY_FINDS, MONDAY_TOYS } from "@/content/week/play";
 import { presses as mondayPresses, useMondayPlay } from "@/game/mondayPlay";
 import { FindProp, ToyDots } from "@/game/weekplay/Scene";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useProgress } from "@react-three/drei";
 import { EffectComposer, Bloom, Vignette, ToneMapping, SMAA, BrightnessContrast, HueSaturation } from "@react-three/postprocessing";
 import { ToneMappingMode } from "postprocessing";
@@ -14,7 +18,7 @@ import { DeskScreen } from "@/game/mail/DeskScreen";
 import { missedSigns } from "@/game/fallout";
 import { focusActive } from "@/game/focus";
 import { Key, TitleScreen } from "@/game/TitleScreen";
-import { blip, caption, say, unlockAudio } from "@/game/audio";
+import { blip, caption, say, stopVoices, unlockAudio } from "@/game/audio";
 import { nightPath, reportLines, scoreOf } from "@/game/story";
 import { drawKnowledgeCheck, type CheckItem } from "@/game/scenarios";
 import { exportRecord, gradeKnowledge } from "@/game/records";
@@ -39,7 +43,9 @@ function LoadBar() {
 }
 
 export function Harbor({ callsign, onDone }: { callsign: string; onDone: (score: number, clean: boolean) => void }) {
+  const quality = useQuality();
   const lookDrag = useRef<{ x: number; y: number } | null>(null);
+  useEffect(() => stopVoices, []);
   useEffect(() => {
     useHarbor.getState().reset();
     useMondayPlay.getState().reset();
@@ -74,13 +80,14 @@ export function Harbor({ callsign, onDone }: { callsign: string; onDone: (score:
     >
       <Canvas
         className="h-full w-full"
-        dpr={[1, 2]}
+        dpr={[1, 1.5]}
+        frameloop="demand"
         shadows={{ type: THREE.PCFShadowMap }}
         camera={{ fov: 46, near: 0.12, far: 480, position: [0, 2.6, 10] }}
         gl={{ antialias: true, powerPreference: "high-performance", stencil: false, preserveDrawingBuffer: true }}
         onCreated={({ gl }) => {
           gl.outputColorSpace = THREE.SRGBColorSpace;
-          gl.toneMapping = THREE.NoToneMapping;
+          gl.toneMapping = THREE.NoToneMapping; // the effect chain tone-maps (see ToneFallback)
           gl.shadowMap.enabled = true;
           gl.setClearColor("#07090e");
         }}
@@ -88,21 +95,7 @@ export function Harbor({ callsign, onDone }: { callsign: string; onDone: (score:
       >
         <fog attach="fog" args={["#121820", 16, 92]} />
         <hemisphereLight args={["#8aa0b8", "#1a1814", 0.15]} />
-        <directionalLight
-          position={[40, 80, -30]}
-          intensity={0.32}
-          color="#d5e2f4"
-          castShadow
-          shadow-mapSize-width={2048}
-          shadow-mapSize-height={2048}
-          shadow-bias={-0.00025}
-          shadow-camera-near={2}
-          shadow-camera-far={180}
-          shadow-camera-left={-60}
-          shadow-camera-right={60}
-          shadow-camera-top={60}
-          shadow-camera-bottom={-60}
-        />
+        <MoonShadow />
         <directionalLight position={[-30, 18, -20]} intensity={0.08} color="#ffc49a" />
         <directionalLight position={[6, 10, 34]} intensity={0.42} color="#b7c9dc" />
         <Sky />
@@ -115,6 +108,11 @@ export function Harbor({ callsign, onDone }: { callsign: string; onDone: (score:
         <Trail />
         <Rain />
         <Rig />
+        <PerfDriver />
+        <ToneFallback />
+        <MondayIdle />
+        <MondayKeep />
+        {quality.effects && (
         <EffectComposer enableNormalPass={false} multisampling={0}>
           <Bloom intensity={0.22} luminanceThreshold={0.78} luminanceSmoothing={0.2} mipmapBlur />
           <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
@@ -123,7 +121,9 @@ export function Harbor({ callsign, onDone }: { callsign: string; onDone: (score:
           <Vignette offset={0.28} darkness={0.28} />
           <SMAA />
         </EffectComposer>
+        )}
       </Canvas>
+      <PerfOverlay />
       <LoadBar />
       <DeskScreen />
       <div
@@ -695,6 +695,7 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
           <div className="w-full max-w-xs border border-white/10 bg-[#0c0d0f] p-6">
             <p className="text-[10px] tracking-[0.24em] text-[#c4a574]">PAUSED</p>
             <p className="mt-2 font-display text-4xl">Harbor</p>
+            <p className="mt-2 text-sm text-[#a8a59c]">Progress is saved. Time paused doesn't count.</p>
             <div className="mt-5 flex flex-col border-t border-white/10">
               <button type="button" className="min-h-12 border-b border-white/10 text-left" onClick={() => useHarbor.getState().setPaused(false)}>
                 Resume
@@ -939,4 +940,92 @@ function SharpEye() {
       )}
     </div>
   );
+}
+
+/** Without the effect chain (low quality), the renderer does the tone mapping itself. */
+function ToneFallback() {
+  const gl = useThree((s) => s.gl);
+  const q = useQuality();
+  useEffect(() => {
+    gl.toneMapping = q.effects ? THREE.NoToneMapping : THREE.ACESFilmicToneMapping;
+  }, [gl, q.effects]);
+  return null;
+}
+
+/** Monday draws at 30 fps on the title screen, in conversations and on the report. */
+function MondayIdle() {
+  const idle = useHarbor((s) => s.boot || !!s.talk || !!s.report);
+  useEffect(() => {
+    usePerf.getState().setIdle(idle);
+    return () => usePerf.getState().setIdle(false);
+  }, [idle]);
+  return null;
+}
+
+/**
+ * The moonlight, with its shadow fitted to the 60 m around the player instead of the whole block: fewer
+ * things to draw into the shadow map and a sharper result from a smaller map. Same angle as before.
+ */
+const MOON = new THREE.Vector3(40, 80, -30);
+function MoonShadow() {
+  const light = useRef<THREE.DirectionalLight>(null);
+  const scene = useThree((s) => s.scene);
+  useEffect(() => {
+    const l = light.current;
+    if (!l) return;
+    scene.add(l.target);
+    return () => {
+      scene.remove(l.target);
+    };
+  }, [scene]);
+  useFrame(() => {
+    const l = light.current;
+    if (!l) return;
+    // Snap to a 2 m grid so shadow edges don't shimmer as you walk.
+    const x = walker.y > -50 ? Math.round(walker.x / 2) * 2 : 0;
+    const y = walker.y > -50 ? walker.y : 0;
+    const z = walker.y > -50 ? Math.round(walker.z / 2) * 2 : 0;
+    l.target.position.set(x, y, z);
+    l.position.set(x + MOON.x, y + MOON.y, z + MOON.z);
+    l.target.updateMatrixWorld();
+  });
+  return (
+    <directionalLight
+      ref={light}
+      position={[40, 80, -30]}
+      intensity={0.32}
+      color="#d5e2f4"
+      castShadow
+      shadow-mapSize-width={1024}
+      shadow-mapSize-height={1024}
+      shadow-bias={-0.0004}
+      shadow-camera-near={1}
+      shadow-camera-far={200}
+      shadow-camera-left={-30}
+      shadow-camera-right={30}
+      shadow-camera-top={30}
+      shadow-camera-bottom={-30}
+    />
+  );
+}
+
+/** Auto-save while playing, and pause (Esc menu) when the player switches away or goes idle. */
+function MondayKeep() {
+  useEffect(() => {
+    const stopSaves = startMondaySaves();
+    const stopAway = watchAway(() => {
+      const s = useHarbor.getState();
+      if (s.boot || s.report || s.paused) return;
+      saveMonday();
+      s.setPaused(true);
+    });
+    const beforeUnload = () => saveMonday();
+    window.addEventListener("pagehide", beforeUnload);
+    return () => {
+      stopSaves();
+      stopAway();
+      window.removeEventListener("pagehide", beforeUnload);
+    };
+  }, []);
+  return null;
 }

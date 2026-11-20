@@ -23,14 +23,15 @@ export function SiteNav() {
         </a>
         <nav aria-label="Primary" className="flex items-center gap-4 whitespace-nowrap text-[15px] text-site-mist sm:gap-7">
           <a href="/#how-it-works" className="hidden hover:text-site-paper lg:inline">How it works</a>
-          <a href="/#msps" className="hidden hover:text-site-paper md:inline">For MSPs</a>
+          <a href="/pricing" className="hidden hover:text-site-paper md:inline">Pricing</a>
+          <a href="/partners" className="hidden hover:text-site-paper md:inline">For MSPs</a>
           <a href="/ai-security" className="hidden hover:text-site-paper md:inline">AI security guide</a>
           <a href="/login" className="hover:text-site-paper">Sign in</a>
           <a
-            href={CONTACT}
+            href="/pricing#waitlist"
             className="rounded-xl bg-site-violet px-3.5 py-2 font-semibold text-site-paper shadow-[0_8px_30px_-8px_rgba(139,44,245,.7)] transition hover:bg-site-violet-hi sm:px-4"
           >
-            Request access
+            Join the waitlist
           </a>
         </nav>
       </header>

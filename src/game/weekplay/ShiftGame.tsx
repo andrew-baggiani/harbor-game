@@ -1,10 +1,13 @@
+import { PerfDriver, PerfOverlay, usePerf } from "@/game/perf";
 import { Briefing, needsBriefing } from "@/game/Briefing";
+import { floorMood } from "@/game/layout";
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { CheckItem } from "@/game/scenarios";
 import type { FalloutStep, ShiftDef, WeekBeat, WeekChoice } from "@/content/week/types";
-import { checkLearner, logDecision, logShiftComplete, newShiftRun } from "@/game/telemetry";
+import { checkLearner, currentRun, logDecision, logShiftComplete, newShiftRun, resumeRun } from "@/game/telemetry";
+import { ago, clearSave, readSave, watchAway, writeSave } from "@/game/save";
 import { saveFinds, saveWeek } from "@/game/weekplay/progress";
 import {
   COWORKER,
@@ -21,12 +24,12 @@ import {
   toySfx,
   type Find,
 } from "@/content/week/play";
-import { Alarm, BeatProp, CastFigure, Decor, FindProp, Papers, Poke, Room, ToyDots, Walker, approach, player, type Nearby } from "@/game/weekplay/Scene";
+import { Alarm, BeatProp, CastFigure, Decor, FindProp, Inspect, Papers, Poke, Room, ToyDots, Walker, approach, heldKind, player, propVerb, type Nearby } from "@/game/weekplay/Scene";
 import { HarborStage, MonitorArt, NightStage } from "@/game/weekplay/HarborStage";
 import { BakedRoom, setRoomBounds } from "@/game/weekplay/BakedRoom";
 import { SETS } from "@/game/weekplay/sets";
 import { falloutLine, promptLine } from "@/content/week/voices";
-import { blip, sayLine, sayLineNext, unlockAudio } from "@/game/audio";
+import { blip, sayLine, sayLineNext, stopVoices, unlockAudio } from "@/game/audio";
 import { isMusicOn, playSfx, setBed, setBedFor, toggleMusic, warmSounds } from "@/game/sound";
 
 type Phase = "intro" | "play" | "panel" | "wrap" | "debrief" | "check" | "result";
@@ -63,6 +66,11 @@ function propImage(beat: WeekBeat, flipped: boolean): string | null {
 export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => void }) {
   const [phase, setPhase] = useState<Phase>("intro");
   const [briefing, setBriefing] = useState(false);
+  // The beat whose prop is pulled up. It outlives the panel by a moment so the prop can go back down.
+  const [inspecting, setInspecting] = useState<WeekBeat | null>(null);
+  // Auto-save: what was saved last time (offered on the intro), and whether the shift is paused.
+  const [saved] = useState(() => readSave<ShiftSave>(shift.id));
+  const [away, setAway] = useState<null | "tab" | "idle">(null);
   const [index, setIndex] = useState(0);
   const [picked, setPicked] = useState<Record<string, WeekChoice>>({});
   const [flipped, setFlipped] = useState<Record<string, boolean>>({});
@@ -93,6 +101,71 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
   const beat = shift.beats[Math.min(index, shift.beats.length - 1)];
   const set = SETS[roomSet];
   const spot = phase === "play" && beat.set === roomSet ? set.spots[beat.spot] : null;
+  // Save after every decision and find, so a closed tab or a crash costs nothing.
+  useEffect(() => {
+    if (phase === "intro" || result) return;
+    if (index >= shift.beats.length) return;
+    writeSave<ShiftSave>(shift.id, {
+      runId: currentRun(),
+      index,
+      picked: Object.fromEntries(Object.entries(picked).map(([k, c]) => [k, c.id])),
+      flipped,
+      found,
+      onTask: timing.current.onTask,
+      exploring: timing.current.exploring,
+    });
+  }, [phase, index, picked, flipped, found, result, shift]);
+
+  // Stepping away (another tab, another window, or 4 minutes without touching anything) pauses the shift.
+  useEffect(() => {
+    if (phase !== "play" && phase !== "panel") return;
+    return watchAway((why) => {
+      player.keys.clear();
+      player.paused = true;
+      setAway((a) => a ?? why);
+    });
+  }, [phase]);
+  useEffect(() => {
+    player.paused = !!away;
+    return () => {
+      player.paused = false;
+    };
+  }, [away]);
+
+  const resume = (s: ShiftSave) => {
+    resumeRun(s.runId);
+    const byId = new Map(shift.beats.flatMap((b) => b.scenario.choices.map((c) => [c.id, c] as const)));
+    const p: Record<string, WeekChoice> = {};
+    for (const [k, id] of Object.entries(s.picked)) {
+      const c = byId.get(id);
+      if (c) p[k] = c as WeekChoice;
+    }
+    setPicked(p);
+    setFlipped(s.flipped ?? {});
+    setFound(s.found ?? {});
+    timing.current.onTask = s.onTask ?? 0;
+    timing.current.exploring = s.exploring ?? 0;
+    const at = Math.min(s.index, shift.beats.length - 1);
+    setIndex(at);
+    const set = shift.beats[at].set;
+    setRoomSet(set);
+    placePlayer(set);
+    setPhase("play");
+  };
+
+  // Draw at 30 fps while reading (panels, briefing, debrief); 60 while walking.
+  useEffect(() => {
+    usePerf.getState().setIdle(phase !== "play" || briefing || !!away);
+    return () => usePerf.getState().setIdle(false);
+  }, [phase, briefing, away]);
+  useEffect(() => {
+    if (phase === "panel" && beat.prop && beat.set === roomSet) {
+      setInspecting(beat);
+      return;
+    }
+    const t = window.setTimeout(() => setInspecting(null), 700);
+    return () => window.clearTimeout(t);
+  }, [phase, beat, roomSet]);
   const place = placeOf(roomSet);
   const toysHere = useMemo(() => TOYS.filter((t) => t.place === place), [place]);
   const findsHere = useMemo(() => FINDS.filter((f) => f.place === place), [place]);
@@ -151,7 +224,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
     player.keys.clear();
     unlockAudio();
     const line = promptLine(beat);
-    sayLine(line.id, line.text, line.kind, line.who);
+    sayLine(line.id, line.text, line.kind, line.who, "dialog");
     setPhase("panel");
   }, [beat, near, phase]);
 
@@ -165,7 +238,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
         presses.current[id] = n + 1;
         const k = Math.min(n, toy.lines.length - 1);
         pushBark(toy.who ?? toy.label, toy.lines[k], "note");
-        sayLine(toyLineId(toy, k), toy.lines[k], PLAY_VOICES[toy.who ?? ""] ?? "narrator", toy.who ?? toy.label);
+        sayLine(toyLineId(toy, k), toy.lines[k], PLAY_VOICES[toy.who ?? ""] ?? "narrator", toy.who ?? toy.label, "chatter");
         setPoke({ key: Date.now(), x: toy.x, y: toy.y, z: toy.z });
         if (toy.papers?.includes(n))
           addFx({
@@ -189,7 +262,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
       playSfx("sfx-find", 0.6, () => blip(780));
       setPoke({ key: Date.now(), x: find.x, y: find.y + 0.1, z: find.z });
       pushBark(`Found · ${find.label}`, find.line, "good");
-      sayLine(findLineId(find), find.line, "narrator", find.label);
+      sayLine(findLineId(find), find.line, "narrator", find.label, "chatter");
       if (find.place === "f14") {
         const left = FINDS.filter((f) => f.place === "f14" && !next[f.id]).length;
         const k = chatter.current++ % COWORKER.onFind.length;
@@ -198,7 +271,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
         timers.current.push(
           window.setTimeout(() => {
             pushBark(COWORKER.who, line, "note");
-            sayLineNext(lid, line, "man", COWORKER.who);
+            sayLineNext(lid, line, "man", COWORKER.who, "chatter");
           }, 1400),
         );
       }
@@ -213,7 +286,13 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
     if (phase === "play" || phase === "panel") setBedFor(roomSet === "server" ? "server" : place);
     else setBed(null, null);
   }, [phase, roomSet, place]);
-  useEffect(() => () => setBed(null, null), []);
+  useEffect(() => {
+    floorMood.slips = 0;
+    return () => {
+      setBed(null, null);
+      stopVoices();
+    };
+  }, []);
 
   // Time on the decisions vs. exploring. Exploring = walking away from the gold light, or a few seconds
   // around each poke or find. Reported with the completion so curiosity never reads as slow.
@@ -228,6 +307,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
       const now = performance.now();
       const dt = Math.min(1, (now - t.last) / 1000);
       t.last = now;
+      if (player.paused || document.hidden) return;
       if (phase === "panel") {
         t.onTask += dt;
         return;
@@ -264,7 +344,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
       const k = chatter.current++ % COWORKER.nudge.length;
       const line = onFloor ? COWORKER.nudge[k] : PHONE_NUDGE.text;
       pushBark(onFloor ? COWORKER.who : "Phone", line, "note");
-      if (onFloor) sayLineNext(cwLineId("nudge", k), line, "man", COWORKER.who);
+      if (onFloor) sayLineNext(cwLineId("nudge", k), line, "man", COWORKER.who, "chatter");
     }, 1000);
     return () => window.clearInterval(t);
   }, [phase, near, place, pushBark]);
@@ -284,14 +364,14 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
     timers.current.push(
       window.setTimeout(() => {
         pushBark(COWORKER.who, COWORKER.hello[k], "note");
-        sayLineNext(cwLineId("hello", k), COWORKER.hello[k], "man", COWORKER.who);
+        sayLineNext(cwLineId("hello", k), COWORKER.hello[k], "man", COWORKER.who, "chatter");
       }, 2500),
     );
   }, [phase, place, pushBark]);
 
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
-      if ((e.code === "KeyE" || e.code === "Enter" || e.code === "Space") && phase === "play") {
+      if ((e.code === "KeyE" || e.code === "Enter" || e.code === "Space") && phase === "play" && !player.paused) {
         if (near) open();
         else if (nearItem) pokeItem(nearItem);
       }
@@ -304,6 +384,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
     const id = beat.scenario.id;
     setPicked((p) => ({ ...p, [id]: choice }));
     logDecision(choice.id);
+    if (!choice.ok) floorMood.slips += 1;
     const steps: FalloutStep[] = beat.timeline?.[choice.id] ?? [];
     if (choice.ok) pushBark(beat.scenario.prompt.who, choice.debrief, false);
     else if (!steps.length) pushBark(beat.scenario.prompt.who, choice.debrief, true);
@@ -380,7 +461,8 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
     <div className="relative h-dvh w-full select-none overflow-hidden bg-[#07090e] text-[#f4f0e6]" style={{ touchAction: "none" }}>
       <Canvas
         className="h-full w-full"
-        dpr={[1, 1.75]}
+        dpr={[1, 1.5]}
+        frameloop="demand"
         shadows
         camera={{ fov: 62, near: 0.05, far: 500 }}
         gl={{ antialias: true, powerPreference: "high-performance" }}
@@ -391,6 +473,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           gl.setClearColor("#07090e");
         }}
       >
+        <PerfDriver />
         {set.harbor ? (
           <HarborStage />
         ) : set.baked ? (
@@ -421,8 +504,18 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
             flipped={!!flipped[b.scenario.id]}
             live={phase === "play" && i === index}
             shakeAt={shakes[b.scenario.id] ?? 0}
+            held={inspecting?.scenario.id === b.scenario.id && heldKind(b.prop)}
           />
         ))}
+        {inspecting && (
+          <Inspect
+            key={inspecting.scenario.id}
+            beat={inspecting}
+            set={set}
+            flipped={!!flipped[inspecting.scenario.id]}
+            open={phase === "panel" && inspecting.scenario.id === beat.scenario.id}
+          />
+        )}
         {castBeat && castSpot && (
           <CastFigure
             slot={castBeat.cast!}
@@ -448,6 +541,26 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           onItem={setNearItem}
         />
       </Canvas>
+      {away && (
+        <div className="absolute inset-0 z-40 flex items-center justify-center bg-[#07090e]/80 p-5 font-ui">
+          <div role="dialog" aria-modal="true" className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#10141b] p-6 text-center">
+            <h2 className="font-display text-3xl">Paused</h2>
+            <p className="mt-3 text-[#d8d2c4]">
+              {away === "idle" ? "You've been away for a few minutes, so the shift paused." : "You switched away, so the shift paused."} Your progress is saved, and
+              time away doesn't count.
+            </p>
+            <button
+              type="button"
+              autoFocus
+              onClick={() => setAway(null)}
+              className="mt-6 rounded-full bg-[#c4a574] px-6 py-3 font-game tracking-[0.12em] text-[#14110c]"
+            >
+              CONTINUE
+            </button>
+          </div>
+        </div>
+      )}
+      <PerfOverlay />
 
       <LookLayer active={phase === "play"} />
       <div className={`pointer-events-none absolute inset-0 bg-black transition-opacity duration-500 ${fade ? "opacity-100" : "opacity-0"}`} />
@@ -511,7 +624,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           onClick={open}
           className="absolute bottom-10 right-6 rounded-full bg-[#c4a574] sm:bottom-8 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 px-6 py-3 font-game text-base tracking-[0.12em] text-[#14110c] shadow-lg"
         >
-          {beat.cast && !beat.voiceOnly ? "TALK" : "LOOK"} <span className="ml-2 hidden opacity-60 sm:inline">SPACE</span>
+          {beat.cast && !beat.voiceOnly ? "TALK" : propVerb(beat.prop)} <span className="ml-2 hidden opacity-60 sm:inline">SPACE</span>
         </button>
       )}
 
@@ -540,6 +653,37 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
             Walk with WASD or the arrow keys, drag to look. On a phone, use the left thumb pad. The gold light marks what needs you. Press Space to talk, look
             or poke. Poke around too: things react, and a few security slip-ups are hidden in every room.
           </p>
+          {saved && saved.index > 0 && saved.index < shift.beats.length ? (
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  unlockAudio();
+                  warmSounds();
+                  resume(saved);
+                }}
+                className="rounded-full bg-[#c4a574] px-6 py-3 font-game tracking-[0.12em] text-[#14110c]"
+              >
+                PICK UP WHERE YOU LEFT OFF
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  clearSave(shift.id);
+                  unlockAudio();
+                  warmSounds();
+                  if (needsBriefing()) setBriefing(true);
+                  else setPhase("play");
+                }}
+                className="rounded-full border border-white/20 px-5 py-3 text-sm text-[#d8d2c4] hover:border-white/40"
+              >
+                Start over
+              </button>
+              <p className="w-full text-sm text-[#a8a59c]">
+                Saved {ago(saved.savedAt)}, {saved.index} of {shift.beats.length} decisions made.
+              </p>
+            </div>
+          ) : (
           <button
             type="button"
             onClick={() => {
@@ -552,6 +696,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           >
             START THE SHIFT
           </button>
+          )}
         </Overlay>
       )}
       {phase === "intro" && briefing && (
@@ -563,7 +708,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
         />
       )}
 
-      {phase === "panel" && <Panel beat={beat} flipped={!!flipped[beat.scenario.id]} onChoose={choose} />}
+      {phase === "panel" && <Panel beat={beat} flipped={!!flipped[beat.scenario.id]} pulled={!!beat.prop && beat.set === roomSet} onChoose={choose} />}
 
       {phase === "wrap" && (
         <Overlay>
@@ -590,6 +735,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
             const passed = ratio >= PASS;
             saveWeek(shift.id, beatsScore, passed);
             saveFinds(shift.id, Object.keys(found));
+            if (passed) clearSave(shift.id);
             if (passed)
               logShiftComplete(shift.id, {
                 onTask: timing.current.onTask,
@@ -637,18 +783,67 @@ function Overlay({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Panel({ beat, flipped, onChoose }: { beat: WeekBeat; flipped: boolean; onChoose: (c: WeekChoice) => void }) {
+function Panel({ beat, flipped, pulled, onChoose }: { beat: WeekBeat; flipped: boolean; pulled: boolean; onChoose: (c: WeekChoice) => void }) {
   const img = propImage(beat, flipped);
   const tall = beat.prop?.kind === "phone";
   const { prompt, choices } = beat.scenario;
+  const [zoom, setZoom] = useState(false);
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && zoom) {
+        setZoom(false);
+        return;
+      }
+      if ((e.key === "z" || e.key === "Z") && img && pulled) setZoom((v) => !v);
       const n = Number(e.key);
       if (n >= 1 && n <= choices.length) onChoose(choices[n - 1]);
     };
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
-  }, [choices, onChoose]);
+  }, [choices, onChoose, zoom, img, pulled]);
+  const question = (
+    <div>
+      <p className="font-game text-xs tracking-[0.2em] text-[#c4a574]">
+        {prompt.who.toUpperCase()} · {prompt.role}
+      </p>
+      <p className="mt-2 text-lg leading-snug">{prompt.text}</p>
+      <div className="mt-4 grid gap-2">
+        {choices.map((c, i) => (
+          <button
+            key={c.id}
+            type="button"
+            onClick={() => onChoose(c)}
+            className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-left hover:border-[#c4a574]/60 hover:bg-white/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#c4a574]"
+          >
+            <span className="font-game text-sm text-[#c4a574]">{i + 1}</span>
+            <span>{c.label}</span>
+          </button>
+        ))}
+      </div>
+      {pulled && img && (
+        <button type="button" onClick={() => setZoom(true)} className="mt-3 text-sm text-[#a8a59c] underline-offset-4 hover:text-[#f4f0e6] hover:underline">
+          Read it up close <span className="hidden opacity-60 sm:inline">(Z)</span>
+        </button>
+      )}
+    </div>
+  );
+  if (pulled) {
+    // The prop is in the scene now (in hand, or the camera leaned in), so the question sits beside it.
+    return (
+      <>
+        <div className="pointer-events-none absolute inset-0 z-20 flex items-end justify-center p-3 sm:items-center sm:justify-end sm:p-6">
+          <div className="pointer-events-auto max-h-[52dvh] w-full overflow-y-auto rounded-2xl border border-white/10 bg-[#10141b]/92 p-5 shadow-2xl backdrop-blur-sm sm:max-h-[88dvh] sm:max-w-md">
+            {question}
+          </div>
+        </div>
+        {zoom && img && (
+          <div className="absolute inset-0 z-30 flex items-center justify-center bg-[#07090e]/85 p-4" onClick={() => setZoom(false)}>
+            <img src={img} alt="" className={`rounded-lg border border-white/10 ${tall ? "max-h-[88dvh]" : "max-h-[80dvh] max-w-full object-contain"}`} />
+          </div>
+        )}
+      </>
+    );
+  }
   return (
     <div className="absolute inset-0 z-20 flex items-end justify-center bg-gradient-to-t from-[#07090e] via-[#07090e]/70 to-transparent p-4 sm:items-center">
       <div
@@ -661,25 +856,7 @@ function Panel({ beat, flipped, onChoose }: { beat: WeekBeat; flipped: boolean; 
             className={`rounded-lg border border-white/10 ${tall ? "mx-auto max-h-[32dvh] sm:max-h-[50dvh]" : "max-h-[28dvh] w-full object-contain sm:max-h-[40dvh]"}`}
           />
         )}
-        <div>
-          <p className="font-game text-xs tracking-[0.2em] text-[#c4a574]">
-            {prompt.who.toUpperCase()} · {prompt.role}
-          </p>
-          <p className="mt-2 text-lg leading-snug">{prompt.text}</p>
-          <div className="mt-4 grid gap-2">
-            {choices.map((c, i) => (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => onChoose(c)}
-                className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-left hover:border-[#c4a574]/60 hover:bg-white/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#c4a574]"
-              >
-                <span className="font-game text-sm text-[#c4a574]">{i + 1}</span>
-                <span>{c.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
+        {question}
       </div>
     </div>
   );
@@ -882,3 +1059,13 @@ function minutes(sec: number) {
   if (sec < 60) return `${Math.max(0, Math.round(sec))} s`;
   return `${Math.round(sec / 60)} min`;
 }
+
+type ShiftSave = {
+  runId: string;
+  index: number;
+  picked: Record<string, string>;
+  flipped: Record<string, boolean>;
+  found: Record<string, true>;
+  onTask: number;
+  exploring: number;
+};

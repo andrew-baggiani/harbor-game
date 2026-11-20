@@ -2,7 +2,7 @@ import { enterFocus, focusActive, showApp } from "@/game/focus";
 import { playSfx, setBed, setBedFor, warmSounds } from "@/game/sound";
 import { mondayNearby, mondayUse, pokeClock } from "@/game/mondayPlay";
 import { tickFallout } from "@/game/fallout";
-import { DESK, DOOR, ELEVATOR, ELEVATOR_F14, MAYA, OFFICE_Y, USB, slide } from "@/game/layout";
+import { DESK, DOOR, ELEVATOR, ELEVATOR_F14, MAYA, OFFICE_Y, USB, blocked, slide, walker } from "@/game/layout";
 import { blip, caption, say, setEngine, setRing, setWalking, tickAudio, voiceBusy, sayNext } from "@/game/audio";
 import { objectiveFor } from "@/game/story";
 import { keys, useHarbor, world, fleet } from "@/game/state";
@@ -65,6 +65,9 @@ export function step(dt: number) {
   tickAudio(dt);
   stepReach(dt);
   stepTiming(dt);
+  walker.x = world.px;
+  walker.y = world.py;
+  walker.z = world.pz;
   // What plays under Monday: muzak in the elevator, the room's own bed indoors, the water outside.
   const riding = world.ride === "board" || world.ride === "hold" || world.ride === "shut" || world.ride === "ride";
   if (store.boot) setBed(null, null);
@@ -81,6 +84,14 @@ export function step(dt: number) {
   stepRide(dt);
   if (world.ride === "hold" || world.ride === "shut" || world.ride === "ride") {
     standStill();
+    // Nothing to steer in the cab, but the floor buttons are right there.
+    const want = world.wantInteract;
+    world.wantInteract = false;
+    if (want && world.interactCd <= 0 && !store.talk) {
+      mondayUse("toy:cab-panel");
+      world.interactCd = 0.28;
+    }
+    store.setPrompt(store.talk ? null : "E  ·  Floor buttons");
     return;
   }
 
@@ -472,6 +483,26 @@ function updateGuy(dt: number, door: "held" | "shut" | null) {
 }
 
 /** The driver-side handle of a parked car, on whichever side the player is standing. */
+function exitSpot(cx: number, cz: number, yaw: number) {
+  const th = -yaw;
+  const at = (f: number, side: number) => ({ x: cx + f * Math.cos(th) + side * Math.sin(th), z: cz - f * Math.sin(th) + side * Math.cos(th) });
+  const tries: [number, number][] = [
+    [0.35, 1.45],
+    [0.35, -1.45],
+    [-3.1, 0],
+    [3.3, 0],
+    [0.35, 2.4],
+    [0.35, -2.4],
+    [-4.4, 0],
+    [4.6, 0],
+  ];
+  for (const [f, side] of tries) {
+    const p = at(f, side);
+    if (!blocked(p.x, p.z, 0, 0.34)) return p;
+  }
+  return at(0.35, 1.45);
+}
+
 function carHandle(index: number) {
   const car = fleet[index];
   const th = -car.yaw;
@@ -485,7 +516,7 @@ function carHandle(index: number) {
 /** On the main path vs. exploring: walking away from the marker, or a moment around each poke or find. */
 function stepTiming(dt: number) {
   const store = useHarbor.getState();
-  if (store.boot || store.report) return;
+  if (store.boot || store.report || store.paused) return;
   const t = world.time;
   if (store.talk) {
     t.onTask += dt;
@@ -579,8 +610,11 @@ function tryInteract() {
     fleet[0].yaw = world.carYaw;
     world.driving = false;
     world.carSpeed = 0;
-    world.px = world.carX;
-    world.pz = -3.4;
+    // Step out beside the driver's door, wherever the car is parked; if that's blocked (a wall, a
+    // bollard), try the other side, behind, in front, then further out.
+    const out = exitSpot(world.carX, world.carZ, world.carYaw);
+    world.px = out.x;
+    world.pz = out.z;
     world.py = 0;
     blip(190);
     return;

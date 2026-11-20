@@ -6,8 +6,9 @@ import { applyScreenImage, focus, registerScreen } from "@/game/focus";
 import { MeshBVH } from "three-mesh-bvh";
 import * as THREE from "three";
 import { variantOf } from "@/game/scenarios";
-import { setWorldHit, setWorldLive } from "@/game/layout";
+import { setWorldHit, setWorldLive, walker } from "@/game/layout";
 import { useHarbor, world } from "@/game/state";
+import { FloorDetail } from "@/game/FloorDetail";
 
 export const MODEL_BASE = "/assets/models/";
 export const MODEL_FALLBACK = "https://raw.githubusercontent.com/andrew-baggiani/harbor-game/main/assets/models/";
@@ -131,7 +132,8 @@ export function cameraReach(fx: number, fy: number, fz: number, tx: number, ty: 
   return best;
 }
 
-function prepare(root: THREE.Object3D) {
+/** casts: whether this model's meshes throw moonlight shadows. Interiors don't need to: the street only sees people, cars and props. */
+function prepare(root: THREE.Object3D, casts = true) {
   root.traverse((obj) => {
     const data = obj.userData as Record<string, unknown>;
     const light = obj as THREE.Light;
@@ -199,7 +201,7 @@ function prepare(root: THREE.Object3D) {
     }
     const mesh = obj as THREE.Mesh;
     if (!mesh.isMesh) return;
-    mesh.castShadow = true;
+    mesh.castShadow = casts;
     mesh.receiveShadow = true;
     const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
     for (const material of materials) {
@@ -453,10 +455,30 @@ export function HarborWorld() {
   const spin = useRef(0);
   const flaps = useRef<{ node: THREE.Object3D; lane: number; deg: number }[]>([]);
   const cabRoot = useRef<THREE.Object3D | null>(null);
+  const f14Extra = useRef<THREE.Group>(null);
+  // Only draw the floor you can see: floor 14's offices are behind solid walls from the street, and the
+  // lobby is out of sight from floor 14. Both stay up during the elevator ride.
+  useFrame(() => {
+    const riding = !!world.ride && world.ride !== "idle";
+    const up = walker.y > 20;
+    const showF14 = up || riding;
+    const showLobby = !up || riding;
+    if (office.scene.visible !== showF14) {
+      office.scene.visible = showF14;
+      floorDetail.scene.visible = showF14;
+      f14Baked.scene.visible = showF14;
+    }
+    if (f14Extra.current) f14Extra.current.visible = showF14;
+    if (lobbyDetail.scene.visible !== showLobby) {
+      lobbyDetail.scene.visible = showLobby;
+      lobbyBaked.scene.visible = showLobby;
+    }
+  });
 
   const scenes = useMemo(() => {
     const loaded = [block, office, props, car, lobbyDetail, floorDetail, cab, shaft, security, beats];
-    for (const gltf of loaded) prepare(gltf.scene);
+    const interiors = new Set([office, lobbyDetail, floorDetail, cab, shaft]);
+    for (const gltf of loaded) prepare(gltf.scene, !interiors.has(gltf));
     for (const gltf of [lobbyDetail, floorDetail, lobbyBaked, f14Baked]) applyArt(gltf.scene);
     // Desk monitor: register it for the desk zoom and show this shift's inbox on it,
     // the same picture the clickable inbox opens with, so the hand-off is invisible.
@@ -491,7 +513,7 @@ export function HarborWorld() {
     const baked = [lobbyBaked.scene, frontBaked.scene, f14Baked.scene, cabBaked.scene];
     const originals = [block.scene, office.scene, lobbyDetail.scene, floorDetail.scene, cab.scene, shaft.scene];
     for (const scene of baked) {
-      prepare(scene);
+      prepare(scene, scene === frontBaked.scene);
       hideReplaced(scene, originals);
       void applyBakedLighting(scene, MODEL_BASE);
     }
@@ -733,6 +755,9 @@ export function HarborWorld() {
       <primitive object={scenes.lobbyBaked} />
       <primitive object={scenes.frontBaked} />
       <primitive object={scenes.f14Baked} />
+      <group ref={f14Extra}>
+        <FloorDetail />
+      </group>
       <pointLight position={[0, 6.5, 26]} color="#9eb6cc" intensity={18} distance={42} decay={2} />
       <Ring />
     </group>

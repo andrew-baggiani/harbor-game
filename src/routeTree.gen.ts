@@ -14,11 +14,14 @@ import { Route as CardRouteImport } from './routes/card'
 import { Route as CoverageRouteImport } from './routes/coverage'
 import { Route as DrillsRouteImport } from './routes/drills'
 import { Route as GlossaryRouteImport } from './routes/glossary'
+import { Route as LeadsRouteImport } from './routes/leads'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as NightRouteImport } from './routes/night'
+import { Route as PartnersRouteImport } from './routes/partners'
 import { Route as PathRouteImport } from './routes/path'
 import { Route as PlayRouteImport } from './routes/play'
 import { Route as PortalRouteImport } from './routes/portal'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RecordRouteImport } from './routes/record'
 import { Route as ReminderRouteImport } from './routes/reminder'
@@ -33,6 +36,7 @@ import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiEventsRouteImport } from './routes/api/events'
 import { Route as ApiExportRouteImport } from './routes/api/export'
 import { Route as ApiLeaderboardRouteImport } from './routes/api/leaderboard'
+import { Route as ApiLeadsRouteImport } from './routes/api/leads'
 import { Route as ApiMeRouteImport } from './routes/api/me'
 import { Route as ApiOrgRouteImport } from './routes/api/org'
 import { Route as ApiPartnerRouteImport } from './routes/api/partner'
@@ -74,6 +78,11 @@ const GlossaryRoute = GlossaryRouteImport.update({
   path: '/glossary',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LeadsRoute = LeadsRouteImport.update({
+  id: '/leads',
+  path: '/leads',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -82,6 +91,11 @@ const LoginRoute = LoginRouteImport.update({
 const NightRoute = NightRouteImport.update({
   id: '/night',
   path: '/night',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnersRoute = PartnersRouteImport.update({
+  id: '/partners',
+  path: '/partners',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PathRoute = PathRouteImport.update({
@@ -97,6 +111,11 @@ const PlayRoute = PlayRouteImport.update({
 const PortalRoute = PortalRouteImport.update({
   id: '/portal',
   path: '/portal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -167,6 +186,11 @@ const ApiExportRoute = ApiExportRouteImport.update({
 const ApiLeaderboardRoute = ApiLeaderboardRouteImport.update({
   id: '/api/leaderboard',
   path: '/api/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLeadsRoute = ApiLeadsRouteImport.update({
+  id: '/api/leads',
+  path: '/api/leads',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiMeRoute = ApiMeRouteImport.update({
@@ -251,11 +275,14 @@ export interface FileRoutesByFullPath {
   '/coverage': typeof CoverageRoute
   '/drills': typeof DrillsRouteWithChildren
   '/glossary': typeof GlossaryRoute
+  '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
   '/night': typeof NightRoute
+  '/partners': typeof PartnersRoute
   '/path': typeof PathRouteWithChildren
   '/play': typeof PlayRoute
   '/portal': typeof PortalRoute
+  '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/record': typeof RecordRoute
   '/reminder': typeof ReminderRoute
@@ -269,6 +296,7 @@ export interface FileRoutesByFullPath {
   '/api/events': typeof ApiEventsRoute
   '/api/export': typeof ApiExportRoute
   '/api/leaderboard': typeof ApiLeaderboardRoute
+  '/api/leads': typeof ApiLeadsRoute
   '/api/me': typeof ApiMeRoute
   '/api/org': typeof ApiOrgRoute
   '/api/partner': typeof ApiPartnerRoute
@@ -291,10 +319,13 @@ export interface FileRoutesByTo {
   '/card': typeof CardRoute
   '/coverage': typeof CoverageRoute
   '/glossary': typeof GlossaryRoute
+  '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
   '/night': typeof NightRoute
+  '/partners': typeof PartnersRoute
   '/play': typeof PlayRoute
   '/portal': typeof PortalRoute
+  '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/record': typeof RecordRoute
   '/reminder': typeof ReminderRoute
@@ -308,6 +339,7 @@ export interface FileRoutesByTo {
   '/api/events': typeof ApiEventsRoute
   '/api/export': typeof ApiExportRoute
   '/api/leaderboard': typeof ApiLeaderboardRoute
+  '/api/leads': typeof ApiLeadsRoute
   '/api/me': typeof ApiMeRoute
   '/api/org': typeof ApiOrgRoute
   '/api/partner': typeof ApiPartnerRoute
@@ -332,11 +364,14 @@ export interface FileRoutesById {
   '/coverage': typeof CoverageRoute
   '/drills': typeof DrillsRouteWithChildren
   '/glossary': typeof GlossaryRoute
+  '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
   '/night': typeof NightRoute
+  '/partners': typeof PartnersRoute
   '/path': typeof PathRouteWithChildren
   '/play': typeof PlayRoute
   '/portal': typeof PortalRoute
+  '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/record': typeof RecordRoute
   '/reminder': typeof ReminderRoute
@@ -350,6 +385,7 @@ export interface FileRoutesById {
   '/api/events': typeof ApiEventsRoute
   '/api/export': typeof ApiExportRoute
   '/api/leaderboard': typeof ApiLeaderboardRoute
+  '/api/leads': typeof ApiLeadsRoute
   '/api/me': typeof ApiMeRoute
   '/api/org': typeof ApiOrgRoute
   '/api/partner': typeof ApiPartnerRoute
@@ -375,11 +411,14 @@ export interface FileRouteTypes {
     | '/coverage'
     | '/drills'
     | '/glossary'
+    | '/leads'
     | '/login'
     | '/night'
+    | '/partners'
     | '/path'
     | '/play'
     | '/portal'
+    | '/pricing'
     | '/privacy'
     | '/record'
     | '/reminder'
@@ -393,6 +432,7 @@ export interface FileRouteTypes {
     | '/api/events'
     | '/api/export'
     | '/api/leaderboard'
+    | '/api/leads'
     | '/api/me'
     | '/api/org'
     | '/api/partner'
@@ -415,10 +455,13 @@ export interface FileRouteTypes {
     | '/card'
     | '/coverage'
     | '/glossary'
+    | '/leads'
     | '/login'
     | '/night'
+    | '/partners'
     | '/play'
     | '/portal'
+    | '/pricing'
     | '/privacy'
     | '/record'
     | '/reminder'
@@ -432,6 +475,7 @@ export interface FileRouteTypes {
     | '/api/events'
     | '/api/export'
     | '/api/leaderboard'
+    | '/api/leads'
     | '/api/me'
     | '/api/org'
     | '/api/partner'
@@ -455,11 +499,14 @@ export interface FileRouteTypes {
     | '/coverage'
     | '/drills'
     | '/glossary'
+    | '/leads'
     | '/login'
     | '/night'
+    | '/partners'
     | '/path'
     | '/play'
     | '/portal'
+    | '/pricing'
     | '/privacy'
     | '/record'
     | '/reminder'
@@ -473,6 +520,7 @@ export interface FileRouteTypes {
     | '/api/events'
     | '/api/export'
     | '/api/leaderboard'
+    | '/api/leads'
     | '/api/me'
     | '/api/org'
     | '/api/partner'
@@ -497,11 +545,14 @@ export interface RootRouteChildren {
   CoverageRoute: typeof CoverageRoute
   DrillsRoute: typeof DrillsRouteWithChildren
   GlossaryRoute: typeof GlossaryRoute
+  LeadsRoute: typeof LeadsRoute
   LoginRoute: typeof LoginRoute
   NightRoute: typeof NightRoute
+  PartnersRoute: typeof PartnersRoute
   PathRoute: typeof PathRouteWithChildren
   PlayRoute: typeof PlayRoute
   PortalRoute: typeof PortalRoute
+  PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   RecordRoute: typeof RecordRoute
   ReminderRoute: typeof ReminderRoute
@@ -515,6 +566,7 @@ export interface RootRouteChildren {
   ApiEventsRoute: typeof ApiEventsRoute
   ApiExportRoute: typeof ApiExportRoute
   ApiLeaderboardRoute: typeof ApiLeaderboardRoute
+  ApiLeadsRoute: typeof ApiLeadsRoute
   ApiMeRoute: typeof ApiMeRoute
   ApiOrgRoute: typeof ApiOrgRoute
   ApiPartnerRoute: typeof ApiPartnerRoute
@@ -566,6 +618,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GlossaryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/leads': {
+      id: '/leads'
+      path: '/leads'
+      fullPath: '/leads'
+      preLoaderRoute: typeof LeadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -578,6 +637,13 @@ declare module '@tanstack/react-router' {
       path: '/night'
       fullPath: '/night'
       preLoaderRoute: typeof NightRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partners': {
+      id: '/partners'
+      path: '/partners'
+      fullPath: '/partners'
+      preLoaderRoute: typeof PartnersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/path': {
@@ -599,6 +665,13 @@ declare module '@tanstack/react-router' {
       path: '/portal'
       fullPath: '/portal'
       preLoaderRoute: typeof PortalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -697,6 +770,13 @@ declare module '@tanstack/react-router' {
       path: '/api/leaderboard'
       fullPath: '/api/leaderboard'
       preLoaderRoute: typeof ApiLeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/leads': {
+      id: '/api/leads'
+      path: '/api/leads'
+      fullPath: '/api/leads'
+      preLoaderRoute: typeof ApiLeadsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/me': {
@@ -838,11 +918,14 @@ const rootRouteChildren: RootRouteChildren = {
   CoverageRoute: CoverageRoute,
   DrillsRoute: DrillsRouteWithChildren,
   GlossaryRoute: GlossaryRoute,
+  LeadsRoute: LeadsRoute,
   LoginRoute: LoginRoute,
   NightRoute: NightRoute,
+  PartnersRoute: PartnersRoute,
   PathRoute: PathRouteWithChildren,
   PlayRoute: PlayRoute,
   PortalRoute: PortalRoute,
+  PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   RecordRoute: RecordRoute,
   ReminderRoute: ReminderRoute,
@@ -856,6 +939,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiEventsRoute: ApiEventsRoute,
   ApiExportRoute: ApiExportRoute,
   ApiLeaderboardRoute: ApiLeaderboardRoute,
+  ApiLeadsRoute: ApiLeadsRoute,
   ApiMeRoute: ApiMeRoute,
   ApiOrgRoute: ApiOrgRoute,
   ApiPartnerRoute: ApiPartnerRoute,
@@ -874,10 +958,11 @@ export const routeTree = rootRouteImport
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
+import type { startInstance } from './start.ts'
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

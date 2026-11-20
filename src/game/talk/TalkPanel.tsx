@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useReducer, useRef } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { sayLine } from "@/game/audio";
+import { Closeup, hasCloseup } from "@/game/talk/closeups";
 import { Dialogue, type TalkContent, type TalkResult } from "@/game/talk/dialogue";
 
 // In-world conversation bar: the scene stays visible, the current line and your
@@ -11,16 +12,19 @@ export function TalkPanel({ content, onDone }: { content: TalkContent; onDone: (
   const d = useMemo(() => new Dialogue(content), [content]);
   const [, rerender] = useReducer((n: number) => n + 1, 0);
   const spoken = useRef(content.start);
+  // A 👁 option with a picture: show the picture first, the written note once you're done looking.
+  const [looking, setLooking] = useState<{ id: string; label: string; text: string } | null>(null);
 
   // Voice each new node (the start node is voiced by the beat's own v1 clip).
   useEffect(() => {
     if (!content.voice || d.node === spoken.current) return;
     spoken.current = d.node;
     const n = content.nodes[d.node];
-    sayLine(`${content.voice}-${d.node}`, n.say, n.kind ?? content.speaker.kind ?? "narrator", n.who ?? content.speaker.who);
+    sayLine(`${content.voice}-${d.node}`, n.say, n.kind ?? content.speaker.kind ?? "narrator", n.who ?? content.speaker.who, "dialog");
   });
 
-  const notes = d.lines.filter((l) => l.who === "look" || l.who === "act");
+  const allNotes = d.lines.filter((l) => l.who === "look" || l.who === "act");
+  const notes = looking ? allNotes.slice(0, -1) : allNotes;
   const lastYou = [...d.lines].reverse().find((l) => l.who === "you");
   const last = d.last;
   const who = last.by ?? content.speaker.who;
@@ -58,6 +62,10 @@ export function TalkPanel({ content, onDone }: { content: TalkContent; onDone: (
                 type="button"
                 onClick={() => {
                   d.pick(o.id);
+                  if (o.kind === "look" && hasCloseup(content.id, o.id)) {
+                    const text = content.choices[o.id]?.look ?? "";
+                    setLooking({ id: o.id, label: o.label, text });
+                  }
                   rerender();
                   // The beat's own voiced debrief explains what happened, so no summary card here.
                   if (d.ended) window.setTimeout(() => onDone(d.result()), 700);
@@ -76,6 +84,7 @@ export function TalkPanel({ content, onDone }: { content: TalkContent; onDone: (
           </div>
         ) : null}
       </div>
+      {looking && <Closeup scenario={content.id} choice={looking.id} label={looking.label} alt={looking.text} onClose={() => setLooking(null)} />}
     </div>
   );
 }

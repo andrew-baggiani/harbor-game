@@ -54,7 +54,7 @@ export function PhoneCall({ content, onDone }: Props) {
         : line.text === content.idle_line
           ? "v2-phone-idle"
           : `v2-phone-${call.node}`;
-    sayLine(id, line.text, line.who === "desk" ? "woman" : "man", line.who === "desk" ? "IT Service Desk" : "Caller · \"Dan, Harbor IT\"");
+    sayLine(id, line.text, line.who === "desk" ? "woman" : "man", line.who === "desk" ? "IT Service Desk" : "Caller · \"Dan, Harbor IT\"", "dialog");
   });
 
   const act = (f: () => void) => {

@@ -1,3 +1,5 @@
+import { readMondaySave, restoreMonday } from "@/game/mondaySave";
+import { ago, clearSave } from "@/game/save";
 import { Briefing, needsBriefing } from "@/game/Briefing";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
@@ -48,8 +50,25 @@ export function TitleScreen() {
     useHarbor.getState().setBoot(false);
   };
 
+  // Auto-save: offer to carry on a Monday that wasn't finished.
+  const [saved] = useState(() => readMondaySave());
+  const cont = () => {
+    if (!saved) return;
+    unlockAudio();
+    blip(440);
+    restoreMonday(saved);
+    useHarbor.getState().setBoot(false);
+  };
   const items: { label: string; note?: string; act: () => void }[] = [
-    { label: "Start shift", note: "Monday · night 1", act: start },
+    ...(saved ? [{ label: "Continue", note: `Saved ${ago(saved.savedAt)}`, act: cont }] : []),
+    {
+      label: saved ? "Start over" : "Start shift",
+      note: "Monday · night 1",
+      act: () => {
+        if (saved) clearSave("monday");
+        start();
+      },
+    },
     { label: "The week", note: "5 shifts", act: () => setPanel("week") },
     { label: "How to play", act: () => setPanel("controls") },
   ];

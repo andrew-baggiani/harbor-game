@@ -16,6 +16,8 @@ export type D1Database = {
 export type Env = {
   DB?: D1Database;
   RESEND_API_KEY?: string;
+  /** Comma-separated emails that can see leads and approve partners. Defaults to the company inbox. */
+  OWNER_EMAILS?: string;
 };
 
 export async function getEnv(): Promise<Env> {

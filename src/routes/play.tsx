@@ -1,3 +1,4 @@
+import { AccessGate } from "@/site/AccessGate";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useProgress } from "@/lib/progress";
@@ -31,5 +32,9 @@ function CityPage() {
     );
   }
 
-  return <Game callsign={callsign} onDone={(score, clean) => recordShift(score, clean)} />;
+  return (
+    <AccessGate shift="monday">
+      <Game callsign={callsign} onDone={(score, clean) => recordShift(score, clean)} />
+    </AccessGate>
+  );
 }

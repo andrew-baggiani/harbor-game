@@ -73,6 +73,11 @@ function blank(now: string): LearnerRecord {
   };
 }
 
+/** Put back a saved record (auto-save resume). */
+export function restoreRecord(saved: LearnerRecord) {
+  record = saved;
+}
+
 export function resetRecord() {
   record = blank(new Date().toISOString());
   return record;

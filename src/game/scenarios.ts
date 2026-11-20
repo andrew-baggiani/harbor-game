@@ -156,6 +156,11 @@ export function pickVariants() {
 
 pickVariants();
 
+/** Put back saved variant picks, so a resumed Monday shows the same emails and callers. */
+export function setVariants(saved: Record<string, number>) {
+  for (const [k, v] of Object.entries(saved)) if (Number.isInteger(v)) picks[k] = v;
+}
+
 export function currentVariants() {
   return { ...picks };
 }

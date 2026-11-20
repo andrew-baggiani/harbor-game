@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { MONDAY_FINDS, MONDAY_TOYS, findLineId, toyLineId, toySfx } from "@/content/week/play";
+import { CAB_TOY, MONDAY_FINDS, MONDAY_TOYS, findLineId, toyLineId, toySfx } from "@/content/week/play";
 import { blip, sayLine } from "@/game/audio";
 import { playSfx } from "@/game/sound";
 
@@ -31,12 +31,12 @@ export function mondayFindCount() {
 export function mondayUse(action: string) {
   pokeClock.last = performance.now();
   if (action.startsWith("toy:")) {
-    const toy = MONDAY_TOYS.find((t) => `toy:${t.id}` === action);
+    const toy = [...MONDAY_TOYS, CAB_TOY].find((t) => `toy:${t.id}` === action);
     if (!toy) return;
     const n = presses[toy.id] ?? 0;
     presses[toy.id] = n + 1;
     const k = Math.min(n, toy.lines.length - 1);
-    sayLine(toyLineId(toy, k), toy.lines[k], toy.who === "Next desk" ? "man" : "narrator", toy.who ?? toy.label);
+    sayLine(toyLineId(toy, k), toy.lines[k], toy.who === "Next desk" ? "man" : "narrator", toy.who ?? toy.label, "chatter");
     playSfx(toySfx(toy, k), 0.7, () => blip(440 + (n % 3) * 90));
     return;
   }
@@ -48,7 +48,7 @@ export function mondayUse(action: string) {
       useMondayPlay.setState({ found: { ...found, [find.id]: true } });
       playSfx("sfx-find", 0.6, () => blip(780));
     }
-    sayLine(findLineId(find), find.line, "narrator", found[find.id] ? find.label : `Found · ${find.label}`);
+    sayLine(findLineId(find), find.line, "narrator", found[find.id] ? find.label : `Found · ${find.label}`, "chatter");
   }
 }
 

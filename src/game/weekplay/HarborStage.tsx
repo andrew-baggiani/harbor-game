@@ -1,3 +1,4 @@
+import { useQuality } from "@/game/perf";
 import { Suspense, useEffect, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { BrightnessContrast, Bloom, EffectComposer, HueSaturation, SMAA, ToneMapping, Vignette } from "@react-three/postprocessing";
@@ -26,13 +27,15 @@ export function HarborStage() {
 /** Monday's look: night sky and env map, its light rig, bloom, ACES, vignette. Wraps any world. */
 export function NightStage({ children, fog = false, warm = false }: { children: React.ReactNode; fog?: boolean; warm?: boolean }) {
   const gl = useThree((s) => s.gl);
+  const q = useQuality();
   useEffect(() => {
+    // The effect chain does the tone mapping; without it (low quality) the renderer does.
     const prev = gl.toneMapping;
-    gl.toneMapping = THREE.NoToneMapping;
+    gl.toneMapping = q.effects ? THREE.NoToneMapping : THREE.ACESFilmicToneMapping;
     return () => {
       gl.toneMapping = prev;
     };
-  }, [gl]);
+  }, [gl, q.effects]);
   return (
     <>
       {fog && <fog attach="fog" args={["#121820", 16, 92]} />}
@@ -43,6 +46,7 @@ export function NightStage({ children, fog = false, warm = false }: { children: 
       <directionalLight position={[6, 10, 34]} intensity={0.42} color="#b7c9dc" />
       <Sky />
       {children}
+      {q.effects && (
       <EffectComposer enableNormalPass={false} multisampling={0}>
         <Bloom intensity={0.22} luminanceThreshold={0.78} luminanceSmoothing={0.2} mipmapBlur />
         <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
@@ -51,6 +55,7 @@ export function NightStage({ children, fog = false, warm = false }: { children: 
         <Vignette offset={0.28} darkness={0.28} />
         <SMAA />
       </EffectComposer>
+      )}
     </>
   );
 }

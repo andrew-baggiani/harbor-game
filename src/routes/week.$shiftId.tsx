@@ -1,3 +1,4 @@
+import { AccessGate } from "@/site/AccessGate";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type ComponentType } from "react";
 import { shiftById, shiftLabel } from "@/content/week";
@@ -39,9 +40,9 @@ function ShiftPage() {
     };
   }, [id]);
 
-  if (id === "sunday") return Sorter ? <Sorter onExit={exit} /> : <Loading label="Sunday" />;
+  if (id === "sunday") return <AccessGate shift="sunday">{Sorter ? <Sorter onExit={exit} /> : <Loading label="Sunday" />}</AccessGate>;
   const shift = shiftById(id)!;
-  return Game ? <Game key={id} shift={shift} onExit={exit} /> : <Loading label={shift.day} />;
+  return <AccessGate shift={id}>{Game ? <Game key={id} shift={shift} onExit={exit} /> : <Loading label={shift.day} />}</AccessGate>;
 }
 
 function Loading({ label }: { label: string }) {

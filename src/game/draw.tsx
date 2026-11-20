@@ -1891,6 +1891,18 @@ function dampAngle(current: number, target: number, lambda: number, dt: number) 
 }
 
 const _followLook = new THREE.Vector3();
+const _cabPos = new THREE.Vector3();
+const _cabLook = new THREE.Vector3();
+const cabCam = { k: 0 };
+
+/** Inside the cab for the ride: from stepping in until stepping back out. */
+function cabCamWanted() {
+  if (!world.cabShown) return false;
+  const r = world.ride;
+  if (r === "hold" || r === "shut" || r === "ride" || r === "arrive") return true;
+  if (r !== "board" && r !== "out") return false;
+  return Math.abs(world.px - 1.5) < 0.75 && world.pz < world.cabZ - 0.35 && Math.abs(world.py - world.cabY) < 1.6;
+}
 
 export function Rig() {
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
@@ -1942,6 +1954,18 @@ export function Rig() {
     world.camZ = focusZ + (tz - focusZ) * f;
     camera.position.set(world.camX, world.camY + world.rideBob, world.camZ);
     camera.lookAt(focusX, lookY, focusZ);
+    // In the elevator the free camera has nothing to do: cut to the cab's corner, like its security camera,
+    // framing you, the doors, the floor readout and the button panel. Ease back to following on the way out.
+    cabCam.k += ((cabCamWanted() ? 1 : 0) - cabCam.k) * (1 - Math.exp(-3.2 * dt));
+    if (cabCam.k > 0.002) {
+      const e = cabCam.k * cabCam.k * (3 - 2 * cabCam.k);
+      _cabPos.set(1.5 - 0.68, world.cabY + 2.48 + world.rideBob, world.cabZ - 1.36);
+      _cabLook.set(1.5 + 0.42, world.cabY + 0.95, world.cabZ - 0.05);
+      _followLook.set(focusX, lookY, focusZ);
+      camera.position.lerp(_cabPos, e);
+      _followLook.lerp(_cabLook, e);
+      camera.lookAt(_followLook);
+    }
     if (focus.phase !== "off") {
       // Desk zoom: glide from the follow camera onto the in-world screen.
       stepFocus(dt);
@@ -1959,7 +1983,8 @@ export function Rig() {
     } else {
       world.markerOn = false;
     }
-    const fov = aerial ? 38 : world.driving ? 60 : 48;
+    // A wide lens in the elevator cab (it's a small box).
+    const fov = aerial ? 38 : world.driving ? 60 : 48 + 24 * cabCam.k;
     if (Math.abs(camera.fov - fov) > 0.08) {
       camera.fov += (fov - camera.fov) * Math.min(1, dt * 3);
       camera.updateProjectionMatrix();

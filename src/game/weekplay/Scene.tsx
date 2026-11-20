@@ -6,7 +6,7 @@ import type { CastSlot, Prop, WeekBeat } from "@/content/week/types";
 import type { Find } from "@/content/week/play";
 import { Figure } from "@/game/draw";
 import { CastActor } from "@/game/cast";
-import { blocked } from "@/game/layout";
+import { blocked, walker } from "@/game/layout";
 import { roomBlocked } from "@/game/weekplay/BakedRoom";
 import { blockedIn, type RoomSet, type Spot } from "@/game/weekplay/sets";
 
@@ -21,6 +21,12 @@ export const player = {
   keys: new Set<string>(),
   near: false,
   moving: false,
+  /** Set while something is pulled up: the walker stops moving the player. */
+  frozen: false,
+  /** Set while the shift is paused (you stepped away). */
+  paused: false,
+  /** Camera lean toward a screen (k 0..1 blends from the walking camera to this pose). */
+  lean: { k: 0, x: 0, y: 0, z: 0, yaw: 0, pitch: 0 },
 };
 
 /** Greybox cast colours. A MetaHuman swap keys off the same slot name. */
@@ -193,7 +199,21 @@ export function approach(spot: Spot) {
 }
 
 /** One beat's prop at its spot, with a column of light where the player stands when it's the live beat. */
-export function BeatProp({ beat, set, flipped, live, shakeAt = 0 }: { beat: WeekBeat; set: RoomSet; flipped: boolean; live: boolean; shakeAt?: number }) {
+export function BeatProp({
+  beat,
+  set,
+  flipped,
+  live,
+  shakeAt = 0,
+  held = false,
+}: {
+  beat: WeekBeat;
+  set: RoomSet;
+  flipped: boolean;
+  live: boolean;
+  shakeAt?: number;
+  held?: boolean;
+}) {
   const spot = set.spots[beat.spot];
   const tex = beat.prop ? propTexture(beat.prop, flipped) : null;
   const shaker = useRef<THREE.Group>(null);
@@ -213,7 +233,7 @@ export function BeatProp({ beat, set, flipped, live, shakeAt = 0 }: { beat: Week
   const flat = kind === "paper" || kind === "badge";
   return (
     <group>
-      {beat.prop && !onMonitor && (
+      {beat.prop && !onMonitor && !held && (
         <group position={[spot.x, spot.py, spot.z]} rotation={[0, spot.face ?? Math.atan2(at.x - spot.x, at.z - spot.z), 0]}>
           <group ref={shaker}>
             <group position={[0, flat ? 0.01 : ph / 2 + 0.02, 0]} rotation={[flat ? -Math.PI / 2 + 0.35 : -0.12, 0, 0]}>
@@ -271,6 +291,8 @@ export function CastFigure({ slot, x, z, y = 0, talking = false }: { slot: CastS
 /** Something optional the player can use when standing within r of (x, z). */
 export type Nearby = { id: string; x: number; z: number; r: number };
 
+const probe = new THREE.Raycaster();
+
 export function Walker({
   set,
   target,
@@ -284,7 +306,7 @@ export function Walker({
   items?: Nearby[];
   onItem?: (id: string | null) => void;
 }) {
-  const { camera } = useThree();
+  const { camera, scene } = useThree();
   const lastNear = useRef(false);
   const lastItem = useRef<string | null>(null);
   useEffect(() => {
@@ -292,8 +314,19 @@ export function Walker({
   }, [camera]);
   useEffect(() => {
     // Test hook for automated play-throughs: read the live target and move the player.
-    (window as unknown as { __drc?: unknown }).__drc = { player, target };
-  }, [target]);
+    (window as unknown as { __drc?: unknown }).__drc = {
+      player,
+      target,
+      // Free-space probe for placing set dressing: true where a walker of radius r can't stand.
+      blocked: (x: number, z: number, r = 0.05) => (set.harbor ? blocked(x, z, set.harbor.y, r) : false),
+      // Top surface under (x, z), searching down from `from`: for setting props on desks and counters.
+      height: (x: number, z: number, from = (set.harbor?.y ?? 0) + 2.2) => {
+        probe.set(new THREE.Vector3(x, from, z), new THREE.Vector3(0, -1, 0));
+        const hit = probe.intersectObjects(scene.children, true).find((h) => (h.object as THREE.Mesh).isMesh && h.object.visible);
+        return hit ? { y: +hit.point.y.toFixed(3), name: hit.object.name } : null;
+      },
+    };
+  }, [target, set, scene]);
   useFrame((_, raw) => {
     const dt = Math.min(raw, 0.05);
     const k = player.keys;
@@ -303,6 +336,10 @@ export function Walker({
     player.yaw -= turn * dt * 2.2;
     fwd += -player.moveZ;
     side += player.moveX;
+    if (player.frozen || player.paused) {
+      fwd = 0;
+      side = 0;
+    }
     const len = Math.hypot(fwd, side);
     if (len > 1) {
       fwd /= len;
@@ -320,7 +357,23 @@ export function Walker({
     if (!hit(player.x, player.z + dz)) player.z += dz;
     const bob = len > 0.1 ? Math.sin(performance.now() / 140) * 0.025 : 0;
     camera.position.set(player.x, floor + 1.62 + bob, player.z);
+    walker.x = player.x;
+    walker.y = floor;
+    walker.z = player.z;
     camera.rotation.set(player.pitch, player.yaw, 0);
+    const lean = player.lean;
+    if (lean.k > 0.001) {
+      const e = lean.k * lean.k * (3 - 2 * lean.k);
+      camera.position.set(
+        camera.position.x + (lean.x - camera.position.x) * e,
+        camera.position.y + (lean.y - camera.position.y) * e,
+        camera.position.z + (lean.z - camera.position.z) * e,
+      );
+      let dy = lean.yaw - player.yaw;
+      while (dy > Math.PI) dy -= Math.PI * 2;
+      while (dy < -Math.PI) dy += Math.PI * 2;
+      camera.rotation.set(player.pitch + (lean.pitch - player.pitch) * e, player.yaw + dy * e, 0);
+    }
     const near = !!target && Math.hypot(player.x - target.x, player.z - target.z) < 1.2;
     player.moving = len > 0.1;
     if (near !== lastNear.current) {
@@ -600,5 +653,181 @@ export function ToyDots({
       <planeGeometry args={[0.11, 0.11]} />
       <meshBasicMaterial map={sparkTexture()} transparent depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
     </instancedMesh>
+  );
+}
+
+/* ---------------------------------------------------------------- pulling a prop up to look at it */
+
+/** Props you pick up and hold; everything else (screens, laptops) you lean in to read. */
+export function heldKind(prop: Prop | undefined): boolean {
+  return !!prop && (prop.kind === "phone" || prop.kind === "badge" || prop.kind === "paper" || prop.kind === "drive");
+}
+
+/** The verb on the Space prompt for a beat's prop. */
+export function propVerb(prop: Prop | undefined): string {
+  if (!prop) return "LOOK";
+  if (prop.kind === "phone") return "PICK UP";
+  if (prop.kind === "badge") return "CHECK BADGE";
+  if (prop.kind === "paper") return "PICK UP";
+  if (prop.kind === "drive") return "PICK UP";
+  return "LOOK";
+}
+
+const HOLD_DIST: Record<Prop["kind"], number> = { phone: 0.44, badge: 0.36, paper: 0.46, drive: 0.19, screen: 0.6, laptop: 0.5 };
+const _m = new THREE.Matrix4();
+const _q = new THREE.Quaternion();
+const _q2 = new THREE.Quaternion();
+const _p = new THREE.Vector3();
+const _p2 = new THREE.Vector3();
+const _s = new THREE.Vector3();
+const _e = new THREE.Euler();
+
+/**
+ * When a beat opens, its prop comes to you: a phone, badge, page or drive lifts off the desk into your
+ * hand (and turns over if there's something on the back); a screen or laptop pulls the camera in to read
+ * it. It all goes back when the decision is made. The panel shows the question beside it.
+ */
+export function Inspect({ beat, set, flipped, open }: { beat: WeekBeat; set: RoomSet; flipped: boolean; open: boolean }) {
+  const { camera, size } = useThree();
+  const group = useRef<THREE.Group>(null);
+  const card = useRef<THREE.Group>(null);
+  const st = useRef({ k: 0, turn: 0, t: 0 });
+  const spot = set.spots[beat.spot];
+  const prop = beat.prop;
+  const hold = heldKind(prop);
+  const front = useMemo(() => (prop ? propTexture(prop, false) : null), [prop]);
+  const back = useMemo(() => (prop ? propTexture(prop, true) : null), [prop]);
+  const kind = prop?.kind ?? "screen";
+  const [pw, ph] = PROP_SIZE[kind];
+
+  useEffect(
+    () => () => {
+      player.frozen = false;
+      player.lean.k = 0;
+    },
+    [],
+  );
+
+  useFrame((_, raw) => {
+    const dt = Math.min(raw, 0.05);
+    const s = st.current;
+    s.t += dt;
+    const target = open ? 1 : 0;
+    s.k += (target - s.k) * Math.min(1, dt * (open ? 5.5 : 7));
+    if (Math.abs(target - s.k) < 0.002) s.k = target;
+    player.frozen = open;
+    if (!spot || !prop) return;
+    const at = approach(spot);
+    const wide = size.width / size.height > 1.15;
+
+    if (!hold) {
+      // Lean toward the screen. Monitors carry the art on the mesh; laptops sit at the spot.
+      const dx = at.x - spot.x;
+      const dz = at.z - spot.z;
+      const len = Math.hypot(dx, dz) || 1;
+      const dist = HOLD_DIST[kind];
+      const lookY = spot.monitor ? spot.py + 0.16 : spot.py + ph / 2 + 0.05;
+      const cx = spot.x + (dx / len) * dist;
+      const cz = spot.z + (dz / len) * dist;
+      const cy = lookY + (spot.monitor ? 0.04 : 0.22);
+      const yaw = Math.atan2(-(spot.x - cx), -(spot.z - cz));
+      const pitch = Math.atan2(lookY - cy, Math.hypot(spot.x - cx, spot.z - cz));
+      // Leave room for the question: on wide screens the screen sits left of centre, on phones above it.
+      player.lean.x = cx;
+      player.lean.y = cy;
+      player.lean.z = cz;
+      player.lean.yaw = yaw - (wide ? 0.32 : 0);
+      player.lean.pitch = pitch - (wide ? 0 : 0.28);
+      player.lean.k = s.k;
+      return;
+    }
+
+    player.lean.k = 0;
+    const g = group.current;
+    if (!g) return;
+    g.visible = s.k > 0.002;
+    if (!g.visible) return;
+    // Where it rests: the same pose BeatProp draws it in.
+    const flat = kind === "paper" || kind === "badge";
+    const face = spot.face ?? Math.atan2(at.x - spot.x, at.z - spot.z);
+    _m.compose(_p.set(spot.x, spot.py, spot.z), _q.setFromEuler(_e.set(0, face, 0)), _s.set(1, 1, 1));
+    _p.set(0, flat ? 0.01 : ph / 2 + 0.02, 0).applyMatrix4(_m);
+    _q.multiply(_q2.setFromEuler(_e.set(flat ? -Math.PI / 2 + 0.35 : -0.12, 0, 0)));
+    // Where it ends up: in front of the camera, off to the side the panel isn't on.
+    const fov = ((camera as THREE.PerspectiveCamera).fov * Math.PI) / 180;
+    const d = HOLD_DIST[kind];
+    const hh = Math.tan(fov / 2) * d;
+    const hw = hh * (size.width / size.height);
+    const sway = Math.sin(s.t * 1.3) * 0.004;
+    _p2.set(wide ? -hw * 0.48 : 0, (wide ? -hh * 0.04 : hh * 0.42) + sway, -d).applyMatrix4(camera.matrixWorld);
+    _q2.copy(camera.quaternion).multiply(new THREE.Quaternion().setFromEuler(_e.set(-0.06 + sway, wide ? 0.14 : 0, wide ? 0.03 : 0)));
+    const e = s.k * s.k * (3 - 2 * s.k);
+    g.position.lerpVectors(_p, _p2, e);
+    g.quaternion.slerpQuaternions(_q, _q2, e);
+    // A little arc on the way up, like a hand bringing it in.
+    g.position.y += Math.sin(e * Math.PI) * 0.12;
+    // Turn it over once it's in hand if the beat reveals the other side.
+    const wantTurn = open && flipped && s.k > 0.9 ? 1 : 0;
+    s.turn += (wantTurn - s.turn) * Math.min(1, dt * 6);
+    if (card.current) card.current.rotation.y = s.turn * Math.PI;
+  });
+
+  if (!spot || !prop || !hold) return null;
+  const thick = kind === "phone" ? 0.009 : kind === "paper" ? 0.0015 : kind === "drive" ? 0.012 : 0.004;
+  const body = kind === "paper" ? "#ece7db" : kind === "badge" ? "#f4f1ea" : "#111318";
+  return (
+    <group ref={group} visible={false} renderOrder={10}>
+      <group ref={card}>
+        <mesh>
+          <boxGeometry args={[pw + 0.012, ph + 0.012, thick]} />
+          <meshStandardMaterial color={body} roughness={kind === "paper" ? 0.9 : 0.35} metalness={kind === "phone" || kind === "drive" ? 0.4 : 0} />
+        </mesh>
+        <mesh position={[0, 0, thick / 2 + 0.0004]}>
+          <planeGeometry args={[pw, ph]} />
+          <meshBasicMaterial map={front ?? undefined} color={front ? "#ffffff" : "#1a2230"} toneMapped={false} />
+        </mesh>
+        <mesh position={[0, 0, -thick / 2 - 0.0004]} rotation={[0, Math.PI, 0]}>
+          <planeGeometry args={[pw, ph]} />
+          <meshBasicMaterial map={back ?? front ?? undefined} color={back || front ? "#ffffff" : "#1a2230"} toneMapped={false} />
+        </mesh>
+        {kind === "phone" && (
+          <mesh position={[pw * 0.3, ph * 0.42, -thick / 2 - 0.002]}>
+            <boxGeometry args={[0.045, 0.045, 0.004]} />
+            <meshStandardMaterial color="#22252b" roughness={0.3} metalness={0.5} />
+          </mesh>
+        )}
+        {kind === "badge" && (
+          <>
+            <mesh position={[0, ph / 2 - 0.018, thick / 2 + 0.0008]}>
+              <boxGeometry args={[0.05, 0.008, 0.001]} />
+              <meshStandardMaterial color="#9aa0a6" />
+            </mesh>
+            <mesh position={[0, ph / 2 + 0.03, 0]}>
+              <boxGeometry args={[0.03, 0.05, 0.004]} />
+              <meshStandardMaterial color="#9aa0a6" metalness={0.8} roughness={0.25} />
+            </mesh>
+          </>
+        )}
+        {kind === "drive" && (
+          <mesh position={[pw / 2 + 0.012, 0, 0]}>
+            <boxGeometry args={[0.024, ph * 0.6, thick * 0.5]} />
+            <meshStandardMaterial color="#c9ccd0" metalness={0.9} roughness={0.2} />
+          </mesh>
+        )}
+      </group>
+      {kind === "badge" && (
+        // the lanyard, running up out of frame
+        <group position={[0, ph / 2 + 0.05, 0]}>
+          <mesh position={[-0.03, 0.22, -0.02]} rotation={[0.08, 0, -0.12]}>
+            <boxGeometry args={[0.018, 0.44, 0.002]} />
+            <meshStandardMaterial color="#1f3f8a" roughness={0.9} />
+          </mesh>
+          <mesh position={[0.03, 0.22, -0.02]} rotation={[0.08, 0, 0.12]}>
+            <boxGeometry args={[0.018, 0.44, 0.002]} />
+            <meshStandardMaterial color="#1f3f8a" roughness={0.9} />
+          </mesh>
+        </group>
+      )}
+    </group>
   );
 }

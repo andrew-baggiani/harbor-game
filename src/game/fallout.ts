@@ -46,6 +46,13 @@ export function after(seconds: number, fire: () => void) {
   timers.push({ at: clock + seconds, fire });
 }
 
+/** Fire everything still pending, in order: a player who finishes fast still hears what their mistakes caused. */
+export function flushFallout() {
+  const due = [...timers].sort((a, b) => a.at - b.at);
+  timers = [];
+  for (const t of due) t.fire();
+}
+
 export function tickFallout(dt: number) {
   clock += dt;
   if (timers.length === 0) return;
