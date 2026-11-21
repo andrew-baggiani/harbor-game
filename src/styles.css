@@ -138,6 +138,13 @@ html:has(.site) { scroll-behavior: smooth; }
   line-height: 0.95;
   text-wrap: balance;
 }
+/* Section headings share the hero's voice: wide, uppercase, tight. Smaller, so the hero keeps the lead. */
+.site .section-head {
+  text-transform: uppercase;
+  line-height: 0.92;
+  letter-spacing: -0.015em;
+  text-wrap: pretty;
+}
 .site :focus-visible {
   outline: 2px solid var(--color-site-mint);
   outline-offset: 3px;
