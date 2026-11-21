@@ -13,6 +13,7 @@
 @import "@fontsource/barlow/latin-500.css";
 @import "@fontsource/barlow/latin-600.css";
 @import "@fontsource-variable/archivo/wdth.css";
+@import "@fontsource-variable/instrument-sans/wdth.css";
 
 @theme {
   --font-sans: "Source Sans 3", "Segoe UI", sans-serif;
@@ -23,6 +24,7 @@
   --font-ui: "Barlow", "Segoe UI", sans-serif;
   /* Public site (Dry Run Cyber brand). */
   --font-site: "Archivo Variable", "Archivo", "Segoe UI", sans-serif;
+  --font-text: "Instrument Sans Variable", "Instrument Sans", "Segoe UI", sans-serif;
   --color-site-ink: #101319;
   --color-site-ink-2: #171b24;
   --color-site-rule: #262c3a;
@@ -122,28 +124,37 @@
 }
 
 /* ---------- Public site ---------- */
+/* Type system: Archivo (wide) for display, Instrument Sans for reading, and the game's own HUD face
+   (Barlow Condensed) for buttons and labels, so the site speaks in the same voice as the game. */
 .site {
-  font-family: var(--font-site);
+  font-family: var(--font-text);
   font-stretch: 100%;
+  font-kerning: normal;
+  -webkit-font-smoothing: antialiased;
   background: var(--color-site-ink);
   color: var(--color-site-paper);
 }
 .site section[id] { scroll-margin-top: 88px; }
 html:has(.site) { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { html:has(.site) { scroll-behavior: auto; } }
+.site .display,
+.site .fit-head,
+.site [style*="font-stretch"] {
+  font-family: var(--font-site);
+}
 .site .display {
   font-stretch: 125%;
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 0.95;
-  text-wrap: balance;
+  text-wrap-style: balance;
 }
 /* Section headings share the hero's voice: wide, uppercase, tight. Smaller, so the hero keeps the lead. */
 .site .section-head {
   text-transform: uppercase;
   line-height: 0.92;
   letter-spacing: -0.015em;
-  text-wrap: pretty;
+  text-wrap-style: balance;
 }
 .site :focus-visible {
   outline: 2px solid var(--color-site-mint);
@@ -373,4 +384,72 @@ html:has(.site) { scroll-behavior: smooth; }
 }
 @media (prefers-reduced-motion: reduce) {
   .site .fit-head > span { animation: none; }
+}
+
+/* Reading text never ends on a lone word; short headings balance their lines. */
+.site :is(p, li, dd, dt, figcaption, label, blockquote) { text-wrap-style: pretty; }
+.site :is(h1, h2, h3, h4) { text-wrap-style: balance; }
+
+/* Buttons and small labels in the game's HUD voice. */
+.site .btn,
+.site .hud {
+  font-family: var(--font-game);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.085em;
+}
+.site .btn { font-size: 1.06em; }
+
+/* The game's key-prompt chip, reused as the hero's "New" line. */
+.site .hud-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.4rem 0.95rem 0.4rem 0.4rem;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 0.85rem;
+  background: rgb(8 9 14 / 0.55);
+  backdrop-filter: blur(8px);
+  font-family: var(--font-game);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-site-paper);
+}
+.site .hud-chip kbd {
+  display: inline-flex;
+  align-items: center;
+  height: 1.75rem;
+  padding: 0 0.55rem;
+  border: 1px solid rgb(255 255 255 / 0.25);
+  border-bottom-width: 3px;
+  border-bottom-color: rgb(255 255 255 / 0.35);
+  border-radius: 0.45rem;
+  background: rgb(255 255 255 / 0.07);
+  font-family: var(--font-game);
+  font-size: 0.82em;
+  letter-spacing: 0.1em;
+  color: var(--color-site-mint);
+}
+
+/* Film grain over the night background: breaks up flat digital black. Purely decorative. */
+.site { position: relative; isolation: isolate; }
+.site::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Section headings rise in as they reach the screen (only once the script has armed it). */
+html.reveal-on .site .section-head:not(.is-in) { opacity: 0; transform: translateY(0.35em); }
+html.reveal-on .site .section-head {
+  transition: opacity 0.7s cubic-bezier(0.2, 0.75, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.75, 0.2, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  html.reveal-on .site .section-head:not(.is-in) { opacity: 1; transform: none; }
 }

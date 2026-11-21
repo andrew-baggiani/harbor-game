@@ -73,8 +73,8 @@ function Hero({ phone }: { phone: boolean | null }) {
     <section aria-labelledby="hero-title" className="hero-glow relative">
       <div className="relative mx-auto grid max-w-[1320px] items-center gap-8 px-6 pb-14 pt-4 sm:pb-24 sm:pt-8 md:px-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.12fr)] lg:gap-14 lg:pb-28 lg:pt-12">
         <div>
-          <p className="mb-6 flex items-center gap-3 text-[14px] font-semibold text-site-mint sm:mb-8 sm:text-[15px]">
-            <span aria-hidden="true" className="h-px w-8 bg-site-mint/70" />
+          <p className="hud-chip mb-7 text-[13px] sm:mb-9 sm:text-[15px]">
+            <kbd>New</kbd>
             First-person security training for MSPs
           </p>
           <FitHeadline />
@@ -367,10 +367,10 @@ const BEATS = [
 function Night() {
   return (
     <section id="night" aria-labelledby="night-title" className="border-t border-site-rule">
-      <div className="mx-auto grid max-w-[1240px] gap-14 px-6 py-14 sm:py-24 md:px-10 lg:grid-cols-[380px_1fr] lg:gap-20 lg:py-32">
-        <div className="lg:sticky lg:top-28 lg:self-start">
+      <div className="mx-auto grid max-w-[1240px] gap-12 px-6 py-14 sm:py-24 md:px-10 lg:gap-16 lg:py-32">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:items-end lg:gap-16">
           <h2 id="night-title" className="display section-head text-[34px] sm:text-[46px] lg:text-[58px]">Monday night. Nine decisions.</h2>
-          <p className="mt-6 max-w-[26rem] text-lg leading-relaxed text-site-mist">
+          <p className="max-w-[26rem] text-lg leading-relaxed text-site-mist">
             No slides and no quiz at the end. People walk the floor, open the apps, take the calls, and decide. About twenty minutes a night.
           </p>
         </div>

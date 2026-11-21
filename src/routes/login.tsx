@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { Arrow, Check, Mail, btn, field } from "@/portal/ui";
 import { api, type Me } from "@/site/portal-api";
+import { NoWidows } from "@/site/NoWidows";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -151,6 +152,7 @@ function LoginPage() {
         </div>
         <p className="hidden text-sm text-site-dim lg:block">© {new Date().getFullYear()} Dry Run Cyber · hello@dryruncyber.com</p>
       </section>
+      <NoWidows />
       <main id="main" className="flex items-center justify-center px-6 py-12 sm:px-12">
         <div className="panel w-full max-w-md !p-8 sm:!p-10">{card}</div>
       </main>

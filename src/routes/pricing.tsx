@@ -167,7 +167,7 @@ function Pricing() {
         <section aria-labelledby="faq-title" className="mx-auto mt-20 max-w-[1240px] px-6 pb-24 md:px-10">
           <div className="border-t border-site-rule pt-14">
             <h2 id="faq-title" className="display section-head text-[34px] sm:text-[44px] lg:text-[52px]">
-              Questions buyers ask.
+              What buyers ask us.
             </h2>
             <dl className="mt-10 border-b border-site-rule">
               {FAQ.map(([q, a]) => (

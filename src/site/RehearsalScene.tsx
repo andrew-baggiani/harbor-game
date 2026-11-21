@@ -414,7 +414,7 @@ export function RehearsalScene({ className = "" }: { className?: string }) {
         {b.caption && locked && !picked && (
           <div className="absolute left-1/2 bottom-[22%] w-[min(88%,30rem)] -translate-x-1/2 rounded-md bg-black/55 px-4 py-2.5 text-center font-ui text-[15px] backdrop-blur-sm">
             <span className="font-game text-[13px] font-semibold uppercase tracking-[0.14em] text-[#c4a574]">{b.caption[0]}</span>
-            <p className="mt-0.5">{b.caption[1]}</p>
+            <p className="mt-0.5 [text-wrap:balance]">{b.caption[1]}</p>
           </div>
         )}
       </div>
