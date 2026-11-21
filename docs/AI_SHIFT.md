@@ -32,3 +32,43 @@ Use invented brands only (no real app logos); "Copilot" may appear as plain text
 - Per-client approved tool name: the scenarios say "Copilot" and "the approved assistant". Once orgs store their approved
   assistant (from the policy builder), swap it in by name.
 - Voice lines for the seven beats go through the same ElevenLabs pass as the rest of the week.
+
+---
+
+# AI agents: "The agents"
+
+The second AI shift. Route: `/week/agents`. Content: `src/content/week/agents.ts`. "The assistant" covers the tool
+you were given; this one covers AI that acts: agents that log in, send, install and click. One assistant stars in each
+beat so people meet the one they actually use.
+
+Rule for every beat: it's about how people misuse the tool or how attackers abuse it, never "this product is unsafe".
+Names appear in text only, no logos.
+
+## Beats
+
+| # | Tool | Set · spot | Scenario | OWASP Agentic (2026) | Real-world basis |
+| --- | --- | --- | --- | --- | --- |
+| 1 | ChatGPT | Floor · phone | A personal ChatGPT agent asks for your work portal login | ASI03 Identity and privilege abuse | Agent modes that browse and sign in as the user; credentials leaving company control |
+| 2 | Copilot (impersonated) | Floor · desk | A fake "Copilot Pro for Outlook" app from an unverified publisher wants to read and send all mail | ASI03 (consent / OAuth abuse) | Illicit consent grants: OAuth apps posing as trusted brands; password resets don't revoke them |
+| 3 | Claude | Floor · next desk | A coworker's free community connector needs your email key and BCCs every message out | ASI04 Agentic supply chain | postmark-mcp, first malicious MCP server in the wild: one added line BCC'd every email, v1.0.16, Sept 2025 (Koi Security; https://thehackernews.com/2025/09/first-malicious-mcp-server-found.html) |
+| 4 | Copilot | Floor · east pod | A coworker's Copilot agent, owner on vacation, emails unapproved payment terms and rewrites the tracker | ASI10 Rogue agents (with ASI02 tool misuse) | Agents with no owner, limits or off switch; citizen-built agents running on the builder's permissions |
+| 5 | Gemini | Home · counter | Hidden white text makes Gemini's email summary show a fake "password compromised, call this number" warning | ASI06 Memory and context poisoning (indirect prompt injection) | 0DIN / Marco Figueroa, July 2025 (https://www.bleepingcomputer.com/news/security/google-gemini-flaw-hijacks-email-summaries-for-phishing/) |
+| 6 | Grok | Home · couch | Grok repeats a link hidden in a promoted post; the page is a "press Win+R and paste" fake CAPTCHA | ASI05 Unexpected code execution (and ASI01 goal hijack of the assistant) | "Grokking", Guardio Labs / Nati Tal, Sept 2025: links hidden in the video card's From field, surfaced by Grok, led to fake-CAPTCHA and infostealer pages (https://thehackernews.com/2025/09/cybercriminals-exploit-xs-grok-ai-to.html) |
+
+Not repeated from "The assistant": Copilot oversharing, EchoLeak, DIY forwarding automations, notetaker consent,
+invented clauses, fake extensions, deepfake candidates. Wednesday still owns the paste into a personal AI writer.
+
+## Voice lines (ElevenLabs flow "Dry Run Cyber · The agents · voice lines", flow id mL3fQYjwPSbMQccf1pGL)
+
+| File | Voice | Generation id |
+| --- | --- | --- |
+| `wk-AG-01-chatgpt` | Benjamin (narrator) | BwLQEe5iMDq180VfLWWM |
+| `wk-AG-02-copilot-addin` | Benjamin | 1pmVfWMSdFfwda8OJowN |
+| `wk-AG-03-claude-connector` | Tasha (desk coworker) | ugF286UNdtQSAlJO6GNo |
+| `wk-ag-conn-install-1` | Tasha | 1iyVI6zcbigmwmylPnId |
+| `wk-AG-04-copilot-agent` | Benjamin | smRNgpBWQLa0VxENnnDW |
+| `wk-AG-05-gemini` | Benjamin | eqUkFTadyiaLhzlt69hJ |
+| `wk-ag-gem-call-1` | Jack (fake caller) | t6ObT14qEgsibJV4Bx9o |
+| `wk-AG-06-grok` | Benjamin | 8xtpTqZDeLvohrei6UGr |
+
+Until the mp3s are in `public/voice/v2/`, the game reads these lines with the browser voice, as it does for any missing file.

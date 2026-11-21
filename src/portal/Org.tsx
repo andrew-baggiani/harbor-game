@@ -1,6 +1,6 @@
 // One organization: people, leaderboard, training plan, settings.
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { AI_ENTRY, TRACK_LIST, WEEK } from "@/game/week";
+import { AGENTS_ENTRY, AI_ENTRY, TRACK_LIST, WEEK } from "@/game/week";
 import { api, type Board, type Learner, type OrgDetail } from "@/site/portal-api";
 import { ActivityFeed, clientStatus } from "@/portal/Partner";
 import {
@@ -643,6 +643,7 @@ function WeekDots({ p }: { p: Learner }) {
   const items = [
     ...WEEK_IDS.map((id) => ({ id, label: WEEK.find((w) => w.href.endsWith(id))?.day.slice(0, 3) ?? id })),
     { id: AI_ENTRY.id, label: "AI" },
+    { id: AGENTS_ENTRY.id, label: "Agents" },
     ...(p.tracks ?? []).map((id) => ({ id, label: TRACK_LIST.find((t) => t.id === id)?.day ?? id })),
   ];
   return (
