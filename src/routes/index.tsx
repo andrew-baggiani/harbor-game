@@ -243,7 +243,7 @@ function TryOne() {
     <section aria-labelledby="try-title" className="border-t border-white/[0.06]">
       <div className="mx-auto grid max-w-[1240px] items-center gap-14 px-6 py-14 sm:py-24 md:px-10 lg:grid-cols-[1fr_minmax(0,500px)] lg:gap-16 lg:py-32 xl:gap-24">
       <div>
-        <h2 id="try-title" className="display text-[38px] lg:text-[52px]">Try one decision.</h2>
+        <h2 id="try-title" className="display section-head text-[34px] sm:text-[46px] lg:text-[58px]">Try one decision.</h2>
         <p className="mt-6 max-w-[30rem] text-lg leading-relaxed text-site-mist">
           In the game this lands on your desk while finance is waiting on you and the clock says 4:52. Here it's just the email. What do you do?
         </p>
@@ -380,7 +380,7 @@ function Night() {
     <section id="night" aria-labelledby="night-title" className="border-t border-site-rule">
       <div className="mx-auto grid max-w-[1240px] gap-14 px-6 py-14 sm:py-24 md:px-10 lg:grid-cols-[380px_1fr] lg:gap-20 lg:py-32">
         <div className="lg:sticky lg:top-28 lg:self-start">
-          <h2 id="night-title" className="display text-[38px] lg:text-[52px]">Monday night. Nine decisions.</h2>
+          <h2 id="night-title" className="display section-head text-[34px] sm:text-[46px] lg:text-[58px]">Monday night. Nine decisions.</h2>
           <p className="mt-6 max-w-[26rem] text-lg leading-relaxed text-site-mist">
             No slides and no quiz at the end. People walk the floor, open the apps, take the calls, and decide. About twenty minutes a night.
           </p>
@@ -411,7 +411,7 @@ function Later() {
   return (
     <section aria-labelledby="later-title" className="later-glow relative">
       <div className="mx-auto max-w-[1240px] px-6 py-14 sm:py-24 md:px-10 lg:py-32">
-        <h2 id="later-title" className="display max-w-[16ch] text-[38px] lg:text-[52px]">Mistakes don't end the scene. They come back.</h2>
+        <h2 id="later-title" className="display section-head max-w-[18ch] text-[34px] sm:text-[46px] lg:text-[58px]">Mistakes don't end the scene. They come back.</h2>
         <p className="mt-6 max-w-[36rem] text-lg leading-relaxed text-site-mist">
           Nobody gets a red X and a lecture. The night carries on, and what you did shows up later, the way it would at work.
         </p>
@@ -451,7 +451,7 @@ function Evidence() {
     <section aria-labelledby="evidence-title" className="mx-auto max-w-[1240px] px-6 py-14 sm:py-24 md:px-10 lg:py-32">
       <div className="grid gap-14 lg:grid-cols-[1fr_minmax(0,620px)] lg:gap-20">
         <div>
-          <h2 id="evidence-title" className="display text-[38px] lg:text-[52px]">Every decision is evidence.</h2>
+          <h2 id="evidence-title" className="display section-head text-[34px] sm:text-[46px] lg:text-[58px]">Every decision is evidence.</h2>
           <p className="mt-6 max-w-[30rem] text-lg leading-relaxed text-site-mist">
             The record shows what each person actually did, when, and which requirement it covers. It reads like an audit artifact, not a
             completion certificate.
@@ -516,7 +516,7 @@ function HowItWorks() {
   return (
     <section id="how-it-works" aria-labelledby="how-title" className="border-t border-site-rule">
       <div className="mx-auto max-w-[1240px] px-6 py-14 sm:py-24 md:px-10 lg:py-32">
-        <h2 id="how-title" className="display max-w-[18ch] text-[38px] lg:text-[52px]">
+        <h2 id="how-title" className="display section-head max-w-[20ch] text-[34px] sm:text-[46px] lg:text-[58px]">
           What counts, and what's just for fun.
         </h2>
         <p className="mt-6 max-w-[36rem] text-lg leading-relaxed text-site-mist">
@@ -576,10 +576,10 @@ function ForMsps() {
   return (
     <section id="msps" aria-labelledby="msps-title" className="border-t border-site-rule">
       <div className="mx-auto max-w-[1240px] px-6 py-14 sm:py-24 md:px-10 lg:py-32">
-        <h2 id="msps-title" className="display max-w-[18ch] text-[38px] lg:text-[52px]">Built for MSPs to resell.</h2>
-        <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2">
+        <h2 id="msps-title" className="display section-head max-w-[20ch] text-[34px] sm:text-[46px] lg:text-[58px]">Built for MSPs to resell.</h2>
+        <div className="mt-12 border-b border-site-rule">
           <Point title="The whole week ships today">
-            Five night shifts, two weekend games, an AI shift and three role tracks, with a record for every person that you can hand an auditor.
+            Five night shifts, two weekend games, two AI shifts and three role tracks, with a record for every person that you can hand an auditor.
           </Point>
           <Point title="Training clients finish">
             A short night shift people want to see the end of, instead of a video they leave running in another tab.
@@ -642,14 +642,9 @@ function ForMsps() {
 
 function Point({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="panel">
-      <p className="flex items-center gap-2.5 text-xl font-bold" style={{ fontStretch: "112%" }}>
-        <span className="grid h-7 w-7 place-items-center rounded-full bg-site-mint/15 text-site-mint">
-          <Check size={15} />
-        </span>
-        {title}
-      </p>
-      <p className="mt-3 max-w-[30rem] text-[17px] leading-relaxed text-site-mist">{children}</p>
+    <div className="grid gap-3 border-t border-site-rule py-7 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:gap-10 md:py-9">
+      <p className="display text-[24px] !leading-[1.05] md:text-[30px]">{title}</p>
+      <p className="max-w-[34rem] text-[17px] leading-relaxed text-site-mist md:pt-1">{children}</p>
     </div>
   );
 }
