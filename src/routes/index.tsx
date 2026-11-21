@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ChatWidget } from "@/site/ChatWidget";
+import { FitType } from "@/site/FitType";
 import { SiteFooter, SiteNav, SkipLink } from "@/site/SiteChrome";
 import { AGENTS_ENTRY, AI_ENTRY, WEEK } from "@/game/week";
 import phishing from "@/content/scenarios/mon-02-phishing.json";
@@ -128,18 +129,6 @@ const CLOSE_LINES: [string, number][] = [
 
 function FitHeadline() {
   return <FitType as="h1" id="hero-title" label="Rehearse the attack before it's real." lines={HEAD_LINES} />;
-}
-
-function FitType({ as: Tag, id, label, lines, className = "" }: { as: "h1" | "h2"; id: string; label: string; lines: [string, number][]; className?: string }) {
-  return (
-    <Tag id={id} aria-label={label} className={`fit-head ${className}`}>
-      {lines.map(([t, w], i) => (
-        <span key={t} aria-hidden="true" style={{ "--w": w, "--i": i } as React.CSSProperties}>
-          {t}
-        </span>
-      ))}
-    </Tag>
-  );
 }
 
 /** The playable first-person sketch. A still holds the frame until three.js is ready. Desktop loads the
@@ -639,7 +628,7 @@ function Close() {
   return (
     <section aria-labelledby="close-title" className="border-t border-site-rule">
       <div className="mx-auto grid max-w-[1320px] items-end gap-10 px-6 pb-28 pt-20 md:px-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-16 lg:pb-40 lg:pt-32">
-        <FitType as="h2" id="close-title" label="Run it before it runs you." lines={CLOSE_LINES} className="fit-close" />
+        <FitType as="h2" id="close-title" label="Run it before it runs you." lines={CLOSE_LINES} bigFirst animate={false} />
         <div>
           <p className="max-w-[30rem] text-lg leading-relaxed text-site-mist">
             The whole week is ready now. Apply for partner access, or put your own team on the waitlist with founding pricing.

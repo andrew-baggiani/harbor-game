@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteFooter, SiteNav, SkipLink } from "@/site/SiteChrome";
+import { FitType } from "@/site/FitType";
 import { LeadForm } from "@/site/LeadForm";
 
 export const Route = createFileRoute("/pricing")({
@@ -82,30 +83,42 @@ function Pricing() {
       <SiteNav />
       <main id="main">
         <section className="mx-auto max-w-[1240px] px-6 pb-10 pt-14 sm:pt-20 md:px-10">
-          <h1 className="display max-w-[16ch] text-[44px] leading-[1.02] lg:text-[64px]">Priced to be the easy yes.</h1>
+          <div className="max-w-[640px]">
+            <FitType
+              as="h1"
+              id="pricing-title"
+              label="Priced to be the easy yes."
+              bigFirst
+              lines={[
+                ["Priced", 4.7841],
+                ["to be the", 6.7383],
+                ["easy yes.", 6.4695],
+              ]}
+            />
+          </div>
           <p className="mt-6 max-w-[38rem] text-lg leading-relaxed text-site-mist">
             Training your team actually finishes, for less than most of what they skip today. Per learner, billed yearly, with no 3-year lock-in.
           </p>
         </section>
 
         <section aria-label="Plans" className="mx-auto max-w-[1240px] px-6 md:px-10">
-          <div className="grid gap-5 lg:grid-cols-3">
+          <div className="grid border-y border-site-rule lg:grid-cols-3">
             {PLANS.map((p, i) => (
               <div
                 key={p.name}
-                className={`flex flex-col rounded-3xl border p-7 ${i === 0 ? "border-site-violet/60 bg-site-violet/[0.06]" : "border-site-rule bg-white/[0.02]"}`}
+                className={`relative flex flex-col py-9 lg:px-9 ${i > 0 ? "border-t border-site-rule lg:border-l lg:border-t-0" : "lg:pl-0"} ${i === 2 ? "lg:pr-0" : ""}`}
               >
+                {i === 0 ? <span aria-hidden="true" className="absolute -top-px left-0 h-[3px] w-24 bg-site-violet" /> : null}
                 <h2 className="text-xl font-semibold">{p.name}</h2>
                 <p className="mt-1 text-[15px] text-site-dim">{p.who}</p>
-                <p className="mt-6">
-                  <span className="display text-[44px] leading-none">{p.price}</span>
+                <p className="mt-7">
+                  <span className="display text-[56px] leading-none lg:text-[64px]">{p.price}</span>
                 </p>
-                <p className="mt-2 text-[15px] text-site-mist">{p.unit}</p>
-                {p.note ? <p className="mt-3 text-[15px] font-semibold text-[#c4a574]">{p.note}</p> : null}
-                <ul className="mt-6 flex-1 space-y-2.5 text-[15.5px] leading-relaxed text-site-mist">
+                <p className="mt-3 text-[15px] text-site-mist">{p.unit}</p>
+                {p.note ? <p className="mt-3 text-[15px] font-semibold text-site-mint">{p.note}</p> : null}
+                <ul className="mt-7 flex-1 divide-y divide-site-rule border-t border-site-rule text-[15.5px] leading-relaxed text-site-mist">
                   {p.points.map((t) => (
-                    <li key={t} className="flex gap-2.5">
-                      <span aria-hidden className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-site-violet" />
+                    <li key={t} className="py-2.5">
                       {t}
                     </li>
                   ))}
@@ -126,7 +139,7 @@ function Pricing() {
         <section id="waitlist" aria-labelledby="waitlist-title" className="mx-auto mt-20 max-w-[1240px] scroll-mt-24 px-6 md:px-10">
           <div className="grid gap-10 border-t border-site-rule pt-14 lg:grid-cols-[1fr_1.4fr]">
             <div>
-              <h2 id="waitlist-title" className="display text-[34px] lg:text-[44px]">
+              <h2 id="waitlist-title" className="display section-head text-[34px] sm:text-[44px] lg:text-[52px]">
                 Join the waitlist.
               </h2>
               <p className="mt-4 text-lg leading-relaxed text-site-mist">
@@ -140,7 +153,7 @@ function Pricing() {
         <section id="demo" aria-labelledby="demo-title" className="mx-auto mt-20 max-w-[1240px] scroll-mt-24 px-6 md:px-10">
           <div className="grid gap-10 border-t border-site-rule pt-14 lg:grid-cols-[1fr_1.4fr]">
             <div>
-              <h2 id="demo-title" className="display text-[34px] lg:text-[44px]">
+              <h2 id="demo-title" className="display section-head text-[34px] sm:text-[44px] lg:text-[52px]">
                 See it first.
               </h2>
               <p className="mt-4 text-lg leading-relaxed text-site-mist">
@@ -153,14 +166,14 @@ function Pricing() {
 
         <section aria-labelledby="faq-title" className="mx-auto mt-20 max-w-[1240px] px-6 pb-24 md:px-10">
           <div className="border-t border-site-rule pt-14">
-            <h2 id="faq-title" className="display text-[34px] lg:text-[44px]">
+            <h2 id="faq-title" className="display section-head text-[34px] sm:text-[44px] lg:text-[52px]">
               Questions buyers ask.
             </h2>
-            <dl className="mt-8 grid gap-x-12 gap-y-8 lg:grid-cols-2">
+            <dl className="mt-10 border-b border-site-rule">
               {FAQ.map(([q, a]) => (
-                <div key={q}>
+                <div key={q} className="grid gap-2 border-t border-site-rule py-6 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:gap-10">
                   <dt className="text-lg font-semibold">{q}</dt>
-                  <dd className="mt-2 max-w-[36rem] text-[16px] leading-relaxed text-site-mist">{a}</dd>
+                  <dd className="max-w-[38rem] text-[16px] leading-relaxed text-site-mist">{a}</dd>
                 </div>
               ))}
             </dl>
