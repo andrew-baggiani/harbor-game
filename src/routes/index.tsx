@@ -415,20 +415,18 @@ function Later() {
         <p className="mt-6 max-w-[36rem] text-lg leading-relaxed text-site-mist">
           Nobody gets a red X and a lecture. The night carries on, and what you did shows up later, the way it would at work.
         </p>
-        <div className="mt-10 -mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-3 [scrollbar-width:none] lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0 lg:mt-14 lg:grid lg:grid-cols-3 lg:gap-4">
+        <ol className="mt-10 border-b border-site-rule lg:mt-14">
           {LATER.map((r) => (
-            <div key={r.now} className="panel flex w-[85%] shrink-0 snap-start flex-col sm:w-[60%] lg:w-auto">
-              <p className="text-lg font-semibold leading-snug">{r.now}</p>
-              <div className="my-5 flex items-center gap-3">
-                <Pill tone="alarm" dot>
-                  {r.gap}
-                </Pill>
-                <span aria-hidden="true" className="h-px flex-1 bg-gradient-to-r from-site-alarm/50 to-transparent" />
-              </div>
-              <p className="leading-relaxed text-site-mist">{r.later}</p>
-            </div>
+            <li
+              key={r.now}
+              className="grid gap-3 border-t border-site-rule py-7 md:grid-cols-[minmax(0,1fr)_minmax(0,17rem)_minmax(0,1.15fr)] md:items-baseline md:gap-10 md:py-9"
+            >
+              <p className="text-lg font-semibold leading-snug md:text-xl">{r.now}</p>
+              <p className="display whitespace-nowrap text-[22px] uppercase !leading-none text-site-alarm md:text-[26px]">{r.gap}</p>
+              <p className="max-w-[34rem] text-[17px] leading-relaxed text-site-mist">{r.later}</p>
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
     </section>
   );
@@ -599,41 +597,27 @@ function ForMsps() {
           Five night shifts, two short weekend games, two AI shifts for everyone, and role tracks for admins, finance and the help desk. A one-minute
           reminder each month keeps it warm in between.
         </p>
-        <ol className="mt-6 -mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-3 [scrollbar-width:none] md:mx-0 md:overflow-visible md:px-0 md:pb-0 md:grid md:grid-cols-2 xl:grid-cols-4">
-          {WEEK.map((s) => (
-            <li key={s.day} className="w-[72%] shrink-0 snap-start md:w-auto">
-              <a href={s.href} className="panel lift block h-full !p-5">
-                <span className="text-sm font-bold text-site-mint">{s.day}</span>
-                <p className="mt-3 text-lg font-bold" style={{ fontStretch: "112%" }}>{s.title}</p>
-                <p className="mt-1.5 text-[14px] leading-relaxed text-site-dim">{s.topics.replaceAll(" · ", ", ")}.</p>
+        <ol className="mt-8 border-b border-site-rule">
+          {[
+            ...WEEK.map((w) => ({ day: w.day, title: w.title, note: `${w.topics.replaceAll(" · ", ", ")}.`, href: w.href, tone: "text-site-mint" })),
+            { day: AI_ENTRY.day, title: AI_ENTRY.title, note: "Using AI at work without leaking data, trusting an answer it made up, or handing an app your mailbox. Plus the deepfakes.", href: AI_ENTRY.href, tone: "text-site-mint" },
+            { day: AGENTS_ENTRY.day, title: AGENTS_ENTRY.title, note: "ChatGPT, Copilot, Claude, Gemini and Grok, when the AI logs in, sends, installs and clicks for you. And when attackers get it to.", href: AGENTS_ENTRY.href, tone: "text-site-mint" },
+            { day: "Role tracks", title: "Admins, finance, help desk", note: "Extra depth for the people attackers target first. Assigned per person in the portal.", href: "/week", tone: "text-site-violet-hi" },
+          ].map((r) => (
+            <li key={r.href + r.title} className="border-t border-site-rule">
+              <a
+                href={r.href}
+                className="group grid gap-1.5 py-5 transition-colors hover:bg-white/[0.02] md:grid-cols-[9rem_minmax(0,0.9fr)_minmax(0,1.4fr)_1.5rem] md:items-baseline md:gap-8 md:py-6"
+              >
+                <span className={`text-sm font-bold ${r.tone}`}>{r.day}</span>
+                <span className="display text-[20px] !leading-tight md:text-[22px]">{r.title}</span>
+                <span className="text-[15px] leading-relaxed text-site-dim">{r.note}</span>
+                <span aria-hidden="true" className="hidden text-site-dim transition group-hover:translate-x-1 group-hover:text-site-paper md:block">
+                  <Arrow size={18} />
+                </span>
               </a>
             </li>
           ))}
-          <li className="w-[72%] shrink-0 snap-start md:w-auto">
-            <a href="/week" className="panel lift block h-full !p-5 ring-1 ring-site-violet/50">
-              <span className="text-sm font-bold text-site-violet">Role tracks</span>
-              <p className="mt-3 text-lg font-bold" style={{ fontStretch: "112%" }}>Admins, finance, help desk</p>
-              <p className="mt-1.5 text-[14px] leading-relaxed text-site-dim">Extra depth for the people attackers target first. Assigned per person in the portal.</p>
-            </a>
-          </li>
-          <li className="w-[72%] shrink-0 snap-start md:w-auto">
-            <a href={AI_ENTRY.href} className="panel lift block h-full !p-5 ring-1 ring-site-mint/50">
-              <span className="text-sm font-bold text-site-mint">{AI_ENTRY.day}</span>
-              <p className="mt-3 text-lg font-bold" style={{ fontStretch: "112%" }}>{AI_ENTRY.title}</p>
-              <p className="mt-1.5 text-[14px] leading-relaxed text-site-dim">
-                Using AI at work without leaking data, trusting an answer it made up, or handing an app your mailbox. Plus the deepfakes.
-              </p>
-            </a>
-          </li>
-          <li className="w-[72%] shrink-0 snap-start md:w-auto">
-            <a href={AGENTS_ENTRY.href} className="panel lift block h-full !p-5 ring-1 ring-site-mint/50">
-              <span className="text-sm font-bold text-site-mint">{AGENTS_ENTRY.day}</span>
-              <p className="mt-3 text-lg font-bold" style={{ fontStretch: "112%" }}>{AGENTS_ENTRY.title}</p>
-              <p className="mt-1.5 text-[14px] leading-relaxed text-site-dim">
-                ChatGPT, Copilot, Claude, Gemini and Grok, when the AI logs in, sends, installs and clicks for you. And when attackers get it to.
-              </p>
-            </a>
-          </li>
         </ol>
       </div>
     </section>
