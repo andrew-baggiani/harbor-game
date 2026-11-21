@@ -72,13 +72,11 @@ function Hero({ phone }: { phone: boolean | null }) {
     <section aria-labelledby="hero-title" className="hero-glow relative">
       <div className="relative mx-auto grid max-w-[1320px] items-center gap-8 px-6 pb-14 pt-4 sm:pb-24 sm:pt-8 md:px-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.12fr)] lg:gap-14 lg:pb-28 lg:pt-12">
         <div>
-          <p className="mb-5 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] py-1.5 pl-2 pr-4 text-[13px] font-semibold text-site-paper backdrop-blur sm:mb-6 sm:text-[14px]">
-            <span className="rounded-full bg-site-mint/15 px-2 py-0.5 text-[12px] text-site-mint">New</span>
+          <p className="mb-6 flex items-center gap-3 text-[14px] font-semibold text-site-mint sm:mb-8 sm:text-[15px]">
+            <span aria-hidden="true" className="h-px w-8 bg-site-mint/70" />
             First-person security training for MSPs
           </p>
-          <h1 id="hero-title" className="display text-[40px] !leading-[1.04] sm:text-[60px] lg:text-[64px] xl:text-[76px]">
-            Rehearse the attack before it's real.
-          </h1>
+          <FitHeadline />
           <p className="mt-5 max-w-[32rem] text-[17px] leading-relaxed text-site-mist sm:mt-7 sm:text-lg">
             <span className="sm:hidden">A game your clients' employees actually play, with every decision recorded against the controls they're audited on.</span>
             <span className="hidden sm:inline">
@@ -86,8 +84,8 @@ function Hero({ phone }: { phone: boolean | null }) {
               every decision recorded against the controls your clients are audited on.
             </span>
           </p>
-          <div className="mt-7 sm:hidden">
-            <HeroFigure mode="tap" active={phone === true} />
+          <div className="-mx-6 mt-8 sm:hidden">
+            <HeroFigure mode="tap" active={phone === true} bleed />
           </div>
           <div className="mt-7 flex flex-wrap items-center gap-3 sm:mt-8 sm:gap-4">
             <a href="/partners" className={`${btn.primary} w-full justify-center !px-6 !py-3 text-base sm:w-auto sm:!py-3.5`}>
@@ -114,9 +112,30 @@ function Hero({ phone }: { phone: boolean | null }) {
   );
 }
 
+/** The headline as one solid block: every line is sized from its measured width (Archivo, 800, width 125)
+ *  so all four end on the same edge at any screen size. Ratios are line width at font-size 1; see --w. */
+const HEAD_LINES: [string, number][] = [
+  ["Rehearse", 7.082],
+  ["the attack", 7.9436],
+  ["before it’s", 7.8611],
+  ["real.", 3.7311],
+];
+
+function FitHeadline() {
+  return (
+    <h1 id="hero-title" aria-label="Rehearse the attack before it's real." className="fit-head">
+      {HEAD_LINES.map(([t, w], i) => (
+        <span key={t} aria-hidden="true" style={{ "--w": w, "--i": i } as React.CSSProperties}>
+          {t}
+        </span>
+      ))}
+    </h1>
+  );
+}
+
 /** The playable first-person sketch. A still holds the frame until three.js is ready. Desktop loads the
  *  scene on its own; phones show the still with a play button, so WebGL starts only when someone asks. */
-function HeroFigure({ active, mode }: { active: boolean; mode: "auto" | "tap" }) {
+function HeroFigure({ active, mode, bleed = false }: { active: boolean; mode: "auto" | "tap"; bleed?: boolean }) {
   const [Scene, setScene] = useState<typeof import("@/site/RehearsalScene").RehearsalScene | null>(null);
   const [asked, setAsked] = useState(false);
   const go = active && (mode === "auto" || asked);
@@ -131,10 +150,20 @@ function HeroFigure({ active, mode }: { active: boolean; mode: "auto" | "tap" })
   return (
     <figure>
       <div
-        className="brackets lock-in"
-        style={{ "--arm": "clamp(22px, 4vw, 48px)", "--stroke": "clamp(4px, 0.8vw, 8px)", "--inset": "clamp(-20px, -2vw, -10px)" } as React.CSSProperties}
+        className={bleed ? "" : "brackets lock-in"}
+        style={
+          (bleed
+            ? { "--arm": "26px", "--stroke": "4px", "--inset": "10px" }
+            : { "--arm": "clamp(22px, 4vw, 48px)", "--stroke": "clamp(4px, 0.8vw, 8px)", "--inset": "clamp(-20px, -2vw, -10px)" }) as React.CSSProperties
+        }
       >
-        <div className="relative aspect-[16/10] overflow-hidden rounded-[18px] bg-site-ink-2 ring-1 ring-site-violet/40 shadow-[0_40px_120px_-30px_rgba(139,44,245,0.55)] lg:aspect-[5/4] xl:aspect-[4/3]">
+        <div
+          className={`relative overflow-hidden bg-site-ink-2 ${
+            bleed
+              ? "aspect-[4/3] border-y border-site-violet/30"
+              : "aspect-[16/10] rounded-[18px] ring-1 ring-site-violet/40 shadow-[0_40px_120px_-30px_rgba(139,44,245,0.55)] lg:aspect-[5/4] xl:aspect-[4/3]"
+          }`}
+        >
           <img src="/brand/hero-still.webp" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" />
           {Scene ? (
             <div className="absolute inset-0">
@@ -157,7 +186,7 @@ function HeroFigure({ active, mode }: { active: boolean; mode: "auto" | "tap" })
           ) : null}
         </div>
       </div>
-      <figcaption className="mt-6 min-h-5 text-sm text-site-dim">
+      <figcaption className={`min-h-5 text-sm text-site-dim ${bleed ? "mt-3 px-6" : "mt-6"}`}>
         {Scene ? "A playable sketch of the Monday shift. When a prompt appears, press E or Q, or tap it." : "Monday, 19:10. The first night shift, in first person."}
       </figcaption>
     </figure>
