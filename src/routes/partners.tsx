@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteFooter, SiteNav, SkipLink } from "@/site/SiteChrome";
+import { FitType } from "@/site/FitType";
 import { LeadForm } from "@/site/LeadForm";
 
 export const Route = createFileRoute("/partners")({
@@ -37,7 +38,19 @@ function Partners() {
       <SiteNav />
       <main id="main">
         <section className="mx-auto max-w-[1240px] px-6 pb-12 pt-14 sm:pt-20 md:px-10">
-          <h1 className="display max-w-[18ch] text-[44px] leading-[1.02] lg:text-[64px]">Training your clients finish. Margin you keep.</h1>
+          <div className="max-w-[720px]">
+            <FitType
+              as="h1"
+              id="partners-title"
+              label="Training your clients finish. Margin you keep."
+              lines={[
+                ["Training your", 10.1903],
+                ["clients finish.", 10.377],
+                ["Margin you", 8.2573],
+                ["keep.", 3.697],
+              ]}
+            />
+          </div>
           <p className="mt-6 max-w-[40rem] text-lg leading-relaxed text-site-mist">
             Dry Run Cyber is security awareness training played as a first-person night shift. Your clients make real calls under pressure, wrong answers play
             out in the room, and you get the record insurers and auditors ask for.
@@ -60,7 +73,7 @@ function Partners() {
 
         <section aria-labelledby="how-title" className="mx-auto mt-20 max-w-[1240px] px-6 md:px-10">
           <div className="border-t border-site-rule pt-12">
-            <h2 id="how-title" className="display text-[34px] lg:text-[44px]">
+            <h2 id="how-title" className="display section-head text-[34px] sm:text-[44px] lg:text-[52px]">
               How it works.
             </h2>
             <ol className="mt-8 grid gap-8 lg:grid-cols-3">
@@ -77,7 +90,7 @@ function Partners() {
         <section id="apply" aria-labelledby="apply-title" className="mx-auto mt-20 max-w-[1240px] scroll-mt-24 px-6 pb-24 md:px-10">
           <div className="grid gap-10 border-t border-site-rule pt-14 lg:grid-cols-[1fr_1.4fr]">
             <div>
-              <h2 id="apply-title" className="display text-[34px] lg:text-[44px]">
+              <h2 id="apply-title" className="display section-head text-[34px] sm:text-[44px] lg:text-[52px]">
                 Apply to partner.
               </h2>
               <p className="mt-4 text-lg leading-relaxed text-site-mist">

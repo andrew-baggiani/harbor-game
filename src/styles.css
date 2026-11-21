@@ -366,7 +366,7 @@ html:has(.site) { scroll-behavior: smooth; }
 /* The closing block starts big instead of ending big, and only animates once it's on screen. */
 .site .fit-close > span:last-child { line-height: 0.84; margin-top: 0; }
 .site .fit-close > span:first-child { line-height: 0.8; margin-bottom: 0.03em; }
-.site .fit-close > span { animation: none; }
+.site .fit-still > span { animation: none; }
 @keyframes fit-rise {
   from { opacity: 0; transform: translateY(0.35em); clip-path: inset(0 0 100% 0); }
   to { opacity: 1; transform: none; clip-path: inset(-20% -20% -20% -20%); }
