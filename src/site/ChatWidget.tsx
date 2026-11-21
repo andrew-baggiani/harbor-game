@@ -12,10 +12,10 @@ export function ChatWidget() {
   const list = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
   const launcher = useRef<HTMLButtonElement>(null);
-  // On phones the floating button would sit on top of the hero game, so it appears once the visitor scrolls past it.
-  const [shown, setShown] = useState(true);
+  // On the homepage the floating button would sit on top of the hero game, so it appears once the visitor scrolls past it.
+  const [shown, setShown] = useState(false);
   useEffect(() => {
-    const on = () => setShown(window.innerWidth >= 640 || window.scrollY > window.innerHeight * 1.1);
+    const on = () => setShown(window.location.pathname !== "/" || window.scrollY > window.innerHeight * (window.innerWidth >= 640 ? 0.6 : 1.1));
     on();
     window.addEventListener("scroll", on, { passive: true });
     window.addEventListener("resize", on);
