@@ -337,3 +337,33 @@ html:has(.site) { scroll-behavior: smooth; }
   body[data-print] .print-doc { max-height: none !important; overflow: visible !important; box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; background: #fff !important; }
   body[data-print] [aria-label="Ask a question"] { display: none !important; }
 }
+
+/* Hero headline: four lines justified to one width by size alone (see FitHeadline). */
+.site .fit-head {
+  container-type: inline-size;
+  font-weight: 800;
+  font-stretch: 125%;
+  letter-spacing: -0.02em;
+  line-height: 0.84;
+  text-transform: uppercase;
+  color: var(--color-site-paper);
+}
+.site .fit-head > span {
+  display: block;
+  white-space: nowrap;
+  font-size: calc(100cqw / var(--w) * 0.978);
+  animation: fit-rise 0.8s cubic-bezier(0.2, 0.75, 0.2, 1) both;
+  animation-delay: calc(var(--i) * 85ms + 60ms);
+}
+.site .fit-head > span:last-child { line-height: 0.8; margin-top: 0.02em; }
+/* The closing block starts big instead of ending big, and only animates once it's on screen. */
+.site .fit-close > span:last-child { line-height: 0.84; margin-top: 0; }
+.site .fit-close > span:first-child { line-height: 0.8; margin-bottom: 0.03em; }
+.site .fit-close > span { animation: none; }
+@keyframes fit-rise {
+  from { opacity: 0; transform: translateY(0.35em); clip-path: inset(0 0 100% 0); }
+  to { opacity: 1; transform: none; clip-path: inset(-20% -20% -20% -20%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site .fit-head > span { animation: none; }
+}

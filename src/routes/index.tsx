@@ -72,13 +72,11 @@ function Hero({ phone }: { phone: boolean | null }) {
     <section aria-labelledby="hero-title" className="hero-glow relative">
       <div className="relative mx-auto grid max-w-[1320px] items-center gap-8 px-6 pb-14 pt-4 sm:pb-24 sm:pt-8 md:px-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.12fr)] lg:gap-14 lg:pb-28 lg:pt-12">
         <div>
-          <p className="mb-5 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] py-1.5 pl-2 pr-4 text-[13px] font-semibold text-site-paper backdrop-blur sm:mb-6 sm:text-[14px]">
-            <span className="rounded-full bg-site-mint/15 px-2 py-0.5 text-[12px] text-site-mint">New</span>
+          <p className="mb-6 flex items-center gap-3 text-[14px] font-semibold text-site-mint sm:mb-8 sm:text-[15px]">
+            <span aria-hidden="true" className="h-px w-8 bg-site-mint/70" />
             First-person security training for MSPs
           </p>
-          <h1 id="hero-title" className="display text-[40px] !leading-[1.04] sm:text-[60px] lg:text-[64px] xl:text-[76px]">
-            Rehearse the attack before it's real.
-          </h1>
+          <FitHeadline />
           <p className="mt-5 max-w-[32rem] text-[17px] leading-relaxed text-site-mist sm:mt-7 sm:text-lg">
             <span className="sm:hidden">A game your clients' employees actually play, with every decision recorded against the controls they're audited on.</span>
             <span className="hidden sm:inline">
@@ -86,8 +84,8 @@ function Hero({ phone }: { phone: boolean | null }) {
               every decision recorded against the controls your clients are audited on.
             </span>
           </p>
-          <div className="mt-7 sm:hidden">
-            <HeroFigure mode="tap" active={phone === true} />
+          <div className="-mx-6 mt-8 sm:hidden">
+            <HeroFigure mode="tap" active={phone === true} bleed />
           </div>
           <div className="mt-7 flex flex-wrap items-center gap-3 sm:mt-8 sm:gap-4">
             <a href="/partners" className={`${btn.primary} w-full justify-center !px-6 !py-3 text-base sm:w-auto sm:!py-3.5`}>
@@ -114,9 +112,39 @@ function Hero({ phone }: { phone: boolean | null }) {
   );
 }
 
+/** The headline as one solid block: every line is sized from its measured width (Archivo, 800, width 125)
+ *  so all four end on the same edge at any screen size. Ratios are line width at font-size 1; see --w. */
+const HEAD_LINES: [string, number][] = [
+  ["Rehearse", 7.082],
+  ["the attack", 7.9436],
+  ["before it\u2019s", 7.8611],
+  ["real.", 3.7311],
+];
+const CLOSE_LINES: [string, number][] = [
+  ["Run it", 4.2908],
+  ["before it", 6.7291],
+  ["runs you.", 6.9931],
+];
+
+function FitHeadline() {
+  return <FitType as="h1" id="hero-title" label="Rehearse the attack before it's real." lines={HEAD_LINES} />;
+}
+
+function FitType({ as: Tag, id, label, lines, className = "" }: { as: "h1" | "h2"; id: string; label: string; lines: [string, number][]; className?: string }) {
+  return (
+    <Tag id={id} aria-label={label} className={`fit-head ${className}`}>
+      {lines.map(([t, w], i) => (
+        <span key={t} aria-hidden="true" style={{ "--w": w, "--i": i } as React.CSSProperties}>
+          {t}
+        </span>
+      ))}
+    </Tag>
+  );
+}
+
 /** The playable first-person sketch. A still holds the frame until three.js is ready. Desktop loads the
  *  scene on its own; phones show the still with a play button, so WebGL starts only when someone asks. */
-function HeroFigure({ active, mode }: { active: boolean; mode: "auto" | "tap" }) {
+function HeroFigure({ active, mode, bleed = false }: { active: boolean; mode: "auto" | "tap"; bleed?: boolean }) {
   const [Scene, setScene] = useState<typeof import("@/site/RehearsalScene").RehearsalScene | null>(null);
   const [asked, setAsked] = useState(false);
   const go = active && (mode === "auto" || asked);
@@ -131,11 +159,24 @@ function HeroFigure({ active, mode }: { active: boolean; mode: "auto" | "tap" })
   return (
     <figure>
       <div
-        className="brackets lock-in"
-        style={{ "--arm": "clamp(22px, 4vw, 48px)", "--stroke": "clamp(4px, 0.8vw, 8px)", "--inset": "clamp(-20px, -2vw, -10px)" } as React.CSSProperties}
+        className={bleed ? "" : "brackets lock-in"}
+        style={
+          (bleed
+            ? { "--arm": "26px", "--stroke": "4px", "--inset": "10px" }
+            : { "--arm": "clamp(22px, 4vw, 48px)", "--stroke": "clamp(4px, 0.8vw, 8px)", "--inset": "clamp(-20px, -2vw, -10px)" }) as React.CSSProperties
+        }
       >
-        <div className="relative aspect-[16/10] overflow-hidden rounded-[18px] bg-site-ink-2 ring-1 ring-site-violet/40 shadow-[0_40px_120px_-30px_rgba(139,44,245,0.55)] lg:aspect-[5/4] xl:aspect-[4/3]">
-          <img src="/brand/hero-still.webp" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" />
+        <div
+          className={`relative overflow-hidden bg-site-ink-2 ${
+            bleed
+              ? "aspect-[4/3] border-y border-site-violet/30"
+              : "aspect-[16/10] rounded-[18px] ring-1 ring-site-violet/40 shadow-[0_40px_120px_-30px_rgba(139,44,245,0.55)] lg:aspect-[5/4] xl:aspect-[4/3]"
+          }`}
+        >
+          <picture>
+            <source media="(max-width: 639px)" srcSet="/brand/hero-still-phone.webp" />
+            <img src="/brand/hero-still-desk.webp" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" />
+          </picture>
           {Scene ? (
             <div className="absolute inset-0">
               <Scene className="h-full w-full" />
@@ -144,21 +185,21 @@ function HeroFigure({ active, mode }: { active: boolean; mode: "auto" | "tap" })
             <button
               type="button"
               onClick={() => setAsked(true)}
-              className="absolute inset-0 grid place-items-center bg-black/25 text-site-paper"
+              className="absolute inset-0 text-site-paper"
               aria-label="Play a short sketch of the Monday shift"
             >
-              <span className="flex items-center gap-2.5 rounded-full border border-white/20 bg-site-ink/80 py-2.5 pl-3 pr-5 text-[15px] font-semibold backdrop-blur">
-                <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+              <span className="absolute right-3 top-3 flex items-center gap-2 rounded-full bg-site-violet py-1.5 pl-2.5 pr-3.5 text-[14px] font-semibold shadow-[0_8px_30px_-6px_rgba(139,44,245,.8)]">
+                <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
                   <path d="M8 5v14l11-7z" fill="currentColor" />
                 </svg>
-                {asked ? "Loading the shift…" : "Try the Monday shift"}
+                {asked ? "Loading…" : "Play it"}
               </span>
             </button>
           ) : null}
         </div>
       </div>
-      <figcaption className="mt-6 min-h-5 text-sm text-site-dim">
-        {Scene ? "A playable sketch of the Monday shift. When a prompt appears, press E or Q, or tap it." : "Monday, 19:10. The first night shift, in first person."}
+      <figcaption className={`min-h-5 text-sm text-site-dim ${bleed ? "mt-3 px-6" : "mt-6"}`}>
+        {Scene ? "A playable sketch of the Monday shift. When a prompt appears, press E or Q, or tap it." : mode === "tap" ? "Monday night, 19:36. \"IT\" wants the code. Tap to play it." : "A playable sketch of the Monday shift."}
       </figcaption>
     </figure>
   );
@@ -617,22 +658,21 @@ function Point({ title, children }: { title: string; children: React.ReactNode }
 
 function Close() {
   return (
-    <section aria-labelledby="close-title" className="mx-auto max-w-[1240px] px-6 pb-28 pt-8 md:px-10 lg:pb-40">
-      <div className="aurora mx-auto max-w-[980px] px-6 py-16 text-center sm:px-12 sm:py-20">
-        <h2 id="close-title" className="display mx-auto max-w-[12ch] text-[38px] lg:text-[64px]">Run it before it runs you.</h2>
-        <p className="mx-auto mt-6 max-w-[34rem] text-lg leading-relaxed text-site-mist">
-          The whole week is ready now. Apply for partner access, or put your own team on the waitlist with founding pricing.
-        </p>
-        <div className="mt-10 flex flex-wrap justify-center gap-3">
-          <a href="/partners" className={`${btn.primary} !px-7 !py-4 text-base`}>
-            Apply to partner
-          </a>
-          <a href="/pricing#waitlist" className={`${btn.ghost} !px-7 !py-4 text-base`}>
-            Join the waitlist
-          </a>
-          <a href="/login" className={`${btn.ghost} !px-7 !py-4 text-base`}>
-            Partner sign in
-          </a>
+    <section aria-labelledby="close-title" className="border-t border-site-rule">
+      <div className="mx-auto grid max-w-[1320px] items-end gap-10 px-6 pb-28 pt-20 md:px-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-16 lg:pb-40 lg:pt-32">
+        <FitType as="h2" id="close-title" label="Run it before it runs you." lines={CLOSE_LINES} className="fit-close" />
+        <div>
+          <p className="max-w-[30rem] text-lg leading-relaxed text-site-mist">
+            The whole week is ready now. Apply for partner access, or put your own team on the waitlist with founding pricing.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <a href="/partners" className={`${btn.primary} w-full justify-center !px-7 !py-3.5 text-base sm:w-auto`}>
+              Apply for partner access <Arrow size={17} />
+            </a>
+            <a href="/pricing#waitlist" className={`${btn.ghost} w-full justify-center !px-7 !py-3.5 text-base sm:w-auto`}>
+              Join the waitlist
+            </a>
+          </div>
         </div>
       </div>
     </section>
