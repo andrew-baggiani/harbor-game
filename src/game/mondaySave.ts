@@ -1,3 +1,4 @@
+import { nightLog, type NightEntry } from "@/game/fallout";
 import { useHarbor, world } from "@/game/state";
 import { learnerRecord, restoreRecord, type LearnerRecord } from "@/game/records";
 import { currentVariants, setVariants } from "@/game/scenarios";
@@ -25,6 +26,7 @@ export type MondaySave = {
   record: LearnerRecord;
   variants: Record<string, number>;
   found: Record<string, true>;
+  night?: NightEntry[];
 };
 
 let lastPose: Pose | null = null;
@@ -66,6 +68,7 @@ export function saveMonday() {
     record: learnerRecord(),
     variants: currentVariants(),
     found: useMondayPlay.getState().found,
+    night: [...nightLog],
   };
   writeSave("monday", data);
 }
@@ -80,6 +83,7 @@ export function restoreMonday(save: MondaySave) {
   setVariants(save.variants ?? {});
   restoreRecord(save.record);
   useMondayPlay.setState({ found: save.found ?? {} });
+  nightLog.splice(0, nightLog.length, ...(save.night ?? []));
   useHarbor.setState({
     beat: save.store.beat as never,
     flags: save.store.flags as never,

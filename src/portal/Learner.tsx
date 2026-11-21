@@ -1,12 +1,12 @@
 // A learner's home, and the first-run setup for someone with no workspace yet.
 import { useState, type FormEvent } from "react";
 import { WEEK } from "@/game/week";
-import { api, type Membership } from "@/site/portal-api";
+import { api, type Brand, type Membership } from "@/site/portal-api";
 import { Podium, useBoard } from "@/portal/Org";
 import type { View } from "@/routes/portal";
 import { Building, LiveDot, Lock, Panel, PanelHead, Pill, Play, SCENARIOS, Users, btn, field, useToast } from "@/portal/ui";
 
-export function LearnerHome({ orgId, membership }: { orgId: string; membership?: Membership }) {
+export function LearnerHome({ orgId, membership, brand }: { orgId: string; membership?: Membership; brand?: Brand | null }) {
   const board = useBoard(orgId);
   const toast = useToast();
   const [name, setName] = useState(membership?.displayName ?? "");
@@ -18,6 +18,14 @@ export function LearnerHome({ orgId, membership }: { orgId: string; membership?:
       <section className="aurora px-6 py-8 sm:px-10 sm:py-10">
         <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
           <div className="max-w-xl">
+            {brand ? (
+              <p className="mb-4 flex items-center gap-3 text-sm text-site-mist">
+                {brand.logo ? <img src={brand.logo} alt={brand.name} className="h-10 max-w-[170px] rounded-lg bg-white/95 object-contain px-2 py-1" /> : null}
+                <span>
+                  Training from <span className="font-semibold text-site-paper">{brand.name}</span>
+                </span>
+              </p>
+            ) : null}
             <p className="text-site-mist">{membership?.orgName ?? "Your team"}</p>
             <h1 className="display mt-1 text-[clamp(2.1rem,5vw,3.4rem)] font-extrabold leading-[1.02]" style={{ fontStretch: "118%" }}>
               {done ? "Shift complete." : mine ? "Pick up where you left off." : "Your shift starts tonight."}

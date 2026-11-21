@@ -15,7 +15,7 @@ import { Link } from "@tanstack/react-router";
 import { Marker, People, Rain, Rig, Sky, Trail } from "@/game/draw";
 import { HarborWorld } from "@/game/scenery";
 import { DeskScreen } from "@/game/mail/DeskScreen";
-import { missedSigns } from "@/game/fallout";
+import { missedSigns, nightLog } from "@/game/fallout";
 import { focusActive } from "@/game/focus";
 import { Key, TitleScreen } from "@/game/TitleScreen";
 import { blip, caption, say, stopVoices, unlockAudio } from "@/game/audio";
@@ -506,7 +506,7 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  const clock = `${String(Math.floor(minute / 60)).padStart(2, "0")}:${String(minute % 60).padStart(2, "0")}`;
+  const clock = hhmm(minute);
   const scored = scoreOf(flags);
   const lines = reportLines(flags);
   const steps = [
@@ -642,13 +642,35 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
                 </li>
               ))}
             </ul>
-            <ul className="mt-6 space-y-2 border-t border-white/10 pt-4">
-              {lines.map((line) => (
-                <li key={line.text} className={line.ok ? "text-sm text-[#f4f0e6]" : "text-sm text-[#e7b2a4]"}>
-                  {line.text}
-                </li>
-              ))}
-            </ul>
+            {nightLog.length ? (
+              <div className="mt-6 border-t border-white/10 pt-4">
+                <p className="text-[10px] tracking-[0.24em] text-[#c4a574]">YOUR NIGHT</p>
+                <ol className="mt-3 space-y-3 border-l border-white/15 pl-4">
+                  {nightLog.map((e, i) => (
+                    <li key={i} className="relative">
+                      <span
+                        aria-hidden="true"
+                        className="absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-[#0c0d0f]"
+                        style={{ background: e.kind === "fallout" ? "#ff7a66" : e.ok ? "#7fd6a8" : "#e7b2a4" }}
+                      />
+                      <p className="font-game text-[11px] tracking-[0.14em] text-[#a8a59c] uppercase">
+                        <span className="mr-2 tabular-nums text-[#c4a574]">{hhmm(e.minute)}</span>
+                        {e.who}
+                      </p>
+                      <p className={`text-sm ${e.kind === "fallout" ? "text-[#ffb3a7]" : e.ok ? "text-[#f4f0e6]" : "text-[#e7b2a4]"}`}>{e.text}</p>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ) : (
+              <ul className="mt-6 space-y-2 border-t border-white/10 pt-4">
+                {lines.map((line) => (
+                  <li key={line.text} className={line.ok ? "text-sm text-[#f4f0e6]" : "text-sm text-[#e7b2a4]"}>
+                    {line.text}
+                  </li>
+                ))}
+              </ul>
+            )}
             {missedSigns.length > 0 && (
               <div className="mt-5 border-t border-white/10 pt-4">
                 <p className="text-[10px] tracking-[0.24em] text-[#c4a574]">SIGNS YOU MISSED</p>
@@ -1028,4 +1050,9 @@ function MondayKeep() {
     };
   }, []);
   return null;
+}
+
+/** Game minutes after midnight as HH:MM. */
+function hhmm(minute: number) {
+  return `${String(Math.floor(minute / 60) % 24).padStart(2, "0")}:${String(Math.floor(minute) % 60).padStart(2, "0")}`;
 }

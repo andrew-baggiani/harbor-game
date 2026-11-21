@@ -3,10 +3,10 @@ import { create } from "zustand";
 import { CAR_SPAWN, SPAWN, floorMood } from "@/game/layout";
 import { applyFlag, barkFor, emptyFlags, nextBeat, objectiveFor, panelFor, scoreOf, talkFor, type Beat, type Flags, type Talk, type VoiceKind } from "@/game/story";
 import { recordDecision, resetRecord, sealShift, noteVariants } from "@/game/records";
-import { choiceOf, currentVariants, pickVariants, variantOf } from "@/game/scenarios";
+import { choiceOf, currentVariants, fillText, mondayScenarios, pickVariants, variantOf } from "@/game/scenarios";
 import { say, sayLineNext } from "@/game/audio";
 import { resetFocus } from "@/game/focus";
-import { FALLOUT_FROM_CHOICE, addFallout, after, resetFallout, flushFallout } from "@/game/fallout";
+import { FALLOUT_FROM_CHOICE, addFallout, after, nightLog, resetFallout, flushFallout } from "@/game/fallout";
 import { logDecision, logShiftComplete, newShiftRun } from "@/game/telemetry";
 import { mondayFindCount } from "@/game/mondayPlay";
 
@@ -187,9 +187,16 @@ export const useHarbor = create<HarborStore>((set, get) => ({
   choose: (id) => {
     const fallout = FALLOUT_FROM_CHOICE[id];
     if (fallout) addFallout(fallout);
+    for (const sc of mondayScenarios) {
+      const c = sc.choices.find((x) => x.id === id);
+      if (!c) continue;
+      nightLog.push({ minute: get().minute, kind: "call", who: sc.location, text: fillText(c.report, sc), ok: c.ok });
+      break;
+    }
     // Some mistakes come back later in the shift (docs/MONDAY_V2.md section 5).
     const later = (voice: string, kind: VoiceKind, who: string, text: string, seconds: number) =>
       after(seconds, () => {
+        nightLog.push({ minute: get().minute, kind: "fallout", who, text });
         world.barkT = 9;
         get().setBark({ who, text });
         sayLineNext(voice, text, kind, who);

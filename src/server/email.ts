@@ -3,12 +3,28 @@ import type { Env } from "@/server/env";
 export type SendResult = { sent: boolean; provider: "resend" | "log" };
 
 /** Magic-link email. Resend when RESEND_API_KEY is set; otherwise the link is only logged. */
-export async function sendMagicLink(env: Env, to: string, link: string, purpose: "signin" | "invite", orgName?: string): Promise<SendResult> {
-  const subject = purpose === "invite" ? `You're invited to Dry Run Cyber${orgName ? ` by ${orgName}` : ""}` : "Your Dry Run Cyber sign-in link";
+export async function sendMagicLink(
+  env: Env,
+  to: string,
+  link: string,
+  purpose: "signin" | "invite",
+  orgName?: string,
+  brandName?: string | null,
+): Promise<SendResult> {
+  // An MSP that set its brand sends invites under its own name; Dry Run Cyber stays as the platform.
+  const subject =
+    purpose === "invite"
+      ? brandName
+        ? `${brandName}: your security training is ready`
+        : `You're invited to Dry Run Cyber${orgName ? ` by ${orgName}` : ""}`
+      : "Your Dry Run Cyber sign-in link";
   const lead =
     purpose === "invite"
-      ? `${orgName ?? "Your team"} has set you up with Dry Run Cyber, security awareness training you play as a first-person night shift.`
+      ? brandName
+        ? `${brandName} has set up security training for ${orgName ?? "your team"}. You play it as a first-person night shift: real calls, real consequences, about twenty minutes.`
+        : `${orgName ?? "Your team"} has set you up with Dry Run Cyber, security awareness training you play as a first-person night shift.`
       : "Here's your link to sign in to Dry Run Cyber.";
+  const from = purpose === "invite" && brandName ? `${brandName.replace(/[<>",]/g, "")} via Dry Run Cyber <hello@dryruncyber.com>` : "Dry Run Cyber <hello@dryruncyber.com>";
   const text = `${lead}\n\nOpen this link within 15 minutes:\n${link}\n\nIf you didn't ask for this, you can ignore this email.`;
   const html = `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#101319">
 <p>${escapeHtml(lead)}</p>
@@ -22,7 +38,7 @@ export async function sendMagicLink(env: Env, to: string, link: string, purpose:
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, "content-type": "application/json" },
-    body: JSON.stringify({ from: "Dry Run Cyber <hello@dryruncyber.com>", to: [to], subject, text, html }),
+    body: JSON.stringify({ from, to: [to], subject, text, html }),
   });
   if (!res.ok) {
     console.error(`[email] resend failed ${res.status}: ${await res.text().catch(() => "")}`);

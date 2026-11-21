@@ -2,6 +2,7 @@ import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { sayLine } from "@/game/audio";
 import { Closeup, hasCloseup } from "@/game/talk/closeups";
 import { Dialogue, type TalkContent, type TalkResult } from "@/game/talk/dialogue";
+import { runOrder } from "@/game/runOrder";
 
 // In-world conversation bar: the scene stays visible, the current line and your
 // options sit at the bottom. 👁 options inspect, gold-edged options do something and stay done.
@@ -29,7 +30,10 @@ export function TalkPanel({ content, onDone }: { content: TalkContent; onDone: (
   const last = d.last;
   const who = last.by ?? content.speaker.who;
   const quoted = !content.narration || !!last.by;
-  const opts = d.options();
+  // Looks and small actions keep their place; the decisions themselves are shuffled for this run.
+  const raw = d.options();
+  const fixed = raw.filter((o) => o.kind === "look" || o.kind === "act");
+  const opts = [...fixed, ...runOrder(raw.filter((o) => o.kind !== "look" && o.kind !== "act"), (o) => o.id)];
 
   return (
     <div

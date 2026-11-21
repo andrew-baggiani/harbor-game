@@ -1,6 +1,6 @@
 // Partner (MSP) workspace: overview, client list, evidence.
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
-import { api, type Activity, type PartnerOrg } from "@/site/portal-api";
+import { api, type Activity, type Brand, type PartnerOrg } from "@/site/portal-api";
 import type { OrgTab } from "@/portal/Org";
 import {
   Arrow,
@@ -426,7 +426,7 @@ function Clients({ orgs, openOrg, onAdd }: Props & { onAdd: () => void }) {
 
 const FRAMEWORKS = ["NIST SP 800-53", "NIST SP 800-171", "CMMC Level 2", "HIPAA Security Rule", "CIS Controls v8.1", "NIST CSF 2.0"];
 
-function Evidence({ orgs, openOrg }: Props) {
+function Evidence({ orgs, openOrg, partnerId }: Props) {
   return (
     <div>
       <h1 className="display text-[clamp(1.9rem,3.6vw,2.6rem)] font-extrabold" style={{ fontStretch: "118%" }}>
@@ -461,6 +461,15 @@ function Evidence({ orgs, openOrg }: Props) {
                     {o.completed} of {o.learners} finished · last activity {ago(o.lastActive).toLowerCase()}
                   </span>
                 </button>
+                <a
+                  href={`/evidence?org=${encodeURIComponent(o.id)}`}
+                  target="_blank"
+                  rel="noopener"
+                  className={`${btn.primary} !py-2 text-sm ${o.completed + o.inProgress ? "" : "pointer-events-none opacity-40"}`}
+                  aria-disabled={!(o.completed + o.inProgress)}
+                >
+                  <Shield size={16} /> Evidence pack (PDF)
+                </a>
                 <a href={`/api/export?org=${encodeURIComponent(o.id)}`} className={`${btn.ghost} !py-2 text-sm ${o.completed + o.inProgress ? "" : "pointer-events-none opacity-40"}`} aria-disabled={!(o.completed + o.inProgress)}>
                   <Download size={16} /> Decision log (CSV)
                 </a>
@@ -469,7 +478,78 @@ function Evidence({ orgs, openOrg }: Props) {
           </ul>
         )}
       </Panel>
+      <BrandCard partnerId={partnerId} />
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------ the MSP's own brand */
+
+/** Your name and logo on your clients' learner screens, invite emails and evidence packs. */
+function BrandCard({ partnerId }: { partnerId: string }) {
+  const toast = useToast();
+  const [brand, setBrand] = useState<Brand | null>(null);
+  const [name, setName] = useState("");
+  const [logo, setLogo] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  useEffect(() => {
+    api<{ brand: Brand | null }>(`/api/brand?partner=${encodeURIComponent(partnerId)}`)
+      .then((r) => {
+        setBrand(r.brand);
+        setName(r.brand?.name ?? "");
+        setLogo(r.brand?.logo ?? null);
+      })
+      .catch(() => {});
+  }, [partnerId]);
+  const pick = (f: File | undefined) => {
+    setErr(null);
+    if (!f) return;
+    if (!/^image\/(png|jpeg|webp)$/.test(f.type)) return setErr("Use a PNG, JPEG or WebP.");
+    if (f.size > 140_000) return setErr("Keep the logo under 140 KB.");
+    const r = new FileReader();
+    r.onload = () => setLogo(String(r.result));
+    r.readAsDataURL(f);
+  };
+  async function save(e: FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setErr(null);
+    try {
+      const r = await api<{ brand: Brand | null }>("/api/brand", { partnerId, name, logo });
+      setBrand(r.brand);
+      toast(r.brand ? "Saved. Your clients see your brand from now on." : "Brand removed.");
+    } catch (error) {
+      setErr((error as Error).message);
+    }
+    setBusy(false);
+  }
+  return (
+    <Panel className="mt-7">
+      <PanelHead title="Your brand" hint="Shown to your clients' people on their training page, in invite emails, and on every evidence pack." />
+      <form onSubmit={save} className="mt-4 grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+        <label className="grid gap-1.5 text-sm">
+          <span className="text-site-mist">Company name, as clients know you</span>
+          <input className={field} value={name} maxLength={60} onChange={(e) => setName(e.target.value)} placeholder="Northbridge IT" />
+        </label>
+        <label className="grid gap-1.5 text-sm">
+          <span className="text-site-mist">Logo (PNG, JPEG or WebP, under 140 KB)</span>
+          <input type="file" accept="image/png,image/jpeg,image/webp" className="text-sm text-site-mist file:mr-3 file:rounded-lg file:border-0 file:bg-white/[0.08] file:px-3 file:py-2 file:text-site-paper" onChange={(e) => pick(e.target.files?.[0])} />
+        </label>
+        <div className="flex items-center gap-4 sm:col-span-2">
+          {logo ? <img src={logo} alt="Your logo" className="h-11 max-w-[190px] rounded-lg bg-white/95 object-contain px-2 py-1" /> : <span className="text-sm text-site-dim">No logo yet.</span>}
+          {logo ? (
+            <button type="button" className={btn.quiet} onClick={() => setLogo(null)}>
+              Remove logo
+            </button>
+          ) : null}
+          <button type="submit" disabled={busy} className={`${btn.primary} ml-auto`}>
+            {busy ? "Saving…" : brand ? "Save changes" : "Save brand"}
+          </button>
+        </div>
+        {err ? <p className="text-sm text-site-alarm sm:col-span-2">{err}</p> : null}
+      </form>
+    </Panel>
   );
 }
 
