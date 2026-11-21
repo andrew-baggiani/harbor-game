@@ -2,39 +2,79 @@ import { useEffect, useState } from "react";
 
 export const CONTACT = "mailto:hello@dryruncyber.com?subject=Dry%20Run%20Cyber%20access";
 
-/** Sticky site header shared by the public pages. */
+const LINKS = [
+  { href: "/#how-it-works", label: "How it works" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/partners", label: "For MSPs" },
+  { href: "/ai-security", label: "AI security guide" },
+];
+
+/** Sticky site header shared by the public pages. Phones get a menu button for the links that don't fit. */
 export function SiteNav() {
   const [scrolled, setScrolled] = useState(false);
+  const [menu, setMenu] = useState(false);
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 24);
     on();
     window.addEventListener("scroll", on, { passive: true });
     return () => window.removeEventListener("scroll", on);
   }, []);
+  useEffect(() => {
+    if (!menu) return;
+    const close = (e: KeyboardEvent) => e.key === "Escape" && setMenu(false);
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
+  }, [menu]);
   return (
     <div
       className={`sticky top-0 z-30 transition-colors duration-300 ${
-        scrolled ? "border-b border-white/[0.06] bg-site-ink/75 backdrop-blur-xl" : "border-b border-transparent"
+        scrolled || menu ? "border-b border-white/[0.06] bg-site-ink/90 backdrop-blur-xl" : "border-b border-transparent"
       }`}
     >
-      <header className="mx-auto flex max-w-[1240px] items-center justify-between gap-6 px-6 py-4 md:px-10 md:py-5">
+      <header className="mx-auto flex max-w-[1320px] items-center justify-between gap-4 px-6 py-3.5 md:px-10 md:py-5">
         <a href="/" aria-label="Dry Run Cyber home" className="shrink-0">
-          <img src="/brand/logo-horizontal.svg" alt="Dry Run Cyber" className="h-9 w-auto sm:h-10 md:h-12" />
+          <img src="/brand/logo-horizontal.svg" alt="Dry Run Cyber" className="h-8 w-auto sm:h-10 md:h-12" />
         </a>
-        <nav aria-label="Primary" className="flex items-center gap-4 whitespace-nowrap text-[15px] text-site-mist sm:gap-7">
-          <a href="/#how-it-works" className="hidden hover:text-site-paper lg:inline">How it works</a>
-          <a href="/pricing" className="hidden hover:text-site-paper md:inline">Pricing</a>
-          <a href="/partners" className="hidden hover:text-site-paper md:inline">For MSPs</a>
-          <a href="/ai-security" className="hidden hover:text-site-paper md:inline">AI security guide</a>
-          <a href="/login" className="hover:text-site-paper">Sign in</a>
+        <nav aria-label="Primary" className="flex items-center gap-3 whitespace-nowrap text-[15px] text-site-mist sm:gap-7">
+          {LINKS.map((l, i) => (
+            <a key={l.href} href={l.href} className={`hidden hover:text-site-paper ${i === 0 ? "lg:inline" : "md:inline"}`}>
+              {l.label}
+            </a>
+          ))}
+          <a href="/login" className="hidden hover:text-site-paper sm:inline">Sign in</a>
           <a
             href="/pricing#waitlist"
-            className="rounded-xl bg-site-violet px-3.5 py-2 font-semibold text-site-paper shadow-[0_8px_30px_-8px_rgba(139,44,245,.7)] transition hover:bg-site-violet-hi sm:px-4"
+            className="rounded-xl border border-site-violet/70 px-3 py-1.5 font-semibold text-site-paper transition hover:border-site-violet-hi hover:bg-site-violet/15 sm:px-4 sm:py-2"
           >
             Join the waitlist
           </a>
+          <button
+            type="button"
+            onClick={() => setMenu((m) => !m)}
+            aria-expanded={menu}
+            aria-controls="site-menu"
+            aria-label={menu ? "Close menu" : "Open menu"}
+            className="-mr-1.5 grid h-10 w-10 place-items-center rounded-lg text-site-paper hover:bg-white/[0.06] md:hidden"
+          >
+            <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              {menu ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+            </svg>
+          </button>
         </nav>
       </header>
+      {menu && (
+        <nav id="site-menu" aria-label="Menu" className="border-t border-white/[0.06] px-6 pb-5 pt-2 md:hidden">
+          <ul className="grid text-[17px]">
+            {[...LINKS, { href: "/login", label: "Sign in" }].map((l) => (
+              <li key={l.href}>
+                <a href={l.href} onClick={() => setMenu(false)} className="block border-b border-white/[0.05] py-3.5 text-site-paper">
+                  {l.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
     </div>
   );
 }

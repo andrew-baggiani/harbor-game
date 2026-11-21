@@ -40,9 +40,6 @@ function Landing() {
       <main id="main">
         <Hero phone={phone} />
         <TryOne />
-        <section aria-label="The game" className="px-6 pb-16 sm:hidden">
-          <HeroFigure active={phone === true} />
-        </section>
         <Night />
         <Later />
         <Evidence />
@@ -73,76 +70,95 @@ function usePhone() {
 function Hero({ phone }: { phone: boolean | null }) {
   return (
     <section aria-labelledby="hero-title" className="hero-glow relative">
-      <div className="relative mx-auto max-w-[1240px] px-6 pb-16 pt-8 sm:pb-24 md:px-10 lg:pb-32 lg:pt-14">
-      <div className="grid items-end gap-8 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
+      <div className="relative mx-auto grid max-w-[1320px] items-center gap-8 px-6 pb-14 pt-4 sm:pb-24 sm:pt-8 md:px-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.12fr)] lg:gap-14 lg:pb-28 lg:pt-12">
         <div>
-          <p className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] py-1.5 pl-2 pr-4 text-[14px] font-semibold text-site-paper backdrop-blur">
+          <p className="mb-5 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] py-1.5 pl-2 pr-4 text-[13px] font-semibold text-site-paper backdrop-blur sm:mb-6 sm:text-[14px]">
             <span className="rounded-full bg-site-mint/15 px-2 py-0.5 text-[12px] text-site-mint">New</span>
-            First-person security awareness training for MSPs
+            First-person security training for MSPs
           </p>
-          <h1 id="hero-title" className="display text-[44px] sm:text-[60px] lg:text-[72px] xl:text-[80px]">
+          <h1 id="hero-title" className="display text-[40px] !leading-[1.04] sm:text-[60px] lg:text-[64px] xl:text-[76px]">
             Rehearse the attack before it's real.
           </h1>
-        </div>
-        <div>
-          <p className="max-w-[32rem] text-lg leading-relaxed text-site-mist">
-            A game your clients' employees actually play, not a video they mute in another tab. A week of night shifts built on real attacks, and
-            every decision recorded against the controls your clients are audited on.
+          <p className="mt-5 max-w-[32rem] text-[17px] leading-relaxed text-site-mist sm:mt-7 sm:text-lg">
+            <span className="sm:hidden">A game your clients' employees actually play, with every decision recorded against the controls they're audited on.</span>
+            <span className="hidden sm:inline">
+              A game your clients' employees actually play, not a video they mute in another tab. A week of night shifts built on real attacks, and
+              every decision recorded against the controls your clients are audited on.
+            </span>
           </p>
-          <div className="mt-8 flex flex-wrap items-center gap-4">
-            <a href="/partners" className={`${btn.primary} w-full justify-center !px-6 !py-3.5 text-base sm:w-auto`}>
+          <div className="mt-7 sm:hidden">
+            <HeroFigure mode="tap" active={phone === true} />
+          </div>
+          <div className="mt-7 flex flex-wrap items-center gap-3 sm:mt-8 sm:gap-4">
+            <a href="/partners" className={`${btn.primary} w-full justify-center !px-6 !py-3 text-base sm:w-auto sm:!py-3.5`}>
               Apply for partner access <Arrow size={17} />
             </a>
-            <a href="#night" className={`${btn.ghost} w-full justify-center !px-6 !py-3.5 text-base sm:w-auto`}>
+            <a href="#night" className={`${btn.ghost} w-full justify-center !px-6 !py-2.5 text-base sm:w-auto sm:!py-3.5`}>
               See what's in a shift
             </a>
           </div>
-          <ul className="mt-7 flex max-w-[34rem] flex-wrap gap-2" aria-label="Mapped frameworks">
-            {["NIST 800-53", "NIST 800-171", "CMMC L2", "HIPAA", "CIS v8.1", "NIST CSF 2.0"].map((f) => (
-              <li key={f}>
-                <Pill tone="dim">{f}</Pill>
-              </li>
-            ))}
-          </ul>
+          <a href="#evidence-title" className="group mt-8 block max-w-[34rem]" aria-label="Mapped frameworks: see a sample record">
+            <span className="text-[13px] text-site-dim transition group-hover:text-site-paper">Every decision maps to the controls your clients are audited on</span>
+            <span className="mt-2.5 flex flex-wrap gap-2">
+              {["NIST 800-53", "NIST 800-171", "CMMC L2", "HIPAA", "CIS v8.1", "NIST CSF 2.0"].map((f) => (
+                <Pill key={f} tone="dim">{f}</Pill>
+              ))}
+            </span>
+          </a>
         </div>
-      </div>
-      <div className="hidden sm:block">
-        <HeroFigure active={phone === false} />
-      </div>
+        <div className="hidden sm:block">
+          <HeroFigure mode="auto" active={phone === false} />
+        </div>
       </div>
     </section>
   );
 }
 
-/** The playable first-person sketch. A still holds the frame until three.js is ready, and only the
- *  copy for the current screen size mounts the scene, so phones never start WebGL above the fold. */
-function HeroFigure({ active }: { active: boolean }) {
+/** The playable first-person sketch. A still holds the frame until three.js is ready. Desktop loads the
+ *  scene on its own; phones show the still with a play button, so WebGL starts only when someone asks. */
+function HeroFigure({ active, mode }: { active: boolean; mode: "auto" | "tap" }) {
   const [Scene, setScene] = useState<typeof import("@/site/RehearsalScene").RehearsalScene | null>(null);
+  const [asked, setAsked] = useState(false);
+  const go = active && (mode === "auto" || asked);
   useEffect(() => {
-    if (!active) return;
+    if (!go) return;
     let live = true;
     void import("@/site/RehearsalScene").then((m) => live && setScene(() => m.RehearsalScene));
     return () => {
       live = false;
     };
-  }, [active]);
+  }, [go]);
   return (
-    <figure className="mt-14 lg:mt-20">
+    <figure>
       <div
         className="brackets lock-in"
-        style={{ "--arm": "clamp(28px, 5vw, 56px)", "--stroke": "clamp(5px, 1vw, 9px)", "--inset": "clamp(-24px, -2.5vw, -12px)" } as React.CSSProperties}
+        style={{ "--arm": "clamp(22px, 4vw, 48px)", "--stroke": "clamp(4px, 0.8vw, 8px)", "--inset": "clamp(-20px, -2vw, -10px)" } as React.CSSProperties}
       >
-        <div className="relative aspect-[4/3] overflow-hidden rounded-[22px] bg-site-ink-2 ring-1 ring-site-violet/40 shadow-[0_40px_120px_-30px_rgba(139,44,245,0.55)] sm:aspect-[16/10] lg:aspect-[21/9]">
+        <div className="relative aspect-[16/10] overflow-hidden rounded-[18px] bg-site-ink-2 ring-1 ring-site-violet/40 shadow-[0_40px_120px_-30px_rgba(139,44,245,0.55)] lg:aspect-[5/4] xl:aspect-[4/3]">
           <img src="/brand/hero-still.webp" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" />
           {Scene ? (
             <div className="absolute inset-0">
               <Scene className="h-full w-full" />
             </div>
+          ) : mode === "tap" ? (
+            <button
+              type="button"
+              onClick={() => setAsked(true)}
+              className="absolute inset-0 grid place-items-center bg-black/25 text-site-paper"
+              aria-label="Play a short sketch of the Monday shift"
+            >
+              <span className="flex items-center gap-2.5 rounded-full border border-white/20 bg-site-ink/80 py-2.5 pl-3 pr-5 text-[15px] font-semibold backdrop-blur">
+                <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+                  <path d="M8 5v14l11-7z" fill="currentColor" />
+                </svg>
+                {asked ? "Loading the shift…" : "Try the Monday shift"}
+              </span>
+            </button>
           ) : null}
         </div>
       </div>
-      <figcaption className="mt-8 min-h-5 text-sm text-site-dim">
-        {Scene ? "A playable sketch of the Monday shift. When a prompt appears, press E or Q, or tap it." : "A sketch of the Monday shift, in first person."}
+      <figcaption className="mt-6 min-h-5 text-sm text-site-dim">
+        {Scene ? "A playable sketch of the Monday shift. When a prompt appears, press E or Q, or tap it." : "Monday, 19:10. The first night shift, in first person."}
       </figcaption>
     </figure>
   );
