@@ -144,6 +144,8 @@ function authPopupPlugin(): Plugin {
 
 /**
  * Own hosting: `DEPLOY_TARGET=cloudflare` builds a Cloudflare Worker (see wrangler.jsonc)
+ * Worker Previews (`wrangler preview`, run on every pull request) need a `previews` block. It has no D1 binding on
+ * purpose, so a Preview can never read or write the production portal database: the portal API answers 503 there.
  * without the Grok-only chrome (the "Created with Grok" badge injector and PWA middleware).
  * Unset, the build is unchanged for the Grok / Vercel deploy.
  */
@@ -178,7 +180,7 @@ export default defineConfig(({ command, isPreview }) => ({
       ? [
           nitro(
             CLOUDFLARE
-              ? { preset: "cloudflare_module", cloudflare: { wrangler: { name: "harbor-game", ai: { binding: "AI" }, ratelimits: [{ name: "CHAT_LIMIT", namespace_id: "1001", simple: { limit: 10, period: 60 } }], d1_databases: [{ binding: "DB", database_name: "dryrun-portal", database_id: "e5af5bcc-b08c-42d6-a30f-36c66d136caa" }] } as Record<string, unknown> } }
+              ? { preset: "cloudflare_module", cloudflare: { wrangler: { name: "harbor-game", ai: { binding: "AI" }, ratelimits: [{ name: "CHAT_LIMIT", namespace_id: "1001", simple: { limit: 10, period: 60 } }], d1_databases: [{ binding: "DB", database_name: "dryrun-portal", database_id: "e5af5bcc-b08c-42d6-a30f-36c66d136caa" }], previews: { ai: { binding: "AI" }, ratelimits: [{ name: "CHAT_LIMIT", namespace_id: "1002", simple: { limit: 10, period: 60 } }] } } as Record<string, unknown> } }
               : {
                   preset: "vercel",
                   // Auto-registers server/middleware/* (the PWA install page +
