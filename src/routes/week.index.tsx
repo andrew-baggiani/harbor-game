@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { AI_ENTRY, TRACK_LIST, WEEK } from "@/game/week";
+import { AGENTS_ENTRY, AI_ENTRY, TRACK_LIST, WEEK } from "@/game/week";
 import { readFinds, readWeek, type WeekRecord } from "@/game/weekplay/progress";
 import { shiftById } from "@/content/week";
 import { FINDS, placeOf } from "@/content/week/play";
@@ -37,7 +37,7 @@ function WeekHub() {
         </Link>
         <h1 className="mt-3 font-display text-5xl sm:text-6xl">The week</h1>
         <p className="mt-3 max-w-xl text-[#d8d2c4]">
-          Five night shifts, two weekend games, an AI shift for everyone, and a short track for whatever your job hands you. Each one maps to its own block of required training.
+          Five night shifts, two weekend games, two AI shifts for everyone, and a short track for whatever your job hands you. Each one maps to its own block of required training.
         </p>
 
         <ol className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -82,6 +82,25 @@ function WeekHub() {
             The assistant you were given, the answers it invents, the apps that want your mailbox, and the people using AI against you.
           </p>
           <p className="mt-2 text-sm text-[#a8a59c]">{AI_ENTRY.topics.replaceAll(" · ", ", ")}.</p>
+        </a>
+
+        <a
+          href={AGENTS_ENTRY.href}
+          className="mt-4 block rounded-2xl border border-[#c4a574]/40 bg-gradient-to-br from-[#c4a574]/[0.10] to-transparent p-6 transition hover:border-[#c4a574]"
+        >
+          <div className="flex items-baseline justify-between gap-2">
+            <span className="font-game text-sm tracking-[0.18em] text-[#c4a574]">{AGENTS_ENTRY.day.toUpperCase()}</span>
+            {done[AGENTS_ENTRY.id]?.passed ? (
+              <span className="font-game text-xs tracking-[0.14em] text-[#8fe0b4]">DONE · {done[AGENTS_ENTRY.id].best}%</span>
+            ) : (
+              <span className="font-game text-xs tracking-[0.14em] text-[#a8a59c]">FOR EVERYONE</span>
+            )}
+          </div>
+          <p className="mt-2 font-display text-3xl">{AGENTS_ENTRY.title}</p>
+          <p className="mt-2 max-w-2xl text-[#d8d2c4]">
+            When the AI stops answering and starts doing: logging in, sending mail, installing connectors and following links. One assistant stars in each scene.
+          </p>
+          <p className="mt-2 text-sm text-[#a8a59c]">{AGENTS_ENTRY.topics.replaceAll(" · ", ", ")}.</p>
         </a>
 
         <h2 className="mt-14 font-display text-3xl">Role tracks</h2>

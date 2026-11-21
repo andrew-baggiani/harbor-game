@@ -22,6 +22,15 @@ export const AI_ENTRY = {
   href: "/week/ai",
 };
 
+/** The second AI shift: agents that log in, send, install and click. One assistant stars in each beat. */
+export const AGENTS_ENTRY = {
+  id: "agents",
+  day: "AI agents",
+  title: "The agents",
+  topics: "ChatGPT agents and your passwords · fake Copilot add-ins · unvetted Claude connectors · a Copilot agent gone rogue · poisoned Gemini summaries · Grok links and paste-this commands",
+  href: "/week/agents",
+};
+
 /** Role-based tracks, assigned per person in the portal. */
 export const TRACK_LIST = [
   { id: "track-admin", day: "Admins", title: "The keys", topics: "MFA storms on admin accounts · vendor admin requests · separate admin accounts · scripts from the internet", href: "/week/track-admin" },

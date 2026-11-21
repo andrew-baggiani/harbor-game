@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ChatWidget } from "@/site/ChatWidget";
 import { SiteFooter, SiteNav, SkipLink } from "@/site/SiteChrome";
-import { AI_ENTRY, WEEK } from "@/game/week";
+import { AGENTS_ENTRY, AI_ENTRY, WEEK } from "@/game/week";
 import phishing from "@/content/scenarios/mon-02-phishing.json";
 import { Arrow, Avatar, Check, Gauge, LiveDot, MiniRing, Pill, btn } from "@/portal/ui";
 
@@ -539,7 +539,7 @@ function ForMsps() {
 
         <h3 className="display mt-16 text-[30px] sm:mt-24 lg:text-[40px]">The whole week</h3>
         <p className="mt-3 max-w-[40rem] text-lg leading-relaxed text-site-mist">
-          Five night shifts, two short weekend games, an AI shift for everyone, and role tracks for admins, finance and the help desk. A one-minute
+          Five night shifts, two short weekend games, two AI shifts for everyone, and role tracks for admins, finance and the help desk. A one-minute
           reminder each month keeps it warm in between.
         </p>
         <ol className="mt-6 -mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-3 [scrollbar-width:none] md:mx-0 md:overflow-visible md:px-0 md:pb-0 md:grid md:grid-cols-2 xl:grid-cols-4">
@@ -565,6 +565,15 @@ function ForMsps() {
               <p className="mt-3 text-lg font-bold" style={{ fontStretch: "112%" }}>{AI_ENTRY.title}</p>
               <p className="mt-1.5 text-[14px] leading-relaxed text-site-dim">
                 Using AI at work without leaking data, trusting an answer it made up, or handing an app your mailbox. Plus the deepfakes.
+              </p>
+            </a>
+          </li>
+          <li className="w-[72%] shrink-0 snap-start md:w-auto">
+            <a href={AGENTS_ENTRY.href} className="panel lift block h-full !p-5 ring-1 ring-site-mint/50">
+              <span className="text-sm font-bold text-site-mint">{AGENTS_ENTRY.day}</span>
+              <p className="mt-3 text-lg font-bold" style={{ fontStretch: "112%" }}>{AGENTS_ENTRY.title}</p>
+              <p className="mt-1.5 text-[14px] leading-relaxed text-site-dim">
+                ChatGPT, Copilot, Claude, Gemini and Grok, when the AI logs in, sends, installs and clicks for you. And when attackers get it to.
               </p>
             </a>
           </li>
