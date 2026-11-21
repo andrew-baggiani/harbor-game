@@ -3,6 +3,7 @@ import { guard, requireAccess } from "@/server/auth";
 import { addLearners, assertOrgAdmin, createMagicLink, createOrg, normEmail, orgDetail, setCampaign, setDisplayName, setLeaderboardEnabled, setTrack, type TrackId } from "@/server/db";
 import { sendMagicLink } from "@/server/email";
 import { bad, isLocal, json, readJson } from "@/server/http";
+import { brandForOrg } from "@/server/brand";
 
 type Body = {
   action?: "create" | "invite" | "remind" | "campaign" | "settings" | "displayName" | "track";
@@ -53,12 +54,13 @@ export const Route = createFileRoute("/api/org")({
             const { added, already } = await addLearners(db, access, body.orgId, emails);
             const origin = new URL(request.url).origin;
             const org = await db.prepare("SELECT name FROM orgs WHERE id = ?").bind(body.orgId).first<{ name: string }>();
+            const brand = await brandForOrg(db, body.orgId);
             const devLinks: Record<string, string> = {};
             let provider = "log";
             for (const u of added) {
               const token = await createMagicLink(db, u.id, body.next && /^\/(reminder|week\/[a-z-]+)$/.test(body.next) ? body.next : "/play");
               const link = `${origin}/api/auth/verify?token=${encodeURIComponent(token)}`;
-              const sent = await sendMagicLink(ctx.env, u.email, link, "invite", org?.name);
+              const sent = await sendMagicLink(ctx.env, u.email, link, "invite", org?.name, brand?.name);
               provider = sent.provider;
               if (sent.provider === "log" && isLocal(request)) devLinks[u.email] = link;
             }
@@ -92,7 +94,7 @@ export const Route = createFileRoute("/api/org")({
               }
               const token = await createMagicLink(db, u.id, body.next && /^\/(reminder|week\/[a-z-]+)$/.test(body.next) ? body.next : "/play");
               const link = `${origin}/api/auth/verify?token=${encodeURIComponent(token)}`;
-              const sent = await sendMagicLink(ctx.env, u.email, link, "invite", org.name);
+              const sent = await sendMagicLink(ctx.env, u.email, link, "invite", org.name, (await brandForOrg(db, body.orgId))?.name);
               if (sent.provider === "log" && isLocal(request)) devLinks[u.email] = link;
               reminded.push(u.email);
             }

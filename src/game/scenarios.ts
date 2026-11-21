@@ -147,14 +147,31 @@ const TENANT: Record<string, string> = {
   REPORT_CHANNEL: "security@harborandco.com",
 };
 
-export function pickVariants() {
+const LAST_KEY = "drc-variants-last";
+
+/** New variants for a run, never repeating the previous run's pick where a scenario has more than one. */
+export function pickVariants(remember = true) {
+  let last: Record<string, number> = {};
+  try {
+    last = JSON.parse(localStorage.getItem(LAST_KEY) ?? "{}");
+  } catch {
+    last = {};
+  }
   for (const scenario of mondayScenarios) {
-    picks[scenario.id] = Math.floor(Math.random() * Math.max(1, scenario.variants.length));
+    const n = Math.max(1, scenario.variants.length);
+    let pick = Math.floor(Math.random() * n);
+    if (n > 1 && pick === last[scenario.id]) pick = (pick + 1 + Math.floor(Math.random() * (n - 1))) % n;
+    picks[scenario.id] = pick;
+  }
+  try {
+    if (remember) localStorage.setItem(LAST_KEY, JSON.stringify(picks));
+  } catch {
+    /* private mode: fine, just random */
   }
   return { ...picks };
 }
 
-pickVariants();
+pickVariants(false);
 
 /** Put back saved variant picks, so a resumed Monday shows the same emails and callers. */
 export function setVariants(saved: Record<string, number>) {

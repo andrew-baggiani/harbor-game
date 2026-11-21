@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CardRouteImport } from './routes/card'
 import { Route as CoverageRouteImport } from './routes/coverage'
 import { Route as DrillsRouteImport } from './routes/drills'
+import { Route as EvidenceRouteImport } from './routes/evidence'
 import { Route as GlossaryRouteImport } from './routes/glossary'
 import { Route as LeadsRouteImport } from './routes/leads'
 import { Route as LoginRouteImport } from './routes/login'
@@ -32,8 +33,10 @@ import { Route as ShiftRouteImport } from './routes/shift'
 import { Route as AiSecurityIndexRouteImport } from './routes/ai-security/index'
 import { Route as AiSecurityPolicyBuilderRouteImport } from './routes/ai-security/policy-builder'
 import { Route as ApiActivityRouteImport } from './routes/api/activity'
+import { Route as ApiBrandRouteImport } from './routes/api/brand'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiEventsRouteImport } from './routes/api/events'
+import { Route as ApiEvidenceRouteImport } from './routes/api/evidence'
 import { Route as ApiExportRouteImport } from './routes/api/export'
 import { Route as ApiLeaderboardRouteImport } from './routes/api/leaderboard'
 import { Route as ApiLeadsRouteImport } from './routes/api/leads'
@@ -71,6 +74,11 @@ const CoverageRoute = CoverageRouteImport.update({
 const DrillsRoute = DrillsRouteImport.update({
   id: '/drills',
   path: '/drills',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EvidenceRoute = EvidenceRouteImport.update({
+  id: '/evidence',
+  path: '/evidence',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GlossaryRoute = GlossaryRouteImport.update({
@@ -168,6 +176,11 @@ const ApiActivityRoute = ApiActivityRouteImport.update({
   path: '/api/activity',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBrandRoute = ApiBrandRouteImport.update({
+  id: '/api/brand',
+  path: '/api/brand',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
@@ -176,6 +189,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
 const ApiEventsRoute = ApiEventsRouteImport.update({
   id: '/api/events',
   path: '/api/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEvidenceRoute = ApiEvidenceRouteImport.update({
+  id: '/api/evidence',
+  path: '/api/evidence',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiExportRoute = ApiExportRouteImport.update({
@@ -274,6 +292,7 @@ export interface FileRoutesByFullPath {
   '/card': typeof CardRoute
   '/coverage': typeof CoverageRoute
   '/drills': typeof DrillsRouteWithChildren
+  '/evidence': typeof EvidenceRoute
   '/glossary': typeof GlossaryRoute
   '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
@@ -292,8 +311,10 @@ export interface FileRoutesByFullPath {
   '/shift': typeof ShiftRoute
   '/ai-security/policy-builder': typeof AiSecurityPolicyBuilderRoute
   '/api/activity': typeof ApiActivityRoute
+  '/api/brand': typeof ApiBrandRoute
   '/api/chat': typeof ApiChatRoute
   '/api/events': typeof ApiEventsRoute
+  '/api/evidence': typeof ApiEvidenceRoute
   '/api/export': typeof ApiExportRoute
   '/api/leaderboard': typeof ApiLeaderboardRoute
   '/api/leads': typeof ApiLeadsRoute
@@ -318,6 +339,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/card': typeof CardRoute
   '/coverage': typeof CoverageRoute
+  '/evidence': typeof EvidenceRoute
   '/glossary': typeof GlossaryRoute
   '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
@@ -335,8 +357,10 @@ export interface FileRoutesByTo {
   '/shift': typeof ShiftRoute
   '/ai-security/policy-builder': typeof AiSecurityPolicyBuilderRoute
   '/api/activity': typeof ApiActivityRoute
+  '/api/brand': typeof ApiBrandRoute
   '/api/chat': typeof ApiChatRoute
   '/api/events': typeof ApiEventsRoute
+  '/api/evidence': typeof ApiEvidenceRoute
   '/api/export': typeof ApiExportRoute
   '/api/leaderboard': typeof ApiLeaderboardRoute
   '/api/leads': typeof ApiLeadsRoute
@@ -363,6 +387,7 @@ export interface FileRoutesById {
   '/card': typeof CardRoute
   '/coverage': typeof CoverageRoute
   '/drills': typeof DrillsRouteWithChildren
+  '/evidence': typeof EvidenceRoute
   '/glossary': typeof GlossaryRoute
   '/leads': typeof LeadsRoute
   '/login': typeof LoginRoute
@@ -381,8 +406,10 @@ export interface FileRoutesById {
   '/shift': typeof ShiftRoute
   '/ai-security/policy-builder': typeof AiSecurityPolicyBuilderRoute
   '/api/activity': typeof ApiActivityRoute
+  '/api/brand': typeof ApiBrandRoute
   '/api/chat': typeof ApiChatRoute
   '/api/events': typeof ApiEventsRoute
+  '/api/evidence': typeof ApiEvidenceRoute
   '/api/export': typeof ApiExportRoute
   '/api/leaderboard': typeof ApiLeaderboardRoute
   '/api/leads': typeof ApiLeadsRoute
@@ -410,6 +437,7 @@ export interface FileRouteTypes {
     | '/card'
     | '/coverage'
     | '/drills'
+    | '/evidence'
     | '/glossary'
     | '/leads'
     | '/login'
@@ -428,8 +456,10 @@ export interface FileRouteTypes {
     | '/shift'
     | '/ai-security/policy-builder'
     | '/api/activity'
+    | '/api/brand'
     | '/api/chat'
     | '/api/events'
+    | '/api/evidence'
     | '/api/export'
     | '/api/leaderboard'
     | '/api/leads'
@@ -454,6 +484,7 @@ export interface FileRouteTypes {
     | '/'
     | '/card'
     | '/coverage'
+    | '/evidence'
     | '/glossary'
     | '/leads'
     | '/login'
@@ -471,8 +502,10 @@ export interface FileRouteTypes {
     | '/shift'
     | '/ai-security/policy-builder'
     | '/api/activity'
+    | '/api/brand'
     | '/api/chat'
     | '/api/events'
+    | '/api/evidence'
     | '/api/export'
     | '/api/leaderboard'
     | '/api/leads'
@@ -498,6 +531,7 @@ export interface FileRouteTypes {
     | '/card'
     | '/coverage'
     | '/drills'
+    | '/evidence'
     | '/glossary'
     | '/leads'
     | '/login'
@@ -516,8 +550,10 @@ export interface FileRouteTypes {
     | '/shift'
     | '/ai-security/policy-builder'
     | '/api/activity'
+    | '/api/brand'
     | '/api/chat'
     | '/api/events'
+    | '/api/evidence'
     | '/api/export'
     | '/api/leaderboard'
     | '/api/leads'
@@ -544,6 +580,7 @@ export interface RootRouteChildren {
   CardRoute: typeof CardRoute
   CoverageRoute: typeof CoverageRoute
   DrillsRoute: typeof DrillsRouteWithChildren
+  EvidenceRoute: typeof EvidenceRoute
   GlossaryRoute: typeof GlossaryRoute
   LeadsRoute: typeof LeadsRoute
   LoginRoute: typeof LoginRoute
@@ -562,8 +599,10 @@ export interface RootRouteChildren {
   ShiftRoute: typeof ShiftRoute
   AiSecurityPolicyBuilderRoute: typeof AiSecurityPolicyBuilderRoute
   ApiActivityRoute: typeof ApiActivityRoute
+  ApiBrandRoute: typeof ApiBrandRoute
   ApiChatRoute: typeof ApiChatRoute
   ApiEventsRoute: typeof ApiEventsRoute
+  ApiEvidenceRoute: typeof ApiEvidenceRoute
   ApiExportRoute: typeof ApiExportRoute
   ApiLeaderboardRoute: typeof ApiLeaderboardRoute
   ApiLeadsRoute: typeof ApiLeadsRoute
@@ -609,6 +648,13 @@ declare module '@tanstack/react-router' {
       path: '/drills'
       fullPath: '/drills'
       preLoaderRoute: typeof DrillsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/evidence': {
+      id: '/evidence'
+      path: '/evidence'
+      fullPath: '/evidence'
+      preLoaderRoute: typeof EvidenceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/glossary': {
@@ -744,6 +790,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiActivityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/brand': {
+      id: '/api/brand'
+      path: '/api/brand'
+      fullPath: '/api/brand'
+      preLoaderRoute: typeof ApiBrandRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/chat': {
       id: '/api/chat'
       path: '/api/chat'
@@ -756,6 +809,13 @@ declare module '@tanstack/react-router' {
       path: '/api/events'
       fullPath: '/api/events'
       preLoaderRoute: typeof ApiEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/evidence': {
+      id: '/api/evidence'
+      path: '/api/evidence'
+      fullPath: '/api/evidence'
+      preLoaderRoute: typeof ApiEvidenceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/export': {
@@ -917,6 +977,7 @@ const rootRouteChildren: RootRouteChildren = {
   CardRoute: CardRoute,
   CoverageRoute: CoverageRoute,
   DrillsRoute: DrillsRouteWithChildren,
+  EvidenceRoute: EvidenceRoute,
   GlossaryRoute: GlossaryRoute,
   LeadsRoute: LeadsRoute,
   LoginRoute: LoginRoute,
@@ -935,8 +996,10 @@ const rootRouteChildren: RootRouteChildren = {
   ShiftRoute: ShiftRoute,
   AiSecurityPolicyBuilderRoute: AiSecurityPolicyBuilderRoute,
   ApiActivityRoute: ApiActivityRoute,
+  ApiBrandRoute: ApiBrandRoute,
   ApiChatRoute: ApiChatRoute,
   ApiEventsRoute: ApiEventsRoute,
+  ApiEvidenceRoute: ApiEvidenceRoute,
   ApiExportRoute: ApiExportRoute,
   ApiLeaderboardRoute: ApiLeaderboardRoute,
   ApiLeadsRoute: ApiLeadsRoute,

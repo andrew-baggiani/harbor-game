@@ -187,7 +187,7 @@ function PortalPage() {
                 onChanged={reloadOrgs}
               />
             ) : null}
-            {view.kind === "learner" ? <LearnerHome orgId={view.id} membership={ms.find((m) => m.role === "learner" && m.orgId === view.id)} /> : null}
+            {view.kind === "learner" ? <LearnerHome orgId={view.id} membership={ms.find((m) => m.role === "learner" && m.orgId === view.id)} brand={me.brand ?? null} /> : null}
           </div>
         </main>
       </div>

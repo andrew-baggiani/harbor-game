@@ -18,12 +18,17 @@ export function falloutList(): Fallout[] {
   return [...active];
 }
 
+/** The night in order, on the game clock, for the end-of-night timeline: each call, and what it set off. */
+export type NightEntry = { minute: number; kind: "call" | "fallout"; who: string; text: string; ok?: boolean };
+export const nightLog: NightEntry[] = [];
+
 /** Warning signs the player didn't catch, for the end-of-night report. */
 export const missedSigns: { beat: string; why: string }[] = [];
 
 export function resetFallout() {
   active.clear();
   missedSigns.length = 0;
+  nightLog.length = 0;
   timers = [];
   clock = 0;
 }

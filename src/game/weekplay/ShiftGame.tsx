@@ -29,6 +29,7 @@ import { HarborStage, MonitorArt, NightStage } from "@/game/weekplay/HarborStage
 import { BakedRoom, setRoomBounds } from "@/game/weekplay/BakedRoom";
 import { SETS } from "@/game/weekplay/sets";
 import { falloutLine, promptLine } from "@/content/week/voices";
+import { runOrder } from "@/game/runOrder";
 import { blip, sayLine, sayLineNext, stopVoices, unlockAudio } from "@/game/audio";
 import { isMusicOn, playSfx, setBed, setBedFor, toggleMusic, warmSounds } from "@/game/sound";
 
@@ -113,6 +114,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
       found,
       onTask: timing.current.onTask,
       exploring: timing.current.exploring,
+      at: pickedAt.current,
     });
   }, [phase, index, picked, flipped, found, result, shift]);
 
@@ -143,6 +145,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
     setPicked(p);
     setFlipped(s.flipped ?? {});
     setFound(s.found ?? {});
+    pickedAt.current = s.at ?? {};
     timing.current.onTask = s.onTask ?? 0;
     timing.current.exploring = s.exploring ?? 0;
     const at = Math.min(s.index, shift.beats.length - 1);
@@ -297,6 +300,8 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
   // Time on the decisions vs. exploring. Exploring = walking away from the gold light, or a few seconds
   // around each poke or find. Reported with the completion so curiosity never reads as slow.
   const timing = useRef({ onTask: 0, exploring: 0, lastDist: Infinity, lastPoke: -1e9, last: 0 });
+  // Seconds into the shift when each decision was made, for the end-of-night timeline.
+  const pickedAt = useRef<Record<string, number>>({});
   const timingSpot = useRef<{ x: number; z: number } | null>(null);
   timingSpot.current = spot ? approach(spot) : null;
   useEffect(() => {
@@ -382,6 +387,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
 
   const choose = (choice: WeekChoice) => {
     const id = beat.scenario.id;
+    pickedAt.current[id] = timing.current.onTask + timing.current.exploring;
     setPicked((p) => ({ ...p, [id]: choice }));
     logDecision(choice.id);
     if (!choice.ok) floorMood.slips += 1;
@@ -725,7 +731,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
       )}
 
       {phase === "debrief" && (
-        <Debrief shift={shift} picked={picked} finds={shiftFinds} found={found} time={{ ...timing.current }} onNext={() => setPhase("check")} />
+        <Debrief shift={shift} picked={picked} at={pickedAt.current} finds={shiftFinds} found={found} time={{ ...timing.current }} onNext={() => setPhase("check")} />
       )}
       {phase === "check" && (
         <Check
@@ -786,7 +792,8 @@ function Overlay({ children }: { children: React.ReactNode }) {
 function Panel({ beat, flipped, pulled, onChoose }: { beat: WeekBeat; flipped: boolean; pulled: boolean; onChoose: (c: WeekChoice) => void }) {
   const img = propImage(beat, flipped);
   const tall = beat.prop?.kind === "phone";
-  const { prompt, choices } = beat.scenario;
+  const { prompt } = beat.scenario;
+  const choices = useMemo(() => runOrder(beat.scenario.choices, (c) => c.id), [beat.scenario.choices]);
   const [zoom, setZoom] = useState(false);
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
@@ -862,9 +869,16 @@ function Panel({ beat, flipped, pulled, onChoose }: { beat: WeekBeat; flipped: b
   );
 }
 
+/** m:ss into the shift. */
+function clock(sec: number) {
+  const s = Math.max(0, Math.round(sec));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+}
+
 function Debrief({
   shift,
   picked,
+  at,
   finds,
   found,
   time,
@@ -872,6 +886,7 @@ function Debrief({
 }: {
   shift: ShiftDef;
   picked: Record<string, WeekChoice>;
+  at: Record<string, number>;
   finds: Find[];
   found: Record<string, true>;
   time: { onTask: number; exploring: number };
@@ -880,20 +895,43 @@ function Debrief({
   const got = finds.filter((f) => found[f.id]);
   return (
     <Overlay>
-      <h2 className="font-display text-3xl">How it went</h2>
-      <ul className="mt-4 space-y-4">
+      <h2 className="font-display text-3xl">Your night</h2>
+      <p className="mt-1 text-sm text-[#a8a59c]">
+        {shift.beats.filter((b) => picked[b.scenario.id]?.ok).length} of {shift.beats.length} calls right. Here's what each one set off.
+      </p>
+      <ol className="relative mt-5 space-y-6 border-l border-white/15 pl-5">
         {shift.beats.map((b) => {
           const c = picked[b.scenario.id];
           const right = b.scenario.choices.find((x) => x.ok);
+          const when = at[b.scenario.id];
+          const steps = c ? (b.timeline?.[c.id] ?? []) : [];
+          const tone = !c ? "#a8a59c" : c.ok ? "#7fd6a8" : "#ff7a66";
           return (
-            <li key={b.scenario.id} className="border-l-2 pl-3" style={{ borderColor: c?.ok ? "#7fd6a8" : "#ff7a66" }}>
-              <p className="font-game text-xs tracking-[0.16em] text-[#a8a59c]">{b.scenario.prompt.who.toUpperCase()}</p>
-              <p className="mt-1">{c ? c.debrief : "Skipped."}</p>
-              {!c?.ok && right && <p className="mt-1 text-sm text-[#8fe0b4]">Next time: {right.label.toLowerCase()}.</p>}
+            <li key={b.scenario.id} className="relative">
+              <span aria-hidden="true" className="absolute -left-[27px] top-1.5 h-3 w-3 rounded-full ring-4 ring-[#0b0c10]" style={{ background: tone }} />
+              <p className="font-game text-xs tracking-[0.16em] text-[#a8a59c]">
+                {when !== undefined && <span className="mr-2 text-[#c4a574]">{clock(when)}</span>}
+                {b.scenario.prompt.who.toUpperCase()}
+              </p>
+              <p className="mt-1 font-semibold" style={{ color: tone }}>
+                {c ? `You: ${c.label}` : "Skipped."}
+              </p>
+              {steps.length > 0 && (
+                <ul className="mt-2 space-y-1.5 border-l border-[#ff7a66]/40 pl-3 text-sm">
+                  {steps.map((st, i) => (
+                    <li key={i} className={st.flip ? "text-[#ffb3a7]" : "text-[#d8d2c4]"}>
+                      {when !== undefined && <span className="mr-2 font-game text-xs tracking-[0.1em] text-[#a8a59c]">{clock(when + (st.at * PACE) / 1000)}</span>}
+                      <span className="font-semibold">{st.who}:</span> {st.text}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {c && <p className="mt-2 text-[15px] text-[#d8d2c4]">{c.debrief}</p>}
+              {c && !c.ok && right && <p className="mt-1 text-sm text-[#8fe0b4]">Next time: {right.label.toLowerCase()}.</p>}
             </li>
           );
         })}
-      </ul>
+      </ol>
       <p className="mt-5 text-sm text-[#a8a59c]">
         On the decisions: {minutes(time.onTask)}. Exploring: {minutes(time.exploring)}. Exploring is recorded separately and never counts against you.
       </p>
@@ -1068,4 +1106,5 @@ type ShiftSave = {
   found: Record<string, true>;
   onTask: number;
   exploring: number;
+  at?: Record<string, number>;
 };

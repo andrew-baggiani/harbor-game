@@ -5,6 +5,7 @@ import { api, type Board, type Learner, type OrgDetail } from "@/site/portal-api
 import { ActivityFeed, clientStatus } from "@/portal/Partner";
 import {
   Avatar,
+  Shield,
   Back,
   Calendar,
   Check,
@@ -132,8 +133,11 @@ export function OrgView({ orgId, tab, setTab, onPartner, backTo, onChanged }: Pr
               <button type="button" className={btn.primary} onClick={() => setInviting(true)}>
                 <Plus /> Invite people
               </button>
+              <a href={`/evidence?org=${encodeURIComponent(orgId)}`} target="_blank" rel="noopener" className={btn.ghost}>
+                <Shield /> Evidence pack (PDF)
+              </a>
               <a href={`/api/export?org=${encodeURIComponent(orgId)}`} className={btn.ghost}>
-                <Download /> Evidence (CSV)
+                <Download /> Decision log (CSV)
               </a>
             </div>
           </div>
