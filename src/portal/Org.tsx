@@ -1,5 +1,6 @@
 // One organization: people, leaderboard, training plan, settings.
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import { BillingCard } from "@/portal/Billing";
 import { AGENTS_ENTRY, AI_ENTRY, TRACK_LIST, WEEK } from "@/game/week";
 import { api, type Board, type Learner, type OrgDetail } from "@/site/portal-api";
 import { ActivityFeed, clientStatus } from "@/portal/Partner";
@@ -559,6 +560,7 @@ function Settings({ orgId, d, onDone }: { orgId: string; d: OrgDetail; onDone: (
           <dd>{d.org.domain ?? "Not set"}</dd>
         </dl>
       </Panel>
+      {d.org.partnerId ? null : <BillingCard orgId={orgId} />}
     </div>
   );
 }

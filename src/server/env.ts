@@ -18,6 +18,9 @@ export type Env = {
   RESEND_API_KEY?: string;
   /** Comma-separated emails that can see leads and approve partners. Defaults to the company inbox. */
   OWNER_EMAILS?: string;
+  /** Stripe restricted key (rk_…) and webhook signing secret (whsec_…). Set as Worker secrets. */
+  STRIPE_SECRET_KEY?: string;
+  STRIPE_WEBHOOK_SECRET?: string;
 };
 
 export async function getEnv(): Promise<Env> {
