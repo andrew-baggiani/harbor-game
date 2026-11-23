@@ -31,12 +31,30 @@ async function customerFor(db: D1Database, stripe: Stripe, owner: Owner, email: 
     .bind(owner.orgId, owner.partnerId)
     .first<{ stripe_customer_id: string }>();
   if (row) return row.stripe_customer_id;
+  // A customer made on an earlier, unfinished checkout: reuse it rather than making another.
+  const key = owner.orgId ? "org_id" : "partner_id";
+  const id = (owner.orgId ?? owner.partnerId ?? "").replace(/[^A-Za-z0-9_]/g, "");
+  const found = await stripe.customers.search({ query: `metadata['${key}']:'${id}'`, limit: 1 }).catch(() => null);
+  if (found?.data[0]) return found.data[0].id;
   const customer = await stripe.customers.create({
     email,
     name,
     metadata: { org_id: owner.orgId ?? "", partner_id: owner.partnerId ?? "" },
   });
   return customer.id;
+}
+
+/** Stripe Tax only calculates once the account has a head office address; until then, check out without tax. */
+let taxReady: { ok: boolean; at: number } | null = null;
+async function taxActive(stripe: Stripe): Promise<boolean> {
+  if (taxReady && Date.now() - taxReady.at < 5 * 60_000) return taxReady.ok;
+  const ok = await stripe.tax.settings
+    .retrieve()
+    .then((t) => t.status === "active")
+    .catch(() => false);
+  taxReady = { ok, at: Date.now() };
+  if (!ok) console.warn("[stripe] Tax settings not active; checkout runs without automatic tax");
+  return ok;
 }
 
 /** Was this email on the waitlist? Waitlist founders get the locked founders price. */
@@ -92,6 +110,7 @@ export async function startCheckout(
   } else throw new Forbidden("orgId or partnerId required");
 
   const customer = await customerFor(db, stripe, owner, a.user.email, name);
+  const tax = await taxActive(stripe);
   const meta = { org_id: owner.orgId ?? "", partner_id: owner.partnerId ?? "", plan };
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
@@ -99,7 +118,7 @@ export async function startCheckout(
     customer_update: { address: "auto", name: "auto" },
     billing_address_collection: "required",
     tax_id_collection: { enabled: true },
-    automatic_tax: { enabled: true },
+    automatic_tax: { enabled: tax },
     line_items: [{ price: await priceId(stripe, plan), quantity, ...(plan === "msp" ? {} : { adjustable_quantity: { enabled: true, minimum: PLAN.minimumLearners, maximum: 10000 } }) }],
     client_reference_id: owner.orgId ?? owner.partnerId ?? undefined,
     metadata: meta,
