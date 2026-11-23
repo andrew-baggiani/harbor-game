@@ -33,6 +33,7 @@ import { Route as ShiftRouteImport } from './routes/shift'
 import { Route as AiSecurityIndexRouteImport } from './routes/ai-security/index'
 import { Route as AiSecurityPolicyBuilderRouteImport } from './routes/ai-security/policy-builder'
 import { Route as ApiActivityRouteImport } from './routes/api/activity'
+import { Route as ApiBillingRouteImport } from './routes/api/billing'
 import { Route as ApiBrandRouteImport } from './routes/api/brand'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiEventsRouteImport } from './routes/api/events'
@@ -55,6 +56,7 @@ import { Route as WeekShiftIdRouteImport } from './routes/week.$shiftId'
 import { Route as ApiAuthRequestRouteImport } from './routes/api/auth.request'
 import { Route as ApiAuthSignoutRouteImport } from './routes/api/auth.signout'
 import { Route as ApiAuthVerifyRouteImport } from './routes/api/auth.verify'
+import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe.webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -176,6 +178,11 @@ const ApiActivityRoute = ApiActivityRouteImport.update({
   path: '/api/activity',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBillingRoute = ApiBillingRouteImport.update({
+  id: '/api/billing',
+  path: '/api/billing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiBrandRoute = ApiBrandRouteImport.update({
   id: '/api/brand',
   path: '/api/brand',
@@ -286,6 +293,11 @@ const ApiAuthVerifyRoute = ApiAuthVerifyRouteImport.update({
   path: '/api/auth/verify',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiStripeWebhookRoute = ApiStripeWebhookRouteImport.update({
+  id: '/api/stripe/webhook',
+  path: '/api/stripe/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -311,6 +323,7 @@ export interface FileRoutesByFullPath {
   '/shift': typeof ShiftRoute
   '/ai-security/policy-builder': typeof AiSecurityPolicyBuilderRoute
   '/api/activity': typeof ApiActivityRoute
+  '/api/billing': typeof ApiBillingRoute
   '/api/brand': typeof ApiBrandRoute
   '/api/chat': typeof ApiChatRoute
   '/api/events': typeof ApiEventsRoute
@@ -334,6 +347,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/request': typeof ApiAuthRequestRoute
   '/api/auth/signout': typeof ApiAuthSignoutRoute
   '/api/auth/verify': typeof ApiAuthVerifyRoute
+  '/api/stripe/webhook': typeof ApiStripeWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -357,6 +371,7 @@ export interface FileRoutesByTo {
   '/shift': typeof ShiftRoute
   '/ai-security/policy-builder': typeof AiSecurityPolicyBuilderRoute
   '/api/activity': typeof ApiActivityRoute
+  '/api/billing': typeof ApiBillingRoute
   '/api/brand': typeof ApiBrandRoute
   '/api/chat': typeof ApiChatRoute
   '/api/events': typeof ApiEventsRoute
@@ -380,6 +395,7 @@ export interface FileRoutesByTo {
   '/api/auth/request': typeof ApiAuthRequestRoute
   '/api/auth/signout': typeof ApiAuthSignoutRoute
   '/api/auth/verify': typeof ApiAuthVerifyRoute
+  '/api/stripe/webhook': typeof ApiStripeWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -406,6 +422,7 @@ export interface FileRoutesById {
   '/shift': typeof ShiftRoute
   '/ai-security/policy-builder': typeof AiSecurityPolicyBuilderRoute
   '/api/activity': typeof ApiActivityRoute
+  '/api/billing': typeof ApiBillingRoute
   '/api/brand': typeof ApiBrandRoute
   '/api/chat': typeof ApiChatRoute
   '/api/events': typeof ApiEventsRoute
@@ -429,6 +446,7 @@ export interface FileRoutesById {
   '/api/auth/request': typeof ApiAuthRequestRoute
   '/api/auth/signout': typeof ApiAuthSignoutRoute
   '/api/auth/verify': typeof ApiAuthVerifyRoute
+  '/api/stripe/webhook': typeof ApiStripeWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -456,6 +474,7 @@ export interface FileRouteTypes {
     | '/shift'
     | '/ai-security/policy-builder'
     | '/api/activity'
+    | '/api/billing'
     | '/api/brand'
     | '/api/chat'
     | '/api/events'
@@ -479,6 +498,7 @@ export interface FileRouteTypes {
     | '/api/auth/request'
     | '/api/auth/signout'
     | '/api/auth/verify'
+    | '/api/stripe/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -502,6 +522,7 @@ export interface FileRouteTypes {
     | '/shift'
     | '/ai-security/policy-builder'
     | '/api/activity'
+    | '/api/billing'
     | '/api/brand'
     | '/api/chat'
     | '/api/events'
@@ -525,6 +546,7 @@ export interface FileRouteTypes {
     | '/api/auth/request'
     | '/api/auth/signout'
     | '/api/auth/verify'
+    | '/api/stripe/webhook'
   id:
     | '__root__'
     | '/'
@@ -550,6 +572,7 @@ export interface FileRouteTypes {
     | '/shift'
     | '/ai-security/policy-builder'
     | '/api/activity'
+    | '/api/billing'
     | '/api/brand'
     | '/api/chat'
     | '/api/events'
@@ -573,6 +596,7 @@ export interface FileRouteTypes {
     | '/api/auth/request'
     | '/api/auth/signout'
     | '/api/auth/verify'
+    | '/api/stripe/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -599,6 +623,7 @@ export interface RootRouteChildren {
   ShiftRoute: typeof ShiftRoute
   AiSecurityPolicyBuilderRoute: typeof AiSecurityPolicyBuilderRoute
   ApiActivityRoute: typeof ApiActivityRoute
+  ApiBillingRoute: typeof ApiBillingRoute
   ApiBrandRoute: typeof ApiBrandRoute
   ApiChatRoute: typeof ApiChatRoute
   ApiEventsRoute: typeof ApiEventsRoute
@@ -618,6 +643,7 @@ export interface RootRouteChildren {
   ApiAuthRequestRoute: typeof ApiAuthRequestRoute
   ApiAuthSignoutRoute: typeof ApiAuthSignoutRoute
   ApiAuthVerifyRoute: typeof ApiAuthVerifyRoute
+  ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -790,6 +816,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiActivityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/billing': {
+      id: '/api/billing'
+      path: '/api/billing'
+      fullPath: '/api/billing'
+      preLoaderRoute: typeof ApiBillingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/brand': {
       id: '/api/brand'
       path: '/api/brand'
@@ -944,6 +977,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthVerifyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/stripe/webhook': {
+      id: '/api/stripe/webhook'
+      path: '/api/stripe/webhook'
+      fullPath: '/api/stripe/webhook'
+      preLoaderRoute: typeof ApiStripeWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -996,6 +1036,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShiftRoute: ShiftRoute,
   AiSecurityPolicyBuilderRoute: AiSecurityPolicyBuilderRoute,
   ApiActivityRoute: ApiActivityRoute,
+  ApiBillingRoute: ApiBillingRoute,
   ApiBrandRoute: ApiBrandRoute,
   ApiChatRoute: ApiChatRoute,
   ApiEventsRoute: ApiEventsRoute,
@@ -1015,6 +1056,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthRequestRoute: ApiAuthRequestRoute,
   ApiAuthSignoutRoute: ApiAuthSignoutRoute,
   ApiAuthVerifyRoute: ApiAuthVerifyRoute,
+  ApiStripeWebhookRoute: ApiStripeWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

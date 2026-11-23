@@ -42,7 +42,8 @@ export async function orgPlan(
   const sub = await latestSub(db, orgId);
   if (!sub) return { limit: null, active: true, plan: null, trialEndsAt: null };
   const expired = sub.status === "trialing" && !!sub.trial_ends_at && sub.trial_ends_at < now();
-  const active = !expired && (sub.status === "active" || sub.status === "trialing");
+  // past_due keeps access while Stripe retries the card.
+  const active = !expired && (sub.status === "active" || sub.status === "trialing" || sub.status === "past_due");
   return { limit: active ? (sub.seats ?? null) : 0, active, plan: sub.plan, trialEndsAt: sub.trial_ends_at };
 }
 

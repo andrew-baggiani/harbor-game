@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { api, type Activity, type Brand, type PartnerOrg } from "@/site/portal-api";
 import type { OrgTab } from "@/portal/Org";
+import { BillingCard } from "@/portal/Billing";
 import {
   Arrow,
   Avatar,
@@ -479,6 +480,7 @@ function Evidence({ orgs, openOrg, partnerId }: Props) {
         )}
       </Panel>
       <BrandCard partnerId={partnerId} />
+      <BillingCard partnerId={partnerId} />
     </div>
   );
 }
