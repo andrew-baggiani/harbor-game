@@ -30,6 +30,7 @@ import { Route as ResultRouteImport } from './routes/result'
 import { Route as ReviewRouteImport } from './routes/review'
 import { Route as SampleRecordRouteImport } from './routes/sample-record'
 import { Route as ShiftRouteImport } from './routes/shift'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AiSecurityIndexRouteImport } from './routes/ai-security/index'
 import { Route as AiSecurityPolicyBuilderRouteImport } from './routes/ai-security/policy-builder'
 import { Route as ApiActivityRouteImport } from './routes/api/activity'
@@ -161,6 +162,11 @@ const SampleRecordRoute = SampleRecordRouteImport.update({
 const ShiftRoute = ShiftRouteImport.update({
   id: '/shift',
   path: '/shift',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AiSecurityIndexRoute = AiSecurityIndexRouteImport.update({
@@ -321,6 +327,7 @@ export interface FileRoutesByFullPath {
   '/review': typeof ReviewRoute
   '/sample-record': typeof SampleRecordRoute
   '/shift': typeof ShiftRoute
+  '/terms': typeof TermsRoute
   '/ai-security/policy-builder': typeof AiSecurityPolicyBuilderRoute
   '/api/activity': typeof ApiActivityRoute
   '/api/billing': typeof ApiBillingRoute
@@ -369,6 +376,7 @@ export interface FileRoutesByTo {
   '/review': typeof ReviewRoute
   '/sample-record': typeof SampleRecordRoute
   '/shift': typeof ShiftRoute
+  '/terms': typeof TermsRoute
   '/ai-security/policy-builder': typeof AiSecurityPolicyBuilderRoute
   '/api/activity': typeof ApiActivityRoute
   '/api/billing': typeof ApiBillingRoute
@@ -420,6 +428,7 @@ export interface FileRoutesById {
   '/review': typeof ReviewRoute
   '/sample-record': typeof SampleRecordRoute
   '/shift': typeof ShiftRoute
+  '/terms': typeof TermsRoute
   '/ai-security/policy-builder': typeof AiSecurityPolicyBuilderRoute
   '/api/activity': typeof ApiActivityRoute
   '/api/billing': typeof ApiBillingRoute
@@ -472,6 +481,7 @@ export interface FileRouteTypes {
     | '/review'
     | '/sample-record'
     | '/shift'
+    | '/terms'
     | '/ai-security/policy-builder'
     | '/api/activity'
     | '/api/billing'
@@ -520,6 +530,7 @@ export interface FileRouteTypes {
     | '/review'
     | '/sample-record'
     | '/shift'
+    | '/terms'
     | '/ai-security/policy-builder'
     | '/api/activity'
     | '/api/billing'
@@ -570,6 +581,7 @@ export interface FileRouteTypes {
     | '/review'
     | '/sample-record'
     | '/shift'
+    | '/terms'
     | '/ai-security/policy-builder'
     | '/api/activity'
     | '/api/billing'
@@ -621,6 +633,7 @@ export interface RootRouteChildren {
   ReviewRoute: typeof ReviewRoute
   SampleRecordRoute: typeof SampleRecordRoute
   ShiftRoute: typeof ShiftRoute
+  TermsRoute: typeof TermsRoute
   AiSecurityPolicyBuilderRoute: typeof AiSecurityPolicyBuilderRoute
   ApiActivityRoute: typeof ApiActivityRoute
   ApiBillingRoute: typeof ApiBillingRoute
@@ -793,6 +806,13 @@ declare module '@tanstack/react-router' {
       path: '/shift'
       fullPath: '/shift'
       preLoaderRoute: typeof ShiftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ai-security/': {
@@ -1034,6 +1054,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReviewRoute: ReviewRoute,
   SampleRecordRoute: SampleRecordRoute,
   ShiftRoute: ShiftRoute,
+  TermsRoute: TermsRoute,
   AiSecurityPolicyBuilderRoute: AiSecurityPolicyBuilderRoute,
   ApiActivityRoute: ApiActivityRoute,
   ApiBillingRoute: ApiBillingRoute,

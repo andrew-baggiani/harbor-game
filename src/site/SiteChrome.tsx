@@ -136,6 +136,9 @@ export function SiteFooter() {
             <a href="/privacy" className="hover:text-site-paper">
               Privacy
             </a>
+            <a href="/terms" className="hover:text-site-paper">
+              Terms
+            </a>
             <a href="/login" className="hover:text-site-paper">
               Partner sign in
             </a>
