@@ -34,6 +34,9 @@ export function Shell({ children }: { children: ReactNode }) {
   const into = next ? Math.min(100, Math.round(((xp - current.min) / span) * 100)) : 100;
   useHydratedProgress();
 
+  const LEGACY = ["/path", "/drills", "/lesson", "/glossary", "/record", "/review", "/result", "/card", "/shift", "/night", "/lab/mail"];
+  const legacy = LEGACY.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  if (!legacy && pathname !== "/play") return <>{children}</>;
   if (pathname === "/" || pathname === "/coverage" || pathname === "/login" || pathname === "/portal" || pathname === "/sample-record" || pathname === "/pricing" || pathname === "/partners" || pathname === "/leads" || pathname === "/evidence" || pathname === "/privacy" || pathname === "/terms" || pathname.startsWith("/ai-security") || pathname.startsWith("/week") || pathname === "/reminder" || pathname.startsWith("/lab/cast")) return <>{children}</>;
   if (pathname === "/play") {
     return <div className="h-dvh w-full overflow-hidden bg-[#07090e] text-fg">{children}</div>;

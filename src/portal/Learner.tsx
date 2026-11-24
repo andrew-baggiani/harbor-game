@@ -1,10 +1,10 @@
 // A learner's home, and the first-run setup for someone with no workspace yet.
 import { useState, type FormEvent } from "react";
-import { WEEK } from "@/game/week";
+import { AGENTS_ENTRY, AI_ENTRY, WEEK } from "@/game/week";
 import { api, type Brand, type Membership } from "@/site/portal-api";
 import { Podium, useBoard } from "@/portal/Org";
 import type { View } from "@/routes/portal";
-import { Building, LiveDot, Lock, Panel, PanelHead, Pill, Play, SCENARIOS, Users, btn, field, useToast } from "@/portal/ui";
+import { Building, LiveDot, Panel, PanelHead, Pill, Play, SCENARIOS, Users, btn, field, useToast } from "@/portal/ui";
 
 export function LearnerHome({ orgId, membership, brand }: { orgId: string; membership?: Membership; brand?: Brand | null }) {
   const board = useBoard(orgId);
@@ -91,16 +91,18 @@ export function LearnerHome({ orgId, membership, brand }: { orgId: string; membe
             </ul>
           </Panel>
           <Panel>
-            <PanelHead title="Later this week" />
-            <ul className="mt-4 space-y-2.5">
-              {WEEK.filter((w) => w.status === "soon").map((w) => (
-                <li key={w.day} className="flex items-center justify-between gap-3 text-[14.5px]">
-                  <span>
-                    <b>{w.day}</b> <span className="text-site-dim">· {w.title}</span>
-                  </span>
-                  <Pill tone="dim">
-                    <Lock size={12} /> Soon
-                  </Pill>
+            <PanelHead title="The rest of the week" hint="Each one is a short shift on its own. Play them in any order." />
+            <ul className="mt-4 space-y-1">
+              {[...WEEK.filter((w) => w.day !== "Monday"), AI_ENTRY, AGENTS_ENTRY].map((w) => (
+                <li key={w.href}>
+                  <a href={w.href} className="-mx-2 flex items-center justify-between gap-3 rounded-lg px-2 py-2 text-[14.5px] transition hover:bg-white/[0.04]">
+                    <span className="min-w-0 truncate">
+                      <b>{w.day}</b> <span className="text-site-dim">· {w.title}</span>
+                    </span>
+                    <span className="inline-flex shrink-0 items-center gap-1 text-[13px] font-semibold text-site-violet-hi">
+                      <Play size={13} /> Play
+                    </span>
+                  </a>
                 </li>
               ))}
             </ul>

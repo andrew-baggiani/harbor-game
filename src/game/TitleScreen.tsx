@@ -1,7 +1,6 @@
 import { readMondaySave, restoreMonday } from "@/game/mondaySave";
 import { ago, clearSave } from "@/game/save";
 import { Briefing, needsBriefing } from "@/game/Briefing";
-import { Link } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { blip, say, unlockAudio } from "@/game/audio";
 import { useHarbor } from "@/game/state";
@@ -69,7 +68,7 @@ export function TitleScreen() {
         start();
       },
     },
-    { label: "The week", note: "5 shifts", act: () => setPanel("week") },
+    { label: "The week", note: `${WEEK.length} days + AI`, act: () => setPanel("week") },
     { label: "How to play", act: () => setPanel("controls") },
   ];
 
@@ -155,12 +154,12 @@ export function TitleScreen() {
                     {it.note && <span className="font-game text-sm tracking-[0.18em] text-[#a8a59c] uppercase">{it.note}</span>}
                   </button>
                 ))}
-                <Link
-                  to="/record"
+                <a
+                  href="/portal"
                   className="flex min-h-12 items-center px-5 font-game text-lg tracking-wide text-[#a8a59c] uppercase hover:text-white"
                 >
-                  Training record
-                </Link>
+                  Your training record
+                </a>
               </nav>
             </>
           )}
@@ -170,7 +169,7 @@ export function TitleScreen() {
               <p className="font-game text-sm font-semibold tracking-[0.3em]" style={{ color: GOLD }}>
                 WEEK 1
               </p>
-              <h2 className="mt-1 font-game text-6xl font-bold uppercase">Five shifts</h2>
+              <h2 className="mt-1 font-game text-6xl font-bold uppercase">The week</h2>
               <p className="mt-3 max-w-md text-[#d9d4c8]">
                 One night a day, about 20 minutes each. Every shift covers a block of the training your company is required to
                 give. Finish the week for your certificate.

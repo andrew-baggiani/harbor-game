@@ -11,7 +11,6 @@ import { useProgress } from "@react-three/drei";
 import { EffectComposer, Bloom, Vignette, ToneMapping, SMAA, BrightnessContrast, HueSaturation } from "@react-three/postprocessing";
 import { ToneMappingMode } from "postprocessing";
 import * as THREE from "three";
-import { Link } from "@tanstack/react-router";
 import { Marker, People, Rain, Rig, Sky, Trail } from "@/game/draw";
 import { HarborWorld } from "@/game/scenery";
 import { DeskScreen } from "@/game/mail/DeskScreen";
@@ -716,21 +715,18 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
         <div className="absolute inset-0 flex items-center justify-center bg-[#07090e]/70 p-4">
           <div className="w-full max-w-xs border border-white/10 bg-[#0c0d0f] p-6">
             <p className="text-[10px] tracking-[0.24em] text-[#c4a574]">PAUSED</p>
-            <p className="mt-2 font-display text-4xl">Harbor</p>
+            <p className="mt-2 font-display text-4xl">Monday</p>
             <p className="mt-2 text-sm text-[#a8a59c]">Progress is saved. Time paused doesn't count.</p>
             <div className="mt-5 flex flex-col border-t border-white/10">
               <button type="button" className="min-h-12 border-b border-white/10 text-left" onClick={() => useHarbor.getState().setPaused(false)}>
                 Resume
               </button>
-              <Link to="/path" className="flex min-h-12 items-center border-b border-white/10">
-                Field manual
-              </Link>
-              <Link to="/drills" className="flex min-h-12 items-center border-b border-white/10">
-                Drills
-              </Link>
-              <Link to="/record" className="flex min-h-12 items-center">
-                Record
-              </Link>
+              <a href="/week" className="flex min-h-12 items-center border-b border-white/10">
+                The week
+              </a>
+              <a href="/portal" className="flex min-h-12 items-center">
+                Your training record
+              </a>
             </div>
           </div>
         </div>
