@@ -71,4 +71,4 @@ invented clauses, fake extensions, deepfake candidates. Wednesday still owns the
 | `wk-ag-gem-call-1` | Jack (fake caller) | t6ObT14qEgsibJV4Bx9o |
 | `wk-AG-06-grok` | Benjamin | 8xtpTqZDeLvohrei6UGr |
 
-Until the mp3s are in `public/voice/v2/`, the game reads these lines with the browser voice, as it does for any missing file.
+All eight mp3s are in `public/voice/v2/` (added Nov 24, 2026).
