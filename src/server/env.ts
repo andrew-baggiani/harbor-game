@@ -21,6 +21,11 @@ export type Env = {
   /** Stripe restricted key (rk_…) and webhook signing secret (whsec_…). Set as Worker secrets. */
   STRIPE_SECRET_KEY?: string;
   STRIPE_WEBHOOK_SECRET?: string;
+  /** Sign in with Microsoft (Entra app registration) and Google (OAuth client). Worker secrets. */
+  MS_CLIENT_ID?: string;
+  MS_CLIENT_SECRET?: string;
+  GOOGLE_CLIENT_ID?: string;
+  GOOGLE_CLIENT_SECRET?: string;
 };
 
 export async function getEnv(): Promise<Env> {

@@ -54,10 +54,13 @@ import { Route as PathIndexRouteImport } from './routes/path.index'
 import { Route as PathModuleIdRouteImport } from './routes/path.$moduleId'
 import { Route as WeekIndexRouteImport } from './routes/week.index'
 import { Route as WeekShiftIdRouteImport } from './routes/week.$shiftId'
+import { Route as ApiAuthProvidersRouteImport } from './routes/api/auth.providers'
 import { Route as ApiAuthRequestRouteImport } from './routes/api/auth.request'
 import { Route as ApiAuthSignoutRouteImport } from './routes/api/auth.signout'
 import { Route as ApiAuthVerifyRouteImport } from './routes/api/auth.verify'
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe.webhook'
+import { Route as ApiAuthOauthCallbackRouteImport } from './routes/api/auth.oauth.callback'
+import { Route as ApiAuthOauthStartRouteImport } from './routes/api/auth.oauth.start'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -284,6 +287,11 @@ const WeekShiftIdRoute = WeekShiftIdRouteImport.update({
   path: '/week/$shiftId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthProvidersRoute = ApiAuthProvidersRouteImport.update({
+  id: '/api/auth/providers',
+  path: '/api/auth/providers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthRequestRoute = ApiAuthRequestRouteImport.update({
   id: '/api/auth/request',
   path: '/api/auth/request',
@@ -302,6 +310,16 @@ const ApiAuthVerifyRoute = ApiAuthVerifyRouteImport.update({
 const ApiStripeWebhookRoute = ApiStripeWebhookRouteImport.update({
   id: '/api/stripe/webhook',
   path: '/api/stripe/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthOauthCallbackRoute = ApiAuthOauthCallbackRouteImport.update({
+  id: '/api/auth/oauth/callback',
+  path: '/api/auth/oauth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthOauthStartRoute = ApiAuthOauthStartRouteImport.update({
+  id: '/api/auth/oauth/start',
+  path: '/api/auth/oauth/start',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -351,10 +369,13 @@ export interface FileRoutesByFullPath {
   '/drills/': typeof DrillsIndexRoute
   '/path/': typeof PathIndexRoute
   '/week/': typeof WeekIndexRoute
+  '/api/auth/providers': typeof ApiAuthProvidersRoute
   '/api/auth/request': typeof ApiAuthRequestRoute
   '/api/auth/signout': typeof ApiAuthSignoutRoute
   '/api/auth/verify': typeof ApiAuthVerifyRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
+  '/api/auth/oauth/callback': typeof ApiAuthOauthCallbackRoute
+  '/api/auth/oauth/start': typeof ApiAuthOauthStartRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -400,10 +421,13 @@ export interface FileRoutesByTo {
   '/drills': typeof DrillsIndexRoute
   '/path': typeof PathIndexRoute
   '/week': typeof WeekIndexRoute
+  '/api/auth/providers': typeof ApiAuthProvidersRoute
   '/api/auth/request': typeof ApiAuthRequestRoute
   '/api/auth/signout': typeof ApiAuthSignoutRoute
   '/api/auth/verify': typeof ApiAuthVerifyRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
+  '/api/auth/oauth/callback': typeof ApiAuthOauthCallbackRoute
+  '/api/auth/oauth/start': typeof ApiAuthOauthStartRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -452,10 +476,13 @@ export interface FileRoutesById {
   '/drills/': typeof DrillsIndexRoute
   '/path/': typeof PathIndexRoute
   '/week/': typeof WeekIndexRoute
+  '/api/auth/providers': typeof ApiAuthProvidersRoute
   '/api/auth/request': typeof ApiAuthRequestRoute
   '/api/auth/signout': typeof ApiAuthSignoutRoute
   '/api/auth/verify': typeof ApiAuthVerifyRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
+  '/api/auth/oauth/callback': typeof ApiAuthOauthCallbackRoute
+  '/api/auth/oauth/start': typeof ApiAuthOauthStartRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -505,10 +532,13 @@ export interface FileRouteTypes {
     | '/drills/'
     | '/path/'
     | '/week/'
+    | '/api/auth/providers'
     | '/api/auth/request'
     | '/api/auth/signout'
     | '/api/auth/verify'
     | '/api/stripe/webhook'
+    | '/api/auth/oauth/callback'
+    | '/api/auth/oauth/start'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -554,10 +584,13 @@ export interface FileRouteTypes {
     | '/drills'
     | '/path'
     | '/week'
+    | '/api/auth/providers'
     | '/api/auth/request'
     | '/api/auth/signout'
     | '/api/auth/verify'
     | '/api/stripe/webhook'
+    | '/api/auth/oauth/callback'
+    | '/api/auth/oauth/start'
   id:
     | '__root__'
     | '/'
@@ -605,10 +638,13 @@ export interface FileRouteTypes {
     | '/drills/'
     | '/path/'
     | '/week/'
+    | '/api/auth/providers'
     | '/api/auth/request'
     | '/api/auth/signout'
     | '/api/auth/verify'
     | '/api/stripe/webhook'
+    | '/api/auth/oauth/callback'
+    | '/api/auth/oauth/start'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -653,10 +689,13 @@ export interface RootRouteChildren {
   WeekShiftIdRoute: typeof WeekShiftIdRoute
   AiSecurityIndexRoute: typeof AiSecurityIndexRoute
   WeekIndexRoute: typeof WeekIndexRoute
+  ApiAuthProvidersRoute: typeof ApiAuthProvidersRoute
   ApiAuthRequestRoute: typeof ApiAuthRequestRoute
   ApiAuthSignoutRoute: typeof ApiAuthSignoutRoute
   ApiAuthVerifyRoute: typeof ApiAuthVerifyRoute
   ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
+  ApiAuthOauthCallbackRoute: typeof ApiAuthOauthCallbackRoute
+  ApiAuthOauthStartRoute: typeof ApiAuthOauthStartRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -976,6 +1015,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WeekShiftIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/providers': {
+      id: '/api/auth/providers'
+      path: '/api/auth/providers'
+      fullPath: '/api/auth/providers'
+      preLoaderRoute: typeof ApiAuthProvidersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/request': {
       id: '/api/auth/request'
       path: '/api/auth/request'
@@ -1002,6 +1048,20 @@ declare module '@tanstack/react-router' {
       path: '/api/stripe/webhook'
       fullPath: '/api/stripe/webhook'
       preLoaderRoute: typeof ApiStripeWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/oauth/callback': {
+      id: '/api/auth/oauth/callback'
+      path: '/api/auth/oauth/callback'
+      fullPath: '/api/auth/oauth/callback'
+      preLoaderRoute: typeof ApiAuthOauthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/oauth/start': {
+      id: '/api/auth/oauth/start'
+      path: '/api/auth/oauth/start'
+      fullPath: '/api/auth/oauth/start'
+      preLoaderRoute: typeof ApiAuthOauthStartRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -1074,10 +1134,13 @@ const rootRouteChildren: RootRouteChildren = {
   WeekShiftIdRoute: WeekShiftIdRoute,
   AiSecurityIndexRoute: AiSecurityIndexRoute,
   WeekIndexRoute: WeekIndexRoute,
+  ApiAuthProvidersRoute: ApiAuthProvidersRoute,
   ApiAuthRequestRoute: ApiAuthRequestRoute,
   ApiAuthSignoutRoute: ApiAuthSignoutRoute,
   ApiAuthVerifyRoute: ApiAuthVerifyRoute,
   ApiStripeWebhookRoute: ApiStripeWebhookRoute,
+  ApiAuthOauthCallbackRoute: ApiAuthOauthCallbackRoute,
+  ApiAuthOauthStartRoute: ApiAuthOauthStartRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
