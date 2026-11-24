@@ -107,13 +107,13 @@ function LoginPage() {
       {providers.microsoft || providers.google ? (
         <div className="mt-7 grid gap-3">
           {providers.microsoft ? (
-            <a href={`/api/auth/oauth/start?provider=microsoft&next=${encodeURIComponent(next)}`} className={`${btn.ghost} w-full justify-center !py-3.5 text-[16px]`}>
-              Sign in with Microsoft
+            <a href={`/api/auth/oauth/start?provider=microsoft&next=${encodeURIComponent(next)}`} className="inline-flex w-fit rounded-[3px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-site-mint">
+              <img src="/brand/sso/microsoft-signin-dark.svg" alt="Sign in with Microsoft" width={215} height={41} className="h-[41px] w-[215px]" />
             </a>
           ) : null}
           {providers.google ? (
-            <a href={`/api/auth/oauth/start?provider=google&next=${encodeURIComponent(next)}`} className={`${btn.ghost} w-full justify-center !py-3.5 text-[16px]`}>
-              Sign in with Google
+            <a href={`/api/auth/oauth/start?provider=google&next=${encodeURIComponent(next)}`} className="inline-flex w-fit rounded-[4px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-site-mint">
+              <img src="/brand/sso/google-signin-dark.svg" alt="Sign in with Google" width={185} height={41} className="h-[41px] w-[185px]" />
             </a>
           ) : null}
           <div className="mt-2 flex items-center gap-3 text-xs text-site-dim" aria-hidden="true">
