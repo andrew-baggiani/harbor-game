@@ -108,7 +108,7 @@ function LoginPage() {
         <div className="mt-7 grid gap-3">
           {providers.microsoft ? (
             <a href={`/api/auth/oauth/start?provider=microsoft&next=${encodeURIComponent(next)}`} className="inline-flex w-fit rounded-[3px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-site-mint">
-              <img src="/brand/sso/microsoft-signin-dark.png" alt="Sign in with Microsoft" width={215} height={41} className="h-[41px] w-[215px]" />
+              <img src="/brand/sso/microsoft-signin-dark.svg" alt="Sign in with Microsoft" width={215} height={41} className="h-[41px] w-[215px]" />
             </a>
           ) : null}
           {providers.google ? (
