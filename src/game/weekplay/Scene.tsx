@@ -318,7 +318,7 @@ export function Walker({
       player,
       target,
       // Free-space probe for placing set dressing: true where a walker of radius r can't stand.
-      blocked: (x: number, z: number, r = 0.05) => (set.harbor ? blocked(x, z, set.harbor.y, r) : false),
+      blocked: (x: number, z: number, r = 0.05) => (set.harbor ? blocked(x, z, set.harbor.y, r) : set.baked ? roomBlocked(x, z, 0, r) : blockedIn(set, x, z)),
       // Top surface under (x, z), searching down from `from`: for setting props on desks and counters.
       height: (x: number, z: number, from = (set.harbor?.y ?? 0) + 2.2) => {
         probe.set(new THREE.Vector3(x, from, z), new THREE.Vector3(0, -1, 0));
@@ -381,14 +381,27 @@ export function Walker({
       player.near = near;
       onNear(near);
     }
-    // The beat always wins; optional things only offer themselves when the beat isn't in reach.
+    // Things sit close together (a printer beside a shredder beside a bin), so the one you're
+    // looking at wins over the one that happens to be a few centimetres nearer. The beat wins
+    // whenever it's in reach, unless you've clearly turned to look at something else.
     let item: string | null = null;
-    if (!near && onItem) {
+    if (onItem) {
+      const fx = -Math.sin(player.yaw), fz = -Math.cos(player.yaw);
+      const facingTo = (x: number, z: number) => {
+        const dx = x - player.x, dz = z - player.z;
+        const d = Math.hypot(dx, dz);
+        return d < 0.05 ? 1 : (dx * fx + dz * fz) / d;
+      };
+      const beatFacing = near && target ? facingTo(target.lx ?? target.x, target.lz ?? target.z) : -Infinity;
       let best = Infinity;
       for (const it of items) {
-        const d = Math.hypot(player.x - it.x, player.z - it.z);
-        if (d < it.r && d < best) {
-          best = d;
+        const d = Math.hypot(it.x - player.x, it.z - player.z);
+        if (d >= it.r) continue;
+        const facing = facingTo(it.x, it.z);
+        if (near && (facing < 0.75 || facing < beatFacing + 0.3)) continue;
+        const score = d + 1.6 * (1 - facing);
+        if (score < best) {
+          best = score;
           item = it.id;
         }
       }

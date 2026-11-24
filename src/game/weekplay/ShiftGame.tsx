@@ -377,8 +377,8 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if ((e.code === "KeyE" || e.code === "Enter" || e.code === "Space") && phase === "play" && !player.paused) {
-        if (near) open();
-        else if (nearItem) pokeItem(nearItem);
+        if (nearItem) pokeItem(nearItem);
+        else if (near) open();
       }
     };
     window.addEventListener("keydown", key);
@@ -624,7 +624,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
         ))}
       </div>
 
-      {phase === "play" && near && (
+      {phase === "play" && near && !nearItem && (
         <button
           type="button"
           onClick={open}
@@ -634,7 +634,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
         </button>
       )}
 
-      {phase === "play" && !near && nearItem && (itemToy || itemFind) && (
+      {phase === "play" && nearItem && (itemToy || itemFind) && (
         <button
           type="button"
           onClick={() => pokeItem(nearItem)}

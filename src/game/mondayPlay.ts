@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { CAB_TOY, MONDAY_FINDS, MONDAY_TOYS, findLineId, toyLineId, toySfx } from "@/content/week/play";
-import { blip, sayLine } from "@/game/audio";
+import { blip, caption, sayLine } from "@/game/audio";
+import { useHarbor, world } from "@/game/state";
 import { playSfx } from "@/game/sound";
 
 /**
@@ -8,14 +9,33 @@ import { playSfx } from "@/game/sound";
  * lobby, minus the finds Monday already teaches as beats. The sim offers them only when no beat is in reach.
  */
 
-type MondayPlay = { found: Record<string, true>; reset: () => void };
+type Burst = { key: number; x: number; y: number; z: number; floor: number };
+type MondayPlay = { found: Record<string, true>; bursts: Burst[]; reset: () => void };
 export const useMondayPlay = create<MondayPlay>((set) => ({
   found: {},
+  bursts: [],
   reset: () => {
     for (const k of Object.keys(presses)) delete presses[k];
-    set({ found: {} });
+    set({ found: {}, bursts: [] });
   },
 }));
+
+/**
+ * Toy lines are chatter, and chatter stays quiet while the story is talking. The line still goes up on
+ * screen, so a press never does nothing.
+ */
+function showIfSilent(who: string, text: string) {
+  if (caption.text === text) return;
+  useHarbor.getState().setBark({ who, text });
+  world.barkT = Math.min(9, 3.5 + text.length / 20);
+}
+
+/** Papers thrown out of a toy (the printer, mostly); they lie on the floor for half a minute. */
+function burst(b: Omit<Burst, "key">) {
+  const key = Date.now() + Math.random();
+  useMondayPlay.setState((st) => ({ bursts: [...st.bursts.slice(-3), { ...b, key }] }));
+  window.setTimeout(() => useMondayPlay.setState((st) => ({ bursts: st.bursts.filter((x) => x.key !== key) })), 30_000);
+}
 
 /** Times each toy has been poked this run; the gold dot over a toy goes once it's been poked. */
 export const presses: Record<string, number> = {};
@@ -37,7 +57,9 @@ export function mondayUse(action: string) {
     presses[toy.id] = n + 1;
     const k = Math.min(n, toy.lines.length - 1);
     sayLine(toyLineId(toy, k), toy.lines[k], toy.who === "Next desk" ? "man" : "narrator", toy.who ?? toy.label, "chatter");
+    showIfSilent(toy.who ?? toy.label, toy.lines[k]);
     playSfx(toySfx(toy, k), 0.7, () => blip(440 + (n % 3) * 90));
+    if (toy.papers?.includes(n)) burst({ x: toy.x, y: toy.y + 0.3, z: toy.z + 0.35, floor: toy.y > 40 ? 50.6 : 0 });
     return;
   }
   if (action.startsWith("find:")) {
@@ -48,23 +70,38 @@ export function mondayUse(action: string) {
       useMondayPlay.setState({ found: { ...found, [find.id]: true } });
       playSfx("sfx-find", 0.6, () => blip(780));
     }
-    sayLine(findLineId(find), find.line, "narrator", found[find.id] ? find.label : `Found · ${find.label}`, "chatter");
+    const who = found[find.id] ? find.label : `Found · ${find.label}`;
+    sayLine(findLineId(find), find.line, "narrator", who, "chatter");
+    showIfSilent(who, find.line);
   }
 }
 
-/** The nearest toy or find within reach of (x, z) on this level, as a sim action and its prompt. */
-export function mondayNearby(x: number, z: number, level: "f14" | "lobby"): { use: string; prompt: string } | null {
+/**
+ * The toy or find within reach of (x, z) on this level that the player is facing, as a sim action and its
+ * prompt. Things stand close together, so facing counts for more than a few centimetres of distance.
+ * face: the way the player faces, radians (cos → x, sin → z).
+ */
+export function mondayNearby(x: number, z: number, level: "f14" | "lobby", face?: number): { use: string; prompt: string } | null {
   const { found } = useMondayPlay.getState();
-  let best: { use: string; prompt: string; d: number } | null = null;
+  const fx = face === undefined ? 0 : Math.cos(face);
+  const fz = face === undefined ? 0 : Math.sin(face);
+  const score = (tx: number, tz: number, r: number) => {
+    const dx = tx - x, dz = tz - z;
+    const d = Math.hypot(dx, dz);
+    if (d >= r) return Infinity;
+    const facing = face === undefined || d < 0.05 ? 1 : (dx * fx + dz * fz) / d;
+    return d + 1.6 * (1 - facing);
+  };
+  let best: { use: string; prompt: string; s: number } | null = null;
   for (const t of MONDAY_TOYS) {
     if (t.place !== level) continue;
-    const d = Math.hypot(x - t.x, z - t.z);
-    if (d < (t.r ?? 1.3) && (!best || d < best.d)) best = { use: `toy:${t.id}`, prompt: `E  ·  ${t.label}`, d };
+    const s = score(t.x, t.z, t.r ?? 1.3);
+    if (s < (best?.s ?? Infinity)) best = { use: `toy:${t.id}`, prompt: `E  ·  ${t.label}`, s };
   }
   for (const f of MONDAY_FINDS) {
     if (f.place !== level || found[f.id]) continue;
-    const d = Math.hypot(x - f.x, z - f.z);
-    if (d < (f.r ?? 1.3) && (!best || d < best.d)) best = { use: `find:${f.id}`, prompt: `E  ·  Check the ${f.label.toLowerCase()}`, d };
+    const s = score(f.x, f.z, f.r ?? 1.3);
+    if (s < (best?.s ?? Infinity)) best = { use: `find:${f.id}`, prompt: `E  ·  Check the ${f.label.toLowerCase()}`, s };
   }
   return best ? { use: best.use, prompt: best.prompt } : null;
 }

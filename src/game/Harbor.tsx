@@ -5,7 +5,7 @@ import { PerfDriver, PerfOverlay, usePerf, useQuality } from "@/game/perf";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { MONDAY_FINDS, MONDAY_TOYS } from "@/content/week/play";
 import { presses as mondayPresses, useMondayPlay } from "@/game/mondayPlay";
-import { FindProp, ToyDots } from "@/game/weekplay/Scene";
+import { FindProp, Papers, ToyDots } from "@/game/weekplay/Scene";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useProgress } from "@react-three/drei";
 import { EffectComposer, Bloom, Vignette, ToneMapping, SMAA, BrightnessContrast, HueSaturation } from "@react-three/postprocessing";
@@ -912,8 +912,12 @@ function MoveStick({ driving }: { driving: boolean }) {
 
 function MondayFinds() {
   const found = useMondayPlay((st) => st.found);
+  const bursts = useMondayPlay((st) => st.bursts);
   return (
     <>
+      {bursts.map((b) => (
+        <Papers key={b.key} x={b.x} y={b.y} z={b.z} floor={b.floor} />
+      ))}
       {MONDAY_FINDS.map((f) => (
         <FindProp key={f.id} find={f} found={!!found[f.id]} />
       ))}
