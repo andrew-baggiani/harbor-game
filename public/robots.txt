@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /portal
+Disallow: /leads
+Disallow: /evidence
+Disallow: /api/
+Disallow: /login
+
+Sitemap: https://dryruncyber.com/sitemap.xml

@@ -63,12 +63,13 @@ export async function evidencePack(db: D1Database, a: Access, orgId: string): Pr
     }
     let mapped: Record<string, string[]> = {};
     try {
-      mapped = e.controls ? JSON.parse(e.controls) : {};
+      const parsed = e.controls ? JSON.parse(e.controls) : {};
+      mapped = parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
     } catch {
       mapped = {};
     }
     for (const [fw, ids] of Object.entries(mapped)) {
-      for (const id of ids ?? []) {
+      for (const id of Array.isArray(ids) ? ids : []) {
         const k = `${fw}|${id}`;
         const c = ctrl.get(k) ?? { framework: fw, control: id, decisions: 0, people: new Set<string>() };
         c.decisions++;
