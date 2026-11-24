@@ -24,13 +24,23 @@ function LoginPage() {
   const [devLink, setDevLink] = useState<string | null>(null);
   const [me, setMe] = useState<Me | null>(null);
   const [next, setNext] = useState("/portal");
+  const [providers, setProviders] = useState<{ microsoft: boolean; google: boolean }>({ microsoft: false, google: false });
 
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
-    if (q.get("error") === "expired") setError("That link has expired or was already used. Request a new one.");
+    const err = q.get("error");
+    if (err === "expired") setError("That link has expired or was already used. Request a new one.");
+    else if (err === "sso_denied") setError("Sign-in was canceled. Try again, or use the email link below.");
+    else if (err === "sso_email") setError("We couldn't confirm a work email for that account. Use the email link below.");
+    else if (err === "sso_state") setError("That sign-in took too long or was opened in another browser. Try again.");
+    else if (err?.startsWith("sso")) setError("That sign-in didn't work. Try again, or use the email link below.");
     const n = q.get("next");
     if (n && n.startsWith("/") && !n.startsWith("//")) setNext(n);
     api<Me>("/api/me").then(setMe).catch(() => setMe({ user: null }));
+    fetch("/api/auth/providers")
+      .then((r) => r.json())
+      .then(setProviders)
+      .catch(() => {});
   }, []);
 
   async function submit(e: FormEvent) {
@@ -93,7 +103,26 @@ function LoginPage() {
   ) : (
     <form onSubmit={submit}>
       <h2 className="text-2xl font-bold">Sign in</h2>
-      <p className="mt-2 text-site-mist">No password. We'll email you a one-time link.</p>
+      <p className="mt-2 text-site-mist">No password. Use your work account, or we'll email you a one-time link.</p>
+      {providers.microsoft || providers.google ? (
+        <div className="mt-7 grid gap-3">
+          {providers.microsoft ? (
+            <a href={`/api/auth/oauth/start?provider=microsoft&next=${encodeURIComponent(next)}`} className={`${btn.ghost} w-full justify-center !py-3.5 text-[16px]`}>
+              Sign in with Microsoft
+            </a>
+          ) : null}
+          {providers.google ? (
+            <a href={`/api/auth/oauth/start?provider=google&next=${encodeURIComponent(next)}`} className={`${btn.ghost} w-full justify-center !py-3.5 text-[16px]`}>
+              Sign in with Google
+            </a>
+          ) : null}
+          <div className="mt-2 flex items-center gap-3 text-xs text-site-dim" aria-hidden="true">
+            <span className="h-px flex-1 bg-white/10" />
+            or
+            <span className="h-px flex-1 bg-white/10" />
+          </div>
+        </div>
+      ) : null}
       <label htmlFor="email" className="mt-7 block text-sm font-semibold">
         Work email
       </label>
