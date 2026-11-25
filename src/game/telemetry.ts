@@ -1,3 +1,5 @@
+import { noteChoice } from "@/game/world";
+
 // Sends the learner's scored choices to the org's decision log. Only runs for signed-in learners;
 // anonymous play never leaves the browser. The server scores the choice from scenario content.
 let learner: Promise<boolean> | null = null;
@@ -35,6 +37,8 @@ function send(body: Record<string, unknown>) {
 }
 
 export function logDecision(choiceId: string) {
+  // Keep this browser's copy of the week in step; the server applies the same rule to its record.
+  noteChoice(choiceId, (runId ||= newRun()));
   send({ choiceId });
 }
 
