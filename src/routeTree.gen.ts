@@ -47,6 +47,7 @@ import { Route as ApiMeRouteImport } from './routes/api/me'
 import { Route as ApiOrgRouteImport } from './routes/api/org'
 import { Route as ApiPartnerRouteImport } from './routes/api/partner'
 import { Route as ApiVoicesRouteImport } from './routes/api/voices'
+import { Route as ApiWorldRouteImport } from './routes/api/world'
 import { Route as DrillsIndexRouteImport } from './routes/drills.index'
 import { Route as DrillsDrillIdRouteImport } from './routes/drills.$drillId'
 import { Route as LabCastRouteImport } from './routes/lab.cast'
@@ -254,6 +255,11 @@ const ApiVoicesRoute = ApiVoicesRouteImport.update({
   path: '/api/voices',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiWorldRoute = ApiWorldRouteImport.update({
+  id: '/api/world',
+  path: '/api/world',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DrillsIndexRoute = DrillsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -373,6 +379,7 @@ export interface FileRoutesByFullPath {
   '/api/org': typeof ApiOrgRoute
   '/api/partner': typeof ApiPartnerRoute
   '/api/voices': typeof ApiVoicesRoute
+  '/api/world': typeof ApiWorldRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
   '/lab/cast': typeof LabCastRoute
   '/lab/mail': typeof LabMailRoute
@@ -427,6 +434,7 @@ export interface FileRoutesByTo {
   '/api/org': typeof ApiOrgRoute
   '/api/partner': typeof ApiPartnerRoute
   '/api/voices': typeof ApiVoicesRoute
+  '/api/world': typeof ApiWorldRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
   '/lab/cast': typeof LabCastRoute
   '/lab/mail': typeof LabMailRoute
@@ -484,6 +492,7 @@ export interface FileRoutesById {
   '/api/org': typeof ApiOrgRoute
   '/api/partner': typeof ApiPartnerRoute
   '/api/voices': typeof ApiVoicesRoute
+  '/api/world': typeof ApiWorldRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
   '/lab/cast': typeof LabCastRoute
   '/lab/mail': typeof LabMailRoute
@@ -542,6 +551,7 @@ export interface FileRouteTypes {
     | '/api/org'
     | '/api/partner'
     | '/api/voices'
+    | '/api/world'
     | '/drills/$drillId'
     | '/lab/cast'
     | '/lab/mail'
@@ -596,6 +606,7 @@ export interface FileRouteTypes {
     | '/api/org'
     | '/api/partner'
     | '/api/voices'
+    | '/api/world'
     | '/drills/$drillId'
     | '/lab/cast'
     | '/lab/mail'
@@ -652,6 +663,7 @@ export interface FileRouteTypes {
     | '/api/org'
     | '/api/partner'
     | '/api/voices'
+    | '/api/world'
     | '/drills/$drillId'
     | '/lab/cast'
     | '/lab/mail'
@@ -709,6 +721,7 @@ export interface RootRouteChildren {
   ApiOrgRoute: typeof ApiOrgRoute
   ApiPartnerRoute: typeof ApiPartnerRoute
   ApiVoicesRoute: typeof ApiVoicesRoute
+  ApiWorldRoute: typeof ApiWorldRoute
   LabCastRoute: typeof LabCastRoute
   LabMailRoute: typeof LabMailRoute
   LessonLessonIdRoute: typeof LessonLessonIdRoute
@@ -992,6 +1005,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiVoicesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/world': {
+      id: '/api/world'
+      path: '/api/world'
+      fullPath: '/api/world'
+      preLoaderRoute: typeof ApiWorldRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/drills/': {
       id: '/drills/'
       path: '/'
@@ -1170,6 +1190,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiOrgRoute: ApiOrgRoute,
   ApiPartnerRoute: ApiPartnerRoute,
   ApiVoicesRoute: ApiVoicesRoute,
+  ApiWorldRoute: ApiWorldRoute,
   LabCastRoute: LabCastRoute,
   LabMailRoute: LabMailRoute,
   LessonLessonIdRoute: LessonLessonIdRoute,

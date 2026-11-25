@@ -53,8 +53,8 @@ function loadTexture(path: string): THREE.Texture {
 }
 
 /** A small screen rendered from text, for props that have no art file yet. */
-export function textTexture(text: string, w: number, h: number, bg: string, fg: string): THREE.Texture {
-  const key = `${text}|${w}|${h}|${bg}|${fg}`;
+export function textTexture(text: string, w: number, h: number, bg: string, fg: string, lines = 9): THREE.Texture {
+  const key = `${text}|${w}|${h}|${bg}|${fg}|${lines}`;
   const hit = textureCache.get(key);
   if (hit) return hit;
   const canvas = document.createElement("canvas");
@@ -64,22 +64,27 @@ export function textTexture(text: string, w: number, h: number, bg: string, fg: 
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, w, h);
   ctx.fillStyle = fg;
-  const size = Math.round(Math.min(w, h) / 9);
-  ctx.font = `600 ${size}px Barlow Condensed, Arial Narrow, sans-serif`;
-  ctx.textBaseline = "top";
-  const words = text.split(" ");
-  let line = "";
-  let y = size * 0.8;
-  const pad = size * 0.7;
-  for (const word of words) {
-    const test = line ? `${line} ${word}` : word;
-    if (ctx.measureText(test).width > w - pad * 2 && line) {
-      ctx.fillText(line, pad, y);
-      line = word;
-      y += size * 1.25;
-    } else line = test;
+  // Start at the requested size, then shrink until every wrapped line fits the sign.
+  let size = Math.round(Math.min(w, h) / lines);
+  let rows: string[] = [];
+  for (; size > 8; size = Math.round(size * 0.9)) {
+    ctx.font = `600 ${size}px Barlow Condensed, Arial Narrow, sans-serif`;
+    const pad = size * 0.7;
+    rows = [];
+    let line = "";
+    for (const word of text.split(" ")) {
+      const test = line ? `${line} ${word}` : word;
+      if (ctx.measureText(test).width > w - pad * 2 && line) {
+        rows.push(line);
+        line = word;
+      } else line = test;
+    }
+    if (line) rows.push(line);
+    const widest = Math.max(...rows.map((r) => ctx.measureText(r).width));
+    if (size * 0.8 + rows.length * size * 1.25 <= h && widest <= w - pad * 2) break;
   }
-  if (line) ctx.fillText(line, pad, y);
+  ctx.textBaseline = "top";
+  rows.forEach((r, i) => ctx.fillText(r, size * 0.7, size * 0.8 + i * size * 1.25));
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
   textureCache.set(key, tex);
@@ -420,9 +425,18 @@ export function Decor({ set }: { set: RoomSet }) {
   return (
     <group>
       {set.decor.map((d) => (
-        <mesh key={d.file} position={[d.x, d.y, d.z]} rotation={[0, d.face, 0]}>
+        <mesh key={d.file ?? d.text?.body} position={[d.x, d.y, d.z]} rotation={[0, d.face, 0]}>
           <planeGeometry args={[d.w, d.h]} />
-          <meshStandardMaterial map={loadTexture(d.file)} roughness={0.8} polygonOffset polygonOffsetFactor={-2} />
+          <meshStandardMaterial
+            map={
+              d.text
+                ? textTexture(d.text.body, Math.round(1024 * Math.min(1, d.w / d.h)), Math.round(1024 * Math.min(1, d.h / d.w)), d.text.bg, d.text.fg, d.text.lines)
+                : loadTexture(d.file!)
+            }
+            roughness={0.8}
+            polygonOffset
+            polygonOffsetFactor={-2}
+          />
         </mesh>
       ))}
     </group>

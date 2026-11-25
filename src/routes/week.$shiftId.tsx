@@ -3,6 +3,7 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { useEffect, useState, type ComponentType } from "react";
 import { shiftById, shiftLabel } from "@/content/week";
 import type { ShiftDef } from "@/content/week/types";
+import { stageFor, type WorldState } from "@/content/week/world";
 
 export const Route = createFileRoute("/week/$shiftId")({
   loader: ({ params }) => {
@@ -21,7 +22,8 @@ export const Route = createFileRoute("/week/$shiftId")({
   ),
 });
 
-type Game = ComponentType<{ shift: ShiftDef; onExit: () => void }>;
+type Game = ComponentType<{ shift: ShiftDef; onExit: () => void; world?: WorldState }>;
+type Adapt = (shift: ShiftDef, stage: ReturnType<typeof stageFor>) => ShiftDef;
 type Sort = ComponentType<{ onExit: () => void }>;
 
 function ShiftPage() {
@@ -29,12 +31,19 @@ function ShiftPage() {
   const navigate = useNavigate();
   const [Game, setGame] = useState<Game | null>(null);
   const [Sorter, setSorter] = useState<Sort | null>(null);
+  // The week so far, read before the shift mounts: it decides how the room and Friday look.
+  const [world, setWorld] = useState<WorldState | null>(null);
+  const [adapt, setAdapt] = useState<{ fn: Adapt } | null>(null);
   const exit = () => void navigate({ to: "/week" });
 
   useEffect(() => {
     let live = true;
     if (id === "sunday") void import("@/game/weekplay/SundaySort").then((m) => live && setSorter(() => m.SundaySort));
-    else void import("@/game/weekplay/ShiftGame").then((m) => live && setGame(() => m.ShiftGame));
+    else {
+      void import("@/game/weekplay/ShiftGame").then((m) => live && setGame(() => m.ShiftGame));
+      void import("@/game/weekplay/worldShift").then((m) => live && setAdapt({ fn: m.worldShift }));
+      void import("@/game/world").then((m) => m.loadWorld()).then((w) => live && setWorld(w));
+    }
     return () => {
       live = false;
     };
@@ -42,7 +51,12 @@ function ShiftPage() {
 
   if (id === "sunday") return <AccessGate shift="sunday">{Sorter ? <Sorter onExit={exit} /> : <Loading label="Sunday" />}</AccessGate>;
   const shift = shiftById(id)!;
-  return <AccessGate shift={id}>{Game ? <Game key={id} shift={shift} onExit={exit} /> : <Loading label={shift.day} />}</AccessGate>;
+  const ready = Game && world && adapt;
+  return (
+    <AccessGate shift={id}>
+      {ready ? <Game key={id} shift={adapt.fn(shift, stageFor(world, id))} world={world} onExit={exit} /> : <Loading label={shift.day} />}
+    </AccessGate>
+  );
 }
 
 function Loading({ label }: { label: string }) {

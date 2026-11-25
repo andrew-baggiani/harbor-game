@@ -26,6 +26,9 @@ import {
 } from "@/content/week/play";
 import { Alarm, BeatProp, CastFigure, Decor, FindProp, Inspect, Papers, Poke, Puff, Room, ToyDots, Walker, approach, heldKind, player, propVerb, type Nearby } from "@/game/weekplay/Scene";
 import { HarborStage, MonitorArt, NightStage } from "@/game/weekplay/HarborStage";
+import { EMPTY_WORLD, WEEK_DAYS, changedSince, planted, seedStory, stageFor, type WorldState } from "@/content/week/world";
+import { reportToIt } from "@/game/world";
+import { worldSet } from "@/game/weekplay/worldShift";
 import { BakedRoom, setRoomBounds } from "@/game/weekplay/BakedRoom";
 import { SETS } from "@/game/weekplay/sets";
 import { falloutLine, promptLine } from "@/content/week/voices";
@@ -64,7 +67,13 @@ function propImage(beat: WeekBeat, flipped: boolean): string | null {
   return file ? `/assets/textures/${file}` : null;
 }
 
-export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => void }) {
+export function ShiftGame({ shift, onExit, world: startWorld }: { shift: ShiftDef; onExit: () => void; world?: WorldState }) {
+  // The week so far (src/content/week/world.ts). Read once for the room; calls to IT update it.
+  const [world, setWorld] = useState<WorldState>(startWorld ?? EMPTY_WORLD);
+  const [stage] = useState(() => stageFor(startWorld ?? EMPTY_WORLD, shift.id));
+  const [card] = useState(() => changedSince(startWorld ?? EMPTY_WORLD, shift.id));
+  const [callNote, setCallNote] = useState<string | null>(null);
+  const canCallIt = (WEEK_DAYS as readonly string[]).includes(shift.id);
   const [phase, setPhase] = useState<Phase>("intro");
   const [briefing, setBriefing] = useState(false);
   // The beat whose prop is pulled up. It outlives the panel by a moment so the prop can go back down.
@@ -100,7 +109,7 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
   const chatter = useRef(0);
 
   const beat = shift.beats[Math.min(index, shift.beats.length - 1)];
-  const set = SETS[roomSet];
+  const set = useMemo(() => worldSet(SETS[roomSet], roomSet, shift.id, stage), [roomSet, shift.id, stage]);
   const spot = phase === "play" && beat.set === roomSet ? set.spots[beat.spot] : null;
   // Save after every decision and find, so a closed tab or a crash costs nothing.
   useEffect(() => {
@@ -220,6 +229,24 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
     setBarks((list) => [...list.slice(-3), { id, who, text, tone }]);
     timers.current.push(window.setTimeout(() => setBarks((list) => list.filter((b) => b.id !== id)), 9000));
   }, []);
+
+  /** The player calls IT (the card on the intro, or the phone button). Reporting is always the right move. */
+  const callIt = useCallback(
+    async (via: "card" | "hotline") => {
+      const wasPlanted = planted(world) && !world.reported;
+      const next = await reportToIt(shift.id, via);
+      setWorld(next);
+      const line =
+        stage === "breach"
+          ? "Thanks. Pull the network cable, leave it powered on, and don't touch the note. We're on our way up."
+          : wasPlanted
+            ? "Thanks for calling it in. We're resetting your password and checking your laptop now. That's exactly the call we want."
+            : "Nothing odd on our end right now. Thanks for checking in; call any time something feels off.";
+      setCallNote(line);
+      if (via === "hotline") pushBark("IT Service Desk · ext 4100", line, "good");
+    },
+    [world, shift.id, stage, pushBark],
+  );
 
   const open = useCallback(() => {
     if (phase !== "play" || !near) return;
@@ -498,12 +525,17 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           </>
         )}
         <Decor set={set} />
+        {stage === "breach" &&
+          roomSet === "floor" &&
+          ["Desk_Monitor_Screens", "Desk_Monitor_Screens_Baked", "Monitor_Desk07_Screen", "MeetingRoom_TV_Screen"].map((n) => (
+            <MonitorArt key={n} name={n} prop={null} idleText="Your files are unavailable." flipped={false} />
+          ))}
         {Object.entries(set.spots)
           .filter(([, sp]) => sp.monitor)
           .map(([key, sp]) => {
             const shown = shownProps.find(({ b }) => b.spot === key);
             const prop = shown && shown.b.prop?.kind === "screen" ? shown.b.prop : null;
-            return <MonitorArt key={key} name={sp.monitor!} prop={prop} idle={set.idle} flipped={!!(shown && flipped[shown.b.scenario.id])} />;
+            return <MonitorArt key={key} name={sp.monitor!} prop={prop} idle={set.idle} idleText={set.idleText} flipped={!!(shown && flipped[shown.b.scenario.id])} />;
           })}
         {shownProps.map(({ b, i }) => (
           <BeatProp
@@ -599,6 +631,16 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           <span className="font-game text-sm tracking-[0.14em] text-[#a8a59c]">
             {Math.min(index + (phase === "panel" ? 1 : 0), shift.beats.length)}/{shift.beats.length}
           </span>
+          {canCallIt && (phase === "play" || phase === "panel") && (
+            <button
+              type="button"
+              onClick={() => void callIt("hotline")}
+              className="rounded-full border border-[#7fd6a8]/50 px-3 py-1 text-xs text-[#bfeed4] hover:bg-[#7fd6a8]/10"
+              title="Call the IT service desk about anything that seems off, your own mistakes included"
+            >
+              Call IT · 4100
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setMusicOn(toggleMusic())}
@@ -666,6 +708,28 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
           <h1 className="mt-2 font-display text-4xl">{shift.title}</h1>
           <p className="mt-3 text-[#d8d2c4]">{shift.intro}</p>
           {shift.audience && <p className="mt-3 text-sm text-[#a8a59c]">For: {shift.audience}</p>}
+          {card && (
+            <div
+              className={`mt-5 rounded-xl border p-4 ${stage === "breach" ? "border-[#ff7a66]/40 bg-[#2a0f0f]/60" : stage === "contained" ? "border-[#7fd6a8]/30 bg-[#0d1f18]/60" : "border-[#c4a574]/30 bg-[#17140e]/70"}`}
+            >
+              <p className="font-game text-xs tracking-[0.18em] text-[#d9bf8f]">{card.title.toUpperCase()}</p>
+              <ul className="mt-2 space-y-1.5 text-[15px] text-[#ece6da]">
+                {card.lines.map((l) => (
+                  <li key={l}>{l}</li>
+                ))}
+              </ul>
+              {card.canCall && !callNote && (
+                <button
+                  type="button"
+                  onClick={() => void callIt("card")}
+                  className="mt-3 rounded-full border border-[#7fd6a8]/60 px-4 py-2 text-sm text-[#bfeed4] hover:bg-[#7fd6a8]/10"
+                >
+                  Call IT about it now
+                </button>
+              )}
+              {callNote && <p className="mt-3 text-sm text-[#8fe0b4]">IT: {callNote}</p>}
+            </div>
+          )}
           <p className="mt-5 text-sm text-[#a8a59c]">
             Walk with WASD or the arrow keys, drag to look. On a phone, use the left thumb pad. The gold light marks what needs you. Press Space to talk, look
             or poke. Poke around too: things react, and a few security slip-ups are hidden in every room.
@@ -742,7 +806,17 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
       )}
 
       {phase === "debrief" && (
-        <Debrief shift={shift} picked={picked} at={pickedAt.current} finds={shiftFinds} found={found} time={{ ...timing.current }} onNext={() => setPhase("check")} />
+        <Debrief
+          shift={shift}
+          picked={picked}
+          at={pickedAt.current}
+          finds={shiftFinds}
+          found={found}
+          time={{ ...timing.current }}
+          world={world}
+          stage={stage}
+          onNext={() => setPhase("check")}
+        />
       )}
       {phase === "check" && (
         <Check
@@ -893,8 +967,12 @@ function Debrief({
   finds,
   found,
   time,
+  world,
+  stage,
   onNext,
 }: {
+  world: WorldState;
+  stage: ReturnType<typeof stageFor>;
   shift: ShiftDef;
   picked: Record<string, WeekChoice>;
   at: Record<string, number>;
@@ -943,6 +1021,7 @@ function Debrief({
           );
         })}
       </ol>
+      <WeekStory world={world} stage={stage} day={shift.id} />
       <p className="mt-5 text-sm text-[#a8a59c]">
         On the decisions: {minutes(time.onTask)}. Exploring: {minutes(time.exploring)}. Exploring is recorded separately and never counts against you.
       </p>
@@ -973,6 +1052,34 @@ function Debrief({
         KNOWLEDGE CHECK
       </button>
     </Overlay>
+  );
+}
+
+/** The week's thread in the debrief: what Monday planted, when it was called in, and what that changed. */
+function WeekStory({ world, stage, day }: { world: WorldState; stage: ReturnType<typeof stageFor>; day: string }) {
+  if (stage === "clean" || !planted(world)) return null;
+  const story = seedStory(world);
+  const r = world.reported;
+  const when = r ? `${r.day.charAt(0).toUpperCase()}${r.day.slice(1)} at ${new Date(r.at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}` : null;
+  let lines: string[];
+  if (r && r.day !== "friday")
+    lines = [story, `You called IT on ${when}. One laptop reimaged, one password reset, and the foothold went nowhere. That call is the whole job.`];
+  else if (day === "friday")
+    lines = [
+      story,
+      r ? `You called IT on ${when}, once it had already gone off. Late still helps: it shortens the outage.` : "Nobody reported it, so it sat quietly all week and went off tonight.",
+      "A call on Tuesday would have meant one reimaged laptop and a password reset, and tonight would have been an ordinary Friday.",
+    ];
+  else lines = [story, "Something from that night is still in there. Reporting your own slip is the most useful call there is, and it never counts against you."];
+  return (
+    <div className={`mt-6 rounded-xl border p-4 ${r && r.day !== "friday" ? "border-[#7fd6a8]/25 bg-[#0d1f18]/60" : "border-[#ff7a66]/30 bg-[#2a0f0f]/50"}`}>
+      <p className="font-game text-xs tracking-[0.18em] text-[#d9bf8f]">YOUR WEEK</p>
+      <ul className="mt-2 space-y-1.5 text-sm text-[#ece6da]">
+        {lines.map((l) => (
+          <li key={l}>{l}</li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

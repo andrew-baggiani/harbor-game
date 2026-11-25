@@ -38,10 +38,12 @@ export type RoomSet = {
   harbor?: { y: number };
   /** A modeled, baked room GLB in /assets/models (the cafe, the home). Coordinates are that file's. */
   baked?: string;
-  /** Posters and signs hung in this room for this set. face: radians about Y, 0 = facing +Z. */
-  decor?: { file: string; x: number; y: number; z: number; w: number; h: number; face: number }[];
-  /** What the player's desk monitor shows when no beat is using it. */
+  /** Posters and signs hung in this room for this set. face: radians about Y, 0 = facing +Z. A sign with
+   * `text` is drawn from its words instead of an image file. */
+  decor?: { file?: string; text?: { body: string; bg: string; fg: string; /** Text size: about this many lines fit the sign's height. Default 9. */ lines?: number }; x: number; y: number; z: number; w: number; h: number; face: number }[];
+  /** What the player's desk monitor shows when no beat is using it: an image, or plain words. */
   idle?: string;
+  idleText?: string;
 };
 
 const desk = (x: number, z: number, color = "#3b3f47"): Piece[] => [
