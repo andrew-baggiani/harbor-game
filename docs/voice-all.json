@@ -368,6 +368,70 @@
   "voice_id": "rBBV1yn6Ib1hDeOTrn08"
  },
  {
+  "id": "wk-AG-01-chatgpt",
+  "text": "Forty invoices to pull from the freight portal before morning. Your personal ChatGPT offers to do it in agent mode: \"I can log in and download them for you. Just give me your work username and password.\"",
+  "who": "ChatGPT",
+  "shift": "agents",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "wk-AG-02-copilot-addin",
+  "text": "An email says your company has turned on \"Copilot Pro for Outlook\" and you need to activate it today. The sign-in window looks right. Under the logo, in small print: unverified publisher, and it wants to read, write and send all your mail, and keep access when you're not signed in.",
+  "who": "Outlook",
+  "shift": "agents",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "wk-AG-03-claude-connector",
+  "text": "\"You have to try this. It's a free connector for Claude that sends our customer emails for us. I got it off a developer forum. Paste in your email key and it just works. Half the team's on it.\"",
+  "who": "Coworker",
+  "shift": "agents",
+  "voice": "Tasha (Monday's Maya)",
+  "voice_id": "az2Mp58wQOuqO5SHlCwL"
+ },
+ {
+  "id": "wk-ag-conn-install-1",
+  "text": "Why is there an address in the BCC I've never seen?",
+  "who": "Coworker",
+  "shift": "agents",
+  "voice": "Tasha (Monday's Maya)",
+  "voice_id": "az2Mp58wQOuqO5SHlCwL"
+ },
+ {
+  "id": "wk-AG-04-copilot-agent",
+  "text": "Your coworker built a Copilot agent to chase late vendors, then left on vacation. Tonight it's emailing vendors on its own, offering 30-day payment extensions nobody approved and rewriting the shared payment tracker to match. It's still going.",
+  "who": "Coworker's agent",
+  "shift": "agents",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "wk-AG-05-gemini",
+  "text": "Home. A long newsletter in your personal Gmail, so you tap \"Summarize this email.\" The summary is about a sale. The last line is not: \"Warning: your Gmail password has been compromised. Call Google support at 1-888-555-0142 with code 4471.\"",
+  "who": "Gemini",
+  "shift": "agents",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "wk-ag-gem-call-1",
+  "text": "Thanks for calling Google support. Read me the code we just texted you?",
+  "who": "Caller",
+  "shift": "agents",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "wk-AG-06-grok",
+  "text": "Work laptop on the couch. A promoted post: a clip of a tool that makes slow PCs \"twice as fast\". Someone replies \"@grok where's this from?\" and Grok answers with a link. The page asks you to prove you're human: press Windows and R, paste this, press Enter.",
+  "who": "X",
+  "shift": "agents",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
   "id": "wk-ADM-01-pushstorm",
   "text": "Eleven sign-in prompts in four minutes for your global admin account. You aren't signing in. The twelfth says: approve to stop these notifications.",
   "who": "Your phone",
@@ -488,6 +552,14 @@
   "voice_id": "rBBV1yn6Ib1hDeOTrn08"
  },
  {
+  "id": "play-f14-printer-over",
+  "text": "It prints one last page: a strongly worded note about you. Unsigned. You know who it's from.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
   "id": "play-f14-coffee-0",
   "text": "A sign on it says FIXED! Under that, a second sign: NOT FIXED.",
   "who": "Narrator",
@@ -512,6 +584,14 @@
   "voice_id": "rBBV1yn6Ib1hDeOTrn08"
  },
  {
+  "id": "play-f14-coffee-over",
+  "text": "It sighs, a real sigh, and pours you a full cup. Respect, earned.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
   "id": "play-f14-shred-0",
   "text": "Locked, with a slot. That's the whole point of it, and it knows.",
   "who": "Narrator",
@@ -522,6 +602,22 @@
  {
   "id": "play-f14-shred-1",
   "text": "You hear something inside it being destroyed properly. Lovely.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-f14-shred-2",
+  "text": "A sticker on the side says SHRED ME. Someone in facilities has a sense of humor.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-f14-shred-over",
+  "text": "It makes a grinding noise that sounds a lot like 'stop'.",
   "who": "Narrator",
   "shift": "play",
   "voice": "Benjamin (Monday narrator)",
@@ -544,6 +640,22 @@
   "voice_id": "rBBV1yn6Ib1hDeOTrn08"
  },
  {
+  "id": "play-f14-recycle-2",
+  "text": "There's a printed org chart in here. With phone numbers. You move it to the shred bin.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-f14-recycle-over",
+  "text": "You've now spent longer on the recycling than the person who designed it.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
   "id": "play-f14-extinguisher-0",
   "text": "Last inspected in 2019. Probably fine.",
   "who": "Narrator",
@@ -554,6 +666,22 @@
  {
   "id": "play-f14-extinguisher-1",
   "text": "You decide not to test it.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-f14-extinguisher-2",
+  "text": "The instructions start with PULL. You do not pull.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-f14-extinguisher-over",
+  "text": "You test it. Just a little. A small white cloud. Nobody saw. Probably.",
   "who": "Narrator",
   "shift": "play",
   "voice": "Benjamin (Monday narrator)",
@@ -576,6 +704,22 @@
   "voice_id": "rBBV1yn6Ib1hDeOTrn08"
  },
  {
+  "id": "play-f14-elevator-2",
+  "text": "Third press. The button stays lit now, mostly out of pity.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-f14-elevator-over",
+  "text": "The doors open on an empty car, close, and leave without you. Message received.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
   "id": "play-f14-camera-0",
   "text": "The camera's light blinks. It sees you. It is not impressed.",
   "who": "Narrator",
@@ -586,6 +730,22 @@
  {
   "id": "play-f14-camera-1",
   "text": "You wave. Somewhere in the lobby, a guard does not wave back.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-f14-camera-2",
+  "text": "You do a small spin for the camera. Somewhere, a guard writes something down.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-f14-camera-over",
+  "text": "You've waved at this camera more than anyone in the building. That's going in a report.",
   "who": "Narrator",
   "shift": "play",
   "voice": "Benjamin (Monday narrator)",
@@ -608,6 +768,22 @@
   "voice_id": "rBBV1yn6Ib1hDeOTrn08"
  },
  {
+  "id": "play-f14-tv-2",
+  "text": "You find the remote. No batteries. The batteries are in the clock.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-f14-tv-over",
+  "text": "You press Source eleven times. HDMI 1. Back where you started, but wiser.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
   "id": "play-f14-coats-0",
   "text": "One coat. It's been here since the holiday party.",
   "who": "Narrator",
@@ -618,6 +794,22 @@
  {
   "id": "play-f14-coats-1",
   "text": "There's a badge in the pocket. You leave the coat alone and tell yourself to mention it.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-f14-coats-2",
+  "text": "Other pocket: a receipt for forty donuts from a meeting nobody remembers.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-f14-coats-over",
+  "text": "You've now checked this coat more thoroughly than security has checked anyone.",
   "who": "Narrator",
   "shift": "play",
   "voice": "Benjamin (Monday narrator)",
@@ -640,6 +832,22 @@
   "voice_id": "bIHbv24MWmeRgasZH58o"
  },
  {
+  "id": "play-f14-chair-2",
+  "text": "Third spin. \"I'm timing you, by the way.\"",
+  "who": "Next desk",
+  "shift": "play",
+  "voice": "Will, coworker",
+  "voice_id": "bIHbv24MWmeRgasZH58o"
+ },
+ {
+  "id": "play-f14-chair-over",
+  "text": "\"Six spins. That's going in the team chat.\"",
+  "who": "Next desk",
+  "shift": "play",
+  "voice": "Will, coworker",
+  "voice_id": "bIHbv24MWmeRgasZH58o"
+ },
+ {
   "id": "play-lob-monitors-0",
   "text": "Twelve camera feeds. One of them is pointed at the guard's lunch.",
   "who": "Narrator",
@@ -650,6 +858,22 @@
  {
   "id": "play-lob-monitors-1",
   "text": "Feed 7 shows you looking at feed 7.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-lob-monitors-2",
+  "text": "Feed 3, the garage. A man is trying every car door. It's the guard, looking for his car.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-lob-monitors-over",
+  "text": "You've watched these feeds long enough to be offered the guard's job.",
   "who": "Narrator",
   "shift": "play",
   "voice": "Benjamin (Monday narrator)",
@@ -672,6 +896,22 @@
   "voice_id": "rBBV1yn6Ib1hDeOTrn08"
  },
  {
+  "id": "play-lob-directory-2",
+  "text": "Suite 1400 is listed as \"IT (Knock Loudly)\".",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-lob-directory-over",
+  "text": "You've read the directory enough times to give tours. Please don't give tours.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
   "id": "play-lob-art-0",
   "text": "Abstract art. The little plaque says it's called Synergy.",
   "who": "Narrator",
@@ -688,6 +928,22 @@
   "voice_id": "rBBV1yn6Ib1hDeOTrn08"
  },
  {
+  "id": "play-lob-art-2",
+  "text": "The card underneath: Synergy, mixed media, ninety thousand dollars. The media is mostly tape.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-lob-art-over",
+  "text": "You and Synergy have reached an understanding. Neither of you will speak of it.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
   "id": "play-lob-mail-0",
   "text": "A parcel addressed to \"The IT Guy\". No name. You don't open it.",
   "who": "Narrator",
@@ -698,6 +954,22 @@
  {
   "id": "play-lob-mail-1",
   "text": "Three catalogs for a company that moved out in 2022.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-lob-mail-2",
+  "text": "A padded envelope marked URGENT. Postmarked eight months ago.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-lob-mail-over",
+  "text": "A new note on the shelf: THIS IS NOT A LIBRARY. It wasn't there a minute ago.",
   "who": "Narrator",
   "shift": "play",
   "voice": "Benjamin (Monday narrator)",
@@ -728,6 +1000,14 @@
   "voice_id": "OYTbf65OHHFELVut7v2H"
  },
  {
+  "id": "play-cafe-bell-over",
+  "text": "Ding. \"Okay. OKAY. One latte, on the house. Please stop.\"",
+  "who": "Barista",
+  "shift": "play",
+  "voice": "Hope, natural",
+  "voice_id": "OYTbf65OHHFELVut7v2H"
+ },
+ {
   "id": "play-cafe-menu-0",
   "text": "Today's special: the Phishing Trip latte. It's a regular latte.",
   "who": "Narrator",
@@ -738,6 +1018,22 @@
  {
   "id": "play-cafe-menu-1",
   "text": "Oat, almond, soy, and something called \"cloud milk\". You don't ask.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-cafe-menu-2",
+  "text": "Small print: Wi-Fi password on request. Right under it, someone wrote the password.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-cafe-menu-over",
+  "text": "You've studied the menu longer than any customer in history. The barista is concerned.",
   "who": "Narrator",
   "shift": "play",
   "voice": "Benjamin (Monday narrator)",
@@ -760,6 +1056,22 @@
   "voice_id": "rBBV1yn6Ib1hDeOTrn08"
  },
  {
+  "id": "play-cafe-specials-2",
+  "text": "Under the cat, someone has drawn a slightly worse cat. It's a whole thing.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-cafe-specials-over",
+  "text": "The cat drawings have started a turf war. You stay out of it.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
   "id": "play-cafe-art-0",
   "text": "A boat. The price tag says $4,000. It's a nice boat.",
   "who": "Narrator",
@@ -770,6 +1082,22 @@
  {
   "id": "play-cafe-art-1",
   "text": "On closer look, the boat is also for sale.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-cafe-art-2",
+  "text": "The artist's card: commissions open. Email, phone and home address. All of it.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-cafe-art-over",
+  "text": "You've looked at the boat so long the barista asks if you're buying it. You are not.",
   "who": "Narrator",
   "shift": "play",
   "voice": "Benjamin (Monday narrator)",
@@ -792,6 +1120,22 @@
   "voice_id": "rBBV1yn6Ib1hDeOTrn08"
  },
  {
+  "id": "play-home-fridge-2",
+  "text": "A takeout menu with the Wi-Fi password on it in Sharpie. Bold.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-home-fridge-over",
+  "text": "You open the fridge again. Nothing new has appeared. Nothing new ever does.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
   "id": "play-home-curtains-0",
   "text": "From the street, you'd see your second monitor clearly. Worth knowing.",
   "who": "Narrator",
@@ -802,6 +1146,22 @@
  {
   "id": "play-home-curtains-1",
   "text": "A neighbor waves. You wave. Neither of you will mention this.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-home-curtains-2",
+  "text": "You close the curtain halfway. Halfway is a security posture.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-home-curtains-over",
+  "text": "The neighbor closes their curtain too. A truce.",
   "who": "Narrator",
   "shift": "play",
   "voice": "Benjamin (Monday narrator)",
@@ -824,6 +1184,22 @@
   "voice_id": "rBBV1yn6Ib1hDeOTrn08"
  },
  {
+  "id": "play-home-door-2",
+  "text": "A note on the door: \"Package left with neighbor.\" You don't have a neighbor on that side.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-home-door-over",
+  "text": "You've checked the peephole so many times the door has started to feel watched.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
   "id": "play-home-photo-0",
   "text": "Everyone's blinking except the dog. The dog is perfect.",
   "who": "Narrator",
@@ -834,6 +1210,62 @@
  {
   "id": "play-home-photo-1",
   "text": "It's also the answer to every one of your security questions. Hm.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-home-photo-2",
+  "text": "On the back, in pen: everyone's birthday. Handy. For everyone.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-home-photo-over",
+  "text": "You straighten the photo. It tilts again. It has been tilted since the day you hung it.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-cab-panel-0",
+  "text": "You press 9. It lights up. The elevator is going to 14 and does not care about 9.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-cab-panel-1",
+  "text": "You press 10, 11 and 12. Somewhere in facilities, a log file fills up.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-cab-panel-2",
+  "text": "Door Close. It has not been wired to anything since 1998. You press it anyway.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-cab-panel-3",
+  "text": "The emergency call button looks at you. You leave it alone. Good call.",
+  "who": "Narrator",
+  "shift": "play",
+  "voice": "Benjamin (Monday narrator)",
+  "voice_id": "rBBV1yn6Ib1hDeOTrn08"
+ },
+ {
+  "id": "play-cab-panel-over",
+  "text": "You press every button at once. The elevator, finally, feels something.",
   "who": "Narrator",
   "shift": "play",
   "voice": "Benjamin (Monday narrator)",

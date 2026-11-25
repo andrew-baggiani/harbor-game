@@ -510,11 +510,13 @@ function sparkTexture(): THREE.Texture {
 export function Poke({ x, y, z }: { x: number; y: number; z: number }) {
   const ref = useRef<THREE.Mesh>(null);
   const born = useRef<number | null>(null);
-  useFrame(({ clock, camera }) => {
+  useFrame(({ camera, invalidate }) => {
     const m = ref.current;
     if (!m) return;
-    born.current ??= clock.elapsedTime;
-    const k = Math.min(1, (clock.elapsedTime - born.current) / 0.7);
+    const now = performance.now() / 1000;
+    born.current ??= now;
+    const k = Math.min(1, (now - born.current) / 0.7);
+    if (k < 1) invalidate();
     m.quaternion.copy(camera.quaternion);
     m.scale.setScalar(0.15 + k * 0.5);
     (m.material as THREE.MeshBasicMaterial).opacity = 0.9 * (1 - k);
@@ -532,10 +534,12 @@ export function Alarm({ x, y, z }: { x: number; y: number; z: number }) {
   const ring = useRef<THREE.Mesh>(null);
   const glow = useRef<THREE.Mesh>(null);
   const born = useRef<number | null>(null);
-  useFrame(({ clock, camera }) => {
-    born.current ??= clock.elapsedTime;
-    const t = clock.elapsedTime - born.current;
+  useFrame(({ camera, invalidate }) => {
+    const now = performance.now() / 1000;
+    born.current ??= now;
+    const t = now - born.current;
     const alive = t < 2.4;
+    if (alive) invalidate();
     const beat = alive ? Math.max(0, Math.sin((t / 0.8) * Math.PI * 2 - Math.PI / 2)) : 0;
     const fade = alive ? 1 - t / 2.4 : 0;
     if (ring.current) {
@@ -595,11 +599,15 @@ export function Papers({ x, y, z, floor, dir = Math.PI / 2 }: { x: number; y: nu
     [dir],
   );
   const dummy = useMemo(() => new THREE.Object3D(), []);
-  useFrame(({ clock }) => {
+  useFrame(({ invalidate }) => {
     const m = mesh.current;
     if (!m) return;
-    born.current ??= clock.elapsedTime;
-    const t0 = clock.elapsedTime - born.current;
+    // The canvas only draws on demand, so its clock sits idle and then jumps. Wall-clock time, and
+    // ask for frames until the last sheet has landed.
+    const now = performance.now() / 1000;
+    born.current ??= now;
+    const t0 = now - born.current;
+    if (t0 < 6) invalidate();
     for (let i = 0; i < SHEETS; i += 1) {
       const s = seeds.at(i)!;
       const t = Math.max(0, t0 - s.delay);
@@ -620,6 +628,57 @@ export function Papers({ x, y, z, floor, dir = Math.PI / 2 }: { x: number; y: nu
       <planeGeometry args={[0.21, 0.297]} />
       <meshStandardMaterial color="#f2efe8" roughness={0.9} side={THREE.DoubleSide} />
     </instancedMesh>
+  );
+}
+
+const PUFFS = 18;
+
+/** A small cloud: steam from the coffee machine, powder from a tested extinguisher. Gone in about 3 s. */
+export function Puff({ x, y, z }: { x: number; y: number; z: number }) {
+  const balls = useRef<(THREE.Mesh | null)[]>([]);
+  const born = useRef<number | null>(null);
+  const seeds = useMemo(
+    () =>
+      Array.from({ length: PUFFS }, (_, i) => ({
+        a: (i / PUFFS) * Math.PI * 2 + Math.sin(i * 3.1),
+        v: 0.2 + ((i * 37) % 10) / 26,
+        up: 0.25 + ((i * 17) % 10) / 14,
+        s: 0.05 + ((i * 29) % 10) / 110,
+      })),
+    [],
+  );
+  useFrame(({ invalidate }) => {
+    // The canvas draws on demand: keep asking for frames until the cloud is gone, on wall-clock time.
+    const now = performance.now() / 1000;
+    born.current ??= now;
+    const t = now - born.current;
+    if (t < 3) invalidate();
+    // Swells, drifts up, then shrinks away.
+    const fade = t < 1.6 ? 1 : Math.max(0, 1 - (t - 1.6) / 1.2);
+    seeds.forEach((p, i) => {
+      const m = balls.current[i];
+      if (!m) return;
+      const out = p.v * (1 - Math.exp(-t * 2.2));
+      m.position.set(x + Math.cos(p.a) * out, y + p.up * (1 - Math.exp(-t * 1.4)), z + Math.sin(p.a) * out);
+      m.scale.setScalar(Math.max(0.0001, p.s * (1 + t * 1.6) * fade));
+    });
+  });
+  return (
+    <group>
+      {seeds.map((_, i) => (
+        <mesh
+          key={i}
+          ref={(m) => {
+            balls.current[i] = m;
+          }}
+          position={[x, y, z]}
+          scale={0.0001}
+        >
+          <icosahedronGeometry args={[1, 1]} />
+          <meshStandardMaterial color="#e9edf0" roughness={1} />
+        </mesh>
+      ))}
+    </group>
   );
 }
 

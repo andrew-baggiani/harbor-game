@@ -294,10 +294,10 @@ function start(id: string, rank: LineRank, thenId?: string) {
     speak(line, gen);
     return;
   }
-  void playLine(audio, id, line, gen);
+  void playLine(audio, id, line, gen, rank);
 }
 
-async function playLine(audio: AudioContext, id: string, line: { text: string; kind: VoiceKind }, gen: number) {
+async function playLine(audio: AudioContext, id: string, line: { text: string; kind: VoiceKind }, gen: number, rank: LineRank = "story") {
   try {
     if (audio.state === "suspended") await audio.resume();
     let buffer = clips.get(id);
@@ -331,7 +331,10 @@ async function playLine(audio: AudioContext, id: string, line: { text: string; k
       }
     };
   } catch {
-    speak(line, gen);
+    // Not recorded yet. Story lines fall back to the browser voice; chatter just stays on screen,
+    // since a robot reading a joke kills the joke.
+    if (rank === "chatter") window.setTimeout(() => lineDone(gen), Math.min(9000, 1500 + line.text.length * 55));
+    else speak(line, gen);
   }
 }
 

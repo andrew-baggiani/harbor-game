@@ -151,6 +151,8 @@ export function step(dt: number) {
   if (keys.right) world.camYaw += dt * 1.8;
   if (keys.up) world.camPitch -= dt * 1.7;
   if (keys.down) world.camPitch += dt * 1.7;
+  if (keys.left || keys.right || keys.up || keys.down || world.lookX !== 0 || world.lookY !== 0) world.lookIdle = 0;
+  else world.lookIdle += dt;
   world.camYaw += world.lookX;
   world.camPitch = Math.max(-1.05, Math.min(1.15, world.camPitch + world.lookY));
   world.lookX = 0;
@@ -216,6 +218,18 @@ export function step(dt: number) {
     if (world.moving) {
       const desired = Math.atan2(mz, mx);
       world.face = dampAngle(world.face, desired, 10, dt);
+      // Follow camera: a moment after the player stops steering the camera themselves, it swings in
+      // behind them as they walk, so turning with A/D (or the stick) carves a smooth arc with the camera
+      // over their shoulder. Walking back toward the camera leaves it alone, or it would spin round.
+      if (cameraFollows() && world.lookIdle > 0.9) {
+        let off = world.face - world.camYaw;
+        while (off > Math.PI) off -= Math.PI * 2;
+        while (off < -Math.PI) off += Math.PI * 2;
+        if (Math.abs(off) < 2.1) {
+          world.camYaw = dampAngle(world.camYaw, world.face, 1.6 * Math.min(1, pace / 2.15), dt);
+          world.camPitch += (0.12 - world.camPitch) * (1 - Math.exp(-1.2 * dt));
+        }
+      }
       world.walk += dt * 9;
       if (store.hint && Math.hypot(world.px, world.pz - 4) > 2) store.setHint(false);
     }
@@ -286,6 +300,25 @@ export function step(dt: number) {
 
   store.setPrompt(store.talk ? null : prompt);
   store.setDriving(world.driving);
+}
+
+/** "follow" (default): the camera settles in behind the player as they walk. "free": it stays where it's put. */
+export function cameraFollows(): boolean {
+  try {
+    return window.localStorage.getItem("drc-camera") !== "free";
+  } catch {
+    return true;
+  }
+}
+
+export function toggleCameraFollow(): boolean {
+  const on = !cameraFollows();
+  try {
+    window.localStorage.setItem("drc-camera", on ? "follow" : "free");
+  } catch {
+    /* fine */
+  }
+  return on;
 }
 
 function doorBlock() {
@@ -934,6 +967,7 @@ function publishProbe() {
       takeCar(0);
     },
     dismiss: () => useHarbor.getState().setBoot(false),
+    resume: () => useHarbor.getState().setPaused(false),
     teleport: (x: number, y: number, z: number) => {
       world.px = x;
       world.py = y;
@@ -965,6 +999,7 @@ function publishProbe() {
     },
     ride: (up: boolean) => beginRide(up),
     state: () => ({
+      camYaw: world.camYaw,
       ride: world.ride,
       indicator: world.indicator,
       py: world.py,
