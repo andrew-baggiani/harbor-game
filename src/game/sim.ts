@@ -787,7 +787,7 @@ function computePrompt(): string | null {
   if (world.ride !== "idle") return null;
   const x = world.px;
   const z = world.pz;
-  if (world.py < 2 && nearestFleet(x, z, 7.5) >= 0) {
+  if (world.py < 2 && !insideTower(x, z) && nearestFleet(x, z, 7.5) >= 0) {
     world.use = "car";
     return "E  ·  Get in the car";
   }
@@ -844,7 +844,7 @@ function computePrompt(): string | null {
   // Optional toys and finds, only when no beat above was in reach.
   const level = world.py > 10 ? "f14" : world.py < 2 && insideTower(x, z) ? "lobby" : null;
   if (level) {
-    const near = mondayNearby(x, z, level);
+    const near = mondayNearby(x, z, level, world.face);
     if (near) {
       world.use = near.use;
       return near.prompt;
@@ -953,6 +953,10 @@ function publishProbe() {
       world.camPitch = pitch;
       world.snap = true;
     },
+    setFace: (face: number) => {
+      world.face = face;
+    },
+    prompt: () => world.use,
     faceCamera: () => {
       world.face = world.camYaw + Math.PI;
     },
