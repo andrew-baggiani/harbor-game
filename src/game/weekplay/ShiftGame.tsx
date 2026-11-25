@@ -20,11 +20,11 @@ import {
   cwLineId,
   findLineId,
   placeOf,
-  toyLineId,
+  toyPress,
   toySfx,
   type Find,
 } from "@/content/week/play";
-import { Alarm, BeatProp, CastFigure, Decor, FindProp, Inspect, Papers, Poke, Room, ToyDots, Walker, approach, heldKind, player, propVerb, type Nearby } from "@/game/weekplay/Scene";
+import { Alarm, BeatProp, CastFigure, Decor, FindProp, Inspect, Papers, Poke, Puff, Room, ToyDots, Walker, approach, heldKind, player, propVerb, type Nearby } from "@/game/weekplay/Scene";
 import { HarborStage, MonitorArt, NightStage } from "@/game/weekplay/HarborStage";
 import { BakedRoom, setRoomBounds } from "@/game/weekplay/BakedRoom";
 import { SETS } from "@/game/weekplay/sets";
@@ -37,7 +37,7 @@ type Phase = "intro" | "play" | "panel" | "wrap" | "debrief" | "check" | "result
 type Tone = "good" | "bad" | "note";
 type Fx = {
   key: number;
-  kind: "alarm" | "papers";
+  kind: "alarm" | "papers" | "puff";
   set: string;
   x: number;
   y: number;
@@ -239,11 +239,13 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
       if (toy) {
         const n = presses.current[id] ?? 0;
         presses.current[id] = n + 1;
-        const k = Math.min(n, toy.lines.length - 1);
-        pushBark(toy.who ?? toy.label, toy.lines[k], "note");
-        sayLine(toyLineId(toy, k), toy.lines[k], PLAY_VOICES[toy.who ?? ""] ?? "narrator", toy.who ?? toy.label, "chatter");
+        const press = toyPress(toy, n);
+        if (press.line) {
+          pushBark(toy.who ?? toy.label, press.line.text, "note");
+          sayLine(press.line.id, press.line.text, PLAY_VOICES[toy.who ?? ""] ?? "narrator", toy.who ?? toy.label, "chatter");
+        }
         setPoke({ key: Date.now(), x: toy.x, y: toy.y, z: toy.z });
-        if (toy.papers?.includes(n))
+        if (press.papers)
           addFx({
             kind: "papers",
             set: roomSet,
@@ -252,7 +254,8 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
             z: toy.z + 0.35,
             floor: SETS[roomSet].harbor?.y ?? 0,
           });
-        playSfx(toySfx(toy, k), 0.7, () => blip(440 + (n % 3) * 90));
+        if (press.puff) addFx({ kind: "puff", set: roomSet, x: toy.x, y: toy.y + 0.4, z: toy.z + 0.25, floor: SETS[roomSet].harbor?.y ?? 0 });
+        playSfx(toySfx(toy, press.sfx), 0.7, () => blip(440 + (n % 3) * 90));
         return;
       }
       const find = FINDS.find((f) => f.id === id);
@@ -538,7 +541,15 @@ export function ShiftGame({ shift, onExit }: { shift: ShiftDef; onExit: () => vo
         {phase === "play" && <ToyDots toys={toysHere} poked={presses.current} player={() => player} />}
         {fx
           .filter((f) => f.set === roomSet)
-          .map((f) => (f.kind === "alarm" ? <Alarm key={f.key} x={f.x} y={f.y} z={f.z} /> : <Papers key={f.key} x={f.x} y={f.y} z={f.z} floor={f.floor} />))}
+          .map((f) =>
+            f.kind === "alarm" ? (
+              <Alarm key={f.key} x={f.x} y={f.y} z={f.z} />
+            ) : f.kind === "puff" ? (
+              <Puff key={f.key} x={f.x} y={f.y} z={f.z} />
+            ) : (
+              <Papers key={f.key} x={f.x} y={f.y} z={f.z} floor={f.floor} />
+            ),
+          )}
         <Walker
           set={set}
           target={spot ? { ...approach(spot), lx: spot.x, ly: spot.py, lz: spot.z } : null}

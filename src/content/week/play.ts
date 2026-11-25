@@ -31,10 +31,16 @@ export type Toy = {
   label: string;
   /** Who the reaction comes from. Defaults to the object's label. */
   who?: string;
-  /** One line per press, in order; the last one repeats. */
+  /** One line per press, in order. */
   lines: string[];
   /** Press numbers (0-based) on which paper flies out of it. */
   papers?: number[];
+  /** Press numbers (0-based) on which it lets out a puff of steam or powder. */
+  puff?: number[];
+  /** Keep poking past the last line: two quiet presses, then this, once. A reward for the stubborn. */
+  over?: string;
+  /** Something to see with the `over` line. */
+  overFx?: "papers" | "puff";
   /** Sound per press (an array is read by press number, the last one repeats). */
   sfx?: string | string[];
 };
@@ -81,6 +87,8 @@ export const TOYS: Toy[] = [
       "Paper jam in tray 2. There is no tray 2.",
       "It's printing someone's 40-page fantasy football draft. In color. All of it. Right now.",
     ],
+    over: "It prints one last page: a strongly worded note about you. Unsigned. You know who it's from.",
+    overFx: "papers",
     papers: [2],
   },
   {
@@ -97,6 +105,8 @@ export const TOYS: Toy[] = [
       "It makes a noise like a jet engine and produces four drops.",
       "Decaf. Someone put decaf in the office machine. On purpose.",
     ],
+    over: "It sighs, a real sigh, and pours you a full cup. Respect, earned.",
+    puff: [1],
   },
   {
     id: "f14-shred",
@@ -106,7 +116,12 @@ export const TOYS: Toy[] = [
     y: F + 0.5,
     z: -16.32,
     label: "Shred bin",
-    lines: ["Locked, with a slot. That's the whole point of it, and it knows.", "You hear something inside it being destroyed properly. Lovely."],
+    lines: [
+      "Locked, with a slot. That's the whole point of it, and it knows.",
+      "You hear something inside it being destroyed properly. Lovely.",
+      "A sticker on the side says SHRED ME. Someone in facilities has a sense of humor.",
+    ],
+    over: "It makes a grinding noise that sounds a lot like 'stop'.",
   },
   {
     id: "f14-recycle",
@@ -116,7 +131,12 @@ export const TOYS: Toy[] = [
     y: F + 0.36,
     z: -16.34,
     label: "Recycling",
-    lines: ["Mostly coffee cups. Someone recycled a stapler.", "Paper goes in here. Paper with customer names goes in the locked one next to it."],
+    lines: [
+      "Mostly coffee cups. Someone recycled a stapler.",
+      "Paper goes in here. Paper with customer names goes in the locked one next to it.",
+      "There's a printed org chart in here. With phone numbers. You move it to the shred bin.",
+    ],
+    over: "You've now spent longer on the recycling than the person who designed it.",
   },
   {
     id: "f14-extinguisher",
@@ -126,7 +146,9 @@ export const TOYS: Toy[] = [
     y: F + 0.6,
     z: -16.51,
     label: "Fire extinguisher",
-    lines: ["Last inspected in 2019. Probably fine.", "You decide not to test it."],
+    lines: ["Last inspected in 2019. Probably fine.", "You decide not to test it.", "The instructions start with PULL. You do not pull."],
+    over: "You test it. Just a little. A small white cloud. Nobody saw. Probably.",
+    overFx: "puff",
   },
   {
     id: "f14-elevator",
@@ -136,7 +158,12 @@ export const TOYS: Toy[] = [
     y: F + 1.1,
     z: -16.52,
     label: "Elevator button",
-    lines: ["You press it. It lights up. The elevator considers your request.", "Pressing it again does not make it faster. You press it again."],
+    lines: [
+      "You press it. It lights up. The elevator considers your request.",
+      "Pressing it again does not make it faster. You press it again.",
+      "Third press. The button stays lit now, mostly out of pity.",
+    ],
+    over: "The doors open on an empty car, close, and leave without you. Message received.",
   },
   {
     id: "f14-camera",
@@ -147,7 +174,12 @@ export const TOYS: Toy[] = [
     z: -13.2,
     r: 1.6,
     label: "Camera",
-    lines: ["The camera's light blinks. It sees you. It is not impressed.", "You wave. Somewhere in the lobby, a guard does not wave back."],
+    lines: [
+      "The camera's light blinks. It sees you. It is not impressed.",
+      "You wave. Somewhere in the lobby, a guard does not wave back.",
+      "You do a small spin for the camera. Somewhere, a guard writes something down.",
+    ],
+    over: "You've waved at this camera more than anyone in the building. That's going in a report.",
   },
   {
     id: "f14-tv",
@@ -158,7 +190,12 @@ export const TOYS: Toy[] = [
     z: -15.8,
     r: 1.8,
     label: "Meeting room TV",
-    lines: ["The TV is on the input menu. It has always been on the input menu.", "HDMI 1. HDMI 2. HDMI 3. Nothing has ever been plugged into any of them."],
+    lines: [
+      "The TV is on the input menu. It has always been on the input menu.",
+      "HDMI 1. HDMI 2. HDMI 3. Nothing has ever been plugged into any of them.",
+      "You find the remote. No batteries. The batteries are in the clock.",
+    ],
+    over: "You press Source eleven times. HDMI 1. Back where you started, but wiser.",
   },
   {
     id: "f14-coats",
@@ -168,7 +205,12 @@ export const TOYS: Toy[] = [
     y: F + 1.3,
     z: -3.1,
     label: "Coat hooks",
-    lines: ["One coat. It's been here since the holiday party.", "There's a badge in the pocket. You leave the coat alone and tell yourself to mention it."],
+    lines: [
+      "One coat. It's been here since the holiday party.",
+      "There's a badge in the pocket. You leave the coat alone and tell yourself to mention it.",
+      "Other pocket: a receipt for forty donuts from a meeting nobody remembers.",
+    ],
+    over: "You've now checked this coat more thoroughly than security has checked anyone.",
   },
   {
     id: "f14-chair",
@@ -180,7 +222,8 @@ export const TOYS: Toy[] = [
     r: 0.9,
     label: "Your chair",
     who: "Next desk",
-    lines: ['You spin the chair. "Saw that."', 'Second spin. "Still saw that."'],
+    lines: ['You spin the chair. "Saw that."', 'Second spin. "Still saw that."', 'Third spin. "I\'m timing you, by the way."'],
+    over: '"Six spins. That\'s going in the team chat."',
   },
   // Lobby
   {
@@ -192,7 +235,12 @@ export const TOYS: Toy[] = [
     z: -9.7,
     r: 1.8,
     label: "Security monitors",
-    lines: ["Twelve camera feeds. One of them is pointed at the guard's lunch.", "Feed 7 shows you looking at feed 7."],
+    lines: [
+      "Twelve camera feeds. One of them is pointed at the guard's lunch.",
+      "Feed 7 shows you looking at feed 7.",
+      "Feed 3, the garage. A man is trying every car door. It's the guard, looking for his car.",
+    ],
+    over: "You've watched these feeds long enough to be offered the guard's job.",
   },
   {
     id: "lob-directory",
@@ -202,7 +250,12 @@ export const TOYS: Toy[] = [
     y: 1.0,
     z: -10.55,
     label: "Directory",
-    lines: ['Floor 14: Harbor & Co. Floor 15: "Coming soon" since 2021.', "Someone has added a sticker: FLOOR 13 (ASK)."],
+    lines: [
+      'Floor 14: Harbor & Co. Floor 15: "Coming soon" since 2021.',
+      "Someone has added a sticker: FLOOR 13 (ASK).",
+      'Suite 1400 is listed as "IT (Knock Loudly)".',
+    ],
+    over: "You've read the directory enough times to give tours. Please don't give tours.",
   },
   {
     id: "lob-art",
@@ -212,7 +265,12 @@ export const TOYS: Toy[] = [
     z: -6.0,
     r: 1.8,
     label: "Lobby art",
-    lines: ["Abstract art. The little plaque says it's called Synergy.", "The longer you look at Synergy, the less you understand it."],
+    lines: [
+      "Abstract art. The little plaque says it's called Synergy.",
+      "The longer you look at Synergy, the less you understand it.",
+      "The card underneath: Synergy, mixed media, ninety thousand dollars. The media is mostly tape.",
+    ],
+    over: "You and Synergy have reached an understanding. Neither of you will speak of it.",
   },
   {
     id: "lob-mail",
@@ -223,7 +281,12 @@ export const TOYS: Toy[] = [
     z: -10.4,
     r: 1.6,
     label: "Mail shelf",
-    lines: ['A parcel addressed to "The IT Guy". No name. You don\'t open it.', "Three catalogs for a company that moved out in 2022."],
+    lines: [
+      'A parcel addressed to "The IT Guy". No name. You don\'t open it.',
+      "Three catalogs for a company that moved out in 2022.",
+      "A padded envelope marked URGENT. Postmarked eight months ago.",
+    ],
+    over: "A new note on the shelf: THIS IS NOT A LIBRARY. It wasn't there a minute ago.",
   },
   // Cafe
   {
@@ -237,6 +300,7 @@ export const TOYS: Toy[] = [
     label: "Counter bell",
     who: "Barista",
     lines: ['Ding. "One sec." They do not come back.', 'Ding. "Still one sec."', "Ding. A long, tired look."],
+    over: 'Ding. "Okay. OKAY. One latte, on the house. Please stop."',
   },
   {
     id: "cafe-menu",
@@ -247,7 +311,12 @@ export const TOYS: Toy[] = [
     z: -2.4,
     r: 1.8,
     label: "Menu board",
-    lines: ["Today's special: the Phishing Trip latte. It's a regular latte.", 'Oat, almond, soy, and something called "cloud milk". You don\'t ask.'],
+    lines: [
+      "Today's special: the Phishing Trip latte. It's a regular latte.",
+      'Oat, almond, soy, and something called "cloud milk". You don\'t ask.',
+      "Small print: Wi-Fi password on request. Right under it, someone wrote the password.",
+    ],
+    over: "You've studied the menu longer than any customer in history. The barista is concerned.",
   },
   {
     id: "cafe-specials",
@@ -258,7 +327,12 @@ export const TOYS: Toy[] = [
     z: 4.4,
     r: 1.4,
     label: "Chalkboard",
-    lines: ['"Ask about our Wi-Fi!" Please don\'t. They will tell you.', "Someone has drawn a very good cat."],
+    lines: [
+      '"Ask about our Wi-Fi!" Please don\'t. They will tell you.',
+      "Someone has drawn a very good cat.",
+      "Under the cat, someone has drawn a slightly worse cat. It's a whole thing.",
+    ],
+    over: "The cat drawings have started a turf war. You stay out of it.",
   },
   {
     id: "cafe-art",
@@ -268,7 +342,12 @@ export const TOYS: Toy[] = [
     z: 4.8,
     r: 1.4,
     label: "A painting",
-    lines: ["A boat. The price tag says $4,000. It's a nice boat.", "On closer look, the boat is also for sale."],
+    lines: [
+      "A boat. The price tag says $4,000. It's a nice boat.",
+      "On closer look, the boat is also for sale.",
+      "The artist's card: commissions open. Email, phone and home address. All of it.",
+    ],
+    over: "You've looked at the boat so long the barista asks if you're buying it. You are not.",
   },
   // Home
   {
@@ -280,7 +359,12 @@ export const TOYS: Toy[] = [
     z: -4.0,
     r: 1.4,
     label: "Fridge",
-    lines: ["A magnet says LIVE LAUGH LOG OUT.", "Leftovers, a single olive, and a lot of hot sauce."],
+    lines: [
+      "A magnet says LIVE LAUGH LOG OUT.",
+      "Leftovers, a single olive, and a lot of hot sauce.",
+      "A takeout menu with the Wi-Fi password on it in Sharpie. Bold.",
+    ],
+    over: "You open the fridge again. Nothing new has appeared. Nothing new ever does.",
   },
   {
     id: "home-curtains",
@@ -291,7 +375,12 @@ export const TOYS: Toy[] = [
     z: -4.6,
     r: 1.8,
     label: "Window",
-    lines: ["From the street, you'd see your second monitor clearly. Worth knowing.", "A neighbor waves. You wave. Neither of you will mention this."],
+    lines: [
+      "From the street, you'd see your second monitor clearly. Worth knowing.",
+      "A neighbor waves. You wave. Neither of you will mention this.",
+      "You close the curtain halfway. Halfway is a security posture.",
+    ],
+    over: "The neighbor closes their curtain too. A truce.",
   },
   {
     id: "home-door",
@@ -302,7 +391,12 @@ export const TOYS: Toy[] = [
     z: 4.3,
     r: 1.5,
     label: "Front door",
-    lines: ["Through the peephole: a delivery driver taking a selfie with your package.", "Nobody. A leaf."],
+    lines: [
+      "Through the peephole: a delivery driver taking a selfie with your package.",
+      "Nobody. A leaf.",
+      'A note on the door: "Package left with neighbor." You don\'t have a neighbor on that side.',
+    ],
+    over: "You've checked the peephole so many times the door has started to feel watched.",
   },
   {
     id: "home-photo",
@@ -312,7 +406,12 @@ export const TOYS: Toy[] = [
     z: 1.0,
     r: 1.4,
     label: "Family photo",
-    lines: ["Everyone's blinking except the dog. The dog is perfect.", "It's also the answer to every one of your security questions. Hm."],
+    lines: [
+      "Everyone's blinking except the dog. The dog is perfect.",
+      "It's also the answer to every one of your security questions. Hm.",
+      "On the back, in pen: everyone's birthday. Handy. For everyone.",
+    ],
+    over: "You straighten the photo. It tilts again. It has been tilted since the day you hung it.",
   },
 ];
 
@@ -508,7 +607,31 @@ export function placeOf(kind: SetKind): Place {
 
 /* ------------------------------------------------------------------ voice ids (files at /voice/v2/<id>.mp3) */
 
-export const toyLineId = (toy: Toy, n: number) => `play-${toy.id}-${n}`;
+export const toyLineId = (toy: Toy, n: number | "over") => `play-${toy.id}-${n}`;
+
+/**
+ * What one press of a toy does. Lines play in order; after the last one it goes quiet for two presses,
+ * then the fed-up `over` line, once; after that only its sound. n is the 0-based press number.
+ */
+export function toyPress(toy: Toy, n: number): { line: { id: string; text: string } | null; sfx: number; papers: boolean; puff: boolean } {
+  const last = toy.lines.length - 1;
+  const sfx = Math.min(n, last);
+  if (n <= last)
+    return {
+      line: { id: toyLineId(toy, n), text: toy.lines[n] },
+      sfx,
+      papers: !!toy.papers?.includes(n),
+      puff: !!toy.puff?.includes(n),
+    };
+  if (toy.over && n === last + 3)
+    return {
+      line: { id: toyLineId(toy, "over"), text: toy.over },
+      sfx,
+      papers: toy.overFx === "papers",
+      puff: toy.overFx === "puff",
+    };
+  return { line: null, sfx, papers: false, puff: false };
+}
 export const findLineId = (find: Find) => `play-find-${find.id}`;
 export const cwLineId = (kind: "hello" | "nudge" | "find", n: number) => `play-cw-${kind}-${n}`;
 export const CW_ALL_ID = "play-cw-all";
@@ -526,7 +649,10 @@ export const PLAY_VOICES: Record<string, "man" | "woman"> = {
 /** Every voiced optional line, for the recording sheet. */
 export function playLines(): { id: string; text: string; who: string }[] {
   const out: { id: string; text: string; who: string }[] = [];
-  for (const t of [...TOYS, CAB_TOY]) t.lines.forEach((text, n) => out.push({ id: toyLineId(t, n), text, who: t.who ?? "Narrator" }));
+  for (const t of [...TOYS, CAB_TOY]) {
+    t.lines.forEach((text, n) => out.push({ id: toyLineId(t, n), text, who: t.who ?? "Narrator" }));
+    if (t.over) out.push({ id: toyLineId(t, "over"), text: t.over, who: t.who ?? "Narrator" });
+  }
   for (const f of FINDS) out.push({ id: findLineId(f), text: f.line, who: "Narrator" });
   COWORKER.hello.forEach((text, n) => out.push({ id: cwLineId("hello", n), text, who: COWORKER.who }));
   COWORKER.nudge.forEach((text, n) => out.push({ id: cwLineId("nudge", n), text, who: COWORKER.who }));
@@ -555,6 +681,7 @@ export const CAB_TOY: Toy = {
     "Door Close. It has not been wired to anything since 1998. You press it anyway.",
     "The emergency call button looks at you. You leave it alone. Good call.",
   ],
+  over: "You press every button at once. The elevator, finally, feels something.",
 };
 
 /** The sound for a toy's nth press. Falls back to a soft tap. */

@@ -5,7 +5,7 @@ import { PerfDriver, PerfOverlay, usePerf, useQuality } from "@/game/perf";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { MONDAY_FINDS, MONDAY_TOYS } from "@/content/week/play";
 import { presses as mondayPresses, useMondayPlay } from "@/game/mondayPlay";
-import { FindProp, Papers, ToyDots } from "@/game/weekplay/Scene";
+import { FindProp, Papers, Puff, ToyDots } from "@/game/weekplay/Scene";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useProgress } from "@react-three/drei";
 import { EffectComposer, Bloom, Vignette, ToneMapping, SMAA, BrightnessContrast, HueSaturation } from "@react-three/postprocessing";
@@ -21,7 +21,7 @@ import { blip, caption, say, stopVoices, unlockAudio } from "@/game/audio";
 import { nightPath, reportLines, scoreOf } from "@/game/story";
 import { drawKnowledgeCheck, type CheckItem } from "@/game/scenarios";
 import { exportRecord, gradeKnowledge } from "@/game/records";
-import { markerNow } from "@/game/sim";
+import { cameraFollows, markerNow, toggleCameraFollow } from "@/game/sim";
 import { keys, useHarbor, world, fleet } from "@/game/state";
 import { ShareButton } from "@/components/share-button";
 import { OrgBoard } from "@/game/OrgBoard";
@@ -382,6 +382,20 @@ function Waypoint({ beat }: { beat: string }) {
   );
 }
 
+function CameraToggle() {
+  const [follow, setFollow] = useState(() => (typeof window === "undefined" ? true : cameraFollows()));
+  return (
+    <button
+      type="button"
+      className="flex min-h-12 items-center justify-between border-b border-white/10 text-left"
+      onClick={() => setFollow(toggleCameraFollow())}
+    >
+      <span>Camera</span>
+      <span className="text-sm text-[#c4a574]">{follow ? "Follows you" : "Stays put"}</span>
+    </button>
+  );
+}
+
 function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, clean: boolean) => void }) {
   const [checked, setChecked] = useState(false);
   const beat = useHarbor((s) => s.beat);
@@ -721,6 +735,7 @@ function Hud({ callsign, onDone }: { callsign: string; onDone: (score: number, c
               <button type="button" className="min-h-12 border-b border-white/10 text-left" onClick={() => useHarbor.getState().setPaused(false)}>
                 Resume
               </button>
+              <CameraToggle />
               <a href="/week" className="flex min-h-12 items-center border-b border-white/10">
                 The week
               </a>
@@ -915,9 +930,7 @@ function MondayFinds() {
   const bursts = useMondayPlay((st) => st.bursts);
   return (
     <>
-      {bursts.map((b) => (
-        <Papers key={b.key} x={b.x} y={b.y} z={b.z} floor={b.floor} />
-      ))}
+      {bursts.map((b) => (b.kind === "puff" ? <Puff key={b.key} x={b.x} y={b.y} z={b.z} /> : <Papers key={b.key} x={b.x} y={b.y} z={b.z} floor={b.floor} />))}
       {MONDAY_FINDS.map((f) => (
         <FindProp key={f.id} find={f} found={!!found[f.id]} />
       ))}

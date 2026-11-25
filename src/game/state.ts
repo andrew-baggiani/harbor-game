@@ -51,6 +51,8 @@ export const world = {
   face: SPAWN.yaw,
   camYaw: SPAWN.yaw,
   camPitch: 0.08,
+  /** Seconds since the player last turned the camera themselves. */
+  lookIdle: 9,
   driving: false,
   carX: CAR_SPAWN.x,
   carZ: CAR_SPAWN.z,

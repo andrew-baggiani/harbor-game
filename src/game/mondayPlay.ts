@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { CAB_TOY, MONDAY_FINDS, MONDAY_TOYS, findLineId, toyLineId, toySfx } from "@/content/week/play";
+import { CAB_TOY, MONDAY_FINDS, MONDAY_TOYS, findLineId, toyPress, toySfx } from "@/content/week/play";
 import { blip, caption, sayLine } from "@/game/audio";
 import { useHarbor, world } from "@/game/state";
 import { playSfx } from "@/game/sound";
@@ -9,7 +9,14 @@ import { playSfx } from "@/game/sound";
  * lobby, minus the finds Monday already teaches as beats. The sim offers them only when no beat is in reach.
  */
 
-type Burst = { key: number; x: number; y: number; z: number; floor: number };
+type Burst = {
+  key: number;
+  kind: "papers" | "puff";
+  x: number;
+  y: number;
+  z: number;
+  floor: number;
+};
 type MondayPlay = { found: Record<string, true>; bursts: Burst[]; reset: () => void };
 export const useMondayPlay = create<MondayPlay>((set) => ({
   found: {},
@@ -34,7 +41,7 @@ function showIfSilent(who: string, text: string) {
 function burst(b: Omit<Burst, "key">) {
   const key = Date.now() + Math.random();
   useMondayPlay.setState((st) => ({ bursts: [...st.bursts.slice(-3), { ...b, key }] }));
-  window.setTimeout(() => useMondayPlay.setState((st) => ({ bursts: st.bursts.filter((x) => x.key !== key) })), 30_000);
+  window.setTimeout(() => useMondayPlay.setState((st) => ({ bursts: st.bursts.filter((x) => x.key !== key) })), b.kind === "papers" ? 30_000 : 4_000);
 }
 
 /** Times each toy has been poked this run; the gold dot over a toy goes once it's been poked. */
@@ -55,11 +62,15 @@ export function mondayUse(action: string) {
     if (!toy) return;
     const n = presses[toy.id] ?? 0;
     presses[toy.id] = n + 1;
-    const k = Math.min(n, toy.lines.length - 1);
-    sayLine(toyLineId(toy, k), toy.lines[k], toy.who === "Next desk" ? "man" : "narrator", toy.who ?? toy.label, "chatter");
-    showIfSilent(toy.who ?? toy.label, toy.lines[k]);
-    playSfx(toySfx(toy, k), 0.7, () => blip(440 + (n % 3) * 90));
-    if (toy.papers?.includes(n)) burst({ x: toy.x, y: toy.y + 0.3, z: toy.z + 0.35, floor: toy.y > 40 ? 50.6 : 0 });
+    const press = toyPress(toy, n);
+    if (press.line) {
+      sayLine(press.line.id, press.line.text, toy.who === "Next desk" ? "man" : "narrator", toy.who ?? toy.label, "chatter");
+      showIfSilent(toy.who ?? toy.label, press.line.text);
+    }
+    playSfx(toySfx(toy, press.sfx), 0.7, () => blip(440 + (n % 3) * 90));
+    const floor = toy.y > 40 ? 50.6 : 0;
+    if (press.papers) burst({ kind: "papers", x: toy.x, y: toy.y + 0.3, z: toy.z + 0.35, floor });
+    if (press.puff) burst({ kind: "puff", x: toy.x, y: toy.y + 0.4, z: toy.z + 0.25, floor });
     return;
   }
   if (action.startsWith("find:")) {
