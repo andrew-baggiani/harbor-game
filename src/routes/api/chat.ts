@@ -33,8 +33,8 @@ FOR ADMINS
 
 PRICING
 - Teams (businesses buying direct): $1.99 per learner per month, billed yearly. Minimum 5 learners. No 3-year term. People added mid-year are prorated to renewal. Sales tax is added where it applies.
-- Waitlist founding price: $1.49 per learner per month, locked for 2 years.
-- Free 14-day trial for up to 10 people with the full admin portal; join the waitlist on /pricing and ask for one. Admins can then buy a plan by card in the portal's Settings (secure checkout by Stripe).
+- Founding price for teams that start a trial now: $1.49 per learner per month, locked for 2 years.
+- Free 14-day trial for up to 10 people with the full admin portal: start it yourself on /pricing (no card needed), and the sign-in link arrives by email. Admins buy a plan by card in the portal's Settings (secure checkout by Stripe).
 - 500+ learners or paying by invoice or purchase order: custom pricing; book a demo on /pricing.
 - Not sold to individuals for personal use yet; it's built for teams.
 
