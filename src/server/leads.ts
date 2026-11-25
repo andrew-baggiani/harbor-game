@@ -5,7 +5,7 @@ import { createMagicLink, findOrCreateUser } from "@/server/db";
 import { grantNfr, ownerEmails, startTrial } from "@/server/billing";
 import { sendMagicLink, sendMail } from "@/server/email";
 
-export type LeadKind = "waitlist" | "demo" | "partner";
+export type LeadKind = "waitlist" | "demo" | "partner" | "trial";
 export type Lead = {
   id: string;
   kind: LeadKind;
@@ -43,7 +43,7 @@ export async function addLead(
   env: Env,
   request: Request,
   input: { kind: LeadKind; email: string; name?: unknown; company?: unknown; role?: unknown; seats?: unknown; message?: unknown },
-): Promise<{ ok: true } | { error: string; status: number }> {
+): Promise<{ ok: true; leadId?: string } | { error: string; status: number }> {
   await ensureLeads(db);
   const ip = request.headers.get("cf-connecting-ip") ?? "local";
   const ipHash = (await sha256(`lead:${ip}`)).slice(0, 24);
@@ -56,7 +56,7 @@ export async function addLead(
     .prepare("SELECT id FROM leads WHERE email = ? AND kind = ? AND created_at > ?")
     .bind(input.email, input.kind, now() - 86400)
     .first();
-  if (dupe) return { ok: true };
+  if (dupe) return { ok: true, leadId: (dupe as { id: string }).id };
   const seats = Number(input.seats);
   const lead = {
     id: newId("l_"),
@@ -71,7 +71,7 @@ export async function addLead(
     .prepare("INSERT INTO leads (id, kind, name, email, company, role, seats, message, ip_hash, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
     .bind(lead.id, lead.kind, lead.name, input.email, lead.company, lead.role, lead.seats, lead.message, ipHash, now())
     .run();
-  const label = { waitlist: "Waitlist sign-up", demo: "Demo request", partner: "Partner application" }[input.kind];
+  const label = { waitlist: "Waitlist sign-up", demo: "Demo request", partner: "Partner application", trial: "Free trial started" }[input.kind];
   const summary = [
     `${label}`,
     `Name: ${lead.name ?? "-"}`,
@@ -83,6 +83,8 @@ export async function addLead(
     `\nReview it: ${new URL(request.url).origin}/leads`,
   ].join("\n");
   for (const to of ownerEmails(env)) await sendMail(env, to, `${label}: ${lead.company ?? input.email}`, summary, input.email);
+  // A trial's confirmation is its sign-in link, sent by startSelfTrial.
+  if (input.kind === "trial") return { ok: true, leadId: lead.id };
   const confirm =
     input.kind === "partner"
       ? "Thanks for applying to the Dry Run Cyber partner program. We review every MSP by hand and will reply within two business days. Approved partners get 25 free internal seats and the partner portal."
@@ -160,4 +162,22 @@ export async function startLeadTrial(db: D1Database, env: Env, origin: string, l
   const token = await createMagicLink(db, user.id, `/portal?o=${orgId}`);
   const sent = await sendMagicLink(env, lead.email, `${origin}/api/auth/verify?token=${encodeURIComponent(token)}`, "invite", "Dry Run Cyber (14-day trial)");
   return { orgId, emailed: sent.sent };
+}
+
+/**
+ * Self-serve trial from the website: the sign-up becomes an org with a 14-day trial and its admin gets a
+ * sign-in link. Someone who already runs an org just gets a fresh link to it, never a second trial.
+ */
+export async function startSelfTrial(db: D1Database, env: Env, origin: string, leadId: string, email: string) {
+  const user = await findOrCreateUser(db, email);
+  const existing = await db
+    .prepare("SELECT org_id FROM memberships WHERE user_id = ? AND role = 'org_admin' AND org_id IS NOT NULL LIMIT 1")
+    .bind(user.id)
+    .first<{ org_id: string }>();
+  if (existing) {
+    const token = await createMagicLink(db, user.id, `/portal?o=${existing.org_id}`);
+    const sent = await sendMagicLink(env, email, `${origin}/api/auth/verify?token=${encodeURIComponent(token)}`, "signin");
+    return { orgId: existing.org_id, emailed: sent.sent, existing: true };
+  }
+  return { ...(await startLeadTrial(db, env, origin, leadId)), existing: false };
 }

@@ -2,13 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { context, guard } from "@/server/auth";
 import { isOwner } from "@/server/billing";
 import { normEmail } from "@/server/db";
-import { addLead, approvePartner, listLeads, setLeadStatus, startLeadTrial, type LeadKind } from "@/server/leads";
+import { addLead, approvePartner, listLeads, setLeadStatus, startLeadTrial, startSelfTrial, type LeadKind } from "@/server/leads";
 import { bad, json, readJson } from "@/server/http";
 
-const KINDS: LeadKind[] = ["waitlist", "demo", "partner"];
+const KINDS: LeadKind[] = ["waitlist", "demo", "partner", "trial"];
 
-// POST (public): { kind, email, name, company, role, seats, message, website } joins the waitlist, asks for a
-// demo, or applies to the partner program. `website` is a honeypot: people never fill it in.
+// POST (public): { kind, email, name, company, role, seats, message, website } starts a free trial, joins the
+// waitlist, asks for a demo, or applies to the partner program. `website` is a honeypot: people never fill it in.
 // GET (owner): every lead. POST { action } (owner): approvePartner, startTrial, status.
 export const Route = createFileRoute("/api/leads")({
   server: {
@@ -45,6 +45,11 @@ export const Route = createFileRoute("/api/leads")({
           if (!email) return bad("Enter a valid work email.");
           const out = await addLead(ctx.db, ctx.env, request, { ...body, kind, email });
           if ("error" in out) return bad(out.error, out.status);
+          if (kind === "trial" && out.leadId) {
+            const trial = await startSelfTrial(ctx.db, ctx.env, origin, out.leadId, email);
+            if ("error" in trial) return bad(String(trial.error), 500);
+            return json({ ok: true, emailed: trial.emailed, existing: trial.existing });
+          }
           return json({ ok: true });
         }),
     },

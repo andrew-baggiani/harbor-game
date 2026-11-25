@@ -548,8 +548,8 @@ function HowItWorks() {
           <a href="/sample-record" className={btn.primary}>
             See a sample record <Arrow size={16} />
           </a>
-          <a href="/pricing#waitlist" className={btn.ghost}>
-            Join the waitlist
+          <a href="/pricing#trial" className={btn.ghost}>
+            Start a free trial
           </a>
         </div>
       </div>
@@ -631,14 +631,14 @@ function Close() {
         <FitType as="h2" id="close-title" label="Run it before it runs you." lines={CLOSE_LINES} bigFirst animate={false} />
         <div>
           <p className="max-w-[30rem] text-lg leading-relaxed text-site-mist">
-            The whole week is ready now. Apply for partner access, or put your own team on the waitlist with founding pricing.
+            The whole week is ready now. Apply for partner access, or start your own team on a free 14-day trial at the founding price.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href="/partners" className={`${btn.primary} w-full justify-center !px-7 !py-3.5 text-base sm:w-auto`}>
               Apply for partner access <Arrow size={17} />
             </a>
-            <a href="/pricing#waitlist" className={`${btn.ghost} w-full justify-center !px-7 !py-3.5 text-base sm:w-auto`}>
-              Join the waitlist
+            <a href="/pricing#trial" className={`${btn.ghost} w-full justify-center !px-7 !py-3.5 text-base sm:w-auto`}>
+              Start a free trial
             </a>
           </div>
         </div>

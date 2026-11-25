@@ -3,7 +3,7 @@ import type { Me } from "@/site/portal-api";
 
 /**
  * The game is for teams with a workspace (paid, trial, partner NFR, or a pre-billing pilot). Visitors get a
- * way in instead: the waitlist with founding pricing, a demo, or the partner program.
+ * way in instead: a free trial with founding pricing, a demo, or the partner program.
  *
  * Promo moments: add a shift id to FREE_SHIFTS to let anyone play it (e.g. a new OWASP scenario launch).
  * This is a front-door check; the decision log (/api/events) separately requires a signed-in learner.
@@ -61,12 +61,12 @@ export function AccessGate({ shift, children }: { shift: string; children: React
           <>
             <h1 className="mt-3 font-display text-4xl leading-tight">The night shift opens soon.</h1>
             <p className="mt-4 text-[#d8d2c4]">
-              Dry Run Cyber is security awareness training you play, for teams. Join the waitlist to lock in founding pricing, or get your team a free 14-day
-              trial.
+              Dry Run Cyber is security awareness training you play, for teams. Start your team on a free 14-day trial, with founding pricing
+              when you buy.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <a href="/pricing#waitlist" className="rounded-full bg-[#c4a574] px-6 py-3 font-game tracking-[0.12em] text-[#14110c]">
-                JOIN THE WAITLIST
+              <a href="/pricing#trial" className="rounded-full bg-[#c4a574] px-6 py-3 font-game tracking-[0.12em] text-[#14110c]">
+                START A FREE TRIAL
               </a>
               <a href="/pricing#demo" className="rounded-full border border-white/20 px-5 py-3 text-sm hover:border-white/40">
                 Book a demo

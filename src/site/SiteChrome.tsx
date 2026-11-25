@@ -59,10 +59,10 @@ export function SiteNav() {
             Sign in
           </a>
           <a
-            href="/pricing#waitlist"
+            href="/pricing#trial"
             className="hud rounded-xl border border-site-violet/70 px-3 py-1.5 text-[15px] text-site-paper transition hover:border-site-violet-hi hover:bg-site-violet/15 sm:px-4 sm:py-2"
           >
-            Join the waitlist
+            Start free trial
           </a>
           <button
             type="button"

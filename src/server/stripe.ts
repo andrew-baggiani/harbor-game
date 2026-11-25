@@ -57,10 +57,10 @@ async function taxActive(stripe: Stripe): Promise<boolean> {
   return ok;
 }
 
-/** Was this email on the waitlist? Waitlist founders get the locked founders price. */
+/** Did this email join the waitlist or start a trial during launch? They get the locked founders price. */
 async function isFounder(db: D1Database, email: string): Promise<boolean> {
   try {
-    const row = await db.prepare("SELECT 1 AS ok FROM leads WHERE kind = 'waitlist' AND lower(email) = lower(?) LIMIT 1").bind(email).first();
+    const row = await db.prepare("SELECT 1 AS ok FROM leads WHERE kind IN ('waitlist', 'trial') AND lower(email) = lower(?) LIMIT 1").bind(email).first();
     return !!row;
   } catch {
     return false;

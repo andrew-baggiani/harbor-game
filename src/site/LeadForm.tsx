@@ -1,11 +1,18 @@
 import { useState, type FormEvent } from "react";
 
-type Kind = "waitlist" | "demo" | "partner";
+type Kind = "waitlist" | "demo" | "partner" | "trial";
 
 const field =
   "mt-1.5 w-full rounded-xl border border-site-rule bg-white/[0.03] px-3.5 py-2.5 text-[15px] text-site-paper placeholder:text-site-dim focus:border-site-violet focus:outline-none";
 
 const COPY: Record<Kind, { button: string; done: string; seatsLabel: string; messageLabel: string; messageHint: string }> = {
+  trial: {
+    button: "Start my free trial",
+    done: "Check your email: your sign-in link is on its way. Your 14-day trial for up to 10 people is ready when you sign in.",
+    seatsLabel: "How many people would train?",
+    messageLabel: "Anything we should know?",
+    messageHint: "Insurance or compliance deadline, industry, current training…",
+  },
   waitlist: {
     button: "Join the waitlist",
     done: "You're on the list, with founding pricing locked in. We'll email you the moment it opens, and about a free 14-day trial for your team.",
@@ -33,6 +40,7 @@ export function LeadForm({ kind, roles }: { kind: Kind; roles?: string[] }) {
   const c = COPY[kind];
   const [state, setState] = useState<"idle" | "sending" | "done">("idle");
   const [err, setErr] = useState<string | null>(null);
+  const [done, setDone] = useState<string | null>(null);
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -45,8 +53,11 @@ export function LeadForm({ kind, roles }: { kind: Kind; roles?: string[] }) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ kind, ...data }),
       });
-      const out = (await res.json().catch(() => ({}))) as { error?: string };
+      const out = (await res.json().catch(() => ({}))) as { error?: string; existing?: boolean; emailed?: boolean };
       if (!res.ok) throw new Error(out.error ?? "That didn't go through. Try again, or email hello@dryruncyber.com.");
+      if (kind === "trial" && out.emailed === false)
+        setDone("Your trial is ready, but the sign-in email didn't go out. Sign in at dryruncyber.com/login with the same email to get started.");
+      else if (out.existing) setDone("You already have a Dry Run Cyber team, so we've emailed you a sign-in link to it instead of starting a second trial.");
       setState("done");
     } catch (error) {
       setErr((error as Error).message);
@@ -57,7 +68,7 @@ export function LeadForm({ kind, roles }: { kind: Kind; roles?: string[] }) {
   if (state === "done") {
     return (
       <p role="status" className="rounded-2xl border border-site-rule bg-white/[0.03] p-5 text-[16px] leading-relaxed text-site-paper">
-        {c.done}
+        {done ?? c.done}
       </p>
     );
   }

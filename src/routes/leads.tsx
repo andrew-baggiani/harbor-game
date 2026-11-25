@@ -11,7 +11,7 @@ export const Route = createFileRoute("/leads")({
 
 type Lead = {
   id: string;
-  kind: "waitlist" | "demo" | "partner";
+  kind: "waitlist" | "demo" | "partner" | "trial";
   name: string | null;
   email: string;
   company: string | null;
@@ -22,7 +22,7 @@ type Lead = {
   created_at: number;
 };
 
-const KIND = { waitlist: "Waitlist", demo: "Demo", partner: "Partner" } as const;
+const KIND = { waitlist: "Waitlist", demo: "Demo", partner: "Partner", trial: "Trial" } as const;
 
 /** The owner's inbox for sign-ups: approve MSPs, start trials, mark things handled. */
 function Leads() {
@@ -85,7 +85,7 @@ function Leads() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <h1 className="display text-[40px]">Leads</h1>
           <div className="flex gap-2" role="group" aria-label="Filter">
-            {(["all", "waitlist", "demo", "partner"] as const).map((k) => (
+            {(["all", "trial", "waitlist", "demo", "partner"] as const).map((k) => (
               <button
                 key={k}
                 type="button"

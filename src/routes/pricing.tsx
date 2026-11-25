@@ -10,7 +10,7 @@ export const Route = createFileRoute("/pricing")({
       {
         name: "description",
         content:
-          "Security awareness training your team plays. $1.99 per learner per month, billed yearly, no 3-year term. Founding pricing for the waitlist, a free 14-day team trial, and an MSP partner program.",
+          "Security awareness training your team plays. $1.99 per learner per month, billed yearly, no 3-year term. A free 14-day team trial with founding pricing, and an MSP partner program.",
       },
       { name: "theme-color", content: "#101319" },
     ],
@@ -25,14 +25,14 @@ const PLANS = [
     who: "For owners, HR and IT training their own company",
     price: "$1.99",
     unit: "per learner, per month, billed yearly",
-    note: "Waitlist founding price: $1.49, locked for 2 years",
+    note: "Founding price for teams that start now: $1.49, locked for 2 years",
     points: [
       "Every shift, plus a new one each month",
       "Training record per person, mapped to NIST, CIS, HIPAA and CMMC",
       "Reminders, due dates and progress for admins",
       "No 3-year term. Minimum 5 learners",
     ],
-    cta: { label: "Join the waitlist", href: "#waitlist" },
+    cta: { label: "Start a free trial", href: "#trial" },
   },
   {
     name: "MSP partners",
@@ -64,7 +64,7 @@ const FAQ = [
     "Why yearly?",
     "Security awareness is a year-round program, and insurers and auditors ask for a full year of training. Shifts release monthly, so there's always something new, and the record covers the whole year.",
   ],
-  ["Is there a free trial?", "Yes: 14 days for up to 10 people on your team, with the full admin portal and records. Join the waitlist and ask for one."],
+  ["Is there a free trial?", "Yes: 14 days for up to 10 people on your team, with the full admin portal and records. No card needed to start. Buy from your portal whenever you're ready."],
   ["Can I add people mid-year?", "Yes. New learners are prorated to your renewal date."],
   [
     "We work with an MSP. Can we buy through them?",
@@ -72,7 +72,7 @@ const FAQ = [
   ],
   [
     "Can I buy it just for myself?",
-    "Not yet. Dry Run Cyber is built for teams, with records for an employer. Join the waitlist and we'll tell you if that changes.",
+    "Not yet. Dry Run Cyber is built for teams, with records for an employer. Email hello@dryruncyber.com and we'll tell you if that changes.",
   ],
 ] as const;
 
@@ -136,17 +136,19 @@ function Pricing() {
           </div>
         </section>
 
-        <section id="waitlist" aria-labelledby="waitlist-title" className="mx-auto mt-20 max-w-[1240px] scroll-mt-24 px-6 md:px-10">
+        <section id="trial" aria-labelledby="trial-title" className="mx-auto mt-20 max-w-[1240px] scroll-mt-24 px-6 md:px-10">
+          <span id="waitlist" className="block scroll-mt-24" aria-hidden="true" />
           <div className="grid gap-10 border-t border-site-rule pt-14 lg:grid-cols-[1fr_1.4fr]">
             <div>
-              <h2 id="waitlist-title" className="display section-head text-[34px] sm:text-[44px] lg:text-[52px]">
-                Join the waitlist.
+              <h2 id="trial-title" className="display section-head text-[34px] sm:text-[44px] lg:text-[52px]">
+                Start your free trial.
               </h2>
               <p className="mt-4 text-lg leading-relaxed text-site-mist">
-                Lock in the founding price of $1.49 per learner for two years, and ask for a free 14-day trial for your team before launch.
+                14 days for up to 10 people, with the admin portal and training records. No card to start. Buy from your portal when you're ready, at
+                the founding price of $1.49 per learner, locked for two years.
               </p>
             </div>
-            <LeadForm kind="waitlist" roles={["Business owner", "HR or people ops", "IT or security", "Other"]} />
+            <LeadForm kind="trial" roles={["Business owner", "HR or people ops", "IT or security", "Other"]} />
           </div>
         </section>
 
