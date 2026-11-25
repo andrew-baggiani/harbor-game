@@ -31,6 +31,7 @@ import { Route as ReviewRouteImport } from './routes/review'
 import { Route as SampleRecordRouteImport } from './routes/sample-record'
 import { Route as ShiftRouteImport } from './routes/shift'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as AdminVoicesRouteImport } from './routes/admin.voices'
 import { Route as AiSecurityIndexRouteImport } from './routes/ai-security/index'
 import { Route as AiSecurityPolicyBuilderRouteImport } from './routes/ai-security/policy-builder'
 import { Route as ApiActivityRouteImport } from './routes/api/activity'
@@ -45,6 +46,7 @@ import { Route as ApiLeadsRouteImport } from './routes/api/leads'
 import { Route as ApiMeRouteImport } from './routes/api/me'
 import { Route as ApiOrgRouteImport } from './routes/api/org'
 import { Route as ApiPartnerRouteImport } from './routes/api/partner'
+import { Route as ApiVoicesRouteImport } from './routes/api/voices'
 import { Route as DrillsIndexRouteImport } from './routes/drills.index'
 import { Route as DrillsDrillIdRouteImport } from './routes/drills.$drillId'
 import { Route as LabCastRouteImport } from './routes/lab.cast'
@@ -172,6 +174,11 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminVoicesRoute = AdminVoicesRouteImport.update({
+  id: '/admin/voices',
+  path: '/admin/voices',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AiSecurityIndexRoute = AiSecurityIndexRouteImport.update({
   id: '/ai-security/',
   path: '/ai-security/',
@@ -240,6 +247,11 @@ const ApiOrgRoute = ApiOrgRouteImport.update({
 const ApiPartnerRoute = ApiPartnerRouteImport.update({
   id: '/api/partner',
   path: '/api/partner',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiVoicesRoute = ApiVoicesRouteImport.update({
+  id: '/api/voices',
+  path: '/api/voices',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DrillsIndexRoute = DrillsIndexRouteImport.update({
@@ -346,6 +358,7 @@ export interface FileRoutesByFullPath {
   '/sample-record': typeof SampleRecordRoute
   '/shift': typeof ShiftRoute
   '/terms': typeof TermsRoute
+  '/admin/voices': typeof AdminVoicesRoute
   '/ai-security/policy-builder': typeof AiSecurityPolicyBuilderRoute
   '/api/activity': typeof ApiActivityRoute
   '/api/billing': typeof ApiBillingRoute
@@ -359,6 +372,7 @@ export interface FileRoutesByFullPath {
   '/api/me': typeof ApiMeRoute
   '/api/org': typeof ApiOrgRoute
   '/api/partner': typeof ApiPartnerRoute
+  '/api/voices': typeof ApiVoicesRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
   '/lab/cast': typeof LabCastRoute
   '/lab/mail': typeof LabMailRoute
@@ -398,6 +412,7 @@ export interface FileRoutesByTo {
   '/sample-record': typeof SampleRecordRoute
   '/shift': typeof ShiftRoute
   '/terms': typeof TermsRoute
+  '/admin/voices': typeof AdminVoicesRoute
   '/ai-security/policy-builder': typeof AiSecurityPolicyBuilderRoute
   '/api/activity': typeof ApiActivityRoute
   '/api/billing': typeof ApiBillingRoute
@@ -411,6 +426,7 @@ export interface FileRoutesByTo {
   '/api/me': typeof ApiMeRoute
   '/api/org': typeof ApiOrgRoute
   '/api/partner': typeof ApiPartnerRoute
+  '/api/voices': typeof ApiVoicesRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
   '/lab/cast': typeof LabCastRoute
   '/lab/mail': typeof LabMailRoute
@@ -453,6 +469,7 @@ export interface FileRoutesById {
   '/sample-record': typeof SampleRecordRoute
   '/shift': typeof ShiftRoute
   '/terms': typeof TermsRoute
+  '/admin/voices': typeof AdminVoicesRoute
   '/ai-security/policy-builder': typeof AiSecurityPolicyBuilderRoute
   '/api/activity': typeof ApiActivityRoute
   '/api/billing': typeof ApiBillingRoute
@@ -466,6 +483,7 @@ export interface FileRoutesById {
   '/api/me': typeof ApiMeRoute
   '/api/org': typeof ApiOrgRoute
   '/api/partner': typeof ApiPartnerRoute
+  '/api/voices': typeof ApiVoicesRoute
   '/drills/$drillId': typeof DrillsDrillIdRoute
   '/lab/cast': typeof LabCastRoute
   '/lab/mail': typeof LabMailRoute
@@ -509,6 +527,7 @@ export interface FileRouteTypes {
     | '/sample-record'
     | '/shift'
     | '/terms'
+    | '/admin/voices'
     | '/ai-security/policy-builder'
     | '/api/activity'
     | '/api/billing'
@@ -522,6 +541,7 @@ export interface FileRouteTypes {
     | '/api/me'
     | '/api/org'
     | '/api/partner'
+    | '/api/voices'
     | '/drills/$drillId'
     | '/lab/cast'
     | '/lab/mail'
@@ -561,6 +581,7 @@ export interface FileRouteTypes {
     | '/sample-record'
     | '/shift'
     | '/terms'
+    | '/admin/voices'
     | '/ai-security/policy-builder'
     | '/api/activity'
     | '/api/billing'
@@ -574,6 +595,7 @@ export interface FileRouteTypes {
     | '/api/me'
     | '/api/org'
     | '/api/partner'
+    | '/api/voices'
     | '/drills/$drillId'
     | '/lab/cast'
     | '/lab/mail'
@@ -615,6 +637,7 @@ export interface FileRouteTypes {
     | '/sample-record'
     | '/shift'
     | '/terms'
+    | '/admin/voices'
     | '/ai-security/policy-builder'
     | '/api/activity'
     | '/api/billing'
@@ -628,6 +651,7 @@ export interface FileRouteTypes {
     | '/api/me'
     | '/api/org'
     | '/api/partner'
+    | '/api/voices'
     | '/drills/$drillId'
     | '/lab/cast'
     | '/lab/mail'
@@ -670,6 +694,7 @@ export interface RootRouteChildren {
   SampleRecordRoute: typeof SampleRecordRoute
   ShiftRoute: typeof ShiftRoute
   TermsRoute: typeof TermsRoute
+  AdminVoicesRoute: typeof AdminVoicesRoute
   AiSecurityPolicyBuilderRoute: typeof AiSecurityPolicyBuilderRoute
   ApiActivityRoute: typeof ApiActivityRoute
   ApiBillingRoute: typeof ApiBillingRoute
@@ -683,6 +708,7 @@ export interface RootRouteChildren {
   ApiMeRoute: typeof ApiMeRoute
   ApiOrgRoute: typeof ApiOrgRoute
   ApiPartnerRoute: typeof ApiPartnerRoute
+  ApiVoicesRoute: typeof ApiVoicesRoute
   LabCastRoute: typeof LabCastRoute
   LabMailRoute: typeof LabMailRoute
   LessonLessonIdRoute: typeof LessonLessonIdRoute
@@ -854,6 +880,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/voices': {
+      id: '/admin/voices'
+      path: '/admin/voices'
+      fullPath: '/admin/voices'
+      preLoaderRoute: typeof AdminVoicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ai-security/': {
       id: '/ai-security/'
       path: '/ai-security'
@@ -950,6 +983,13 @@ declare module '@tanstack/react-router' {
       path: '/api/partner'
       fullPath: '/api/partner'
       preLoaderRoute: typeof ApiPartnerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/voices': {
+      id: '/api/voices'
+      path: '/api/voices'
+      fullPath: '/api/voices'
+      preLoaderRoute: typeof ApiVoicesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/drills/': {
@@ -1115,6 +1155,7 @@ const rootRouteChildren: RootRouteChildren = {
   SampleRecordRoute: SampleRecordRoute,
   ShiftRoute: ShiftRoute,
   TermsRoute: TermsRoute,
+  AdminVoicesRoute: AdminVoicesRoute,
   AiSecurityPolicyBuilderRoute: AiSecurityPolicyBuilderRoute,
   ApiActivityRoute: ApiActivityRoute,
   ApiBillingRoute: ApiBillingRoute,
@@ -1128,6 +1169,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMeRoute: ApiMeRoute,
   ApiOrgRoute: ApiOrgRoute,
   ApiPartnerRoute: ApiPartnerRoute,
+  ApiVoicesRoute: ApiVoicesRoute,
   LabCastRoute: LabCastRoute,
   LabMailRoute: LabMailRoute,
   LessonLessonIdRoute: LessonLessonIdRoute,
