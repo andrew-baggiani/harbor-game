@@ -26,6 +26,8 @@ export type Env = {
   MS_CLIENT_SECRET?: string;
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
+  /** ElevenLabs key (Text to Speech), so the owner can record missing voice lines from /admin/voices. Worker secret. */
+  ELEVENLABS_API_KEY?: string;
 };
 
 export async function getEnv(): Promise<Env> {
